@@ -1,0 +1,121 @@
+#include "task_powerdown.h"
+
+extern SleepLock powerdown_lock;
+extern Usart uart;
+
+volatile bool powerdown_loop_break = false;
+
+void task_powerdown_init()
+{
+	//XXX: hack
+	task_set(TASK_ACTIVE);
+	return;
+
+	//Lower F_CPU
+	ClockSetSource(x2MHz);
+	//disable other oscilators
+	OSC.CTRL = 0b00000001;
+
+	uart_stop();
+	_delay_ms(10);
+
+	turnoff_subsystems();
+
+	uart_low_speed();
+	_delay_ms(10);
+
+	DEBUG(" *** POWER DOWN INIT ***\n");
+
+	//we do not want to enter sleep
+	powerdown_loop_break = false;
+	powerdown_lock.Lock();
+
+	task_timer_setup(false);
+
+	SD_EN_OFF;
+
+
+	DEBUG("Using low speed uart\n");
+}
+
+
+void task_powerdown_stop()
+{
+	return;
+	//Reinit all devices
+	DEBUG("Restarting all devices\n");
+
+	uart_stop();
+	Setup();
+	task_timer_setup();
+	DEBUG("Restoring full speed uart\n");
+	//Post();
+
+	powerdown_lock.Unlock();
+}
+
+
+extern bool time_rtc_irq;
+
+void powerdown_sleep()
+{
+	_delay_ms(31);
+	do
+	{
+		task_timer_stop();
+
+		//allow rtc irq handler but do not wake up
+		time_rtc_irq = false;
+
+		//rtc irq set time_rtc_irq to true if executed
+		SystemPowerSave();
+
+		//start task timer in low speed mode
+		task_timer_setup(false);
+	} while (time_rtc_irq == true);
+}
+
+extern uint8_t task_sleep_lock;
+
+void task_powerdown_loop()
+{
+	return;
+
+	DEBUG("PD LOOP in\n");
+
+	//do not go to the Power down when there is another lock pending (button, buzzer)
+	if (task_sleep_lock == 1 && powerdown_loop_break == false)
+	{
+		uart_stop();
+
+		powerdown_sleep();
+
+		uart_low_speed();
+	}
+	DEBUG("PD LOOP out\n");
+}
+
+void task_powerdown_irqh(uint8_t type, uint8_t * buff)
+{
+	switch(type)
+	{
+//	case(TASK_IRQ_BUTTON):
+//		if (*buff == BUTTON_HOLD)
+//		{
+//			powerdown_loop_break = true;
+//			task_set(TASK_GUI);
+//		}
+//	break;
+//
+//	case(TASK_IRQ_USB):
+//		uint8_t state = *buff;
+//
+//		DEBUG("USB IRQ %d\n", state);
+//		if (state == 1)
+//		{
+//			powerdown_loop_break = true;
+//			task_set(TASK_USB);
+//		}
+//	break;
+	}
+}
