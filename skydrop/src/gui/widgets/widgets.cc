@@ -4,12 +4,14 @@
 
 layout_t pages[NUMBER_OF_PAGES];
 
-
+uint8_t widget_menu_state;
+uint8_t widget_menu_param1;
+float widget_menu_fvalue1;
 
 widget widget_array[] ={
-		w_dummy,
+		w_dummy, w_debug,
 		w_vario, w_avg_vario, w_vario_bar,
-		w_alt1, w_alt2,
+		w_alt1, w_alt2, w_alt3, w_alt4,
 		w_accx,
 };
 
@@ -18,6 +20,14 @@ uint8_t widget_label(const char * label, uint8_t x, uint8_t y)
 	disp.LoadFont(F_LABEL);
 	disp.GotoXY(x + 1, y);
 	fprintf_P(lcd_out, PSTR("%S"), label);
+	return disp.GetAHeight();
+}
+
+uint8_t widget_label(char * label, uint8_t x, uint8_t y)
+{
+	disp.LoadFont(F_LABEL);
+	disp.GotoXY(x + 1, y);
+	fprintf_P(lcd_out, PSTR("%s"), label);
 	return disp.GetAHeight();
 }
 
@@ -99,10 +109,11 @@ void widgets_draw(uint8_t page)
 		w = pgm_read_byte(&adr->widgets[i].w);
 		h = pgm_read_byte(&adr->widgets[i].h);
 
+
 		uint8_t wtype = pages[page].widgets[i];
 
 		if (wtype != WIDGET_OFF)
-			widget_array[wtype].draw(x, y, w, h);
+			widget_array[wtype].draw(x, y, w, h, widget_array[wtype].flags);
 	}
 }
 

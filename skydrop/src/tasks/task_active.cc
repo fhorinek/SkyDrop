@@ -21,9 +21,7 @@ void task_active_loop()
 
 	fc_step();
 
-//	GPIO2_HIGH;
 	gui_loop();
-//	GPIO2_LOW;
 
 	bt_step();
 

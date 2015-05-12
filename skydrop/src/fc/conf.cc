@@ -17,7 +17,7 @@ EEMEM cfg_t config = {
 			{
 				//type
 				LAYOUT_1,
-				{WIDGET_VARIO_BAR, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY}
+				{WIDGET_DEBUG, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY}
 			},
 			//1
 			{
@@ -35,7 +35,7 @@ EEMEM cfg_t config = {
 			{
 				//type
 				LAYOUT_222,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_ALT1, WIDGET_ALT2, WIDGET_ACCX, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY}
+				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_ALT1, WIDGET_ALT2, WIDGET_ALT3, WIDGET_ALT4, WIDGET_DUMMY, WIDGET_DUMMY, WIDGET_DUMMY}
 			},
 			//4
 			{
@@ -59,6 +59,42 @@ EEMEM cfg_t config = {
 		103000,
 		//QNH2
 		101325,
-	}
+
+		//altimeter
+		{
+			//altimeter2
+			{
+				//flags
+				ALT_DIFF | 1,
+				//diff
+				+100,
+			},
+			//altimeter3
+			{
+				//flags
+				ALT_DIFF | 1,
+				//diff
+				+200,
+			},
+			//altimeter4
+			{
+				//flags
+				ALT_ABS_QNH2,
+				//diff
+				0,
+			},
+		},
+	},
+	//calibration
+	{
+		//mag bias
+		{476, 1179, 1141},
+		//mag sensitivity
+		{-2486, -2494, -2442},
+		//acc bias
+		{6, -46, -59},
+		//acc sensitivity
+		{1376, 1369, 1325},
+	},
 
 };

@@ -7,16 +7,6 @@
 
 #include "lsm303d.h"
 
-bool Lsm303d::INT1()
-{
-	return GpioRead(AM_INT1) == HIGH;
-}
-
-bool Lsm303d::INT2()
-{
-	return GpioRead(AM_INT2) == HIGH;
-}
-
 void Lsm303d::Init(I2c *i2c, struct lsm303d_settings settings)
 {
 	if (!settings.enabled)
@@ -24,11 +14,11 @@ void Lsm303d::Init(I2c *i2c, struct lsm303d_settings settings)
 
 	this->i2c = i2c;
 
-	GpioSetDirection(AM_INT1, INPUT);
-	GpioSetDirection(AM_INT2, INPUT);
+	//need time to boot up
+	_delay_ms(10);
 
 	this->Set(settings);
-	//need time to boot up
+
 	_delay_ms(10);
 }
 
@@ -103,10 +93,11 @@ void Lsm303d::Reset()
 	if (!this->settings.enabled)
 		return;
 
-	this->Write(0x1F, 0b10000000); //CTRL1 <- BOOT
+	this->Write(0x1F, 0b10000000); //CTRL0 <- BOOT
 
 	_delay_ms(1);
-	this->Write(0x1F, 0b00000000); //CTRL1 -> BOOT
+	this->Write(0x1F, 0b00000000); //CTRL0 -> BOOT
+	_delay_ms(1);
 }
 
 bool Lsm303d::SelfTest()
@@ -128,6 +119,10 @@ void Lsm303d::EnableAcc(lsm303d_acc_odr odr, lsm303f_acc_scale scale)
 	this->WriteOr(0x20, odr); //CTRL1
 	//set scale
 	this->WriteOr(0x21, scale); //CTRL2
+
+	DEBUG("0x21: ");
+	DUMP_REG(this->Read(0x21));
+
 }
 
 void Lsm303d::DisableAcc()
@@ -135,7 +130,7 @@ void Lsm303d::DisableAcc()
 	if (!this->settings.enabled)
 		return;
 
-	this->WriteAnd(0x20, 0b00001111); // CTRL1
+	this->WriteAnd(0x20, 0b00001111); // CTRL1 < BDU, AZEN, AYEN, AXEN
 }
 
 void Lsm303d::EnableMag(lsm303d_mag_odr odr, lsm303d_mag_scale scale, bool hi_resolution)
@@ -196,15 +191,6 @@ void Lsm303d::DisableAccFIFO()
 	this->WriteAnd(0x1F, 0b10011111); //CTRL0 <- FIFO_EN | FTH_EN
 }
 
-void Lsm303d::EnableMagIrq()
-{
-	if (!this->settings.enabled)
-		return;
-
-	//enable magnetometer drdy on INT1
-//	this->WriteOr(0x22, 0b00000010); //CTRL3 <- INT1_DRDY_M
-	this->Write(0x12, 0b00000100); //INT_CTRL_M <- MIEL // | MIEN
-}
 
 void Lsm303d::Start()
 {
@@ -220,7 +206,6 @@ void Lsm303d::Start()
 	if (this->settings.magOdr != lsm_mag_pd)
 	{
 		this->EnableMag(this->settings.magOdr, this->settings.magScale, this->settings.magHiRes);
-		this->EnableMagIrq();
 	}
 
 	if (this->settings.tempEnable)
@@ -239,80 +224,16 @@ void Lsm303d::Stop()
 		this->DisableTemp();
 }
 
-void Lsm303d::ReadAcc(int16_t * x, int16_t * y, int16_t * z)
-{
-	this->i2c->Wait();
-	this->i2c->Write(0x28 | 0b10000000);
-	this->i2c->StartTransmittion(LSM_ADDRESS, 6);
-
-	byte2 tmp;
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[0] = this->i2c->Read();
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[1] = this->i2c->Read();
-	*x = tmp.int16;
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[0] = this->i2c->Read();
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[1] = this->i2c->Read();
-	*y = tmp.int16;
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[0] = this->i2c->Read();
-
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[1] = this->i2c->Read();
-	*z = tmp.int16;
-}
-
 uint8_t Lsm303d::AccStreamLen()
 {
 	return this->Read(0x2F) & 0b00011111;
 }
 
-uint8_t Lsm303d::ReadAccStream(int16_t * buff, uint8_t len)
+void Lsm303d::StartReadAccStream(uint8_t len)
 {
 	this->i2c->Wait();
 	this->i2c->Write(0x28 | 0b10000000);
 	this->i2c->StartTransmittion(LSM_ADDRESS, 6 * len);
-
-	for (uint8_t i = 0; i < len; i++)
-	{
-		int16_t x, y, z;
-
-		byte2 tmp;
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[1] = this->i2c->Read();
-		x = tmp.int16;
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[1] = this->i2c->Read();
-		y = tmp.int16;
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
-		tmp.uint8[1] = this->i2c->Read();
-		z = tmp.int16;
-
-		buff[i * 3 + 0] = x;
-		buff[i * 3 + 1] = y;
-		buff[i * 3 + 2] = z;
-	}
-
-	return len;
 }
 
 uint8_t Lsm303d::ReadAccStreamAvg(volatile int16_t * x, volatile int16_t * y, volatile int16_t * z, uint8_t len)
@@ -322,78 +243,64 @@ uint8_t Lsm303d::ReadAccStreamAvg(volatile int16_t * x, volatile int16_t * y, vo
 	int32_t acc_z = 0;
 
 	this->i2c->Wait();
-	this->i2c->Write(0x28 | 0b10000000);
-	this->i2c->StartTransmittion(LSM_ADDRESS, 6 * len);
-
 
 	for (uint8_t i = 0; i < len; i++)
 	{
 		byte2 tmp;
 
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[1] = this->i2c->Read();
 		acc_x += tmp.int16;
+//		DEBUG("%d;", tmp.int16);
 
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[1] = this->i2c->Read();
 		acc_y += tmp.int16;
+//		DEBUG("%d;", tmp.int16);
 
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[0] = this->i2c->Read();
-
-		while (this->i2c->rx_buffer->length == 0);
 		tmp.uint8[1] = this->i2c->Read();
 		acc_z += tmp.int16;
+//		DEBUG("%d;\n", tmp.int16);
 	}
 
-	*x = acc_x / len;
-	*y = acc_x / len;
-	*z = acc_x / len;
+	*x = (int32_t)acc_x / (int32_t)len;
+	*y = (int32_t)acc_y / (int32_t)len;
+	*z = (int32_t)acc_z / (int32_t)len;
 
 	return len;
 }
 
-void Lsm303d::ReadMag(volatile int16_t * x, volatile int16_t * y, volatile int16_t * z)
+void Lsm303d::StartReadMag()
 {
 	this->i2c->Wait();
 	this->i2c->Write(0x08 | 0b10000000);
 	this->i2c->StartTransmittion(LSM_ADDRESS, 6);
 
+}
+
+void Lsm303d::ReadMag(volatile int16_t * x, volatile int16_t * y, volatile int16_t * z)
+{
 	byte2 tmp;
 
-	while (this->i2c->rx_buffer->length == 0);
-	tmp.uint8[0] = this->i2c->Read();
+	this->i2c->Wait();
 
-	while (this->i2c->rx_buffer->length == 0);
+	tmp.uint8[0] = this->i2c->Read();
 	tmp.uint8[1] = this->i2c->Read();
 	*x = tmp.int16;
 
-	while (this->i2c->rx_buffer->length == 0);
 	tmp.uint8[0] = this->i2c->Read();
-
-	while (this->i2c->rx_buffer->length == 0);
 	tmp.uint8[1] = this->i2c->Read();
 	*y = tmp.int16;
 
-	while (this->i2c->rx_buffer->length == 0);
 	tmp.uint8[0] = this->i2c->Read();
-
-	while (this->i2c->rx_buffer->length == 0);
 	tmp.uint8[1] = this->i2c->Read();
-
-//	DEBUG("%02X %02X\n", tmp.bytes[0], tmp.bytes[1]);
 	*z = tmp.int16;
 
 //	//transfer test
-//	*x = -512;
-//	*y = 512;
-//	*z = 0;
+//	*x = 10;
+//	*y = 20;
+//	*z = 30;
 }
 
 int16_t Lsm303d::ReadTemp()

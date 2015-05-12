@@ -35,7 +35,7 @@ public:
     void reset(float abs_value);
     void reset(float abs_value, float vel_value);
     void setAccelerationVariance(float var_accel);
-    void update(float z_abs, float var_z_abs, float dt);
+    void update(float z_abs);
     float getXAbs();
     float getXVel();
     float getCovAbsAbs();

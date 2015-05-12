@@ -14,14 +14,29 @@ extern widget widget_array[];
 #define PAGE_CHANGE_INFO	2
 #define PAGE_WIDGET_SELECT	3
 #define PAGE_WIDGET_MENU	4
+#define PAGE_MENU			5
 
-#define PAGE_SWITCH_STEPS			15
+#define PAGE_SWITCH_STEPS			7
+
 #define PAGE_WIDGET_SELECT_DURATION	10
 #define PAGE_WIDGET_MENU_DURATION	15
 
+#define PAGE_MENU_STEPS				5
+#define PAGE_MENU_HEIGHT			16
+
+#define NORMAL	1
+#define REVERSE	0
+
 uint8_t page_state = PAGE_IDLE;
-uint8_t page_state_step;
-uint32_t page_state_end;
+uint8_t page_state_step; //step based animation
+uint8_t page_state_dir;  //direction
+uint32_t page_state_end; //timer based timeout
+
+uint8_t page_change_dir;
+
+const uint8_t PROGMEM img_pwr[26]={12,16,224,248,28,12,0,63,63,0,12,28,248,224,1,7,14,12,24,24,24,24,12,14,7,1};
+const uint8_t PROGMEM img_menu[22]={10,16,51,51,51,51,51,51,51,51,51,51,3,3,3,3,3,3,3,3,3,3};
+const uint8_t PROGMEM img_layout[16]={14,8,252,132,132,191,161,225,33,33,225,161,191,132,132,252};
 
 void gui_pages_init()
 {
@@ -33,10 +48,15 @@ void gui_pages_stop()
 
 }
 
-void gui_enter_widget_menu()
+//returns true if this is a first time
+bool gui_enter_widget_menu()
 {
+	uint8_t old_state = page_state;
+
 	page_state = PAGE_WIDGET_MENU;
 	page_state_end = task_get_ms_tick() + PAGE_WIDGET_MENU_DURATION * 1000;
+
+	return (old_state != page_state);
 }
 
 void gui_exit_widget_menu()
@@ -48,6 +68,7 @@ void gui_exit_widget_menu()
 void gui_pages_loop()
 {
 	uint8_t start_x;
+	uint8_t wtype;
 
 	switch (page_state)
 	{
@@ -75,7 +96,8 @@ void gui_pages_loop()
 	break;
 
 	case(PAGE_WIDGET_MENU):
-		widget_array[widget_get_type(active_page, active_widget)].menu_draw();
+		wtype = widget_get_type(active_page, active_widget);
+		widget_array[wtype].menu_loop(widget_array[wtype].flags);
 
 		if (page_state_end < task_get_ms_tick())
 			page_state = PAGE_IDLE;
@@ -85,7 +107,7 @@ void gui_pages_loop()
 		page_state_step--;
 
 		int8_t split;
-		if (old_page < active_page)
+		if (page_change_dir)
 			split = (n5110_width / PAGE_SWITCH_STEPS) * page_state_step;
 		else
 			split = n5110_width - ((n5110_width / PAGE_SWITCH_STEPS) * page_state_step);
@@ -93,11 +115,11 @@ void gui_pages_loop()
 		disp.SetDrawLayer(1);
 
 		disp.ClearBuffer();
-		widgets_draw((old_page > active_page) ? active_page : old_page);
+		widgets_draw((!page_change_dir) ? active_page : old_page);
 		disp.CopyToLayerX(0, split - n5110_width);
 
 		disp.ClearBuffer();
-		widgets_draw((old_page > active_page) ? old_page : active_page);
+		widgets_draw((!page_change_dir) ? old_page : active_page);
 		disp.CopyToLayerX(0, split);
 
 		start_x = ( -NUMBER_OF_PAGES * (8 + 4) + 4 + n5110_width) / 2;
@@ -143,33 +165,63 @@ void gui_pages_loop()
 
 		disp.SetDrawLayer(0);
 	break;
+
+	case(PAGE_MENU):
+		widgets_draw(active_page);
+
+		uint8_t top = GUI_DISP_HEIGHT - PAGE_MENU_HEIGHT + (PAGE_MENU_HEIGHT * ((float)page_state_step/PAGE_MENU_STEPS));
+
+		if (page_state_dir == NORMAL)
+		{
+			if (page_state_step)
+				page_state_step--;
+		}
+		else
+		{
+			if (page_state_step < PAGE_MENU_STEPS)
+				page_state_step++;
+			else
+				page_state = PAGE_IDLE;
+		}
+
+		disp.DrawRectangle(1, top + 1, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 0, 1);
+		disp.DrawLine(1, top, GUI_DISP_WIDTH - 2, top, 1);
+		disp.DrawLine(0, GUI_DISP_HEIGHT - 1, 0, top + 1, 1);
+		disp.DrawLine(GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, GUI_DISP_WIDTH - 1, top + 1, 1);
+
+		//pwr
+		disp.DrawImage(img_pwr, 36, top + 2);
+		//menu
+		disp.DrawImage(img_menu, 69, top + 4);
+		//layout
+		disp.DrawImage(img_layout, 3, top + 4);
+
+	break;
+
+
 	}
 }
 
 void page_switch(bool right)
 {
+	old_page = active_page;
+
 	if (right)
 	{
-		if (active_page < NUMBER_OF_PAGES - 1)
-		{
-			old_page = active_page;
-			active_page++;
-			page_state = PAGE_CHANGE;
-			page_state_step = PAGE_SWITCH_STEPS;
-		}
-
+		active_page = (active_page + 1) % NUMBER_OF_PAGES;
+		page_change_dir = 1;
 	}
 	else
 	{
-		if (active_page > 0)
-		{
-			old_page = active_page;
-			active_page--;
-			page_state = PAGE_CHANGE;
-			page_state_step = PAGE_SWITCH_STEPS;
-		}
-
+		if (active_page == 0)
+			active_page = NUMBER_OF_PAGES - 1;
+		else
+			active_page = active_page - 1;
+		page_change_dir = 0;
 	}
+
+	page_state = PAGE_CHANGE;
+	page_state_step = PAGE_SWITCH_STEPS;
 }
 
 bool page_widgets_have_menu()
@@ -178,22 +230,26 @@ bool page_widgets_have_menu()
 
 	for (uint8_t i = 0; i < active_widgets; i++)
 	{
-		if (widget_array[widget_get_type(active_page, i)].menu_handler != NULL)
+		if (widget_array[widget_get_type(active_page, i)].menu_irqh != NULL)
 			return true;
 	}
 
 	return false;
 }
 
-void page_select_next_widget()
+bool page_select_next_widget()
 {
 	uint8_t active_widgets = layout_get_number_of_widgets(pages[active_page].type);
 
 	do
 	{
-		active_widget = (active_widget + 1) % active_widgets;
+		active_widget++;
+		if (active_widget > active_widgets - 1)
+			return false;
 	}
-	while (widget_array[widget_get_type(active_page, active_widget)].menu_handler == NULL);
+	while (widget_array[widget_get_type(active_page, active_widget)].menu_irqh == NULL);
+
+	return true;
 }
 
 void page_select_first_widget()
@@ -202,7 +258,7 @@ void page_select_first_widget()
 
 	active_widget = 0;
 
-	while (widget_array[widget_get_type(active_page, active_widget)].menu_handler == NULL)
+	while (widget_array[widget_get_type(active_page, active_widget)].menu_irqh == NULL)
 	{
 		active_widget = (active_widget + 1) % active_widgets;
 	}
@@ -246,33 +302,65 @@ void gui_pages_idle_irqh(uint8_t type, uint8_t * buff)
 
 void gui_pages_select_irqh(uint8_t type, uint8_t * buff)
 {
+	uint8_t wtype = widget_get_type(active_page, active_widget);
+
 	switch(type)
 	{
 	case(TASK_IRQ_BUTTON_L):
-		widget_array[widget_get_type(active_page, active_widget)].menu_handler(type, buff);
+		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
 	break;
 
 	case(TASK_IRQ_BUTTON_R):
-		widget_array[widget_get_type(active_page, active_widget)].menu_handler(type, buff);
+		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
 	break;
 
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
 		{
-			page_select_next_widget();
-			page_state = PAGE_WIDGET_SELECT;
-			page_state_end = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+			if (page_select_next_widget())
+			{
+				page_state = PAGE_WIDGET_SELECT;
+				page_state_end = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+			}
+			else
+				page_state = PAGE_IDLE;
 		}
+		else
+			widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
 	break;
 	}
 }
 
+void gui_page_menu_irqh(uint8_t type, uint8_t * buff)
+{
+	if (type == TASK_IRQ_BUTTON_R && *buff == BE_HOLD)
+	{
+		gui_switch_task(GUI_SETTINGS);
+	}
+
+	if (type == TASK_IRQ_BUTTON_M && *buff == BE_RELEASED)
+	{
+		page_state_dir = REVERSE;
+	}
+
+}
+
 void gui_pages_irqh(uint8_t type, uint8_t * buff)
 {
+	uint8_t wtype;
+
 	switch (page_state)
 	{
 	case(PAGE_IDLE):
-		gui_pages_idle_irqh(type, buff);
+	case(PAGE_CHANGE_INFO):
+		if (type == TASK_IRQ_BUTTON_M && *buff == BE_LONG)
+		{
+			page_state = PAGE_MENU;
+			page_state_step = PAGE_MENU_STEPS;
+			page_state_dir = NORMAL;
+		}
+		else
+			gui_pages_idle_irqh(type, buff);
 	break;
 
 	case(PAGE_WIDGET_SELECT):
@@ -280,7 +368,12 @@ void gui_pages_irqh(uint8_t type, uint8_t * buff)
 	break;
 
 	case(PAGE_WIDGET_MENU):
-		widget_array[widget_get_type(active_page, active_widget)].menu_handler(type, buff);
+		wtype = widget_get_type(active_page, active_widget);
+		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
+	break;
+
+	case(PAGE_MENU):
+		gui_page_menu_irqh(type, buff);
 	break;
 	}
 }

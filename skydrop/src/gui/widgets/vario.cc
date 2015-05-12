@@ -1,6 +1,6 @@
 #include "vario.h"
 
-void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	uint8_t lh = widget_label(PSTR("Vario"), x, y);
 
@@ -16,7 +16,7 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	uint8_t lh = widget_label(PSTR("Avg"), x, y);
 
@@ -32,7 +32,7 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	disp.DrawRectangle(x, y, x + w - 1, y + h - 1, 1, 0);
 
@@ -112,6 +112,6 @@ void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	}
 }
 
-register_widget(w_vario, widget_vario_draw, "Vario", NULL, NULL);
-register_widget(w_avg_vario, widget_avg_vario_draw, "AVG vario", NULL, NULL);
-register_widget(w_vario_bar, widget_vario_bar_draw, "Vario bar", NULL, NULL);
+register_widget1(w_vario, "Vario", widget_vario_draw);
+register_widget1(w_avg_vario, "AVG vario", widget_avg_vario_draw);
+register_widget1(w_vario_bar, "Vario bar", widget_vario_bar_draw);

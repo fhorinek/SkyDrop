@@ -46,6 +46,8 @@
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
 
+#define CLAMP(val, min, max)	((val < min) ? (min) : ((val > max) ? max : val))
+
 #ifdef __cplusplus
 extern "C" {
 #endif

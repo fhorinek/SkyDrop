@@ -1,7 +1,7 @@
 #include "acc.h"
 
 
-void widget_accx_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_accx_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	uint8_t lh = widget_label(PSTR("Acc X"), x, y);
 
@@ -20,4 +20,4 @@ void widget_accx_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 //	PSTR("Accelerometer X"),
 //};
 
-register_widget(w_accx, widget_accx_draw, "Accelerometer X", NULL, NULL);
+register_widget1(w_accx, "Accelerometer X", widget_accx_draw);

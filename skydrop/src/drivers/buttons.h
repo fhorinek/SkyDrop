@@ -22,7 +22,7 @@
 #define BS_2DOWN	4
 #define BS_PRESSED	5
 
-//buttons events
+//buttons events NEVER change the indexes
 #define BE_HOLD			0	//button was debounced and it is hold
 #define BE_RELEASED		1	//button was released
 #define BE_CLICK		2	//button was released and made single click

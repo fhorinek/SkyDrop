@@ -105,13 +105,13 @@ public:
 
 	void EnableAccFIFO(uint8_t thold);
 	void DisableAccFIFO();
-	void EnableMagIrq();
 
 	void ReadAcc(int16_t * x, int16_t * y, int16_t * z);
-	uint8_t ReadAccStream(int16_t * buff, uint8_t len);
+	void StartReadAccStream(uint8_t len);
 	uint8_t ReadAccStreamAvg(volatile int16_t * x, volatile int16_t * y, volatile int16_t * z, uint8_t len);
 	uint8_t AccStreamLen();
 
+	void StartReadMag();
 	void ReadMag(volatile int16_t * x, volatile int16_t * y, volatile int16_t * z);
 	int16_t ReadTemp();
 

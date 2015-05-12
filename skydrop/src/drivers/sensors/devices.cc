@@ -11,6 +11,7 @@
 I2c mems_i2c;
 Lsm303d lsm303d;
 MS5611 ms5611;
+L3gd20 l3gd20;
 
 
 int32_t to_dec_3(int64_t c)

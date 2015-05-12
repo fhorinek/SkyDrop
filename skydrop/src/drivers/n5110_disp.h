@@ -23,6 +23,11 @@ private:
 	void plot8points(uint8_t cx,uint8_t cy,uint8_t x,uint8_t y,uint8_t color);
 	void plot4points(uint8_t cx,uint8_t cy,uint8_t x,uint8_t y,uint8_t color);
 
+	void CreateSinTable();
+
+	float sin_table[91];
+	float get_sin(uint16_t angle);
+
 	uint8_t text_x;
 	uint8_t text_y;
 
@@ -48,7 +53,7 @@ public:
 	void DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color,uint8_t fill);
 	void DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color);
 	void DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end);
-	void DrawImage(uint8_t *data,uint8_t x,uint8_t y);
+	void DrawImage(const uint8_t *data,uint8_t x,uint8_t y);
 	void Write(uint8_t ascii);
 	void SetRowCol(unsigned char row,unsigned char col);
 	void Draw();

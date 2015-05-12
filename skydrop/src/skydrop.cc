@@ -10,8 +10,8 @@ void Setup()
 	OSC.CTRL = 0b00000010;
 
 	//debug pins
-	GPIO1_INIT;
-	GPIO2_INIT;
+	IO0_INIT;
+	IO1_INIT;
 
 	//save power
 	turnoff_subsystems();

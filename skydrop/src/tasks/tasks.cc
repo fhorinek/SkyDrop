@@ -195,12 +195,12 @@ void task_sleep()
 {
 	uint32_t start = task_get_us_tick();
 
-	GPIO1_HIGH;
+//	IO1_HIGH;
 	if (task_sleep_lock == 0)
 	{
 		SystemPowerIdle();
 	}
-	GPIO1_LOW;
+//	IO1_LOW;
 
 	uint32_t delta = task_get_us_tick() - start;
 

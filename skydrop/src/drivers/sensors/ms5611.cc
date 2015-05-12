@@ -56,14 +56,14 @@ void MS5611::ReadPROM()
 	this->calibration_C4 = this->Read16(MS5611_PROM + 6);
 	this->calibration_C5 = this->Read16(MS5611_PROM + 8);
 	this->calibration_C6 = this->Read16(MS5611_PROM + 10);
-
-	DEBUG("ms5611_calibration\n");
-	DEBUG(" C1 %u\n", this->calibration_C1);
-	DEBUG(" C2 %u\n", this->calibration_C2);
-	DEBUG(" C3 %u\n", this->calibration_C3);
-	DEBUG(" C4 %u\n", this->calibration_C4);
-	DEBUG(" C5 %u\n", this->calibration_C5);
-	DEBUG(" C6 %u\n", this->calibration_C6);
+//
+//	DEBUG("ms5611_calibration\n");
+//	DEBUG(" C1 %u\n", this->calibration_C1);
+//	DEBUG(" C2 %u\n", this->calibration_C2);
+//	DEBUG(" C3 %u\n", this->calibration_C3);
+//	DEBUG(" C4 %u\n", this->calibration_C4);
+//	DEBUG(" C5 %u\n", this->calibration_C5);
+//	DEBUG(" C6 %u\n", this->calibration_C6);
 }
 
 void MS5611::Write(uint8_t cmd)

@@ -52,8 +52,11 @@ void KalmanFilter::setAccelerationVariance(float var_accel)
 // the variance of that measurement, and the interval since the last
 // measurement in seconds. This interval must be greater than 0; for the
 // first measurement after a reset(), it's safe to use 1.0.
-void KalmanFilter::update(float z_abs, float var_z_abs, float dt)
+void KalmanFilter::update(float z_abs)
 {
+	#define	var_z_abs	0.2
+	#define	dt			0.01
+
 	// Note: math is not optimized by hand. Let the compiler sort it out.
 	// Predict step.
 	// Update state estimate.

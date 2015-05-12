@@ -13,11 +13,13 @@
 
 #include "lsm303d.h"
 #include "ms5611.h"
+#include "l3gd20.h"
 #include "gps_l80.h"
 
 extern I2c mems_i2c;
 extern Lsm303d lsm303d;
 extern MS5611 ms5611;
+extern L3gd20 l3gd20;
 
 
 

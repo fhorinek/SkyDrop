@@ -30,6 +30,7 @@
 #define TASK_IRQ_USB		7
 #define TASK_IRQ_BAT		8
 
+
 class SleepLock
 {
 private:

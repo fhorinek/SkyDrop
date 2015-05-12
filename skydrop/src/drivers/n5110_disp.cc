@@ -142,7 +142,7 @@ void n5110display::Init()
 	this->spi->SetDivider(spi_div_64);
 	this->spi->SetDataOrder(MSB);
 
-//	CreateSinTable();
+	CreateSinTable();
 
 
 	GpioSetDirection(LCD_RST, OUTPUT);
@@ -296,30 +296,42 @@ void n5110display::InvertPixel(uint8_t x ,uint8_t  y)
 	active_buffer[index] ^= (1 << (y % 8));
 }
 
-void n5110display::DrawImage(uint8_t *data,uint8_t x,uint8_t y){
-	uint8_t imgwidth = (data[0]+x < 128)?data[0]:128-x;
-	int16_t xCutOff  = (data[0]+x < 128)?0:(data[0]+x-128);
+void n5110display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
+{
+	uint8_t cbuf;
+
+	cbuf = pgm_read_byte(&data[0]);
+
+	uint8_t imgwidth = (cbuf+x < n5110_width)?cbuf:n5110_width-x;
+	int16_t xCutOff  = (cbuf+x < n5110_width)?0:(cbuf+x-n5110_width);
 	uint8_t yOffset  = (y/8 < 1)?0:y/8;
-	uint8_t imgheight = (data[1]/8);
+
+	cbuf = pgm_read_byte(&data[1]);
+
+	uint8_t imgheight = (cbuf/8);
 	uint8_t _x = x;
 	uint8_t _y = 0;
 	uint16_t index = 2;
 
-	if (y >= 64 || x >= 128) return;
+	if (y >= n5110_height || x >= n5110_width) return;
 
 	for (_y=0;_y < imgheight; _y++){
 		for(_x=0;_x < imgwidth; _x++){
+
+			cbuf = pgm_read_byte(&data[index]);
+
 			if (y % 8 != 0) {
 				uint16_t tmp = 0;
-				uint8_t  tmpdat = data[index];
+
+				uint8_t  tmpdat = cbuf;
 				tmp = (tmpdat << (y%8));
 
-				active_buffer[((_y+yOffset)*128)+_x+x] |= (tmp & 255);
-				if (_y+yOffset+1 < 64)
-				active_buffer[((_y+yOffset+1)*128)+_x+x] |= ((tmp >> 8) & 255);
+				active_buffer[((_y+yOffset)*n5110_width)+_x+x] |= (tmp & 255);
+				if (_y+yOffset+1 < n5110_height)
+				active_buffer[((_y+yOffset+1)*n5110_width)+_x+x] |= ((tmp >> 8) & 255);
 			}
 			else
-				active_buffer[((_y+yOffset)*128)+_x+x] |= data[index];
+				active_buffer[((_y+yOffset)*n5110_width)+_x+x] |= cbuf;
 			index++;
 		}
 		index += xCutOff;
@@ -363,9 +375,9 @@ void n5110display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
 
   for(y = y1;y <= y2; y++)
   {
-	  for (x = x1 * 8; x < x2 * 8; x++)
+	  for (x = x1; x < x2; x++)
 	  {
-		  active_buffer[16 * 8 * y + x] ^= 0xFF;
+		  active_buffer[n5110_width * y + x] ^= 0xFF;
 	  }
   }
 }
@@ -377,8 +389,8 @@ void n5110display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,in
 
 	for (angle=start;angle<=end;angle++)
 	{
-//		x = radius * sin_table[(angle+90)%360];
-//		y = radius * sin_table[(angle+180)%360];
+		x = radius * get_sin(angle);
+		y = radius * get_sin(angle+180);
 		PutPixel(cx+x,cy + y,1);
 	}
 }
@@ -520,7 +532,20 @@ void n5110display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t c
 	}
 }
 
-//void  n5110display::CreateSinTable(){
-//	  for (int16_t i=0; i < 360; i++)
-//		  sin_table[i] = sin(((float)i/180.0)*3.142);
-//}
+void  n5110display::CreateSinTable(){
+	  for (int16_t i=0; i < 91; i++)
+		  sin_table[i] = sin(((float)i/180.0)*3.142);
+}
+
+float n5110display::get_sin(uint16_t angle)
+{
+	angle = angle % 360;
+
+	if (angle < 90)
+		return this->sin_table[angle];
+	else if (angle < 180)
+		return this->sin_table[90 - (angle - 90)];
+	else if (angle < 270)
+		return -this->sin_table[angle - 180];
+	else return -this->sin_table[90 - (angle - 270)];
+}

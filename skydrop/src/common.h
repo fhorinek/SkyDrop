@@ -29,7 +29,7 @@ union byte4
 
 union byte2
 {
-	uint16_t int16;
+	int16_t int16;
 	uint8_t uint8[2];
 };
 
@@ -39,6 +39,13 @@ typedef struct
 	int16_t y;
 	int16_t z;
 } vector_i16_t;
+
+typedef struct
+{
+	float x;
+	float y;
+	float z;
+} vector_float_t;
 
 struct app_info
 {
@@ -76,33 +83,27 @@ extern struct app_info fw_info;
 #define BATTERY_ADC_ENABLE		ADCA.CTRLA = ADC_ENABLE_bm;
 
 //---------------- PORTB ---------------------
-#undef GPIO4
-#undef GPIO3
-#undef GPIO2
-#undef GPIO1
 
 #define SD_IN					portb0
-#define GPIO2					portb1
+#define IO0						portb1
 #define USB_IN					portb2
-#define BUZZER_VOL				portb3
+#define DAC						portb3
 #define BT_EN					portb4
 #define BT_RESET				portb5
 #define BT_RTS					portb6 //CTS from BT
 #define BT_CTS					portb7 //RTS from BT
 
-#define GPIO4_ADC				ext_portb0
-#define GPIO3_ADC				ext_portb1
-#define GPIO2_ADC				ext_portb3
+#define IO0_ADC					ext_portb1
 
 #define BUZZER_VOL_DAC			dac_ch1
 #define BUZZER_VOL_DAC_PWR_ON	PR.PRPB &= 0b11111011;
 #define BUZZER_VOL_DAC_PWR_OFF	PR.PRPB |= 0b00000100;
 
 
-#define GPIO_ADC_PWR_ON			PR.PRPB &= 0b11111101;
-#define GPIO_ADC_PWR_OFF		PR.PRPB |= 0b00000010;
-#define GPIO_ADC_DISABLE		ADCB.CTRLA = 0;
-#define GPIO_ADC_ENABLE			ADCB.CTRLA = ADC_ENABLE_bm;
+#define IO_ADC_PWR_ON			PR.PRPB &= 0b11111101;
+#define IO_ADC_PWR_OFF			PR.PRPB |= 0b00000010;
+#define IO_ADC_DISABLE			ADCB.CTRLA = 0;
+#define IO_ADC_ENABLE			ADCB.CTRLA = ADC_ENABLE_bm;
 
 #define USB_CONNECTED			(GpioRead(USB_IN) == HIGH)
 #define USB_CONNECTED_IRQ		portb_interrupt0
@@ -135,6 +136,9 @@ extern struct app_info fw_info;
 #define FC_MEAS_TIMER			timerc0
 #define FC_MEAS_TIMER_OVF		timerc0_overflow_interrupt
 #define FC_MEAS_TIMER_CMPA		timerc0_compareA_interrupt
+#define FC_MEAS_TIMER_CMPB		timerc0_compareB_interrupt
+#define FC_MEAS_TIMER_CMPC		timerc0_compareC_interrupt
+#define FC_MEAS_TIMER_CMPD		timerc0_compareD_interrupt
 #define FC_MEAS_TIMER_PWR_OFF	PR.PRPC |= 0b00000001
 #define FC_MEAS_TIMER_PWR_ON	PR.PRPC &= 0b11111110
 
@@ -148,7 +152,7 @@ extern struct app_info fw_info;
 
 //---------------- PORTD ---------------------
 #define LCD_VCC					portd0
-#define GPIO1					portd1
+#define IO1						portd1
 #define BT_RXD					portd2
 #define BT_TXT					portd3
 #define LEDG					portd4
@@ -166,17 +170,6 @@ extern struct app_info fw_info;
 #define LED_TIMER1_PWR_ON		PR.PRPD	&= 0b11111101;
 #define LED_TIMER1_PWR_OFF		PR.PRPD	|= 0b00000010;
 #define LED_TIMER1_OVF			timerd1_overflow_interrupt
-
-
-
-//#define BMP_MEAS_TIMER			timerd1
-//#define BMP_MEAS_TIMER_OVF_IRQ	timerd1_overflow_interrupt
-//#define BMP_MEAS_TIMER_CMPA_IRQ	timerd1_compareA_interrupt
-//#define BMP_MEAS_TIMER_PWR_OFF	PR.PRPD |= 0b00000010
-//#define BMP_MEAS_TIMER_PWR_ON	PR.PRPD &= 0b11111101
-//
-
-
 
 //---------------- PORTE ---------------------
 //SDA							porte0
@@ -250,13 +243,18 @@ extern struct app_info fw_info;
 
 //--------------------------------------------
 
-#define GPIO1_INIT				GpioSetDirection(GPIO1, OUTPUT);
-#define GPIO1_HIGH				GpioWrite(GPIO1, HIGH);
-#define GPIO1_LOW				GpioWrite(GPIO1, LOW);
+#define IO1_INIT				GpioSetDirection(IO1, OUTPUT);
+#define IO1_HIGH				GpioWrite(IO1, HIGH);
+#define IO1_LOW					GpioWrite(IO1, LOW);
 
-#define GPIO2_INIT				GpioSetDirection(GPIO2, OUTPUT);
-#define GPIO2_HIGH				GpioWrite(GPIO2, HIGH);
-#define GPIO2_LOW				GpioWrite(GPIO2, LOW);
+#define IO0_INIT				GpioSetDirection(IO0, OUTPUT);
+#define IO0_HIGH				GpioWrite(IO0, HIGH);
+#define IO0_LOW					GpioWrite(IO0, LOW);
+
+//#define IO0_INIT
+//#define IO0_HIGH
+//#define IO0_LOW
+
 
 
 class DataBuffer

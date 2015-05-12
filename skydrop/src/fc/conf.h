@@ -9,6 +9,7 @@
 #define CONF_H_
 
 #include "../gui/widgets/widgets.h"
+#include "fc.h"
 
 struct cfg_gui_layout
 {
@@ -31,10 +32,27 @@ struct cfg_vario
 	float avg_vario_dampening;
 };
 
+struct cfg_altimeter
+{
+	uint8_t flags;
+	int16_t delta;
+};
+
 struct cfg_altitude
 {
 	float QNH1;
 	float QNH2;
+
+	cfg_altimeter altimeter[NUMBER_OF_ALTIMETERS];
+};
+
+struct cfg_calibration
+{
+	vector_i16_t mag_bias;
+	vector_i16_t mag_sensitivity;
+
+	vector_i16_t acc_bias;
+	vector_i16_t acc_sensitivity;
 };
 
 struct cfg_t
@@ -43,6 +61,7 @@ struct cfg_t
 
 	cfg_vario vario;
 	cfg_altitude altitude;
+	cfg_calibration calibration;
 };
 
 
