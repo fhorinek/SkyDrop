@@ -1,10 +1,3 @@
-/*
- * kalman.h
- *
- *  Created on: 4.3.2015
- *      Author: horinek
- */
-
 #ifndef KALMAN_H_
 #define KALMAN_H_
 

@@ -79,7 +79,7 @@ if (len(sys.argv) == 4):
     label = sys.argv[3]
     
 if (label == "" or label == "auto"):
-    label = datetime.datetime.now().strftime("bioprobe-devel-%H:%M.%d-%m-%Y")
+    label = datetime.datetime.now().strftime("skydrop-devel-%H:%M.%d-%m-%Y")
     
 #a = StaxProg("/dev/ttyACM0", 115200)
 #a.batch("/home/horinek/data/workspace/RGBtest/Debug/RGBtest.hex")
