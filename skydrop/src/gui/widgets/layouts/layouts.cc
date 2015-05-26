@@ -6,4 +6,4 @@
 #include "22.inc"
 #include "222.inc"
 
-const layout_desc * layout_list[] = {&layout_1, &layout_12, &layout_122, &layout_22, &layout_222};
+const layout_desc * layout_list[NUMBER_OF_LAYOUTS] = {&layout_1, &layout_12, &layout_122, &layout_22, &layout_222};

@@ -55,6 +55,20 @@ struct cfg_calibration
 	vector_i16_t acc_sensitivity;
 };
 
+struct cfg_audio_profile
+{
+	uint16_t freq[41];	//in Hz
+	uint16_t pause[41];	//in ms
+	uint16_t length[41];//in ms
+
+	int16_t lift;		//in cm
+	int16_t sink;		//in cm
+
+	uint8_t	fluid;		//true/false
+	uint8_t volume;		//0-100
+};
+
+
 struct cfg_t
 {
 	cfg_gui gui;
@@ -62,8 +76,8 @@ struct cfg_t
 	cfg_vario vario;
 	cfg_altitude altitude;
 	cfg_calibration calibration;
+	cfg_audio_profile audio_profile;
 };
-
 
 extern cfg_t config;
 

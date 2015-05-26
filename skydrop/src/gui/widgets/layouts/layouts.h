@@ -8,7 +8,11 @@
 #ifndef LAYOUTS_H_
 #define LAYOUTS_H_
 
+struct layout_t;
+
 #include "../widgets.h"
+
+#define NUMBER_OF_LAYOUTS	5
 
 struct widget_pos {
 	uint8_t x;
@@ -32,13 +36,12 @@ struct layout_t
 };
 
 
-#define LAYOUT_OFF		0xFF
 #define LAYOUT_1		0
 #define LAYOUT_12		1
 #define LAYOUT_122		2
 #define LAYOUT_22		3
 #define LAYOUT_222		4
 
-extern const layout_desc * layout_list[];
+extern const layout_desc * layout_list[NUMBER_OF_LAYOUTS];
 
 #endif /* LAYOUTS_H_ */

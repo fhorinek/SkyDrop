@@ -2,7 +2,7 @@
 
 Usart uart;
 
-uint8_t debug_level = false;
+uint8_t debug_level = 2;
 
 CreateStdIn(uart_in, uart.Read);
 CreateStdOut(uart_out, uart.Write);

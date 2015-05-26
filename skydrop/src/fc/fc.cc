@@ -4,10 +4,12 @@
 #include "../drivers/uart.h"
 
 #include "vario.h"
+#include "audio.h"
 
-volatile flight_data_t flight_data;
+volatile flight_data_t fc;
 
 Timer fc_meas_timer;
+
 
 void fc_init()
 {
@@ -17,61 +19,103 @@ void fc_init()
 	DEBUG("Loading data form EEPROM\n");
 	eeprom_busy_wait();
 
-	flight_data.QNH1 = eeprom_read_float(&config.altitude.QNH1);
-	DEBUG("QNH1 %0.1f\n", flight_data.QNH1);
+	fc.QNH1 = eeprom_read_float(&config.altitude.QNH1);
+	DEBUG("QNH1 %0.1f\n", fc.QNH1);
 
-	flight_data.QNH2 = eeprom_read_float(&config.altitude.QNH2);
-	DEBUG("QNH2 %0.1f\n", flight_data.QNH2);
+	fc.QNH2 = eeprom_read_float(&config.altitude.QNH2);
+	DEBUG("QNH2 %0.1f\n", fc.QNH2);
 
-	flight_data.digital_vario_dampening = eeprom_read_float(&config.vario.digital_vario_dampening);
-	DEBUG("digital_vario_dampening %0.2f\n", flight_data.digital_vario_dampening);
+	fc.digital_vario_dampening = eeprom_read_float(&config.vario.digital_vario_dampening);
+	if (fc.digital_vario_dampening == 0)
+		fc.digital_vario_dampening = 1;
+	else
+		fc.digital_vario_dampening = 1.0 / 100.0 / fc.digital_vario_dampening;
 
-	flight_data.avg_vario_dampening = eeprom_read_float(&config.vario.avg_vario_dampening);
-	DEBUG("avg_vario_dampening %0.2f\n", flight_data.avg_vario_dampening);
+	DEBUG("digital_vario_dampening %0.2f\n", fc.digital_vario_dampening);
+
+	fc.avg_vario_dampening = eeprom_read_float(&config.vario.avg_vario_dampening);
+	if (fc.avg_vario_dampening == 0)
+		fc.avg_vario_dampening = 1;
+	else
+		fc.avg_vario_dampening = 1.0 / 100.0 / fc.avg_vario_dampening;
+
+	DEBUG("avg_vario_dampening %0.2f\n", fc.avg_vario_dampening);
 
 
 	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
 	{
 		DEBUG("altimeter[%d]\n", i);
-		flight_data.altimeter[i].altitude = 0;
+		fc.altimeter[i].altitude = 0;
 
-		flight_data.altimeter[i].flags = eeprom_read_byte(&config.altitude.altimeter[i].flags);
-		DEBUG(" flags %02X\n", flight_data.altimeter[i].flags);
+		fc.altimeter[i].flags = eeprom_read_byte(&config.altitude.altimeter[i].flags);
+		DEBUG(" flags %02X\n", fc.altimeter[i].flags);
 
-		eeprom_read_block((int16_t *) &flight_data.altimeter[i].delta, &config.altitude.altimeter[i].delta, sizeof(int16_t));
-		DEBUG(" delta %d\n", flight_data.altimeter[i].delta);
+		eeprom_read_block((int16_t *) &fc.altimeter[i].delta, &config.altitude.altimeter[i].delta, sizeof(int16_t));
+		DEBUG(" delta %d\n", fc.altimeter[i].delta);
 	}
 
-	eeprom_read_block((void *)&flight_data.mag_bias, &config.calibration.mag_bias, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.mag_bias, &config.calibration.mag_bias, sizeof(vector_i16_t));
 	DEBUG("mag_bias\n");
-	DEBUG(" x %d\n", flight_data.mag_bias.x);
-	DEBUG(" y %d\n", flight_data.mag_bias.y);
-	DEBUG(" z %d\n", flight_data.mag_bias.z);
+	DEBUG(" x %d\n", fc.mag_bias.x);
+	DEBUG(" y %d\n", fc.mag_bias.y);
+	DEBUG(" z %d\n", fc.mag_bias.z);
 
-	eeprom_read_block((void *)&flight_data.mag_sensitivity, &config.calibration.mag_sensitivity, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.mag_sensitivity, &config.calibration.mag_sensitivity, sizeof(vector_i16_t));
 	DEBUG("mag_sensitivity\n");
-	DEBUG(" x %d\n", flight_data.mag_sensitivity.x);
-	DEBUG(" y %d\n", flight_data.mag_sensitivity.y);
-	DEBUG(" z %d\n", flight_data.mag_sensitivity.z);
+	DEBUG(" x %d\n", fc.mag_sensitivity.x);
+	DEBUG(" y %d\n", fc.mag_sensitivity.y);
+	DEBUG(" z %d\n", fc.mag_sensitivity.z);
 
-	eeprom_read_block((void *)&flight_data.acc_bias, &config.calibration.acc_bias, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.acc_bias, &config.calibration.acc_bias, sizeof(vector_i16_t));
 	DEBUG("acc_bias\n");
-	DEBUG(" x %d\n", flight_data.acc_bias.x);
-	DEBUG(" y %d\n", flight_data.acc_bias.y);
-	DEBUG(" z %d\n", flight_data.acc_bias.z);
+	DEBUG(" x %d\n", fc.acc_bias.x);
+	DEBUG(" y %d\n", fc.acc_bias.y);
+	DEBUG(" z %d\n", fc.acc_bias.z);
 
-	eeprom_read_block((void *)&flight_data.acc_sensitivity, &config.calibration.acc_sensitivity, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.acc_sensitivity, &config.calibration.acc_sensitivity, sizeof(vector_i16_t));
 	DEBUG("acc_sensitivity\n");
-	DEBUG(" x %d\n", flight_data.acc_sensitivity.x);
-	DEBUG(" y %d\n", flight_data.acc_sensitivity.y);
-	DEBUG(" z %d\n", flight_data.acc_sensitivity.z);
+	DEBUG(" x %d\n", fc.acc_sensitivity.x);
+	DEBUG(" y %d\n", fc.acc_sensitivity.y);
+	DEBUG(" z %d\n", fc.acc_sensitivity.z);
+
+	eeprom_read_block((void *)&fc.buzzer_freq, &config.audio_profile.freq, sizeof(int16_t) * AUDIO_PROFILE_SIZE);
+	DEBUG("buzzer_freq\n");
+	for (uint8_t i = 0; i < AUDIO_PROFILE_SIZE; i++)
+		DEBUG(" %d", fc.buzzer_freq[i]);
+	DEBUG("\n");
+
+	eeprom_read_block((void *)&fc.buzzer_length, &config.audio_profile.length, sizeof(int16_t) * AUDIO_PROFILE_SIZE);
+	DEBUG("buzzer_length\n");
+	for (uint8_t i = 0; i < AUDIO_PROFILE_SIZE; i++)
+		DEBUG(" %d", fc.buzzer_length[i]);
+	DEBUG("\n");
+
+	eeprom_read_block((void *)&fc.buzzer_pause, &config.audio_profile.pause, sizeof(int16_t) * AUDIO_PROFILE_SIZE);
+	DEBUG("buzzer_pause\n");
+	for (uint8_t i = 0; i < AUDIO_PROFILE_SIZE; i++)
+		DEBUG(" %d", fc.buzzer_pause[i]);
+	DEBUG("\n");
+
+	fc.audio_lift = eeprom_read_word((uint16_t *)&config.audio_profile.lift);
+	DEBUG("audio_lift %d\n", fc.audio_lift);
+
+	fc.audio_sink = eeprom_read_word((uint16_t *)&config.audio_profile.sink);
+	DEBUG("audio_sink %d\n", fc.audio_sink);
+
+	fc.audio_fluid = eeprom_read_byte(&config.audio_profile.fluid);
+	DEBUG("audio_fluid %d\n", fc.audio_fluid);
+
+	fc.audio_volume = eeprom_read_byte(&config.audio_profile.volume);
+	DEBUG("audio_volume %d\n", fc.audio_volume);
 
 
 	DEBUG("\n");
 	//init calculators
 	vario_init();
+	audio_init();
 
 	//gps_init();
+//	bt_init();
 
 	//VCC to baro, acc/mag gyro
 	MEMS_POWER_ON;
@@ -138,44 +182,48 @@ void fc_init()
 
 ISR(FC_MEAS_TIMER_OVF)
 {
-	IO0_HIGH
+	IO1_HIGH
 	ms5611.ReadPressure();
 	ms5611.StartTemperature();
 	lsm303d.StartReadMag(); //it takes 152us to transfer
 
 	ms5611.CompensatePressure();
-	IO0_LOW
+	IO1_LOW
 
 }
 
+
 ISR(FC_MEAS_TIMER_CMPA)
 {
-	IO0_HIGH
-	lsm303d.ReadMag(&flight_data.mag_data.x, &flight_data.mag_data.y, &flight_data.mag_data.z);
+	IO1_HIGH
+	lsm303d.ReadMag(&fc.mag_data.x, &fc.mag_data.y, &fc.mag_data.z);
 	ms5611.ReadTemperature();
 	ms5611.StartPressure();
 	lsm303d.StartReadAccStream(16); //it take 1600us to transfer
 
 	vario_calc(ms5611.pressure);
+	if (fc.baro_valid)
+		audio_step(fc.vario);
+
 	ms5611.CompensateTemperature();
 
-	IO0_LOW
+	IO1_LOW
 }
 
 ISR(FC_MEAS_TIMER_CMPB)
 {
-	IO0_HIGH
-	lsm303d.ReadAccStreamAvg(&flight_data.acc_data.x, &flight_data.acc_data.y, &flight_data.acc_data.z, 16);
+	IO1_HIGH
+	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
-	IO0_LOW
+	IO1_LOW
 }
 
 ISR(FC_MEAS_TIMER_CMPC)
 {
-	IO0_HIGH
-	l3gd20.ReadGyroStreamAvg(&flight_data.gyro_data.x, &flight_data.gyro_data.y, &flight_data.gyro_data.z, 7); //it take 1000us to transfer
+	IO1_HIGH
+	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
 
-	IO0_LOW
+	IO1_LOW
 }
 
 
@@ -183,6 +231,7 @@ void fc_step()
 {
 	//gps_step();
 
+//	bt_step();
 }
 
 float fc_alt_to_qnh(float alt, float pressure)

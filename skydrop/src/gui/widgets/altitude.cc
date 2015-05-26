@@ -11,15 +11,15 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 	float val;
 	if (index == 1)
-		val = flight_data.altitude1;
+		val = fc.altitude1;
 	else
 	{
 		index -= 2;
-		val = flight_data.altimeter[index].altitude;
+		val = fc.altimeter[index].altitude;
 	}
 
 	char text[10];
-	if (flight_data.baro_valid)
+	if (fc.baro_valid)
 		sprintf(text, "%0.0f", val);
 	else
 		sprintf(text, "---");
@@ -28,7 +28,7 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 {
-	if (!flight_data.baro_valid)
+	if (!fc.baro_valid)
 		return;
 
 	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD || *buff == BE_RELEASED || *buff == BE_DBL_CLICK))
@@ -38,9 +38,9 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 	if (flags == 1)
 		a_type = ALT_ABS_QNH1;
 	else
-		a_type = flight_data.altimeter[flags - 2].flags & 0xF0;
+		a_type = fc.altimeter[flags - 2].flags & 0xF0;
 
-	uint8_t a_index = flight_data.altimeter[flags - 2].flags & 0x0F;
+	uint8_t a_index = fc.altimeter[flags - 2].flags & 0x0F;
 
 	if (type == TASK_IRQ_BUTTON_M && *buff == BE_LONG)
 	{
@@ -49,9 +49,9 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 		case(ALT_DIFF):
 
 			if (a_index == 1)
-				flight_data.altimeter[flags - 2].delta = -flight_data.altitude1;
+				fc.altimeter[flags - 2].delta = -fc.altitude1;
 			else
-				flight_data.altimeter[flags - 2].delta = -flight_data.altimeter[a_index].altitude;
+				fc.altimeter[flags - 2].delta = -fc.altimeter[a_index].altitude;
 		break;
 		}
 
@@ -83,22 +83,22 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 			{
 			case(ALT_ABS_QNH1):
 				if (flags == 1)
-					new_alt = flight_data.altitude1 + inc;
+					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = flight_data.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
-				flight_data.QNH1 = fc_alt_to_qnh(new_alt, flight_data.pressure);
+				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
 				if (flags == 1)
-					new_alt = flight_data.altitude1 + inc;
+					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = flight_data.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
-				flight_data.QNH2 = fc_alt_to_qnh(new_alt, flight_data.pressure);
+				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_DIFF):
-				flight_data.altimeter[flags - 2].delta += inc;
+				fc.altimeter[flags - 2].delta += inc;
 			break;
 			}
 		}
@@ -128,11 +128,13 @@ void widget_alt_menu_loop(uint8_t flags)
 	if (flags == 1)
 		a_type = ALT_ABS_QNH1;
 	else
-		a_type = flight_data.altimeter[flags - 2].flags & 0xF0;
+		a_type = fc.altimeter[flags - 2].flags & 0xF0;
 
 
 	if (widget_menu_state)
 	{
+		gui_enter_widget_menu();
+
 		float new_alt;
 		int8_t inc;
 
@@ -145,22 +147,22 @@ void widget_alt_menu_loop(uint8_t flags)
 		{
 			case(ALT_ABS_QNH1):
 				if (flags == 1)
-					new_alt = flight_data.altitude1 + inc;
+					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = flight_data.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
-				flight_data.QNH1 = fc_alt_to_qnh(new_alt, flight_data.pressure);
+				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
 				if (flags == 1)
-					new_alt = flight_data.altitude1 + inc;
+					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = flight_data.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
-				flight_data.QNH2 = fc_alt_to_qnh(new_alt, flight_data.pressure);
+				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_DIFF):
-				flight_data.altimeter[flags - 2].delta += inc;
+				fc.altimeter[flags - 2].delta += inc;
 			break;
 		}
 	}
@@ -171,7 +173,7 @@ void widget_alt_menu_loop(uint8_t flags)
 	uint8_t h_t = disp.GetTextHeight();
 
 
-	uint8_t a_index = flight_data.altimeter[flags - 2].flags & 0x0F;
+	uint8_t a_index = fc.altimeter[flags - 2].flags & 0x0F;
 
 	char title[20];
 	switch (a_type)
@@ -209,22 +211,22 @@ void widget_alt_menu_loop(uint8_t flags)
 	disp.LoadFont(F_VALUES_L);
 	char tmp[10];
 	if (flags == 1)
-		sprintf(tmp, "%0.0f", flight_data.altitude1);
+		sprintf(tmp, "%0.0f", fc.altitude1);
 	else
-		sprintf(tmp, "%d", flight_data.altimeter[flags - 2].altitude);
+		sprintf(tmp, "%d", fc.altimeter[flags - 2].altitude);
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2);
 
 
 	switch (a_type)
 		{
 		case(ALT_ABS_QNH1):
-			sprintf(tmp, "%0.0f", flight_data.QNH1 / 10);
+			sprintf(tmp, "%0.0f", fc.QNH1 / 10);
 		break;
 		case(ALT_ABS_QNH2):
-			sprintf(tmp, "%0.0f", flight_data.QNH2 / 10);
+			sprintf(tmp, "%0.0f", fc.QNH2 / 10);
 		break;
 		case(ALT_DIFF):
-			sprintf(tmp, "%+d", flight_data.altimeter[flags - 2].delta);
+			sprintf(tmp, "%+d", fc.altimeter[flags - 2].delta);
 		break;
 	}
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2 + h_v);

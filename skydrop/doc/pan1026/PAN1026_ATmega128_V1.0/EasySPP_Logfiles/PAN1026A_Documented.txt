@@ -1,0 +1,772 @@
+// ******************************************************** Introduction ********************************************************
+	This document shall enhance the comprehension of the command/event structure for the PAN1026. 
+	Please be informed that the BD-Address and the remote BD-Address in the sourcecode and the ones in this document may differ.
+
+// ************************************************ Software reset of the module ************************************************
+// The HCI commands which are not described in Toshiba's HCI specification can be found in the core specification.
+// All the page references in this document are stated for the total amount of pages and NOT the references on the pages.
+	--------------------------------
+	11:11:18: H-> TCU_HCI_RESET_REQ:
+	0 ---------------
+	TCU_HCI_RESET_REQ
+	Length: 4 (0x000004)
+	Data: 0x01 0x03 0x0c 0x00
+	-------------------------
+	|1x command|2x OpCode (contents OCF and OGF)|1x ParameterLength
+	Document: Bluetooth Core Specification v4.1.pdf - page 935
+	
+	---------------------------------
+	11:11:18: <-H TCU_HCI_RESET_RESP:
+	0 ----------------
+	TCU_HCI_RESET_RESP
+	Length: 7 (0x000007)
+	Data: 0x04 0x0e 0x04 0x04 0x03 0x0c 0x00
+	----------------------------------------
+	|1x Event|1x CommandComplete|1x ParameterLength|1x NHCP (Num HCI Command Packets)|2x OpCode|1x Status|
+	Document: Bluetooth Core Specification v4.1.pdf - page 935
+
+	
+	
+// ************************************************** Get firmware version ****************************************************
+	-----------------------------------------------
+	11:11:18: H-> TCU_HCI_GET_FIRMWARE_VERSION_REQ:
+	0 ------------------------------
+	TCU_HCI_GET_FIRMWARE_VERSION_REQ
+	Length: 13 (0x00000d)
+	Data: 0x01 0x08 0xfc 0x09 0x00 0xa1 0x00 0x00 0x00 0x14 0x0d 0xff 0x00
+	----------------------------------------------------------------------
+	|1x command|1x OCF|1x OGF+OCF|1x CommandLength|1x Reserved|1x InformationGettingRequestCommand|3x Reserved|1x Accepter|1x InformationID (GetFirmware)|1x Reserved|1x DataType|
+			   |      OpCode     |
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 47-49 
+	
+	------------------------------------------------
+	11:11:18: <-H TCU_HCI_GET_FIRMWARE_VERSION_RESP:
+	0 -------------------------------
+	TCU_HCI_GET_FIRMWARE_VERSION_RESP
+	Length: 33 (0x000021)
+	Data: 0x04 0xff 0x1e 0x08 0x00 0xa1 0x00 0x00 0x00 0x14 0x0d 0x00 0x0f 0x38 0x2e 0x30 0x30 0x2e 0x37 0x32 0x42 0x2d 0x30 0x36 0x20 0x52 0x4f 0x4d 0x3d 0x35 0x30 0x31 0x00
+	--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	|1x Event|1x EventCode (ExtEvent)|1x ParameterLength|1x OCF|1x Reserved|1x InformationGettingRequestCommand|3x Reserved|1x Accepter|1x InformationID(GetFirmware)|1x CommandResult|1x DataType|11x Data|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 47-49 
+
+	
+	
+// ************************************************ Get BD-Address, RF parameter, etc. from EEPROM ************************************************
+
+	// ****************Enable I2C interface****************
+	------------------------------------------------
+	11:11:19: H-> TCU_HCI_M2_BTL_SET_I2C_ENABLE_REQ:
+	0 -------------------------------
+	TCU_HCI_M2_BTL_SET_I2C_ENABLE_REQ
+	Length: 15 (0x00000f)
+	Data: 0x01 0x08 0xfc 0x0b 0x00 0xa0 0x00 0x00 0x00 0x14 0x5b 0xff 0x02 0x03 0x01
+	--------------------------------------------------------------------------------
+	|1x command|1x OCF|1x OGF+OCF|1x ParameterLength|1x Reserved|1x InformationSettingRequestCommand|3x Reserved|1x Accepter|1x InformationID|1x Reserved|1x DataType|1x SCL Frequency Setting|1x Set Spike Removal Filter Number|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 38 
+	
+	-------------------------------------------------
+	11:11:19: <-H TCU_HCI_M2_BTL_SET_I2C_ENABLE_RESP:
+	0 --------------------------------
+	TCU_HCI_M2_BTL_SET_I2C_ENABLE_RESP
+	Length: 13 (0x00000d)
+	Data: 0x04 0xff 0x0a 0x08 0x00 0xa0 0x00 0x00 0x00 0x14 0x5b 0x00 0x00
+	----------------------------------------------------------------------
+	|1x Event|1x EventCode (ExtEvent)|1x ParameterLength|1x OCF|1x Reserved|1x InformationSettingRequestCommand|3x Reserved|1x Accepter|1x InformationID(GetFirmware)|1x CommandResult|1x DataType|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 38 
+	
+	
+	// ****************Enable EEPROM write enable****************
+	-----------------------------------------------------
+	11:11:19: H-> TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_REQ:
+	0 ------------------------------------
+	TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_REQ
+	Length: 13 (0x00000d)
+	Data: 0x01 0x08 0xfc 0x09 0x00 0xa0 0x00 0x00 0x00 0x14 0x83 0xff 0x00
+	----------------------------------------------------------------------
+	|1x command|1x OCF|1x OGF+OCF|1x CommandLength|1x Reserved|1x InformationSettingRequestCommand|3x Reserved|1x Accepter|1x InformationID|1x Reserved|1x DataType|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 41 
+	
+	------------------------------------------------------
+	11:11:19: <-H TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_RESP:
+	0 -------------------------------------
+	TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_RESP
+	Length: 13 (0x00000d)
+	Data: 0x04 0xff 0x0a 0x08 0x00 0xa0 0x00 0x00 0x00 0x14 0x83 0x00 0x00
+	----------------------------------------------------------------------
+	|1x Event|1x EventCode|1x CommandLength|1x OCF|1x Reserved|1x InformationSettingRequestCommand|3x Reserved|1x Accepter|1x InformationID(GetFirmware)|1x CommandResult|1x DataType|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 41 
+	
+	
+	// ****************Read data from EEPROM****************
+	-------------------------------------------------
+	11:11:19: H-> TCU_HCI_M2_GENERAL_READ_EEPROM_REQ:
+	0 --------------------------------
+	TCU_HCI_M2_GENERAL_READ_EEPROM_REQ
+	Length: 20 (0x000014)
+	Data: 0x01 0x08 0xfc 0x10 0x00 0xa1 0x00 0x00 0x00 0x14 0x88 0xff 0x10 0x06 0xa0 0x01 0x01 0x06 0x02 0x00
+	---------------------------------------------------------------------------------------------------------
+	|1x command|1x OCF|1x OGF+OCF|1x ParameterLength|1x Reserved|1x InformationSettingRequestCommand|3x Reserved|1x Accepter|1x InformationID|1x Reserved|1x DataType|1x SpecifyLengthByte13|1x SpecifyEEPROMDeviceAddress|1xSpecifyAddressBitLength|1x SpecifyReadDataSize|1x SpecifyAddressLSD|1x SpecifyLSD+1|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 50 
+	
+	--------------------------------------------------
+	11:11:19: <-H TCU_HCI_M2_GENERAL_READ_EEPROM_RESP:
+	0 ---------------------------------
+	TCU_HCI_M2_GENERAL_READ_EEPROM_RESP
+	Length: 20 (0x000014)													   |----------BD-Address---------|
+	Data: 0x04 0xff 0x11 0x08 0x00 0xa1 0x00 0x00 0x00 0x14 0x88 0x00 0x10 0x06 0x00 0x13 0x43 0x0b 0xee 0xc2
+	---------------------------------------------------------------------------------------------------------
+																			   |----------BD-Address---------|
+	|1x Event|1x EventCode|1x CommandLength|1x OCF|1x Reserved|1x InformationGettingRequestCommand|3x Reserved|1x AccepterInitiator|1x InformationID|1x CommandResult|1x DataByte|1x LengthOfBD-Address|1x BD-Address|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 51 
+
+	
+	
+// ************************************************ Write BD-Address on RAM read from EEPROM ************************************************
+
+	// ****************Write data to RAM****************
+	----------------------------------------
+	11:11:30: H-> TCU_HCI_WRITE_BD_ADDR_REQ:
+	0 -----------------------
+	TCU_HCI_WRITE_BD_ADDR_REQ
+	Length: 10 (0x00000a)
+	Data: 0x01 0x13 0x10 0x06 0xc2 0xee 0x0b 0x43 0x13 0x00
+	-------------------------------------------------------
+	|Command|OCF|OGF+OCF|CommandLength|BD_ADDR(LSB)|BD_ADDR(LSB)|BD_ADDR(LSB+1)|BD_ADDR(LSB+2)|BD_ADDR(LSB+3)|BD_ADDR(LSB+4)|BD_ADDR(MSB)|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 23 	
+	
+	-----------------------------------------
+	11:11:30: <-H TCU_HCI_WRITE_BD_ADDR_RESP:
+	0 ------------------------
+	TCU_HCI_WRITE_BD_ADDR_RESP
+	Length: 7 (0x000007)
+	Data: 0x04 0x0e 0x04 0x04 0x13 0x10 0x00
+	----------------------------------------
+	|Event|EventCode(Command Complete Event)|CommandLength|Num HCI Command Packets|OCF|OGF+OCF|Status (00:successful, Except-0:failed)|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 23 
+
+	
+
+// ********************************Here would be the place to write RF parameters read from EEPROM, set parameters for sleep mode etc.********************************
+
+
+
+// ************************************************Change from HCI mode to Complete mode************************************************
+	-----------------------------------
+	11:11:30: H-> TCU_HCI_SET_MODE_REQ:
+	0 ------------------
+	TCU_HCI_SET_MODE_REQ
+	Length: 7 (0x000007)
+	Data: 0x01 0x08 0xfc 0x03 0x00 0x99 0x01
+	----------------------------------------
+	|1x Command|1x OCF|1x OGF+OCF|1x CommandLength|1x Reserved|1x SET MODE command|1x Fixed value|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 24 
+	
+	------------------------------------
+	11:11:30: <-H TCU_HCI_SET_MODE_RESP:
+	0 -------------------
+	TCU_HCI_SET_MODE_RESP
+	Length: 8 (0x000008)
+	Data: 0x04 0xff 0x05 0x08 0x00 0x99 0x00 0x01
+	---------------------------------------------
+	|Event|EventCode|CommandLength|OCF|Reserved|SET MODE command|Status (00:successful, Except-0:failed)|Fixed value|
+	Document: TC35661_ROM501_HCI_E_18thSeptember2013.pdf - page 24 
+
+	
+
+// ************************************************Device Initialisation************************************************
+
+	// ****************Initialisation of TC35661 firmware, device name etc.****************
+	-------------------------------
+	11:11:30: --> TCU_MNG_INIT_REQ:
+	0 --------------
+	TCU_MNG_INIT_REQ
+	Supported profiles: SPP (0x04)
+	Paired information stored: Disabled (0x00)
+	Length of device name: 8 (0x08)
+	Device Name: PAN1026A
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x01
+	Length: 11 (0x000b)
+	2 --
+	UART
+	Length: 18 (0x000012)
+	Data: 0x12 0x00 0x00 0xe1 0x01 0x0b 0x00 0x04 0x00 0x08 0x50 0x41 0x4e 0x31 0x30 0x32 0x36 0x41
+	-----------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x SupportedProfiles|1x PairedInformationStored|1x LengthOfDeviceName|max.128x DeviceName|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 6 
+	
+	--------------------------------
+	11:11:30: <-- TCU_MNG_INIT_RESP:
+	0 ---------------
+	TCU_MNG_INIT_RESP
+	Status: successful (0x00)
+	BD addr: 00:13:43:0B:EE:C2
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x81
+	Length: 7 (0x0007)
+	2 --
+	UART
+	Length: 14 (0x00000e)
+	Data: 0x0e 0x00 0x00 0xe1 0x81 0x07 0x00 0x00 0xc2 0xee 0x0b 0x43 0x13 0x00
+	---------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x BD_ADDR|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 8 	
+	
+
+
+// ************************************************Set class of Device************************************************
+	-----------------------------------------------------------------
+	11:11:30: --> TCU_MNG_STANDARD_HCI_SET_REQ_Write_Class_of_Device:
+	0 ------------------------------------------------
+	TCU_MNG_STANDARD_HCI_SET_REQ_Write_Class_of_Device
+	Class_of_Device: 0xc01118
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x3d
+	Length: 6 (0x0006)
+	2 --
+	UART
+	Length: 13 (0x00000d)
+	Data: 0x0d 0x00 0x00 0xe1 0x3d 0x06 0x00 0x24 0x0c 0x03 0x18 0x11 0xc0
+	----------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|max.256x Parameters|
+													 |1x OpCodeLSB|1x OpCodeMSB|1x ParameterLength|3x Parameter| //Write ClassOfDevice
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 61-62 
+													 
+	------------------------------------------------------------------
+	11:11:30: <-- TCU_MNG_STANDARD_HCI_SET_RESP_Write_Class_of_Device:
+	0 -------------------------------------------------
+	TCU_MNG_STANDARD_HCI_SET_RESP_Write_Class_of_Device
+	Status: successful (0x00)
+	Hci_Status: 0x00
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xbd
+	Length: 8 (0x0008)
+	2 --
+	UART
+	Length: 15 (0x00000f)
+	Data: 0x0f 0x00 0x00 0xe1 0xbd 0x08 0x00 0x00 0x06 0x0e 0x04 0x01 0x24 0x0c 0x00
+	--------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x ParameterLength|1x Parameter1=CompleteOpCode|1x Parameter2=LengthOfParameter3|1x Parameter3=OpCodeNHCP|1x Parameter4=OpCodeLSB|1x Parameter5=OpCodeMSB|1x Parameter6=Status|
+	Document: PAN1026_TC35661_ROM501_MNG_E_26thJuly2013_1.pdf - page 65 
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 64-65
+
+
+// ************************************************Set up SPP (Serial Port Profile)************************************************ 
+	--------------------------------
+	11:11:30: --> TCU_SPP_SETUP_REQ:
+	0 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x01
+	Length: 0 (0x0000)
+	1 --
+	UART
+	Length: 7 (0x000007)
+	Data: 0x07 0x00 0x00 0xe5 0x01 0x00 0x00
+	----------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013.pdf - page 5
+	
+	---------------------------------
+	11:11:30: <-- TCU_SPP_SETUP_RESP:
+	0 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x81
+	Length: 1 (0x0001)
+	1 --
+	UART
+	Length: 8 (0x000008)
+	Data: 0x08 0x00 0x00 0xe5 0x81 0x01 0x00 0x00
+	---------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013.pdf - page 5
+
+
+// **************************************************** Inquiry and page scan **************************************************** 
+	-----------------------------------
+	11:11:30: --> TCU_MNG_SET_SCAN_REQ:
+	0 ------------------
+	TCU_MNG_SET_SCAN_REQ
+	Scan_Mode: 0x03
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x0c
+	Length: 1 (0x0001)
+	2 --
+	UART
+	Length: 8 (0x000008)
+	Data: 0x08 0x00 0x00 0xe1 0x0c 0x01 0x00 0x03
+	---------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x ScanMode|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 33
+	
+	------------------------------------
+	11:11:30: <-- TCU_MNG_SET_SCAN_RESP:
+	0 -------------------
+	TCU_MNG_SET_SCAN_RESP
+	Status: successful (0x00)
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x8c
+	Length: 1 (0x0001)
+	2 --
+	UART
+	Length: 8 (0x000008)
+	Data: 0x08 0x00 0x00 0xe1 0x8c 0x01 0x00 0x00
+	---------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 33
+
+	
+	
+// ************************************************ Establish ACL and SPP connection ************************************************
+	----------------------------------
+	11:12:05: --> TCU_SPP_CONNECT_REQ:
+	0 -----------------
+	TCU_SPP_CONNECT_REQ
+	Bd_Addr: 00:13:43:0B:F2:67
+	Server_Channel: 5
+	1 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x03
+	Length: 16 (0x0010)
+	2 --
+	UART
+	Length: 23 (0x000017)
+	Data: 0x17 0x00 0x00 0xe5 0x03 0x10 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x07 0x16 0x00 0x00 0x00 0x00 0x00 0x01 0x05 0x00
+	------------------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|6x BD_ADDR|1x Baudrate|1x DataFormat|1x FlowControl|1x XonChar|1x XoffChar|2x ParmMask|1x ServerChannelValidity|1x ServerChannel|1x UseOfLinkKey|16x LinkKey|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013.pdf - page 8
+	
+	
+	// Acknowledge the start of the previous command operation
+	-------------------------
+	11:12:05: <-- TCU_ACCEPT:
+	0 --------
+	TCU_ACCEPT
+	Status: successful (0x00)
+	Command ServiceID: 0xe5
+	Command OpCode: 0x03
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xf1
+	Length: 3 (0x0003)
+	2 --
+	UART
+	Length: 10 (0x00000a)
+	Data: 0x0a 0x00 0x00 0xe1 0xf1 0x03 0x00 0x00 0xe5 0x03
+	-------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x CommandServiceID|1x CommandOpCode|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 67
+	
+	----------------------------------------------
+	11:12:06: <-- TCU_MNG_CONNECTION_STATUS_EVENT:
+	0 -----------------------------
+	TCU_MNG_CONNECTION_STATUS_EVENT
+	Status: successful (0x00)
+	Bd_addr: 00:13:43:0B:F2:67
+	Connection_Status: connected (0x00)
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x47
+	Length: 8 (0x0008)
+	2 --
+	UART
+	Length: 15 (0x00000f)
+	Data: 0x0f 0x00 0x00 0xe1 0x47 0x08 0x00 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x00
+	--------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x Bd_Addr|1x ConnectionStatus|16x LinkKey|1x LinkKeyType|2x SniffInterval|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 27
+	
+	-----------------------------------------------------------
+	11:12:06: <-- TCU_MNG_REMOTE_DEVICE_NAME_AUTO_NOTIFY_EVENT:
+	0 ------------------------------------------
+	TCU_MNG_REMOTE_DEVICE_NAME_AUTO_NOTIFY_EVENT
+	Bd_addr: 00:13:43:0B:F2:67
+	Length_of_Device_Name: 8
+	Device_Name: 'PAN1026B'
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x6e
+	Length: 15 (0x000f)
+	2 --
+	UART
+	Length: 22 (0x000016)
+	Data: 0x16 0x00 0x00 0xe1 0x6e 0x0f 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x08 0x50 0x41 0x4e 0x31 0x30 0x32 0x36 0x42
+	-------------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|6x BD-Address|1x LengthOfDeviceName|max.128x DeviceName|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 51	
+	
+	
+	----------------------------------------------
+	11:12:06: <-- HCI_IO_Capability_Request_Event:
+	0 -----------------------------
+	HCI_IO_Capability_Request_Event
+	Op_Code: 0x31
+	Parameter_Length: 6
+	Bd_addr: 00:13:43:0B:F2:67
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x7d
+	Length: 8 (0x0008)
+	2 --
+	UART
+	Length: 15 (0x00000f)
+	Data: 0x0f 0x00 0x00 0xe1 0x7d 0x08 0x00 0x31 0x06 0x67 0xf2 0x0b 0x43 0x13 0x00
+	--------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCode|1x ParameterLength|6x BD-Address|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 47
+
+
+// ************************************************ Control SecureSimplePairing Part 1 ************************************************
+	------------------------------------------------------------------
+	11:12:06: --> TCU_MNG_SSP_SET_REQ_HCI_IO_Capability_Request_Reply:
+	0 -------------------------------------------------
+	TCU_MNG_SSP_SET_REQ_HCI_IO_Capability_Request_Reply
+	Bd_Addr: 00:13:43:0B:F2:67
+	IO_Capability: 0x01
+	OOB_Data_Present: 0x00
+	Authentication_Requirement: 0x03
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x3d
+	Length: 12 (0x000c)
+	2 --
+	UART
+	Length: 19 (0x000013)
+	Data: 0x13 0x00 0x00 0xe1 0x3d 0x0c 0x00 0x2b 0x04 0x09 0x67 0xf2 0x0b 0x43 0x13 0x00 0x01 0x00 0x03
+	----------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCodeLSB|1x OpCodeMSB|1x ParameterLength|6x BD-Address|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 37
+	
+
+	-------------------------------------------------------------------
+	11:12:06: <-- TCU_MNG_SSP_SET_RESP_HCI_IO_Capability_Request_Reply:
+	0 --------------------------------------------------
+	TCU_MNG_SSP_SET_RESP_HCI_IO_Capability_Request_Reply
+	Status: successful (0x00)
+	Hci_Status: 0x00
+	Bd_addr: 00:13:43:0B:F2:67
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xbd
+	Length: 14 (0x000e)
+	2 --
+	UART
+	Length: 21 (0x000015)
+	Data: 0x15 0x00 0x00 0xe1 0xbd 0x0e 0x00 0x00 0x0c 0x0e 0x0a 0x01 0x2b 0x04 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00
+	--------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x ParameterLength|1x OpCodeCommandComplete|1x EventLength|1x NHCP|1x OpCodeCommandLSB|1x OpCodeCommandMSB|1x Status|6x BD-Address|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 42	
+
+	//Indicate to host that IO capabilities from a remote device have been received during simple pairing process
+	-----------------------------------------------
+	11:12:06: <-- HCI_IO_Capability_Response_Event:
+	0 ------------------------------
+	HCI_IO_Capability_Response_Event
+	Op_Code: 0x32
+	Parameter_Length: 9
+	Bd_addr: 00:13:43:0B:F2:67
+	IO_Capability: 0x01
+	OOB_Data_Present: 0x00
+	Authentication_Requirement: 0x03
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x7d
+	Length: 11 (0x000b)
+	2 --
+	UART
+	Length: 18 (0x000012)
+	Data: 0x12 0x00 0x00 0xe1 0x7d 0x0b 0x00 0x32 0x09 0x67 0xf2 0x0b 0x43 0x13 0x00 0x01 0x00 0x03
+	-----------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCode|1x ParameterLength|6x RemoteBD-Address|1x IO_Capability|1x OOBDataPresent|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 48
+
+	-----------------------------------------------------
+	11:12:06: <-- HCI_IO_User_Confirmation_Request_Event:
+	0 ------------------------------------
+	HCI_IO_User_Confirmation_Request_Event
+	Op_Code: 0x33
+	Parameter_Length: 10
+	Bd_addr: 00:13:43:0B:F2:67
+	Numeric_Value: 0x00051cbf
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x7d
+	Length: 12 (0x000c)
+	2 --
+	UART
+	Length: 19 (0x000013)
+	Data: 0x13 0x00 0x00 0xe1 0x7d 0x0c 0x00 0x33 0x0a 0x67 0xf2 0x0b 0x43 0x13 0x00 0xbf 0x1c 0x05 0x00
+	----------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCode|1x ParameterLength|10x Parameters|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 49
+
+
+// *************************************************** Control SSP Part 2 *****************************************************
+	----------------------------------------------------------------------
+	11:12:09: --> TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Request_Reply:
+	0 -----------------------------------------------------
+	TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Request_Reply
+	Bd_Addr: 00:13:43:0B:F2:67
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x3d
+	Length: 10 (0x000a)
+	2 --
+	UART
+	Length: 17 (0x000011)
+	Data: 0x11 0x00 0x00 0xe1 0x3d 0x0a 0x00 0x2c 0x04 0x06 0x67 0xf2 0x0b 0x43 0x13 0x00 0x00
+	------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCode|1x ParameterLength|10x Parameters|	
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 39
+	
+	-----------------------------------------------------------------------
+	11:12:09: <-- TCU_MNG_SSP_SET_RESP_HCI_User_Confirmation_Request_Reply:
+	0 ------------------------------------------------------
+	TCU_MNG_SSP_SET_RESP_HCI_User_Confirmation_Request_Reply
+	Status: successful (0x00)
+	Hci_Status: 0x00
+	Bd_addr: 00:13:43:0B:F2:67
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xbd
+	Length: 14 (0x000e)
+	2 --
+	UART
+	Length: 21 (0x000015)
+	Data: 0x15 0x00 0x00 0xe1 0xbd 0x0e 0x00 0x00 0x0c 0x0e 0x0a 0x01 0x2c 0x04 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00
+	--------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x ParameterLength|1x OpCodeCommandComplete|1x EventLength|1x NHCP|1x OpCodeLSB|1x OpCodeMSB|1x Status|6x BD-Address|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 43
+
+
+	// Indicates that simple pairing process has been completed
+	------------------------------------------------
+	11:12:09: <-- HCI_Simple_Pairing_Complete_Event:
+	0 -------------------------------
+	HCI_Simple_Pairing_Complete_Event
+	Op_Code: 0x36
+	Parameter_Length: 7
+	Status: 0x00
+	Bd_addr: 00:13:43:0B:F2:67
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Service ID: 0xe1
+	Op code: 0x7d
+	Length: 9 (0x0009)
+	2 --
+	UART
+	Length: 16 (0x000010)
+	Data: 0x10 0x00 0x00 0xe1 0x7d 0x09 0x00 0x36 0x07 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00
+	-------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x OpCode|1x ParameterLength|7x Parameters|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 50
+	
+	----------------------------------------------
+	11:12:09: <-- TCU_MNG_CONNECTION_STATUS_EVENT:
+	0 -----------------------------
+	TCU_MNG_CONNECTION_STATUS_EVENT
+	Status: successful (0x00)
+	Bd_addr: 00:13:43:0B:F2:67
+	Connection_Status: link key (0x03)
+	Link_Key: 89:BE:0B:FD:4E:4E:C8:A1:12:02:B0:AA:B1:73:90:0A
+	Link_Key_Status: 0x05
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x47
+	Length: 25 (0x0019)
+	2 --
+	UART
+	Length: 32 (0x000020)
+	Data: 0x20 0x00 0x00 0xe1 0x47 0x19 0x00 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x03 0x0a 0x90 0x73 0xb1 0xaa 0xb0 0x02 0x12 0xa1 0xc8 0x4e 0x4e 0xfd 0x0b 0xbe 0x89 0x05
+	---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x BD-Address|1x ConnectionStatus|16x LinkKey|1x LinkKeyType|2x SniffInterval|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 27	
+	
+	// Indicates an established SPP connection
+	------------------------------------
+	11:12:10: <-- TCU_SPP_CONNECT_EVENT:
+	0 -------------------
+	TCU_SPP_CONNECT_EVENT
+	Status: successful (0x00)
+	Bd_addr: 00:13:43:0B:F2:67
+	Negotiated_Frame_Size: 7938
+	Length_of_Device_Name: 8
+	Device_Name: 'PAN1026B'
+	1 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x43
+	Length: 18 (0x0012)
+	2 --
+	UART
+	Length: 25 (0x000019)
+	Data: 0x19 0x00 0x00 0xe5 0x43 0x12 0x00 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x1f 0x02 0x08 0x50 0x41 0x4e 0x31 0x30 0x32 0x36 0x42
+	----------------------------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x BD_ADDR|2x NegotiatedFrameSize|1x LengthOfDeviceName|max.248x DeviceName|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013 - page 11		
+
+
+// *************************************************** SPP Data Transfer ****************************************************
+	// Send SPP data to remote device
+	----------------------------------------
+	11:12:25: --> TCU_SPP_DATA_TRANSFER_REQ:
+	0 -----------------------
+	TCU_SPP_DATA_TRANSFER_REQ
+	Length_of_Data: 12
+	1 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x08
+	Length: 14 (0x000e)
+	2 --
+	UART
+	Length: 21 (0x000015)
+	Data: 0x15 0x00 0x00 0xe5 0x08 0x0e 0x00 0x0c 0x00 0x50 0x41 0x4e 0x31 0x30 0x32 0x36 0x20 0x54 0x45 0x53 0x54
+	--------------------------------------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|2x LengthOfData|max.543x Data|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013 - page 15	
+	
+	
+	// Acknowledge the start of the previous command operation
+	-------------------------
+	11:12:25: <-- TCU_ACCEPT:
+	0 --------
+	TCU_ACCEPT
+	Status: successful (0x00)
+	Command ServiceID: 0xe5
+	Command OpCode: 0x08
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xf1
+	Length: 3 (0x0003)
+	2 --
+	UART
+	Length: 10 (0x00000a)
+	Data: 0x0a 0x00 0x00 0xe1 0xf1 0x03 0x00 0x00 0xe5 0x08
+	-------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x CommandServiceID|1x CommandOpCode|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 67	
+	
+	// Data transfer is completed
+	--------------------------------------
+	11:12:25: <-- TCU_SPP_DATA_SEND_EVENT:
+	0 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0xf1
+	Length: 0 (0x0000)
+	1 --
+	UART
+	Length: 7 (0x000007)
+	Data: 0x07 0x00 0x00 0xe5 0xf1 0x00 0x00
+	----------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013 - page 17	
+
+
+// ************************************************ Disconnect from paired/connected device ************************************************
+	// Disconnect the SPP connection
+	-------------------------------------
+	11:14:59: --> TCU_SPP_DISCONNECT_REQ:
+	0 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x04
+	Length: 0 (0x0000)
+	1 --
+	UART
+	Length: 7 (0x000007)
+	Data: 0x07 0x00 0x00 0xe5 0x04 0x00 0x00
+	----------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013 - page 12
+	
+	// Acknowledge the start of the previous command operation
+	-------------------------
+	11:14:59: <-- TCU_ACCEPT:
+	0 --------
+	TCU_ACCEPT
+	Status: successful (0x00)
+	Command ServiceID: 0xe5
+	Command OpCode: 0x04
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0xf1
+	Length: 3 (0x0003)
+	2 --
+	UART
+	Length: 10 (0x00000a)
+	Data: 0x0a 0x00 0x00 0xe1 0xf1 0x03 0x00 0x00 0xe5 0x04
+	-------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|1x CommandServiceID|1x CommandOpCode|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013.pdf - page 67		
+	
+	// Disconnect status event
+	----------------------------------------------
+	11:14:59: <-- TCU_MNG_CONNECTION_STATUS_EVENT:
+	0 -----------------------------
+	TCU_MNG_CONNECTION_STATUS_EVENT
+	Status: successful (0x00)
+	Bd_addr: 00:13:43:0B:F2:67
+	Connection_Status: disconnected (0x01)
+	1 -----
+	Generic
+	Service ID: 0xe1
+	Op code: 0x47
+	Length: 8 (0x0008)
+	2 --
+	UART
+	Length: 15 (0x00000f)
+	Data: 0x0f 0x00 0x00 0xe1 0x47 0x08 0x00 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x01
+	--------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x BD-Address|1x ConnectionStatus|16x LinkKey|1x LinkKeyType|2x SniffInterval|
+	Document: PAN1026_TC35661APL_ROM501_MNG_E_26thJuly2013 - page 27
+	
+	// SPP disconnection is completed
+	---------------------------------------
+	11:14:59: <-- TCU_SPP_DISCONNECT_EVENT:
+	0 ----------------------
+	TCU_SPP_DISCONNECT_EVENT
+	Status: successful (0x00)
+	Bd_addr: 00:13:43:0B:F2:67
+	Reason: 0x01
+	1 -----
+	Generic
+	Service ID: 0xe5
+	Op code: 0x44
+	Length: 8 (0x0008)
+	2 --
+	UART
+	Length: 15 (0x00000f)
+	Data: 0x0f 0x00 0x00 0xe5 0x44 0x08 0x00 0x00 0x67 0xf2 0x0b 0x43 0x13 0x00 0x01
+	--------------------------------------------------------------------------------
+	|3x Length|1x ServiceID|1x OpCode|2x ParameterLength|1x Status|6x BD_ADDR|1x Reason|
+	Document: PAN1026_TC35661APL_ROM501_SPP_E_24thJune2013 - page 13

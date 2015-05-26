@@ -189,6 +189,14 @@ extern struct app_info fw_info;
 #define GPS_UART_PWR_ON			PR.PRPE &= 0b11101111;
 #define GPS_UART_PWR_OFF		PR.PRPE |= 0b00010000;
 
+#define AUDIO_TIMER				timere0
+#define AUDIO_TIMER_OVF			timere0_overflow_interrupt
+#define AUDIO_TIMER_CMPA		timere0_compareA_interrupt
+#define AUDIO_TIMER_CMPB		timere0_compareB_interrupt
+#define AUDIO_TIMER_CMPC		timere0_compareC_interrupt
+#define AUDIO_TIMER_CMPD		timere0_compareD_interrupt
+#define AUDIO_TIMER_PWR_OFF		PR.PRPE |= 0b00000001
+#define AUDIO_TIMER_PWR_ON		PR.PRPE &= 0b11111110
 
 #define LED_TIMER2				timere1
 #define LED_TIMER2_PWR_ON		PR.PRPE	&= 0b11111101;

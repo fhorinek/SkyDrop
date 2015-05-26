@@ -100,7 +100,7 @@ class FontConvertor:
         
         self.im = PIL.Image.new('1', (self.w, self.h), 0)
         self.im.paste(self.buffer, (0, 0))
-        self.im.save("generated.png")
+        self.im.save("generated_%s_%d.png" % (os.path.basename(self.fontname), self.fontsize))
        
         self.n = self.h / 8
         
@@ -251,12 +251,12 @@ values_10.Convert()
 values_10.Save()
 
 text_L = FontConvertor("source/Arial.ttf", 12, 1, 33, 127)
-text_L.Generate()
+text_L.Generate({49: 5, 45:5})
 text_L.Convert()
 text_L.Save()
 
 text_M = FontConvertor("source/Arial.ttf", 10, 1, 33, 127)
-text_M.Generate()
+text_M.Generate({49: 5, 45:5})
 text_M.Convert()
 text_M.Save()
 

@@ -1,13 +1,12 @@
 #include "pages.h"
+#include "splash.h"
 #include "widgets/widgets.h"
 
 uint8_t active_page = 2;
 uint8_t old_page = 2;
 
-uint8_t active_widget = WIDGET_OFF;
+uint8_t active_widget;
 
-extern layout_t pages[NUMBER_OF_PAGES];
-extern widget widget_array[];
 
 #define PAGE_IDLE			0
 #define PAGE_CHANGE			1
@@ -23,14 +22,16 @@ extern widget widget_array[];
 
 #define PAGE_MENU_STEPS				5
 #define PAGE_MENU_HEIGHT			16
+#define PAGE_MENU_POWEROFF_BLIK		3000
+#define PAGE_MENU_POWEROFF			5000
 
 #define NORMAL	1
 #define REVERSE	0
 
-uint8_t page_state = PAGE_IDLE;
+uint8_t page_state;
 uint8_t page_state_step; //step based animation
 uint8_t page_state_dir;  //direction
-uint32_t page_state_end; //timer based timeout
+uint32_t page_state_timer; //timer based timeout
 
 uint8_t page_change_dir;
 
@@ -41,12 +42,11 @@ const uint8_t PROGMEM img_layout[16]={14,8,252,132,132,191,161,225,33,33,225,161
 void gui_pages_init()
 {
 	widgets_init();
+	page_state = PAGE_IDLE;
+	active_widget = WIDGET_OFF;
 }
 
-void gui_pages_stop()
-{
-
-}
+void gui_pages_stop() {}
 
 //returns true if this is a first time
 bool gui_enter_widget_menu()
@@ -54,7 +54,7 @@ bool gui_enter_widget_menu()
 	uint8_t old_state = page_state;
 
 	page_state = PAGE_WIDGET_MENU;
-	page_state_end = task_get_ms_tick() + PAGE_WIDGET_MENU_DURATION * 1000;
+	page_state_timer = task_get_ms_tick() + PAGE_WIDGET_MENU_DURATION * 1000;
 
 	return (old_state != page_state);
 }
@@ -62,7 +62,7 @@ bool gui_enter_widget_menu()
 void gui_exit_widget_menu()
 {
 	page_state = PAGE_WIDGET_SELECT;
-	page_state_end = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+	page_state_timer = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
 }
 
 void gui_pages_loop()
@@ -91,7 +91,7 @@ void gui_pages_loop()
 		disp.InvertPixel(x, y + h - 1);
 		disp.InvertPixel(x + w - 1, y + h - 1);
 
-		if (page_state_end < task_get_ms_tick())
+		if (page_state_timer < task_get_ms_tick())
 			page_state = PAGE_IDLE;
 	break;
 
@@ -99,7 +99,7 @@ void gui_pages_loop()
 		wtype = widget_get_type(active_page, active_widget);
 		widget_array[wtype].menu_loop(widget_array[wtype].flags);
 
-		if (page_state_end < task_get_ms_tick())
+		if (page_state_timer < task_get_ms_tick())
 			page_state = PAGE_IDLE;
 	break;
 
@@ -190,11 +190,20 @@ void gui_pages_loop()
 		disp.DrawLine(GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, GUI_DISP_WIDTH - 1, top + 1, 1);
 
 		//pwr
-		disp.DrawImage(img_pwr, 36, top + 2);
+		if ((page_state_timer - task_get_ms_tick() > PAGE_MENU_POWEROFF_BLIK) || (task_get_ms_tick() % 200 > 100))
+			disp.DrawImage(img_pwr, 36, top + 2);
+
 		//menu
 		disp.DrawImage(img_menu, 69, top + 4);
+
 		//layout
 		disp.DrawImage(img_layout, 3, top + 4);
+
+		if (page_state_timer < task_get_ms_tick())
+		{
+			gui_splash_set_mode(SPLASH_OFF);
+			gui_switch_task(GUI_SPLASH);
+		}
 
 	break;
 
@@ -292,7 +301,7 @@ void gui_pages_idle_irqh(uint8_t type, uint8_t * buff)
 				page_select_first_widget();
 
 				page_state = PAGE_WIDGET_SELECT;
-				page_state_end = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+				page_state_timer = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
 			}
 		}
 	break;
@@ -320,7 +329,7 @@ void gui_pages_select_irqh(uint8_t type, uint8_t * buff)
 			if (page_select_next_widget())
 			{
 				page_state = PAGE_WIDGET_SELECT;
-				page_state_end = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+				page_state_timer = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
 			}
 			else
 				page_state = PAGE_IDLE;
@@ -337,6 +346,12 @@ void gui_page_menu_irqh(uint8_t type, uint8_t * buff)
 	{
 		gui_switch_task(GUI_SETTINGS);
 	}
+
+	if (type == TASK_IRQ_BUTTON_L && *buff == BE_HOLD)
+	{
+		gui_switch_task(GUI_LAYOUTS);
+	}
+
 
 	if (type == TASK_IRQ_BUTTON_M && *buff == BE_RELEASED)
 	{
@@ -358,6 +373,7 @@ void gui_pages_irqh(uint8_t type, uint8_t * buff)
 			page_state = PAGE_MENU;
 			page_state_step = PAGE_MENU_STEPS;
 			page_state_dir = NORMAL;
+			page_state_timer = task_get_ms_tick() + PAGE_MENU_POWEROFF;
 		}
 		else
 			gui_pages_idle_irqh(type, buff);

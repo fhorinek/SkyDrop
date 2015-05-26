@@ -490,6 +490,11 @@ void n5110display::CopyToLayerX(uint8_t dst, int8_t x)
 	}
 }
 
+void n5110display::CopyToLayer(uint8_t dst)
+{
+	memcpy(this->layers[dst], this->active_buffer, (n5110_height / 8) * n5110_width);
+}
+
 void n5110display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
 {
 	for (uint8_t j=row1;j<row2;j++)

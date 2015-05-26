@@ -4,12 +4,12 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 {
 	uint8_t lh = widget_label(PSTR("Vario"), x, y);
 
-	float val = flight_data.digital_vario;
+	float val = fc.digital_vario;
 	if (abs(val) < 0.09)
 		val = 0;
 
 	char text[10];
-	if (flight_data.baro_valid)
+	if (fc.baro_valid)
 		sprintf(text, "%0.1f", val);
 	else
 		sprintf(text, "-.-", val);
@@ -20,12 +20,12 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 {
 	uint8_t lh = widget_label(PSTR("Avg"), x, y);
 
-	float val = flight_data.avg_vario;
+	float val = fc.avg_vario;
 	if (abs(val) < 0.09)
 		val = 0;
 
 	char text[10];
-	if (flight_data.baro_valid)
+	if (fc.baro_valid)
 		sprintf(text, "%0.1f", val);
 	else
 		sprintf(text, "-.-", val);
@@ -49,7 +49,7 @@ void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	float vario;
 
-	vario = flight_data.vario;
+	vario = fc.vario;
 
 //	if (flight_data.baro_valid)
 //		vario = flight_data.vario;

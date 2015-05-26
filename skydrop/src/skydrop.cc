@@ -11,6 +11,8 @@ void Setup()
 
 	//debug pins
 	IO0_INIT;
+	IO0_HIGH;
+
 	IO1_INIT;
 
 	//save power

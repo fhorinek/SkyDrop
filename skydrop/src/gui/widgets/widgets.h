@@ -10,11 +10,13 @@
 
 #define WIDGES_PER_PAGE		9
 #define NUMBER_OF_PAGES		5
+#define NUMBER_OF_WIDGETS	10
 
 #include "../gui.h"
 #include "../../fc/fc.h"
 #include "../pages.h"
 #include "layouts/layouts.h"
+
 
 
 struct widget
@@ -62,7 +64,7 @@ extern uint8_t widget_menu_param1;
 extern float widget_menu_fvalue1;
 
 #define WIDGET_OFF			0xFF
-#define WIDGET_DUMMY		0
+#define WIDGET_EMPTY		0
 #define WIDGET_DEBUG		1
 #include "dummy.h"
 
@@ -92,5 +94,8 @@ uint8_t layout_get_number_of_widgets(uint8_t type);
 void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t * y, uint8_t * w, uint8_t * h);
 
 uint8_t widget_get_type(uint8_t page, uint8_t widget);
+
+extern layout_t pages[NUMBER_OF_PAGES];
+extern widget widget_array[NUMBER_OF_WIDGETS];
 
 #endif /* WIDGETS_H_ */

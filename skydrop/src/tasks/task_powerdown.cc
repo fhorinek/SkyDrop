@@ -7,9 +7,9 @@ volatile bool powerdown_loop_break = false;
 
 void task_powerdown_init()
 {
-	//XXX: hack
-	task_set(TASK_ACTIVE);
-	return;
+//	//XXX: hack
+//	task_set(TASK_ACTIVE);
+//	return;
 
 	//Lower F_CPU
 	ClockSetSource(x2MHz);
@@ -41,7 +41,6 @@ void task_powerdown_init()
 
 void task_powerdown_stop()
 {
-	return;
 	//Reinit all devices
 	DEBUG("Restarting all devices\n");
 
@@ -49,7 +48,7 @@ void task_powerdown_stop()
 	Setup();
 	task_timer_setup();
 	DEBUG("Restoring full speed uart\n");
-	//Post();
+//	Post();
 
 	powerdown_lock.Unlock();
 }
@@ -99,14 +98,14 @@ void task_powerdown_irqh(uint8_t type, uint8_t * buff)
 {
 	switch(type)
 	{
-//	case(TASK_IRQ_BUTTON):
-//		if (*buff == BUTTON_HOLD)
-//		{
-//			powerdown_loop_break = true;
-//			task_set(TASK_GUI);
-//		}
-//	break;
-//
+	case(TASK_IRQ_BUTTON_M):
+		if (*buff == BE_LONG)
+		{
+			powerdown_loop_break = true;
+			task_set(TASK_ACTIVE);
+		}
+	break;
+
 //	case(TASK_IRQ_USB):
 //		uint8_t state = *buff;
 //

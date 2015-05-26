@@ -1,0 +1,87 @@
+#include "splash.h"
+
+uint32_t splash_timer = 0;
+uint8_t splash_cnt = 0;
+uint8_t splash_mode;
+#define SPLASH_TIMEOUT	2000
+#define SPLASH_ANIM_TOP	35
+
+void gui_splash_set_mode(uint8_t mode)
+{
+	splash_mode = mode;
+}
+
+void gui_splash_init()
+{
+	splash_timer = task_get_ms_tick() + SPLASH_TIMEOUT;
+
+	if (splash_mode == SPLASH_ON)
+	{
+		gui_trigger_backlight();
+		splash_cnt = 0;
+	}
+	else
+	{
+		lcd_bckl(0);
+		splash_cnt = SPLASH_ANIM_TOP;
+	}
+}
+
+void gui_splash_stop() {}
+
+void gui_splash_loop()
+{
+	//border
+	disp.DrawLine(24, 16, 33,  7, 1);
+	disp.DrawLine(34,  7, 49,  7, 1);
+	disp.DrawLine(50,  7, 59, 16, 1);
+	disp.DrawLine(59, 17, 51, 25, 1);
+	disp.DrawLine(50, 25, 42, 17, 1);
+	disp.DrawLine(41, 17, 33, 25, 1);
+	disp.DrawLine(32, 25, 24, 17, 1);
+
+	disp.DrawLine(42, 26, 50, 34, 1);
+	disp.DrawLine(50, 35, 42, 43, 1);
+	disp.DrawLine(41, 43, 33, 35, 1);
+	disp.DrawLine(33, 34, 41, 26, 1);
+
+	for (uint8_t i = 0; i < splash_cnt && i < 8; i++)
+		disp.DrawLine(41 - i, 42 - i, 42 + i, 42 - i, 1);
+
+	for (uint8_t i = 0; i < splash_cnt - 8 && i < 8; i++)
+		disp.DrawLine(34 + i, 34 - i, 49 - i, 34 - i, 1);
+
+
+	for (uint8_t i = 0; i + 8 < splash_cnt && i < 8; i++)
+	{
+		disp.DrawLine(25 + i, i + 17, 40 - i, i + 17, 1);
+		disp.DrawLine(25 + 18 + i, i + 17, 40 + 18 - i, i + 17, 1);
+	}
+
+	for (uint8_t i = 0; i < splash_cnt && i < 9; i++)
+		disp.DrawLine(33 - i, i + 8, 50 + i, i + 8, 1);
+
+
+	if (splash_mode == SPLASH_ON)
+	{
+		if (splash_cnt < SPLASH_ANIM_TOP)
+			splash_cnt++;
+		if (splash_timer < task_get_ms_tick())
+			gui_switch_task(GUI_PAGES);
+		gui_trigger_backlight();
+	}
+	else
+	{
+		if (splash_cnt > 0)
+			splash_cnt--;
+		if (splash_timer < task_get_ms_tick())
+			task_set(TASK_POWERDOWN);
+	}
+}
+
+void gui_splash_irqh(uint8_t type, uint8_t * buff)
+{
+
+}
+
+

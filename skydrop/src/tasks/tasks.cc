@@ -22,8 +22,7 @@ volatile uint32_t task_timer_high = 0;
 volatile uint8_t task_sleep_lock = 0;
 
 volatile uint8_t actual_task = NO_TASK;
-//volatile uint8_t new_task = TASK_NV_DEMO;
-volatile uint8_t new_task = TASK_POWERDOWN;
+volatile uint8_t new_task = TASK_ACTIVE;//TASK_POWERDOWN;
 
 uint8_t usb_state;
 

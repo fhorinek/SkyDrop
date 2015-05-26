@@ -1,6 +1,5 @@
 #include "widgets.h"
 #include "../../fc/conf.h"
-#include "layouts/layouts.h"
 
 layout_t pages[NUMBER_OF_PAGES];
 
@@ -8,7 +7,7 @@ uint8_t widget_menu_state;
 uint8_t widget_menu_param1;
 float widget_menu_fvalue1;
 
-widget widget_array[] ={
+widget widget_array[NUMBER_OF_WIDGETS] ={
 		w_dummy, w_debug,
 		w_vario, w_avg_vario, w_vario_bar,
 		w_alt1, w_alt2, w_alt3, w_alt4,

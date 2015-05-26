@@ -12,12 +12,14 @@
 #include "../uart.h"
 #include "../../tasks/tasks.h"
 
-//#include "btcomm.h"
-#include "pan_lite.h"
+#define BT_IRQ_CONNECTED	0
+#define BT_IRQ_DISCONNECTED	1
+#define BT_IRQ_ERROR		2
 
 bool bt_init();
 void bt_step();
-bool bt_device_active();
-void bt_ms_irq();
+
+void bt_send(char * str);
+void bt_irgh(uint8_t type, uint8_t * buf);
 
 #endif /* BT_H_ */

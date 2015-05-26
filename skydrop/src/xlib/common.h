@@ -6,6 +6,7 @@
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
+#include <string.h>
 
 #ifdef __cplusplus
 	#include "oofix.h"

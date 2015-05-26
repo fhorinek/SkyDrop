@@ -41,8 +41,6 @@ void buzzer_set_freq(uint16_t freq_hz)
 
 	uint16_t buzzer_period = 31250 / freq_hz;
 
-	DEBUG("Period: %d", buzzer_period);
-
 	buzzer_timer.SetCompare(timer_A, buzzer_period / 2);
 	buzzer_timer.SetTop(buzzer_period);
 

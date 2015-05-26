@@ -11,6 +11,7 @@
 #include "../common.h"
 
 #define NUMBER_OF_ALTIMETERS	3
+#define AUDIO_PROFILE_SIZE		41
 
 #include "conf.h"
 
@@ -57,6 +58,15 @@ typedef struct
 	vector_i16_t acc_bias;
 	vector_i16_t acc_sensitivity;
 
+	uint16_t buzzer_freq[AUDIO_PROFILE_SIZE];
+	uint16_t buzzer_pause[AUDIO_PROFILE_SIZE];
+	uint16_t buzzer_length[AUDIO_PROFILE_SIZE];
+
+	int16_t audio_lift;
+	int16_t audio_sink;
+	uint8_t audio_fluid;
+	uint8_t audio_volume;
+
 	// --- CALC ---
 	bool baro_valid;
 	float pressure;
@@ -79,6 +89,6 @@ float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);
 
-extern volatile flight_data_t flight_data;
+extern volatile flight_data_t fc;
 
 #endif /* FC_H_ */

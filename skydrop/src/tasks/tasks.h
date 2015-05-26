@@ -23,12 +23,8 @@
 #define TASK_IRQ_BUTTON_L	0
 #define TASK_IRQ_BUTTON_M	1
 #define TASK_IRQ_BUTTON_R	2
-#define TASK_IRQ_ACC		3
-#define TASK_IRQ_MAG		4
-#define TASK_IRQ_BT			5
-#define TASK_IRQ_BARO		6
-#define TASK_IRQ_USB		7
-#define TASK_IRQ_BAT		8
+#define TASK_IRQ_BAT		3
+#define TASK_IRQ_USB		4
 
 
 class SleepLock

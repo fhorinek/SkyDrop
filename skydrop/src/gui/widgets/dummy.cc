@@ -1,11 +1,7 @@
 #include "dummy.h"
 
-void widget_dummy_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	disp.DrawRectangle(x, y, x + w - 1, y + h - 1, 1, 0);
-	disp.DrawLine(x, y, x + w - 1, y + h - 1, 1);
-	disp.DrawLine(x, y + h - 1, x + w - 1, y, 1);
-}
+void widget_empty_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{}
 
 int16_t max_x = 0;
 int16_t max_y = 0;
@@ -21,7 +17,7 @@ void widget_debug_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 
 	vector_i16_t vec;
 
-	memcpy(&vec, (void *)&flight_data.mag_data, sizeof(vector_i16_t));
+	memcpy(&vec, (void *)&fc.mag_data, sizeof(vector_i16_t));
 
 	if (vec.x > max_x) max_x = vec.x;
 	if (vec.x < min_x) min_x = vec.x;
@@ -42,5 +38,5 @@ void widget_debug_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 	fprintf(lcd_out, "%+5d %+5d %+5d", vec.z, max_z, min_z);
 }
 
-register_widget1(w_dummy, "Dummy", widget_dummy_draw);
+register_widget1(w_dummy, "Empty", widget_empty_draw);
 register_widget1(w_debug, "Debug", widget_debug_draw);
