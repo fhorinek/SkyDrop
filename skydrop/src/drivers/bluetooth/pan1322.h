@@ -71,6 +71,8 @@ public:
 	void StreamWrite(uint8_t data);
 	void StreamTail();
 
+	void SendString(char * str);
+
 	bool isIdle();
 };
 

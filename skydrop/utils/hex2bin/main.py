@@ -46,7 +46,8 @@ class Hex2BinConv():
         print " label: %s" % lab_str
         print "Converting HEX 2 BIN ...", 
         
-        out_file.write(lab_str)
+        if (label != "ee"):
+            out_file.write(lab_str)
 
         while(adr <= max_adr):
             out_file.write(chr(self.hex[adr]))

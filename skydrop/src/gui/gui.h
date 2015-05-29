@@ -25,6 +25,8 @@ void gui_stop();
 void gui_loop();
 void gui_irqh(uint8_t type, uint8_t * buff);
 
+void gui_force_loop();
+
 void gui_trigger_backlight();
 void gui_set_contrast(uint8_t contrast);
 void gui_showmessage(const char * msg);
@@ -52,6 +54,8 @@ void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 #define GUI_LAYOUTS		7
 #define GUI_SET_LAYOUT	8
 #define GUI_SET_DISPLAY	9
+#define GUI_USB			10
+#define GUI_FTEST		11
 
 #define GUI_NUMBER_OF_TASKS		1
 

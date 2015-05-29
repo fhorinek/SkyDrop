@@ -11,11 +11,9 @@
 
 #include "../skydrop.h"
 
-//854*x + 399
-#define VDC2ADC(V)	(854 * V + 399)
-#define ADC2VDC(V)	((V - 399) / 854.0)
 
-
+extern int16_t battery_adc_raw;
+extern int8_t battery_per;
 
 
 void battery_init();

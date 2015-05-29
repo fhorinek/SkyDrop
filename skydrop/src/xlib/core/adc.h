@@ -6,9 +6,10 @@
 typedef enum xlib_core_adc_reference_e
 {
 	adc_int1V = ADC_REFSEL_INT1V_gc,	//!< Accurate internal 1.00V reference
-	adc_avcc = ADC_REFSEL_INTVCC_gc,		//!< Internal VCC/1.6V reference
+	adc_avcc = ADC_REFSEL_INTVCC_gc,	//!< Internal VCC/1.6V reference
 	adc_refA = ADC_REFSEL_AREFA_gc,		//!< External reference on porta0
-	adc_refB = ADC_REFSEL_AREFB_gc		//!< External reference on porta8
+	adc_refB = ADC_REFSEL_AREFB_gc,		//!< External reference on portb0
+	adc_avcc2 = ADC_REFSEL_INTVCC2_gc	//!< Internal VCC/1.6V reference
 } xlib_core_adc_reference;
 
 typedef enum xlib_core_adc_mode_e

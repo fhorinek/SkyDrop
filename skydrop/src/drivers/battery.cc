@@ -4,7 +4,10 @@
 
 void battery_init()
 {
-	AdcAInit(adc_int1V);
+	BATTERY_ADC_PWR_ON;
+	BATTERY_ADC_ENABLE;
+
+	AdcAInit(adc_avcc2);
 	AdcASetMode(adc_unsigned);
 
 	AdcPipeSetSource(pipea0, BAT_SNS_ADC);
@@ -22,8 +25,10 @@ void battery_init()
 #define BATTERY_STATE_RESULT	3
 
 #define BATTERY_MEAS_AVG 		16
-#define BATTERY_MEAS_PERIOD 	20
-//#define BATTERY_MEAS_PERIOD 	1
+#define BATTERY_MEAS_PERIOD 	10000
+//#define BATTERY_MEAS_PERIOD 	1000
+#define BATTERY_STABILISE 		100
+
 
 uint32_t battery_next_meas = 0;
 uint8_t  battery_meas_state = BATTERY_STATE_PREPARE;
@@ -34,19 +39,19 @@ uint8_t  battery_meas_cnt = 0;
 int16_t battery_adc_raw = 0;
 int8_t battery_per = 0;
 
-#define BATT_COEF_A	(0.4245490451)
-#define BATT_COEF_B  (-690.3297755603)
+#define BATT_COEF_A	(0.291950711)
+#define BATT_COEF_B  (-672.1273455619)
 
 bool battery_step()
 {
-	if (battery_next_meas > time_get_actual())
+	if (battery_next_meas > task_get_ms_tick())
 		return false;
 
 	switch (battery_meas_state)
 	{
 	case(BATTERY_STATE_IDLE):
 		battery_adc_raw = battery_meas_acc / BATTERY_MEAS_AVG;
-		battery_per = round((battery_adc_raw * BATT_COEF_A) + BATT_COEF_B);
+		battery_per = round(((float)battery_adc_raw * BATT_COEF_A) + BATT_COEF_B);
 		if (battery_per > 100)
 			battery_per = 100;
 		if (battery_per < 0)
@@ -54,10 +59,10 @@ bool battery_step()
 
 		task_irqh(TASK_IRQ_BAT, (uint8_t *)&battery_per);
 
-		DEBUG1("adc %u (%3d%%)", battery_adc_raw, battery_per);
+		DEBUG("adc %u (%3d%%)\n", battery_adc_raw, battery_per);
 
 		battery_meas_state = BATTERY_STATE_PREPARE;
-		battery_next_meas = time_get_actual() + BATTERY_MEAS_PERIOD;
+		battery_next_meas = task_get_ms_tick() + BATTERY_MEAS_PERIOD;
 		battery_meas_acc = 0;
 		battery_meas_cnt = 0;
 
@@ -70,6 +75,7 @@ bool battery_step()
 		BATTERY_ADC_PWR_ON;
 		BATTERY_ADC_ENABLE;
 		bat_en_high(BAT_EN_ADC);
+		battery_next_meas = task_get_ms_tick() + BATTERY_STABILISE;
 	break;
 
 	case(BATTERY_STATE_START):
@@ -85,7 +91,7 @@ bool battery_step()
 			return false;
 		}
 
-		bat_en_low(BAT_EN_ADC);
+
 
 		uint16_t tmp = AdcPipeValue(pipea0);
 		battery_meas_acc += tmp;
@@ -96,6 +102,7 @@ bool battery_step()
 		{
 			battery_meas_state = BATTERY_STATE_IDLE;
 
+			bat_en_low(BAT_EN_ADC);
 			BATTERY_ADC_DISABLE;
 			BATTERY_ADC_PWR_OFF;
 		}

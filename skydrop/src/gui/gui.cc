@@ -13,6 +13,8 @@
 #include "settings/layouts.h"
 #include "settings/set_layout.h"
 #include "settings/set_display.h"
+#include "usb.h"
+#include "factory_test.h"
 
 
 n5110display disp;
@@ -22,16 +24,16 @@ volatile uint8_t gui_task = GUI_NONE;
 volatile uint8_t gui_new_task = GUI_SPLASH;
 
 void (* gui_init_array[])() =
-{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init};
+{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init};
 
 void (* gui_stop_array[])() =
-{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop};
+{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop};
 
 void (* gui_loop_array[])() =
-{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop};
+{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
-{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh};
+{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -93,14 +95,16 @@ void gui_init()
 
 	eeprom_busy_wait();
 	lcd_brightness = eeprom_read_byte(&config.gui.brightness);
+	if (lcd_brightness == 0xFF) lcd_brightness = 100;
+
 	lcd_brightness_timeout = eeprom_read_byte(&config.gui.brightness_timeout);
+	if (lcd_brightness_timeout == 0xFF) lcd_brightness = 3;
+
 	lcd_contrast = eeprom_read_byte(&config.gui.contrast);
+	if (lcd_contrast == 0xFF) lcd_brightness = 72;
 
 	disp.SetContrast(lcd_contrast);
 	gui_trigger_backlight();
-
-	gui_splash_set_mode(SPLASH_ON);
-	gui_switch_task(GUI_SPLASH);
 }
 
 void gui_stop()
@@ -194,6 +198,30 @@ void gui_loop()
 
 	if (lcd_brightness_end < task_get_ms_tick())
 		lcd_bckl(0);
+}
+
+void gui_force_loop()
+{
+	if (lcd_new_contrast)
+	{
+		//need to be outside of IRQ
+		lcd_new_contrast = false;
+		disp.SetContrast(lcd_contrast);
+	}
+
+	disp.ClearBuffer();
+
+	if (gui_new_task != gui_task)
+	{
+		if (gui_task != GUI_NONE)
+			gui_stop_array[gui_task]();
+		gui_task = gui_new_task;
+		gui_init_array[gui_task]();
+	}
+
+	gui_loop_array[gui_task]();
+
+	disp.Draw();
 }
 
 void gui_irqh(uint8_t type, uint8_t * buff)

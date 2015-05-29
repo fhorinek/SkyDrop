@@ -22,7 +22,7 @@ volatile uint32_t task_timer_high = 0;
 volatile uint8_t task_sleep_lock = 0;
 
 volatile uint8_t actual_task = NO_TASK;
-volatile uint8_t new_task = TASK_ACTIVE;//TASK_POWERDOWN;
+volatile uint8_t new_task = TASK_POWERDOWN;
 
 uint8_t usb_state;
 
@@ -71,6 +71,8 @@ ISR(TASK_TIMER_OVF)
 ISR(USB_CONNECTED_IRQ)
 {
 	//dummy
+	//just wake up the device
+	//usb_in is checked in main loop
 }
 
 uint64_t task_get_us_tick()
@@ -121,8 +123,8 @@ void task_init()
 
 	DEBUG("usb in state == %d\n", GpioRead(USB_IN));
 	//if is USB connected go directly to USB task
-//	if ((usb_state = USB_CONNECTED))
-//		task_set(TASK_USB);
+	if ((usb_state = USB_CONNECTED))
+		task_set(TASK_USB);
 }
 
 void task_set(uint8_t task)
@@ -136,6 +138,7 @@ void task_loop()
 {
 	uint32_t start = task_get_us_tick();
 
+	DEBUG("LOOP %d\n", actual_task);
 	if (actual_task != NO_TASK)
 		task_loop_array[actual_task]();
 
@@ -172,17 +175,17 @@ void task_system_loop()
 		task_init_array[actual_task]();
 	}
 
-//	//check USB
-//	if (usb_state != USB_CONNECTED)
-//	{
-//		usb_state = USB_CONNECTED;
-//		task_irqh(TASK_IRQ_USB, &usb_state);
-//	}
+	//check USB and send IRQ
+	if (usb_state != USB_CONNECTED)
+	{
+		usb_state = USB_CONNECTED;
+		task_irqh(TASK_IRQ_USB, &usb_state);
+	}
 
 	buttons_step();
 	if (powerdown_lock.Active() == false)
 	{
-//		battery_step();
+		battery_step();
 	}
 
 	delta = task_get_us_tick() - start;
@@ -208,6 +211,7 @@ void task_sleep()
 
 void task_irqh(uint8_t type, uint8_t * buff)
 {
+	DEBUG("IRQ %d for %d\n", type, actual_task);
 	task_irqh_array[actual_task](type, buff);
 }
 

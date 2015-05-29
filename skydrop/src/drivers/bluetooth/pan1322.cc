@@ -84,6 +84,15 @@ void pan1322::StreamWrite(uint8_t data)
 	this->usart.Write(data);
 }
 
+void pan1322::SendString(char *str)
+{
+	uint16_t len = strlen(str);
+
+	this->StreamHead(len);
+	fprintf_P(bt_pan1322_out, PSTR("%s"), str);
+	this->StreamTail();
+}
+
 bool pan1322::WaitForOK(uint16_t timeout_ms)
 {
 	this->ok_ans = false;

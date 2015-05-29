@@ -11,10 +11,11 @@
 uint8_t buttons_state[] = {BS_IDLE, BS_IDLE, BS_IDLE};
 uint32_t buttons_counter[] = {0, 0, 0};
 
+SleepLock button_lock;
 
 ISR(SWITCH_INT)
 {
-	buttons_step();
+//	buttons_step();
 }
 
 void buttons_init()
@@ -120,10 +121,15 @@ void buttons_step()
 	button_handle(0, GpioRead(SWITCH1));
 	button_handle(1, GpioRead(SWITCH2));
 	button_handle(2, GpioRead(SWITCH3));
+
+	if (buttons_state[0] > BS_IDLE || buttons_state[1] > BS_IDLE || buttons_state[2] > BS_IDLE)
+		button_lock.Lock();
+	else
+		button_lock.Unlock();
 }
 
 bool buttons_read(uint8_t index)
 {
-	return buttons_state[index] > 0;
+	return buttons_state[index] > BUTTON_DEBOUNCE;
 }
 

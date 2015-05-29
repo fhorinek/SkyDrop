@@ -1,4 +1,5 @@
 #include "task_usb.h"
+#include "../../gui/gui.h"
 
 SleepLock usb_lock;
 
@@ -8,6 +9,7 @@ void task_usb_init()
 	USB_PWR_ON;
 	SD_SPI_PWR_ON;
 	SD_EN_ON;
+
 
 	DEBUG("This is USB task\n");
 
@@ -24,16 +26,20 @@ void task_usb_init()
 		DEBUG("Error\n");
 
 	DEBUG("USB init\n");
-//	USB_Init(USB_DEVICE_OPT_FULLSPEED | USB_OPT_RC32MCLKSRC | USB_OPT_BUSEVENT_PRIHIGH);
 
-//	USB_Init(USB_DEVICE_OPT_FULLSPEED | USB_OPT_PLLCLKSRC | USB_OPT_BUSEVENT_PRIHIGH);
 	USB_Init();
+
+	//init gui
+	gui_init();
+	gui_switch_task(GUI_USB);
 }
 
 
 void task_usb_stop()
 {
 	usb_lock.Unlock();
+
+	gui_stop();
 
 	USB_PWR_OFF;
 	SD_SPI_PWR_OFF;
@@ -45,6 +51,8 @@ void task_usb_stop()
 
 void task_usb_loop()
 {
+	gui_loop();
+
 	for (uint8_t i=0; i < 128; i++)
 		MassStorage_Loop();
 }

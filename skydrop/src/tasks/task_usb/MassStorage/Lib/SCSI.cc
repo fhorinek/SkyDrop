@@ -69,9 +69,9 @@ static const SCSI_Inquiry_Response_t InquiryData =
 		.WideBus32Bit        = false,
 		.RelAddr             = false,
 
-		.VendorID            = {'L', 'U', 'F', 'A', 0, 0, 0, 0},
-		.ProductID           = {'D', 'a', 't', 'a', 'f', 'l', 'a', 's', 'h', ' ', 'D', 'i', 's', 'k', 0, 0},
-		.RevisionID          = {'0','.','0','0'},
+		.VendorID            = {'S', 'k', 'y', 'B', 'e', 'a', 'n', 0},
+		.ProductID           = {'S', 'k', 'y', 'd', 'r', 'o', 'p', ' ', 'v', 'a', 'r', 'i', 'o', 0, 0, 0},
+		.RevisionID          = {'1','.','0','0'},
 	};
 
 /** Structure to hold the sense data for the last issued SCSI command, which is returned to the host after a SCSI REQUEST SENSE

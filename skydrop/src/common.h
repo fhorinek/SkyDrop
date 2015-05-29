@@ -29,6 +29,7 @@ union byte4
 
 union byte2
 {
+	uint16_t uint16;
 	int16_t int16;
 	uint8_t uint8[2];
 };
@@ -47,12 +48,19 @@ typedef struct
 	float z;
 } vector_float_t;
 
+#define APP_INFO_EE_offset	32
+#define APP_INFO_TEST_hex	0xAA
+#define APP_INFO_NAME_len	(APP_INFO_EE_offset - 1)
+
 struct app_info
 {
-	uint8_t app_name[32];
+	uint8_t app_name[APP_INFO_NAME_len];
+	uint8_t test_pass;
 };
 
 extern struct app_info fw_info;
+extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
+
 
 
 //PINOUT
@@ -293,5 +301,12 @@ bool cmpn(char * s1, const char * s2, uint8_t n);
 bool cmpn_p(char * s1, const char * s2, uint8_t n);
 void print_fw_info();
 int freeRam();
+void LoadEEPROM();
+
+void turnoff_subsystems();
+
+void bat_en_high(uint8_t mask);
+void bat_en_low(uint8_t mask);
+
 
 #endif /* COMMON_H_ */

@@ -17,4 +17,6 @@ void gps_parse(Usart *);
 void gps_step();
 void gps_setup();
 
+bool gps_selftest();
+
 #endif /* GPS_L80_H_ */

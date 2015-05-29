@@ -46,9 +46,15 @@ uint8_t buffer[BUFFER_SIZE];
 uint16_t bytes_read;
 uint16_t i;
 
+
+#define APP_INFO_EE_offset	32
+#define APP_INFO_TEST_hex	0xAA
+#define APP_INFO_NAME_len	(APP_INFO_EE_offset - 1)
+
 struct app_info
 {
-	uint8_t app_name[32];
+	uint8_t app_name[APP_INFO_EE_offset - 1];
+	uint8_t test_pass;
 };
 
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
@@ -96,17 +102,20 @@ int main()
 
 	if (res != RES_OK)
 	{
+		LED_RED;
 		usart_putstr("SD error");
 		usart_putchar(res);
 		usart_putstr("\n");
 	}
 	else
 	{
+		//Read app info from EE
 		eeprom_busy_wait();
 		eeprom_read_block(&fw_info, &ee_fw_info, sizeof(fw_info));
 
+		//print EE version
 		usart_putstr("App:\n ");
-		for (i = 0; i < 32; i++)
+		for (i = 0; i < APP_INFO_NAME_len; i++)
 		{
 			uint8_t c = fw_info.app_name[i];
 			if (c < 32 || c > 126)
@@ -115,20 +124,24 @@ int main()
 		}
 		usart_putchar('\n');
 
-		res = f_open(&binary, "UPDATE.BIN", FA_READ);
+		//Read app info from SD
+		res = f_open(&binary, "UPDATE.FW", FA_READ);
 		if (res == RES_OK)
 		{
 			uint8_t same = 1;
 
-			res = f_read(&binary, &fw_new, 32, &bytes_read);
-			usart_putstr("UPDATE.BIN:\n ");
-			for (i = 0; i < 32; i++)
+			res = f_read(&binary, &fw_new, sizeof(fw_new), &bytes_read);
+			usart_putstr("UPDATE.FW:\n ");
+			for (i = 0; i < APP_INFO_NAME_len; i++)
 			{
 				if (fw_new.app_name[i] != fw_info.app_name[i])
 					same = 0;
+
 				uint8_t c = fw_new.app_name[i];
+
 				if (c < 32 || c > 126)
 					c = '_';
+
 				usart_putchar(c);
 			}
 			usart_putchar('\n');
@@ -140,7 +153,7 @@ int main()
 		}
 		else
 		{
-			usart_putstr(" Unable to open UPDATE.BIN\n");
+			usart_putstr(" Unable to open UPDATE.FW\n");
 		}
 	}
 
@@ -185,7 +198,7 @@ int main()
 		f_close(&binary);
 
 		eeprom_busy_wait();
-		eeprom_update_block(&fw_new, &ee_fw_info, sizeof(fw_info));
+		eeprom_update_block(&fw_new, &ee_fw_info, APP_INFO_NAME_len);
 		eeprom_busy_wait();
 
 	}

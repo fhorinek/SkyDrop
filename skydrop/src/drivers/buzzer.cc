@@ -43,6 +43,8 @@ void buzzer_set_freq(uint16_t freq_hz)
 
 	buzzer_timer.SetCompare(timer_A, buzzer_period / 2);
 	buzzer_timer.SetTop(buzzer_period);
+	if (buzzer_timer.GetValue() > buzzer_period)
+		buzzer_timer.SetValue(0);
 
 	buzzer_timer.Start();
 }

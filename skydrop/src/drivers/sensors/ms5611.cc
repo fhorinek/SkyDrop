@@ -48,6 +48,19 @@ uint32_t MS5611::Read24(uint8_t cmd)
 	return res.val;
 }
 
+bool MS5611::SelfTest()
+{
+	this->i2c->StartTransmittion(this->address, 0);
+	this->i2c->Wait();
+
+	if (this->i2c->Error())
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void MS5611::ReadPROM()
 {
 	this->calibration_C1 = this->Read16(MS5611_PROM + 0);

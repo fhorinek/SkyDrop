@@ -10,7 +10,6 @@ volatile flight_data_t fc;
 
 Timer fc_meas_timer;
 
-
 void fc_init()
 {
 	DEBUG(" *** Flight computer init ***\n");
@@ -114,8 +113,10 @@ void fc_init()
 	vario_init();
 	audio_init();
 
-	//gps_init();
+//	gps_init();
 //	bt_init();
+
+	DEBUG("2\n");
 
 	//VCC to baro, acc/mag gyro
 	MEMS_POWER_ON;
@@ -123,16 +124,11 @@ void fc_init()
 	GpioSetDirection(IO0, OUTPUT);
 	GpioWrite(IO0, HIGH);
 
-	//Enable I2c pull-ups
-	I2C_POWER_ON;
-	//Enable I2C peripheral
-	MEMS_I2C_PWR_ON;
+	//init and test i2c
+	mems_i2c_init();
 
-	//stabilize power
-	_delay_ms(1);
+	DEBUG("3\n");
 
-	mems_i2c.InitMaster(MEMS_I2C, 800000ul, 100, 8);
-	mems_i2c.Scan();
 
 	//Barometer
 	ms5611.Init(&mems_i2c, MS5611_ADDRESS_CSB_LO);
@@ -150,6 +146,8 @@ void fc_init()
 
 	lsm_cfg.tempEnable = false;
 
+	DEBUG("5\n");
+
 	//Gyro
 	l3gd20_settings l3g_cfg;
 	l3g_cfg.enabled = true;
@@ -157,12 +155,22 @@ void fc_init()
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
 
+	sht21_settings sht_cfg;
+	sht_cfg.rh_enabled = true;
+	sht_cfg.temp_enabled = true;
+
+	DEBUG("6\n");
+
 	//XXX: do self-test?
 	lsm303d.Init(&mems_i2c, lsm_cfg);
 	lsm303d.Start();
 
 	l3gd20.Init(&mems_i2c, l3g_cfg);
 	l3gd20.Start();
+
+	sht21.Init(&mems_i2c, sht_cfg);
+
+	DEBUG("7\n");
 
 	//Measurement timer
 	FC_MEAS_TIMER_PWR_ON;
@@ -179,6 +187,17 @@ void fc_init()
 	DEBUG(" *** FC init done ***\n");
 
 }
+
+void fc_pause()
+{
+	fc_meas_timer.Stop();
+}
+
+void fc_continue()
+{
+	fc_meas_timer.Start();
+}
+
 
 ISR(FC_MEAS_TIMER_OVF)
 {
@@ -229,9 +248,8 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 void fc_step()
 {
-	//gps_step();
-
-//	bt_step();
+	gps_step();
+	bt_step();
 }
 
 float fc_alt_to_qnh(float alt, float pressure)

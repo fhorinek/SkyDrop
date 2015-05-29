@@ -36,6 +36,7 @@ struct layout_t
 };
 
 
+#define LAYOUT_OFF		0xFF
 #define LAYOUT_1		0
 #define LAYOUT_12		1
 #define LAYOUT_122		2

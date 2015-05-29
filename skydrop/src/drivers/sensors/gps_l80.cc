@@ -24,6 +24,8 @@ volatile uint8_t gps_parser_buffer_index = 0;
 volatile uint8_t gps_checksum;
 volatile uint8_t gps_rx_checksum;
 
+bool gps_init_ok = false;
+
 uint8_t hex_to_num(uint8_t c)
 {
 	if (c >= 'A')
@@ -218,6 +220,8 @@ void gps_parse_hello()
 {
 	DEBUG("HELLO\n");
 
+	gps_init_ok = true;
+
 	gps_setup();
 	gps_change_baud();
 }
@@ -348,7 +352,6 @@ void gps_init()
 	GPS_UART_PWR_ON;
 	gps_uart.InitBuffers(250, 40);
 	gps_uart.Init(GPS_UART, 9600);
-//	gps_uart.RegisterEvent(usart_event_rxcomplete, &gps_parse);
 
 	GpioSetDirection(GPS_EN, OUTPUT);	 //active high
 	GpioWrite(GPS_EN, LOW);
@@ -367,6 +370,11 @@ void gps_init()
 	GpioWrite(GPS_RESET, HIGH);
 
 	gps_parser_state = GPS_IDLE;
+}
+
+bool gps_selftest()
+{
+	return gps_init_ok;
 }
 
 void gps_stop()

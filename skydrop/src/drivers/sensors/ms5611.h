@@ -66,6 +66,8 @@ public:
 	void ReadPROM();
 	void Reset();
 
+	bool SelfTest();
+
 	void Write(uint8_t cmd);
 	uint16_t Read16(uint8_t cmd);
 	uint32_t Read24(uint8_t cmd);

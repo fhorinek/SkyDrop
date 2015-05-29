@@ -26,6 +26,8 @@ void task_powerdown_init()
 
 	DEBUG(" *** POWER DOWN INIT ***\n");
 
+	test_memory();
+
 	//we do not want to enter sleep
 	powerdown_loop_break = false;
 	powerdown_lock.Lock();
@@ -78,20 +80,16 @@ extern uint8_t task_sleep_lock;
 
 void task_powerdown_loop()
 {
-	return;
-
-	DEBUG("PD LOOP in\n");
-
 	//do not go to the Power down when there is another lock pending (button, buzzer)
-	if (task_sleep_lock == 1 && powerdown_loop_break == false)
+	if ((task_sleep_lock == 1 && powerdown_lock.Active()) && powerdown_loop_break == false)
 	{
+		DEBUG("PD sleep\n");
 		uart_stop();
 
 		powerdown_sleep();
 
 		uart_low_speed();
 	}
-	DEBUG("PD LOOP out\n");
 }
 
 void task_powerdown_irqh(uint8_t type, uint8_t * buff)
@@ -106,15 +104,14 @@ void task_powerdown_irqh(uint8_t type, uint8_t * buff)
 		}
 	break;
 
-//	case(TASK_IRQ_USB):
-//		uint8_t state = *buff;
-//
-//		DEBUG("USB IRQ %d\n", state);
-//		if (state == 1)
-//		{
-//			powerdown_loop_break = true;
-//			task_set(TASK_USB);
-//		}
-//	break;
+	case(TASK_IRQ_USB):
+		uint8_t state = *buff;
+
+		if (state == 1)
+		{
+			powerdown_loop_break = true;
+			task_set(TASK_USB);
+		}
+	break;
 	}
 }

@@ -22,4 +22,6 @@ void bt_step();
 void bt_send(char * str);
 void bt_irgh(uint8_t type, uint8_t * buf);
 
+bool bt_selftest();
+
 #endif /* BT_H_ */

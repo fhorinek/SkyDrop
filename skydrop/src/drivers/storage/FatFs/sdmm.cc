@@ -360,9 +360,27 @@ DSTATUS disk_initialize (
 	GpioSetDirection(SD_SS, OUTPUT);
 	CS_H();
 
+//	DEBUG("PRE init\n");
+//	DUMP_REG(USARTF0.BAUDCTRLA);
+//	DUMP_REG(USARTF0.BAUDCTRLB);
+//
+//	DUMP_REG(USARTF0.CTRLA);
+//	DUMP_REG(USARTF0.CTRLB);
+//	DUMP_REG(USARTF0.CTRLC);
+
+
 	sd_spi_usart.Init(SD_SPI, 250000);
 	sd_spi_usart.InitBuffers(0, 0);
 	sd_spi_usart.BecomeSPI(0, MSB, 250000);
+
+//	DEBUG("POST init\n");
+//	DUMP_REG(USARTF0.BAUDCTRLA);
+//	DUMP_REG(USARTF0.BAUDCTRLB);
+//
+//	DUMP_REG(USARTF0.CTRLA);
+//	DUMP_REG(USARTF0.CTRLB);
+//	DUMP_REG(USARTF0.CTRLC);
+
 
 	for (n = 10; n; n--) rcvr_mmc(buf, 1);	/* Apply 80 dummy clocks and the card gets ready to receive command */
 

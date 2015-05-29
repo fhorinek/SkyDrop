@@ -85,6 +85,9 @@ typedef struct
 void fc_init();
 void fc_step();
 
+void fc_pause();
+void fc_continue();
+
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);

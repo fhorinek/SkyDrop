@@ -1,5 +1,6 @@
 #include "common.h"
 #include "drivers/uart.h"
+#include "drivers/storage/storage.h"
 #include <string.h>
 
 extern float avg_task_loop;
@@ -17,7 +18,7 @@ void print_fw_info()
 	eeprom_read_block(&fw_info, &ee_fw_info, sizeof(fw_info));
 
 	DEBUG("App name: ");
-	for (uint8_t i = 0; i < 32; i++)
+	for (uint8_t i = 0; i < APP_INFO_NAME_len; i++)
 	{
 		uint8_t c = fw_info.app_name[i];
 		if (c < 32 || c > 126)
@@ -206,3 +207,35 @@ int freeRam()
 	int v;
 	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
+
+void LoadEEPROM()
+{
+	FILINFO fno;
+
+	if (f_stat("UPDATE.EE", &fno) == FR_OK)
+	{
+		DEBUG("EE update found.\n");
+
+		FIL * ee_file;
+		ee_file = new FIL;
+
+		f_open(ee_file, "UPDATE.EE", FA_READ);
+		uint16_t rd = 0;
+
+		for (uint16_t i = 0; i < fno.fsize; i += rd)
+		{
+			uint8_t buf[256];
+
+			f_read(ee_file, buf, sizeof(buf), &rd);
+
+
+			DEBUG(" %d / %d\n", i + rd, fno.fsize);
+
+			eeprom_busy_wait();
+			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
+		}
+
+//		f_unlink("UPDATE.EE");
+	}
+}
+

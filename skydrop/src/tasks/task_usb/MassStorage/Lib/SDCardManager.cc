@@ -49,7 +49,9 @@ extern bool IsMassStoreReset;
 
 bool SDCardManager_Init(void)
 {
-	return (disk_initialize(0) == RES_OK);
+	uint8_t res = disk_initialize(0);
+
+	return (res == RES_OK);
 }
 
 uint32_t SDCardManager_GetNbBlocks(void)

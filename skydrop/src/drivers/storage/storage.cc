@@ -3,18 +3,31 @@
 FATFS FatFs;		/* FatFs work area needed for each volume */
 //FIL Fil;			/* File object needed for each open file */
 
-extern Spi sd_spi_usart;
+extern Usart sd_spi_usart;
 
 uint32_t storage_space = 0;
 uint32_t storage_free_space = 0;
+
+bool sd_avalible = false;
+
+#define SD_CARD_DETECT	(GpioRead(SD_IN) == LOW)
 
 bool storage_init()
 {
 	uint8_t res;
 
+	GpioSetPull(SD_IN, gpio_pull_up);
+	GpioSetDirection(SD_IN, INPUT);
+
+	DEBUG("SD_IN %d\n", GpioRead(SD_IN));
+
+//	if (!SD_CARD_DETECT)
+//		return false;
+
 	//power spi & sdcard
 	SD_EN_ON;
 	SD_SPI_PWR_ON;
+
 
 	res = f_mount(&FatFs, "", 1);		/* Give a work area to the default drive */
 
@@ -24,10 +37,13 @@ bool storage_init()
 	{
 		DEBUG("Error %02X\n", res);
 
-		//not needed
 		sd_spi_usart.Stop();
 
+		//power spi & sdcard
+		SD_EN_OFF;
 		SD_SPI_PWR_OFF;
+
+		sd_avalible = false;
 
 		return false;
 	}
@@ -63,15 +79,42 @@ bool storage_init()
 	DEBUG(" total space  %12lu\n", storage_space);
 	DEBUG(" free space   %12lu\n", storage_free_space);
 
+	sd_avalible = true;
 	return true;
 }
 
 void storage_deinit()
 {
+	if (!sd_avalible)
+		return;
+
 	uint8_t res;
 	res = f_mount(NULL, "", 1); //unmount
+
+	sd_spi_usart.Stop();
+
+	sd_avalible = false;
 
 	//power spi & sdcard
 	SD_EN_OFF;
 	SD_SPI_PWR_OFF;
+}
+
+void storage_step()
+{
+	if (SD_CARD_DETECT)
+	{
+		if (!sd_avalible)
+			storage_init();
+	}
+	else
+	{
+		if (sd_avalible)
+			storage_deinit();
+	}
+}
+
+bool storage_selftest()
+{
+	return sd_avalible;
 }

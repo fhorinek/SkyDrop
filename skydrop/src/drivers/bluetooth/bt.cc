@@ -6,13 +6,14 @@
 #define BT_PAN1322	0
 #define BT_PAN1026	1
 
-uint8_t bt_module_type = BT_PAN1026;
+uint8_t bt_module_type = BT_PAN1322;
 
 pan1026 bt_pan1026;
 pan1322 bt_pan1322;
 
 bool bt_device_connected = false;
 
+bool bt_init_ok = false;
 
 ISR(BT_CTS_PIN_INT)
 {
@@ -52,6 +53,7 @@ bool bt_pan1322_init()
 
 
 	DEBUG("bt_init SUCESS\n");
+	bt_init_ok = true;
 	return true;
 }
 
@@ -60,6 +62,10 @@ bool bt_pan1026_init()
 	DEBUG("bt_pan1026_init\n");
 
 	bt_pan1026.Init();
+
+	//XXX
+//	bt_init_ok = true;
+
 
 	while(1)
 	{
@@ -103,8 +109,8 @@ void bt_step()
 
 void bt_send(char * str)
 {
-//	if (bt_module_type == BT_PAN1322)
-//		bt_pan1322.Step();
+	if (bt_module_type == BT_PAN1322)
+		bt_pan1322.SendString(str);
 	if (bt_module_type == BT_PAN1026)
 		bt_pan1026.SendString(str);
 }
@@ -123,4 +129,9 @@ void bt_irgh(uint8_t type, uint8_t * buf)
 		break;
 
 	}
+}
+
+bool bt_selftest()
+{
+	return bt_init_ok;
 }

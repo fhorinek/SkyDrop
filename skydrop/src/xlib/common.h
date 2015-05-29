@@ -43,9 +43,9 @@
 #undef abs
 #endif
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
-#define abs(x) ((x)>0?(x):-(x))
+#define min(a,b) 	((a)<(b)?(a):(b))
+#define max(a,b) 	((a)>(b)?(a):(b))
+#define abs(x) 		((x)>0?(x):-(x))
 
 #define CLAMP(val, min, max)	((val < min) ? (min) : ((val > max) ? max : val))
 
@@ -58,10 +58,6 @@ void DisableInterrupts();
 void CCPIOWrite(volatile uint8_t * address, uint8_t value);
 uint8_t CalcCRC(uint8_t old_crc, uint8_t key, uint8_t data);
 
-void turnoff_subsystems();
-
-void bat_en_high(uint8_t mask);
-void bat_en_low(uint8_t mask);
 
 
 #ifdef __cplusplus
