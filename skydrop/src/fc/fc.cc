@@ -107,14 +107,16 @@ void fc_init()
 	fc.audio_volume = eeprom_read_byte(&config.audio_profile.volume);
 	DEBUG("audio_volume %d\n", fc.audio_volume);
 
+	fc.usb_mode = eeprom_read_byte(&config.system.usb_mode);
+	DEBUG("audio_volume %d\n", fc.usb_mode);
 
 	DEBUG("\n");
 	//init calculators
 	vario_init();
 	audio_init();
 
-//	gps_init();
-//	bt_init();
+	gps_init();
+	bt_init();
 
 	DEBUG("2\n");
 
@@ -125,13 +127,20 @@ void fc_init()
 	GpioWrite(IO0, HIGH);
 
 	//init and test i2c
-	mems_i2c_init();
+	if (!mems_i2c_init())
+	{
+		DEBUG("ERROR I2C\n");
+		led_set(0xFF, 0, 0);
+	}
 
 	DEBUG("3\n");
 
 
 	//Barometer
 	ms5611.Init(&mems_i2c, MS5611_ADDRESS_CSB_LO);
+
+	DEBUG("4\n");
+
 
 	//Magnetometer + Accelerometer
 	lsm303d_settings lsm_cfg;
@@ -186,6 +195,23 @@ void fc_init()
 
 	DEBUG(" *** FC init done ***\n");
 
+}
+
+void fc_deinit()
+{
+	eeprom_busy_wait();
+	//store altimeter info
+	eeprom_update_float(&config.altitude.QNH1, fc.QNH1);
+	eeprom_update_float(&config.altitude.QNH2, fc.QNH2);
+
+
+	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
+	{
+		eeprom_update_word((uint16_t *)&config.altitude.altimeter[i].delta, fc.altimeter[i].delta);
+	}
+
+	MEMS_POWER_OFF;
+	I2C_POWER_OFF;
 }
 
 void fc_pause()

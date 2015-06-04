@@ -153,6 +153,7 @@ void widget_alt_menu_loop(uint8_t flags)
 
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
+
 			case(ALT_ABS_QNH2):
 				if (flags == 1)
 					new_alt = fc.altitude1 + inc;
@@ -161,6 +162,7 @@ void widget_alt_menu_loop(uint8_t flags)
 
 				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
+
 			case(ALT_DIFF):
 				fc.altimeter[flags - 2].delta += inc;
 			break;

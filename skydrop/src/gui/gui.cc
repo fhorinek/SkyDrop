@@ -15,6 +15,7 @@
 #include "settings/set_display.h"
 #include "usb.h"
 #include "factory_test.h"
+#include "settings/set_system.h"
 
 
 n5110display disp;
@@ -24,16 +25,16 @@ volatile uint8_t gui_task = GUI_NONE;
 volatile uint8_t gui_new_task = GUI_SPLASH;
 
 void (* gui_init_array[])() =
-{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init};
+{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init};
 
 void (* gui_stop_array[])() =
-{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop};
+{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop};
 
 void (* gui_loop_array[])() =
-{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop};
+{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
-{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh};
+{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -92,19 +93,25 @@ void gui_caligh_text(char * text, uint8_t x, uint8_t y)
 void gui_init()
 {
 	disp.Init();
+	gui_load_eeprom();
+}
 
+void gui_load_eeprom()
+{
 	eeprom_busy_wait();
 	lcd_brightness = eeprom_read_byte(&config.gui.brightness);
+	DEBUG("lcd_brightness %d\n", lcd_brightness);
 	if (lcd_brightness == 0xFF) lcd_brightness = 100;
 
 	lcd_brightness_timeout = eeprom_read_byte(&config.gui.brightness_timeout);
-	if (lcd_brightness_timeout == 0xFF) lcd_brightness = 3;
+	DEBUG("lcd_brightness_timeout %d\n", lcd_brightness_timeout);
+	if (lcd_brightness_timeout == 0xFF) lcd_brightness_timeout = 3;
 
 	lcd_contrast = eeprom_read_byte(&config.gui.contrast);
-	if (lcd_contrast == 0xFF) lcd_brightness = 72;
+	DEBUG("lcd_contrast %d\n", lcd_contrast);
+	if (lcd_contrast == 0xFF) lcd_contrast = 72;
 
 	disp.SetContrast(lcd_contrast);
-	gui_trigger_backlight();
 }
 
 void gui_stop()
@@ -140,9 +147,12 @@ void gui_dialog(char * title)
 
 void gui_loop()
 {
+	DEBUG("%lu %lu\n", gui_loop_timer, task_get_ms_tick());
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
-	gui_loop_timer = task_get_ms_tick() + 40; //25 fps
+
+	DEBUG("draw\n");
+	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
 
 	if (lcd_new_contrast)
 	{
@@ -155,6 +165,7 @@ void gui_loop()
 	{
 		if (gui_task != GUI_NONE)
 			gui_stop_array[gui_task]();
+
 		gui_task = gui_new_task;
 		gui_init_array[gui_task]();
 	}
@@ -231,6 +242,16 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 	{
 
 	default:
-		gui_irqh_array[gui_task](type, buff);
+		if (gui_task != GUI_NONE)
+			gui_irqh_array[gui_task](type, buff);
 	}
+}
+
+void gui_statusbar()
+{
+	//battery indicator
+	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 14, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 14, 1);
+	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
+	disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 2 - battery_per / 10, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
+
 }

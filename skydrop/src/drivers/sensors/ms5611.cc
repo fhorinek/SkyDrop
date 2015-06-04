@@ -16,8 +16,11 @@ void MS5611::Init(I2c * i2c, uint8_t address)
 	this->press_osr = MS5611_OSR_4096;
 	this->temp_osr = MS5611_OSR_256;
 
+	DEBUG("3.1\n");
 	this->Reset();
+	DEBUG("3.2\n");
 	_delay_ms(10);
+	DEBUG("3.3\n");
 	this->ReadPROM();
 }
 
@@ -69,14 +72,14 @@ void MS5611::ReadPROM()
 	this->calibration_C4 = this->Read16(MS5611_PROM + 6);
 	this->calibration_C5 = this->Read16(MS5611_PROM + 8);
 	this->calibration_C6 = this->Read16(MS5611_PROM + 10);
-//
-//	DEBUG("ms5611_calibration\n");
-//	DEBUG(" C1 %u\n", this->calibration_C1);
-//	DEBUG(" C2 %u\n", this->calibration_C2);
-//	DEBUG(" C3 %u\n", this->calibration_C3);
-//	DEBUG(" C4 %u\n", this->calibration_C4);
-//	DEBUG(" C5 %u\n", this->calibration_C5);
-//	DEBUG(" C6 %u\n", this->calibration_C6);
+
+	DEBUG("ms5611 calibration data\n");
+	DEBUG(" C1 %u\n", this->calibration_C1);
+	DEBUG(" C2 %u\n", this->calibration_C2);
+	DEBUG(" C3 %u\n", this->calibration_C3);
+	DEBUG(" C4 %u\n", this->calibration_C4);
+	DEBUG(" C5 %u\n", this->calibration_C5);
+	DEBUG(" C6 %u\n", this->calibration_C6);
 }
 
 void MS5611::Write(uint8_t cmd)

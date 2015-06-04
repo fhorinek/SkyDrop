@@ -103,17 +103,12 @@ int main()
 
 	while (1)
 	{
-		DEBUG("actual_task %d\n", actual_task);
-		DEBUG("task_sleep_lock %d\n", task_sleep_lock);
-
 		//run main task
 		task_loop();
 
-		DEBUG("SYSTEM\n");
 		//run system tasks
 		task_system_loop();
 
-		DEBUG("SLEPP\n");
 		//sleep now
 		task_sleep();
 

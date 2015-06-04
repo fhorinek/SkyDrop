@@ -208,7 +208,7 @@ int freeRam()
 	return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
 
-void LoadEEPROM()
+bool LoadEEPROM()
 {
 	FILINFO fno;
 
@@ -235,7 +235,8 @@ void LoadEEPROM()
 			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
 		}
 
-//		f_unlink("UPDATE.EE");
+		return true;
 	}
+	return false;
 }
 

@@ -74,11 +74,13 @@ void gui_pages_loop()
 	{
 	case(PAGE_IDLE):
 		widgets_draw(active_page);
+		gui_statusbar();
 	break;
 
 	case(PAGE_WIDGET_SELECT):
 		//draw widgets
 		widgets_draw(active_page);
+		gui_statusbar();
 
 		//Highlight selected widget
 		uint8_t x, y, w, h;
@@ -116,10 +118,12 @@ void gui_pages_loop()
 
 		disp.ClearBuffer();
 		widgets_draw((!page_change_dir) ? active_page : old_page);
+		gui_statusbar();
 		disp.CopyToLayerX(0, split - n5110_width);
 
 		disp.ClearBuffer();
 		widgets_draw((!page_change_dir) ? old_page : active_page);
+		gui_statusbar();
 		disp.CopyToLayerX(0, split);
 
 		start_x = ( -NUMBER_OF_PAGES * (8 + 4) + 4 + n5110_width) / 2;
@@ -144,6 +148,7 @@ void gui_pages_loop()
 
 	case(PAGE_CHANGE_INFO):
 		widgets_draw(active_page);
+		gui_statusbar();
 
 		disp.SetDrawLayer(1);
 		start_x = ( -NUMBER_OF_PAGES * (8 + 4) + 4 + n5110_width) / 2;
@@ -168,6 +173,7 @@ void gui_pages_loop()
 
 	case(PAGE_MENU):
 		widgets_draw(active_page);
+		gui_statusbar();
 
 		uint8_t top = GUI_DISP_HEIGHT - PAGE_MENU_HEIGHT + (PAGE_MENU_HEIGHT * ((float)page_state_step/PAGE_MENU_STEPS));
 

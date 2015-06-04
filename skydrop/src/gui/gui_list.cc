@@ -123,12 +123,16 @@ void gui_list_moveup()
 {
 	if (gui_list_index > 0)
 		gui_list_index--;
+	else
+		gui_list_index = gui_list_size - 1;
 }
 
 void gui_list_movedown()
 {
 	if (gui_list_index < gui_list_size - 1)
 		gui_list_index++;
+	else
+		gui_list_index = 0;
 }
 
 void gui_list_action()

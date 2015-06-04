@@ -9,6 +9,7 @@ void task_active_init()
 
 	//init gui
 	gui_init();
+	gui_trigger_backlight();
 
 	if (fw_info.test_pass == APP_INFO_TEST_hex)
 	{
@@ -24,8 +25,12 @@ void task_active_init()
 	if (storage_init())
 	{
 		//Handle update files
-		LoadEEPROM();
-//		f_unlink("UPDATE.FW");
+		if (LoadEEPROM())
+		{
+			gui_load_eeprom();
+			f_unlink("UPDATE.EE");
+		}
+		f_unlink("UPDATE.FW");
 	}
 
 	//init flight computer
@@ -34,6 +39,7 @@ void task_active_init()
 
 void task_active_stop()
 {
+	fc_deinit();
 	gui_stop();
 	storage_deinit();
 }
@@ -54,7 +60,7 @@ void task_active_irqh(uint8_t type, uint8_t * buff)
 	switch (type)
 	{
 	case(TASK_IRQ_USB):
-		if (*buff)
+		if (*buff && fc.usb_mode == USB_MODE_MASSSTORAGE)
 			task_set(TASK_USB);
 		break;
 

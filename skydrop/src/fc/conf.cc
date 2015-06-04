@@ -111,7 +111,13 @@ EEMEM cfg_t config = {
 		//fluid
 		1,
 		//volume
-		00,
+		80,
+	},
+	//System
+	{
+		//usb_mode
+		USB_MODE_MASSSTORAGE,
+
 	},
 
 };

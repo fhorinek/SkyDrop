@@ -301,7 +301,7 @@ bool cmpn(char * s1, const char * s2, uint8_t n);
 bool cmpn_p(char * s1, const char * s2, uint8_t n);
 void print_fw_info();
 int freeRam();
-void LoadEEPROM();
+bool LoadEEPROM();
 
 void turnoff_subsystems();
 

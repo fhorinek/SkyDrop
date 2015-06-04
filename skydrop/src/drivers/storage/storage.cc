@@ -21,17 +21,36 @@ bool storage_init()
 
 	DEBUG("SD_IN %d\n", GpioRead(SD_IN));
 
-//	if (!SD_CARD_DETECT)
-//		return false;
+	if (!SD_CARD_DETECT)
+		return false;
 
 	//power spi & sdcard
 	SD_EN_ON;
 	SD_SPI_PWR_ON;
 
-
-	res = f_mount(&FatFs, "", 1);		/* Give a work area to the default drive */
-
 	DEBUG("Mounting SD card ... ");
+
+	for (uint8_t i = 0; i < 5; i++)
+	{
+		//power spi & sdcard
+		SD_EN_ON;
+		SD_SPI_PWR_ON;
+
+		res = f_mount(&FatFs, "", 1);		/* Give a work area to the default drive */
+		DEBUG("%d ", i + 1);
+		if (res == RES_OK)
+			break;
+
+
+		sd_spi_usart.Stop();
+
+		//power spi & sdcard
+		SD_EN_OFF;
+		SD_SPI_PWR_OFF;
+
+		for (uint8_t j = 0; j < i +1; j++)
+			_delay_ms(10);
+	}
 
 	if (res != RES_OK)
 	{

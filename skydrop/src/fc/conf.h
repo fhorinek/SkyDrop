@@ -68,6 +68,10 @@ struct cfg_audio_profile
 	uint8_t volume;		//0-100
 };
 
+struct cfg_system
+{
+	uint8_t usb_mode;
+};
 
 struct cfg_t
 {
@@ -77,6 +81,7 @@ struct cfg_t
 	cfg_altitude altitude;
 	cfg_calibration calibration;
 	cfg_audio_profile audio_profile;
+	cfg_system system;
 };
 
 extern cfg_t config;
@@ -84,5 +89,8 @@ extern cfg_t config;
 #define CheckRange(MIN, MAX, DEFAULT, VAL) \
 	if (VAL < MIN || VAL > MAX) VAL = DEFUALT;
 
+
+#define USB_MODE_NONE			0
+#define USB_MODE_MASSSTORAGE	1
 
 #endif /* CONF_H_ */

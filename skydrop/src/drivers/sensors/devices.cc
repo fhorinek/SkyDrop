@@ -24,7 +24,7 @@ bool mems_i2c_init()
 	MEMS_I2C_PWR_ON;
 
 	//stabilize power
-	_delay_ms(1);
+	_delay_ms(10);
 
 	mems_i2c.InitMaster(MEMS_I2C, 800000ul, 100, 8);
 	mems_i2c.StartTransmittion(0,0);

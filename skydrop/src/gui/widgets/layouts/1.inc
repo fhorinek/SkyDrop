@@ -6,7 +6,7 @@ const layout_desc layout_1 PROGMEM =
 	//position of widgets
 	{
 		//x, y, w, h
-		{0, 0, 84, 48},
+		{0, 0, 78, 48},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},
 		{0, 0, 0, 0},

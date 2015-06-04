@@ -2,6 +2,7 @@
 #include "../../gui/gui.h"
 
 SleepLock usb_lock;
+extern Usart sd_spi_usart;
 
 void task_usb_init()
 {
@@ -39,13 +40,16 @@ void task_usb_stop()
 {
 	usb_lock.Unlock();
 
+	led_set(0, 0, 0);
+
 	gui_stop();
+
+	sd_spi_usart.Stop();
 
 	USB_PWR_OFF;
 	SD_SPI_PWR_OFF;
 	SD_EN_OFF;
 
-	SystemReset();
 }
 
 
@@ -63,9 +67,11 @@ void task_usb_irqh(uint8_t type, uint8_t * buff)
 	switch (type)
 	{
 	case(TASK_IRQ_USB):
-		uint8_t state = *buff;
-		if (state == 0)
+		if (*buff == 0)
 			task_set(TASK_ACTIVE);
 	break;
+
+	default:
+		gui_irqh(type, buff);
 	}
 }

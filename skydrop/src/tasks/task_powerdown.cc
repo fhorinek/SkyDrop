@@ -94,6 +94,8 @@ void task_powerdown_loop()
 
 void task_powerdown_irqh(uint8_t type, uint8_t * buff)
 {
+	DEBUG("POWERDOWN IRQH %d %d\n\n", type, *buff);
+
 	switch(type)
 	{
 	case(TASK_IRQ_BUTTON_M):

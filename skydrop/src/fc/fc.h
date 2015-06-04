@@ -67,6 +67,8 @@ typedef struct
 	uint8_t audio_fluid;
 	uint8_t audio_volume;
 
+	uint8_t usb_mode;
+
 	// --- CALC ---
 	bool baro_valid;
 	float pressure;
@@ -84,6 +86,7 @@ typedef struct
 
 void fc_init();
 void fc_step();
+void fc_deinit();
 
 void fc_pause();
 void fc_continue();

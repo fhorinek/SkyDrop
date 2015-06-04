@@ -21,6 +21,8 @@ extern FILE * lcd_out;
 void gui_switch_task(uint8_t new_task);
 
 void gui_init();
+void gui_load_eeprom();
+
 void gui_stop();
 void gui_loop();
 void gui_irqh(uint8_t type, uint8_t * buff);
@@ -41,7 +43,7 @@ void gui_dialog(char * title);
 void gui_raligh_text(char * text, uint8_t x, uint8_t y);
 void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 
-
+void gui_statusbar();
 
 #define GUI_NONE		0xFF
 #define GUI_PAGES		0
@@ -56,6 +58,7 @@ void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 #define GUI_SET_DISPLAY	9
 #define GUI_USB			10
 #define GUI_FTEST		11
+#define GUI_SET_SYSTEM	12
 
 #define GUI_NUMBER_OF_TASKS		1
 

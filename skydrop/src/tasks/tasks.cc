@@ -1,5 +1,5 @@
 #include "tasks.h"
-
+#include "../xlib/core/watchdog.h"
 
 
 void (* task_init_array[])() =
@@ -123,8 +123,10 @@ void task_init()
 
 	DEBUG("usb in state == %d\n", GpioRead(USB_IN));
 	//if is USB connected go directly to USB task
-	if ((usb_state = USB_CONNECTED))
-		task_set(TASK_USB);
+//	if ((usb_state = USB_CONNECTED))
+//		task_set(TASK_USB);
+
+	wdt_init(wdt_2s);
 }
 
 void task_set(uint8_t task)
@@ -138,7 +140,6 @@ void task_loop()
 {
 	uint32_t start = task_get_us_tick();
 
-	DEBUG("LOOP %d\n", actual_task);
 	if (actual_task != NO_TASK)
 		task_loop_array[actual_task]();
 
@@ -156,6 +157,8 @@ void task_system_loop()
 	uint32_t delta = task_get_us_tick() - loop_start;
 	loop_start = task_get_us_tick();
 	CALC_AVG(avg_loop, delta);
+
+	wdt_reset();
 
 	//task switching outside interrupt
 	if (new_task != actual_task)
@@ -211,7 +214,14 @@ void task_sleep()
 
 void task_irqh(uint8_t type, uint8_t * buff)
 {
-	DEBUG("IRQ %d for %d\n", type, actual_task);
-	task_irqh_array[actual_task](type, buff);
+	if (actual_task != new_task)
+	{
+		DEBUG("IGNORING IRQ\n");
+	}
+	else
+	{
+		DEBUG("IRQ %d for %d\n", type, actual_task);
+		task_irqh_array[actual_task](type, buff);
+	}
 }
 

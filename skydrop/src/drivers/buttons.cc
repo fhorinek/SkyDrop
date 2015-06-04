@@ -130,6 +130,6 @@ void buttons_step()
 
 bool buttons_read(uint8_t index)
 {
-	return buttons_state[index] > BUTTON_DEBOUNCE;
+	return (buttons_state[index] > BS_DEBOUNCE);
 }
 

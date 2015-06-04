@@ -13,7 +13,7 @@ void gui_factory_test_init()
 	fc_pause();
 
 	buzzer_set_freq(0);
-	buzzer_set_vol(100);
+	buzzer_set_vol(0);
 	f_test_button_test = 0;
 
 
@@ -25,7 +25,7 @@ void gui_factory_test_stop()
 	DEBUG("FACTORY TEST OK\n");
 	fc_continue();
 
-	led_set(0x00, 0x00, 0xFF);
+	led_set(0x00, 0x00, 0x00);
 	buzzer_set_vol(0);
 }
 
@@ -126,7 +126,7 @@ void gui_factory_test_loop()
 	}
 
 	res = battery_per > 0;
-	if (!res) err = true;
+//	if (!res) err = true;
 	if (res || blik)
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 6 + 3);

@@ -39,8 +39,12 @@ uint8_t  battery_meas_cnt = 0;
 int16_t battery_adc_raw = 0;
 int8_t battery_per = 0;
 
-#define BATT_COEF_A	(0.291950711)
-#define BATT_COEF_B  (-672.1273455619)
+//#define BATT_COEF_A	(0.291950711)
+//#define BATT_COEF_B  (-672.1273455619)
+
+
+#define BATT_COEF_A	(0.4245490451)
+#define BATT_COEF_B  (-690.3297755603)
 
 bool battery_step()
 {
