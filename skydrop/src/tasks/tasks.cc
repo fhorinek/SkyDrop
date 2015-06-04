@@ -18,7 +18,7 @@ extern Usart bt_usart;
 
 //task variables
 Timer task_timer;
-volatile uint32_t task_timer_high = 0;
+volatile uint32_t task_timer_high;
 volatile uint8_t task_sleep_lock = 0;
 
 volatile uint8_t actual_task = NO_TASK;
@@ -77,14 +77,14 @@ ISR(USB_CONNECTED_IRQ)
 
 uint64_t task_get_us_tick()
 {
-	uint64_t res = (task_timer_high * 0xFFFF) + task_timer.GetValue();
+	uint64_t res = ((uint64_t)task_timer_high << 16) + (uint64_t)task_timer.GetValue();
 
 	return res * 2;
 }
 
 uint32_t task_get_ms_tick()
 {
-	uint32_t res = task_get_us_tick() / 1000;
+	uint32_t res = (uint64_t)task_get_us_tick() / (uint64_t)1000;
 
 	return res;
 }

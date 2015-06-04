@@ -145,13 +145,22 @@ void gui_dialog(char * title)
 // 0 - layer to draw
 // 1 - help layer
 
+extern uint32_t task_timer_high;
+
 void gui_loop()
 {
-	DEBUG("%lu %lu\n", gui_loop_timer, task_get_ms_tick());
+//	byte8 tmp;
+
+//	tmp.uint64 = task_get_us_tick();
+
+//	DEBUG("%lu %lu %lu\n", gui_loop_timer, task_get_ms_tick(), task_timer_high);
+
+//	DEBUG("%lx %lx\n\n", tmp.uint32[1], tmp.uint32[0]);
+
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
 
-	DEBUG("draw\n");
+//	DEBUG("draw\n");
 	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
 
 	if (lcd_new_contrast)

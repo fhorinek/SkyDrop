@@ -7,10 +7,6 @@ volatile bool powerdown_loop_break = false;
 
 void task_powerdown_init()
 {
-//	//XXX: hack
-//	task_set(TASK_ACTIVE);
-//	return;
-
 	//Lower F_CPU
 	ClockSetSource(x2MHz);
 	//disable other oscilators

@@ -21,12 +21,15 @@ uint8_t active_widget;
 #define PAGE_WIDGET_MENU_DURATION	15
 
 #define PAGE_MENU_STEPS				5
+#define PAGE_MENU_WAIT				1000
 #define PAGE_MENU_HEIGHT			16
 #define PAGE_MENU_POWEROFF_BLIK		3000
-#define PAGE_MENU_POWEROFF			5000
+#define PAGE_MENU_POWEROFF			4000
 
 #define NORMAL	1
 #define REVERSE	0
+#define WAIT	2
+#define HOLD	3
 
 uint8_t page_state;
 uint8_t page_state_step; //step based animation
@@ -177,17 +180,37 @@ void gui_pages_loop()
 
 		uint8_t top = GUI_DISP_HEIGHT - PAGE_MENU_HEIGHT + (PAGE_MENU_HEIGHT * ((float)page_state_step/PAGE_MENU_STEPS));
 
-		if (page_state_dir == NORMAL)
+		switch (page_state_dir)
 		{
-			if (page_state_step)
+		case (NORMAL):
+			if (page_state_step > 0)
 				page_state_step--;
-		}
-		else
-		{
+			else
+			{
+				page_state_dir = HOLD;
+				page_state_timer = task_get_ms_tick() + PAGE_MENU_POWEROFF;
+			}
+		break;
+
+		case (HOLD):
+			if (page_state_timer < task_get_ms_tick())
+			{
+				gui_splash_set_mode(SPLASH_OFF);
+				gui_switch_task(GUI_SPLASH);
+			}
+		break;
+
+		case (WAIT):
+			if (task_get_ms_tick() > page_state_timer)
+				page_state_dir = REVERSE;
+		break;
+
+		case (REVERSE):
 			if (page_state_step < PAGE_MENU_STEPS)
 				page_state_step++;
 			else
 				page_state = PAGE_IDLE;
+		break;
 		}
 
 		disp.DrawRectangle(1, top + 1, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 0, 1);
@@ -196,7 +219,7 @@ void gui_pages_loop()
 		disp.DrawLine(GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, GUI_DISP_WIDTH - 1, top + 1, 1);
 
 		//pwr
-		if ((page_state_timer - task_get_ms_tick() > PAGE_MENU_POWEROFF_BLIK) || (task_get_ms_tick() % 200 > 100))
+		if ((page_state_timer - task_get_ms_tick() > PAGE_MENU_POWEROFF_BLIK) || (task_get_ms_tick() % 200 > 100) || page_state_dir != HOLD)
 			disp.DrawImage(img_pwr, 36, top + 2);
 
 		//menu
@@ -205,11 +228,7 @@ void gui_pages_loop()
 		//layout
 		disp.DrawImage(img_layout, 3, top + 4);
 
-		if (page_state_timer < task_get_ms_tick())
-		{
-			gui_splash_set_mode(SPLASH_OFF);
-			gui_switch_task(GUI_SPLASH);
-		}
+
 
 	break;
 
@@ -361,7 +380,13 @@ void gui_page_menu_irqh(uint8_t type, uint8_t * buff)
 
 	if (type == TASK_IRQ_BUTTON_M && *buff == BE_RELEASED)
 	{
-		page_state_dir = REVERSE;
+		if (page_state_step > 0)
+			page_state_dir = REVERSE;
+		else
+		{
+			page_state_dir = WAIT;
+			page_state_timer = task_get_ms_tick() + PAGE_MENU_WAIT;
+		}
 	}
 
 }
@@ -379,7 +404,6 @@ void gui_pages_irqh(uint8_t type, uint8_t * buff)
 			page_state = PAGE_MENU;
 			page_state_step = PAGE_MENU_STEPS;
 			page_state_dir = NORMAL;
-			page_state_timer = task_get_ms_tick() + PAGE_MENU_POWEROFF;
 		}
 		else
 			gui_pages_idle_irqh(type, buff);

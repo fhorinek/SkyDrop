@@ -21,9 +21,18 @@
 #include "build_defs.h"
 
 
+union byte8
+{
+	uint64_t uint64;
+	uint32_t uint32[2];
+	uint8_t uint8[4];
+};
+
+
 union byte4
 {
-	int32_t uint32;
+	uint32_t uint32;
+	int32_t int32;
 	uint8_t uint8[4];
 };
 

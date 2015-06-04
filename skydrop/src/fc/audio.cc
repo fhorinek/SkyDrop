@@ -173,10 +173,21 @@ void audio_step(float vario)
 	// - climb is float in m/s
 	if ((vario * 100 >= fc.audio_lift || vario * 100 <= fc.audio_sink) && (fc.audio_volume > 0))
 	{
-		//get frequency from the table
-		freq = get_near(vario, fc.buzzer_freq);
-		length = get_near(vario, fc.buzzer_length);
-		pause = get_near(vario, fc.buzzer_pause);
+		if (vario * 100 >= fc.audio_lift)
+		{
+			//get frequency from the table
+			freq = get_near(vario, fc.buzzer_freq);
+			length = get_near(vario, fc.buzzer_length);
+			pause = get_near(vario, fc.buzzer_pause);
+		}
+		else //XXX: this is hack we need to fix this, so beeps can be used in sink too
+		{
+			//get frequency from the table
+			freq = get_near(vario, fc.buzzer_freq);
+			length = 0;
+			pause = 0;
+		}
+
 	}
 	else
 	//no threshold was exceeded -> silent
