@@ -18,9 +18,23 @@ void gui_usb_loop()
 	uint8_t f_h = disp.GetTextHeight();
 	strcpy_P(tmp, PSTR("USB mode"));
 	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+
+
 	disp.LoadFont(F_TEXT_S);
-	sprintf_P(tmp, PSTR("battery %d %%"), battery_per);
+	f_h = disp.GetTextHeight();
+
+	strcpy_P(tmp, PSTR("PWR"));
+	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT - f_h);
+
+	strcpy_P(tmp, PSTR("RST"));
+	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - f_h);
+
+
+	sprintf_P(tmp, PSTR("batt %d %%"), battery_per);
 	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 0);
+
+	disp.GotoXY(0, 0);
+	fprintf_P(lcd_out, PSTR("build %04d"), BUILD_NUMBER);
 
 }
 

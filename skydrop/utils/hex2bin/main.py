@@ -79,12 +79,13 @@ label = ""
 if (len(sys.argv) == 4):
     label = sys.argv[3]
     
-if (label == "" or label == "auto"):
-    label = datetime.datetime.now().strftime("skydrop-devel-%H:%M.%d-%m-%Y")
+f = open("../utils/build_number.txt", "r")
+number = int(f.readline())
+f.close()
     
-#a = StaxProg("/dev/ttyACM0", 115200)
-#a.batch("/home/horinek/data/workspace/RGBtest/Debug/RGBtest.hex")
-
+if (label == "" or label == "auto"):
+    label = "skydrop-build-%04d" % number
+    
 a = Hex2BinConv(out)
 a.batch(hex, label)
 

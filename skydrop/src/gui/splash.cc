@@ -6,8 +6,6 @@ uint8_t splash_mode;
 #define SPLASH_TIMEOUT	500
 #define SPLASH_ANIM_TOP	35
 
-char splash_msg[32] = {0};
-
 void gui_splash_set_mode(uint8_t mode)
 {
 	splash_mode = mode;
@@ -15,7 +13,7 @@ void gui_splash_set_mode(uint8_t mode)
 
 void gui_splash_init()
 {
-	if (splash_mode == SPLASH_ON || splash_mode == SPLASH_BOOT)
+	if (splash_mode == SPLASH_ON)
 	{
 		gui_trigger_backlight();
 		splash_cnt = 0;
@@ -29,11 +27,6 @@ void gui_splash_init()
 }
 
 void gui_splash_stop() {}
-
-void gui_splash_set_message(char * str)
-{
-	strcpy(splash_msg, str);
-}
 
 void gui_splash_loop()
 {
@@ -67,13 +60,11 @@ void gui_splash_loop()
 	for (uint8_t i = 0; i < splash_cnt && i < 9; i++)
 		disp.DrawLine(33 - i, i + 8, 50 + i, i + 8, 1);
 
-	if (splash_mode == SPLASH_BOOT)
-	{
-		disp.LoadFont(F_TEXT_S);
-		uint8_t t_h = disp.GetTextHeight();
-		disp.GotoXY(0, GUI_DISP_HEIGHT - t_h);
-		fprintf_P(lcd_out, PSTR("%s"), splash_msg);
-	}
+	disp.LoadFont(F_TEXT_S);
+	uint8_t t_h = disp.GetTextHeight();
+	disp.GotoXY(0, GUI_DISP_HEIGHT - t_h);
+	fprintf_P(lcd_out, PSTR("build %04d"), BUILD_NUMBER);
+
 
 	if (splash_mode == SPLASH_ON)
 	{

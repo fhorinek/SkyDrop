@@ -2,7 +2,7 @@
 
 Usart uart;
 
-uint8_t debug_level = 2;
+uint8_t debug_level;
 
 CreateStdIn(uart_in, uart.Read);
 CreateStdOut(uart_out, uart.Write);
@@ -20,7 +20,7 @@ void uart_init()
 	//init uart
 	uart.Init(DEBUG_UART, 921600ul);
 	uart.SetInterruptPriority(HIGH);
-//	uart.dbg = true;
+	uart.dbg = true;
 
 	SetStdIO(uart_in, uart_out);
 }

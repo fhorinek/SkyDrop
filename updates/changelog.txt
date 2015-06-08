@@ -1,0 +1,38 @@
+Build 0010 - 8. 6. 2015
+=========================================================
+FIX:
+* power management issues during powerdown mode
+
+FUNCTIONS:
+* 5 customisable screens
+* 5 layouts 1, 12, 122, 22, 222
+* 7 widgets
+    * vario
+    * vario bar graph
+    * average vario
+    * altitude 1 - absolute to QNH1
+    * altitude 2 - relative to Alt1
+    * altitude 3 - relative to Alt2
+    * altitude 4 - absolute to QNH2
+* settings
+    * vario
+        * Integration interval for digital vario - samples to average before vario value is displayed, this is not affecting vario bar graph of sound output
+        * Integration interval for average vario - samples to average before Average vario value is displayed
+        * QNH1 value
+        * QNH2 value
+    * audio
+        * Lift threshold 
+        * Sink threshold
+        * Fluid audio - if enabled sound frequency will change during beeps, 
+        * Volume
+    * display
+        * Contrast - optimal values are between 60% and 80%
+        * Backlight
+        * Backlight timeout
+    * system
+        * Mass storage - if enabled SkyDrop will go directly into USB mode
+    * Change layout
+    * Change widget
+* battery indication
+* USB mass storage - so far only for software update
+

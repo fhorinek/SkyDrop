@@ -67,6 +67,10 @@ void powerdown_sleep()
 		//rtc irq set time_rtc_irq to true if executed
 		SystemPowerSave();
 
+		if (time_rtc_irq)
+			wdt_reset();
+
+
 		//start task timer in low speed mode
 		task_timer_setup(false);
 	} while (time_rtc_irq == true);

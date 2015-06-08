@@ -19,7 +19,7 @@
 #include <xlib/core/i2c.h>
 
 #include "build_defs.h"
-
+#include "build_number.h"
 
 union byte8
 {
@@ -247,9 +247,15 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define I2C_POWER_INIT			GpioSetDirection(I2C_EN, OUTPUT); \
 								I2C_POWER_OFF;
 
-#define MEMS_POWER_ON			GpioWrite(MEMS_EN, HIGH);
-#define MEMS_POWER_OFF			GpioWrite(MEMS_EN, LOW);
+#define MEMS_POWER_ON			GpioWrite(MEMS_EN, HIGH); \
+								GpioWrite(IO0, HIGH);
+
+#define MEMS_POWER_OFF			GpioWrite(MEMS_EN, LOW); \
+								GpioWrite(IO0, LOW);
+
+
 #define MEMS_POWER_INIT			GpioSetDirection(MEMS_EN, OUTPUT); \
+								GpioSetDirection(IO0, OUTPUT); \
 								MEMS_POWER_OFF;
 
 

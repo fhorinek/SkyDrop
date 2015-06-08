@@ -16,9 +16,7 @@ void gui_splash_loop();
 void gui_splash_irqh(uint8_t type, uint8_t * buff);
 
 void gui_splash_set_mode(uint8_t mode);
-void gui_splash_set_message(char * str);
 
-#define SPLASH_BOOT	0
 #define SPLASH_ON	1
 #define SPLASH_OFF	2
 

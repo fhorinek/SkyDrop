@@ -6,13 +6,12 @@ void Setup()
 
 	//set clock to max for init 32MHz
 	ClockSetSource(x32MHz);
+//	ClockSetPrescaler(clk_div2);
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
 
 	//debug pins
-	IO0_INIT;
-	IO0_HIGH;
-
+//	IO0_INIT;
 	IO1_INIT;
 
 	//save power

@@ -5,6 +5,9 @@ SkyDrop
 SkyDrop vario source code<br>
 <b>skydrop_sd_bootloader</b><br>
 Bootloader inside the devices<br>
+<b>updates</b><br>
+Official firmware updates<br>
+
 
 External library and code
 =====
