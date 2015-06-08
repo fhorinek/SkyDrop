@@ -7,7 +7,7 @@ void battery_init()
 	BATTERY_ADC_PWR_ON;
 	BATTERY_ADC_ENABLE;
 
-	AdcAInit(adc_avcc2);
+	AdcAInit(adc_int1V);
 	AdcASetMode(adc_unsigned);
 
 	AdcPipeSetSource(pipea0, BAT_SNS_ADC);
@@ -46,6 +46,11 @@ int8_t battery_per = 0;
 #define BATT_COEF_A	(0.4245490451)
 #define BATT_COEF_B  (-690.3297755603)
 
+uint8_t battery_get_per()
+{
+	return battery_per;
+}
+
 bool battery_step()
 {
 	if (battery_next_meas > task_get_ms_tick())
@@ -61,7 +66,7 @@ bool battery_step()
 		if (battery_per < 0)
 			battery_per = 0;
 
-		task_irqh(TASK_IRQ_BAT, (uint8_t *)&battery_per);
+//		task_irqh(TASK_IRQ_BAT, (uint8_t *)&battery_per);
 
 		DEBUG("adc %u (%3d%%)\n", battery_adc_raw, battery_per);
 

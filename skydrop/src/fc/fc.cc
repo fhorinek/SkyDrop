@@ -115,8 +115,8 @@ void fc_init()
 	vario_init();
 	audio_init();
 
-	gps_init();
-	bt_init();
+//	gps_init();
+//	bt_init();
 
 	DEBUG("2\n");
 

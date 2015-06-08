@@ -19,4 +19,6 @@ extern int8_t battery_per;
 void battery_init();
 bool battery_step();
 
+uint8_t battery_get_per();
+
 #endif /* BATTERY_H_ */

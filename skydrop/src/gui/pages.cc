@@ -23,8 +23,8 @@ uint8_t active_widget;
 #define PAGE_MENU_STEPS				5
 #define PAGE_MENU_WAIT				1000
 #define PAGE_MENU_HEIGHT			16
-#define PAGE_MENU_POWEROFF_BLIK		3000
-#define PAGE_MENU_POWEROFF			4000
+#define PAGE_MENU_POWEROFF_BLIK		2000
+#define PAGE_MENU_POWEROFF			3000
 
 #define NORMAL	1
 #define REVERSE	0
