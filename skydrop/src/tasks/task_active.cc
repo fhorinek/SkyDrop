@@ -25,12 +25,22 @@ void task_active_init()
 	if (storage_init())
 	{
 		//Handle update files
+
+		FILINFO fno;
+		bool wipe = true;
+
+		if (f_stat("NO_WIPE", &fno) == FR_OK)
+			wipe = false;
+
+		if (wipe)
+			f_unlink("UPDATE.FW");
+
 		if (LoadEEPROM())
 		{
 			gui_load_eeprom();
-			f_unlink("UPDATE.EE");
+			if (wipe)
+				f_unlink("UPDATE.EE");
 		}
-		f_unlink("UPDATE.FW");
 	}
 
 	//init flight computer

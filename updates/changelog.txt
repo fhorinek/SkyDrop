@@ -1,3 +1,13 @@
+Build 0022 - 9. 6. 2015
+=========================================================
+ADDED:
+* NO_WIPE - UPDATE.FW & UPDATE.EE will not be erased when NO_WIPE file is found on SD card root
+* Factory reset will enable BT and GPS modules if there are not enabled in flight computer
+
+FIX:
+* sometimes in usb task watchdog will cause reset, added wdt_reset() to task loop of usb_task
+
+
 Build 0010 - 8. 6. 2015
 =========================================================
 FIX:

@@ -41,8 +41,9 @@ Programming
 =====
 
 <ul>
-<li>Run python script <tt>skydrop/utils/hex2bin/main.py <i>[HEX file]</i> UPDATE.BIN</tt></li>
-<li>Copy UPDATE.BIN to root directory on skydrop SD</li>
+<li>To create firmware update run python script <tt>skydrop/utils/hex2bin/main.py <i>[HEX file]</i> UPDATE.FW</tt></li>
+<li>To create eeprom update run python script <tt>skydrop/utils/hex2bin/main.py <i>[EEP file]</i> UPDATE.EE ee</tt></li>
+<li>Copy UPDATE.FW and UPDATE.EE to root directory on skydrop SD</li>
 </ul>
 
 

@@ -10,7 +10,21 @@ uint8_t f_test_button_test;
 
 void gui_factory_test_init()
 {
+	DEBUG(" *** Factory test ***\n");
 	fc_pause();
+
+	//We need to test gps and bt module
+	if (!bt_selftest())
+	{
+		DEBUG("Force enable BT\n");
+		bt_init();
+	}
+
+	if (!gps_selftest())
+	{
+		DEBUG("Force enable GPS\n");
+		gps_init();
+	}
 
 	buzzer_set_freq(0);
 	buzzer_set_vol(0);
