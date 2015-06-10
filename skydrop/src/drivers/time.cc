@@ -18,7 +18,20 @@ uint32_t time_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint
 	return timestamp + sec + min * 60 + hour * 3600;
 }
 
-void time_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour, uint8_t * pday, uint8_t * pwday, uint8_t * pmonth, uint16_t * pyear)
+void time_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour)
+{
+	uint8_t year;
+	uint8_t month, monthLength;
+	uint32_t days;
+
+	*psec=epoch%60;
+	epoch/=60; // now it is minutes
+	*pmin=epoch%60;
+	epoch/=60; // now it is hours
+	*phour=epoch%24;
+}
+
+void datetime_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour, uint8_t * pday, uint8_t * pwday, uint8_t * pmonth, uint16_t * pyear)
 {
 	uint8_t year;
 	uint8_t month, monthLength;
@@ -73,7 +86,7 @@ void time_str(char * buff, uint32_t epoch)
 	uint8_t sec, min, hour, day, wday, month;
 	uint16_t year;
 
-	time_from_epoch(epoch, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(epoch, &sec, &min, &hour, &day, &wday, &month, &year);
 
 	sprintf(buff, "%02d.%02d.%04d %02d:%02d.%02d", day, month, year, hour, min, sec);
 }

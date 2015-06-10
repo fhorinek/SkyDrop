@@ -10,6 +10,7 @@ void task_active_init()
 	//init gui
 	gui_init();
 	gui_trigger_backlight();
+	wdt_reset();
 
 	if (fw_info.test_pass == APP_INFO_TEST_hex)
 	{
@@ -22,6 +23,7 @@ void task_active_init()
 		gui_switch_task(GUI_FTEST);
 	}
 
+	wdt_reset();
 	if (storage_init())
 	{
 		//Handle update files
@@ -44,6 +46,7 @@ void task_active_init()
 	}
 
 	//init flight computer
+	wdt_reset();
 	fc_init();
 }
 

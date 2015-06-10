@@ -189,6 +189,7 @@ class FontConvertor:
         filename = "font_%s_%d.h" % (filename, self.fontsize)
         
         print "Generating file", filename
+        print
         
         file = open(filename, "w")
         
@@ -240,12 +241,17 @@ tiny.Generate()
 tiny.Convert()
 tiny.Save()
 
-values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 42, 58)
+values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 42, 59)
+values_36.Generate({49: 17}) #number must have fixed width for values
+values_36.Convert()
+values_36.Save()
+
+values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 42, 59)
 values_16.Generate({49: 8}) #number must have fixed width for values
 values_16.Convert()
 values_16.Save()
  
-values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 42, 58)
+values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 42, 59)
 values_10.Generate({49: 5}) #number must have fixed width for values
 values_10.Convert()
 values_10.Save()

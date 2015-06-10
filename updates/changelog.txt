@@ -1,3 +1,11 @@
+Build 0035 - 10. 6. 2015
+=========================================================
+FIX:
+* wdt reset during EE update, added wdt_reset() to task init of active_task.
+
+ADDED:
+* XL values for large widgets
+
 Build 0022 - 9. 6. 2015
 =========================================================
 ADDED:

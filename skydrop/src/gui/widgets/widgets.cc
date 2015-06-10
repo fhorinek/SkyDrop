@@ -12,6 +12,7 @@ widget widget_array[NUMBER_OF_WIDGETS] ={
 		w_vario, w_avg_vario, w_vario_bar,
 		w_alt1, w_alt2, w_alt3, w_alt4,
 		w_accx,
+		w_time,
 };
 
 uint8_t widget_label(const char * label, uint8_t x, uint8_t y)
@@ -32,22 +33,31 @@ uint8_t widget_label(char * label, uint8_t x, uint8_t y)
 
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	disp.LoadFont(F_VALUES_L);
+	disp.LoadFont(F_VALUES_XL);
 	uint8_t text_w = disp.GetTextWidth(value);
-	if (w < text_w)
+	uint8_t text_h = disp.GetTextHeight();
+
+	if (w < text_w || h < text_h)
 	{
-		disp.LoadFont(F_VALUES_M);
+		disp.LoadFont(F_VALUES_L);
 		text_w = disp.GetTextWidth(value);
-		if (w < text_w)
+		text_h = disp.GetTextHeight();
+		if (w < text_w || h < text_h)
 		{
-			disp.LoadFont(F_VALUES_S);
+			disp.LoadFont(F_VALUES_M);
 			text_w = disp.GetTextWidth(value);
-			if (w < text_w)
-				return;
+			text_h = disp.GetTextHeight();
+			if (w < text_w || h < text_h)
+			{
+				disp.LoadFont(F_VALUES_S);
+				text_w = disp.GetTextWidth(value);
+				text_h = disp.GetTextHeight();
+				if (w < text_w || h < text_h)
+					return;
+			}
 		}
 	}
 
-	uint8_t text_h = disp.GetAHeight();
 	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value);
 }

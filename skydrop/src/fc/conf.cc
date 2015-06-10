@@ -6,7 +6,7 @@ EEMEM cfg_t config = {
 	//gui
 	{
 		//contrast
-		60,
+		70,
 		//brightness
 		100,
 		//brightness_timeout

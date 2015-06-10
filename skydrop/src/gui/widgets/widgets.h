@@ -10,7 +10,6 @@
 
 #define WIDGES_PER_PAGE		9
 #define NUMBER_OF_PAGES		5
-#define NUMBER_OF_WIDGETS	10
 
 #include "../gui.h"
 #include "../../fc/fc.h"
@@ -81,6 +80,12 @@ extern float widget_menu_fvalue1;
 
 #define WIDGET_ACCX			9
 #include "acc.h"
+
+#define WIDGET_TIME			10
+#include "time.h"
+
+#define NUMBER_OF_WIDGETS	11
+
 
 
 void widgets_init();
