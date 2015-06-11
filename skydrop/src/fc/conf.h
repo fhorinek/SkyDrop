@@ -73,6 +73,12 @@ struct cfg_system
 	uint8_t usb_mode;
 };
 
+struct cfg_autostart
+{
+	uint8_t sensititvity;
+	uint8_t supress_audio;
+};
+
 struct cfg_t
 {
 	cfg_gui gui;
@@ -82,6 +88,7 @@ struct cfg_t
 	cfg_calibration calibration;
 	cfg_audio_profile audio_profile;
 	cfg_system system;
+	cfg_autostart autostart;
 };
 
 extern cfg_t config;

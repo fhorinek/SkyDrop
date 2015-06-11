@@ -45,20 +45,21 @@ void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 
 void gui_statusbar();
 
-#define GUI_NONE		0xFF
-#define GUI_PAGES		0
-#define GUI_SETTINGS	1
-#define GUI_SPLASH		2
-#define GUI_SET_VARIO	3
-#define GUI_SET_VAL		4
-#define GUI_SET_AUDIO	5
-#define GUI_SET_WIDGETS	6
-#define GUI_LAYOUTS		7
-#define GUI_SET_LAYOUT	8
-#define GUI_SET_DISPLAY	9
-#define GUI_USB			10
-#define GUI_FTEST		11
-#define GUI_SET_SYSTEM	12
+#define GUI_NONE			0xFF
+#define GUI_PAGES			0
+#define GUI_SETTINGS		1
+#define GUI_SPLASH			2
+#define GUI_SET_VARIO		3
+#define GUI_SET_VAL			4
+#define GUI_SET_AUDIO		5
+#define GUI_SET_WIDGETS		6
+#define GUI_LAYOUTS			7
+#define GUI_SET_LAYOUT		8
+#define GUI_SET_DISPLAY		9
+#define GUI_USB				10
+#define GUI_FTEST			11
+#define GUI_SET_SYSTEM		12
+#define GUI_SET_AUTOSTART	13
 
 #define GUI_NUMBER_OF_TASKS		1
 

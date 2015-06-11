@@ -66,8 +66,11 @@ typedef struct
 	int16_t audio_sink;
 	uint8_t audio_fluid;
 	uint8_t audio_volume;
+	uint8_t audio_supress;
 
 	uint8_t usb_mode;
+
+	uint8_t autostart_sensitivity;
 
 	// --- CALC ---
 	bool baro_valid;
@@ -82,6 +85,10 @@ typedef struct
 	vector_float_t mag_f;
 	vector_float_t acc_f;
 	vector_float_t gyro_f;
+
+	uint32_t epoch_flight_start;
+	float start_altitude;
+	bool in_flight;
 } flight_data_t;
 
 void fc_init();

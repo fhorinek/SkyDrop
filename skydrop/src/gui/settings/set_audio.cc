@@ -59,12 +59,12 @@ void gui_set_audio_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf("Lift threshold", GUI_VAL_NUMBER, "%0.1f m/s", fc.audio_lift / 100.0, fc.audio_sink / 100.0, 2, 0.1, gui_set_audio_lift_cb);
+		gui_value_conf_P(PSTR("Lift threshold"), GUI_VAL_NUMBER, PSTR("%0.1f m/s"), fc.audio_lift / 100.0, fc.audio_sink / 100.0, 2, 0.1, gui_set_audio_lift_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(1):
-		gui_value_conf("Sink threshold", GUI_VAL_NUMBER, "%0.1f m/s", fc.audio_sink / 100.0, -10, fc.audio_lift / 100.0, 0.1, gui_set_audio_sink_cb);
+		gui_value_conf_P(PSTR("Sink threshold"), GUI_VAL_NUMBER, PSTR("%0.1f m/s"), fc.audio_sink / 100.0, -10, fc.audio_lift / 100.0, 0.1, gui_set_audio_sink_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
@@ -75,7 +75,7 @@ void gui_set_audio_action(uint8_t index)
 	break;
 
 	case(3):
-		gui_value_conf("General volume", GUI_VAL_VOLUME, "%0.0f %%", fc.audio_volume, 0, 100, 5, gui_set_audio_vol_cb);
+		gui_value_conf_P(PSTR("General volume"), GUI_VAL_VOLUME, PSTR("%0.0f %%"), fc.audio_volume, 0, 100, 5, gui_set_audio_vol_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 

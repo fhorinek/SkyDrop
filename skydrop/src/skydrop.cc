@@ -74,9 +74,8 @@ void Post()
 	print_fw_info();
 
 	//Print actual time
-	char time_tmp[16];
-	time_str(time_tmp, time_get_actual());
-	DEBUG("Time is ... %s\n", time_tmp);
+	DEBUG("Time is ... %s\n");
+	print_datetime();
 
 	DEBUG("Free RAM at start ... %d\n", free_ram_at_start);
 	test_memory();

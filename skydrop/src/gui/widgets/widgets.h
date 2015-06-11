@@ -82,9 +82,10 @@ extern float widget_menu_fvalue1;
 #include "acc.h"
 
 #define WIDGET_TIME			10
+#define WIDGET_FTIME		11
 #include "time.h"
 
-#define NUMBER_OF_WIDGETS	11
+#define NUMBER_OF_WIDGETS	12
 
 
 

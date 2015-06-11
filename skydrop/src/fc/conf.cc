@@ -119,5 +119,12 @@ EEMEM cfg_t config = {
 		USB_MODE_MASSSTORAGE,
 
 	},
+	//Autostart
+	{
+		//sensitivity
+		4,
+		//supress_audio
+		true,
+	},
 
 };

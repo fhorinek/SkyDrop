@@ -58,9 +58,14 @@ void vario_calc(float pressure)
 	{
 		vario_drop++;
 		if (vario_drop == VARIO_DROP)
+		{
 			fc.baro_valid = true;
-		return;
+			fc.start_altitude = altitude;
+		}
+		else
+			return;
 	}
+
 	//AVG vario and alt shoud start only on valid vario data
 	fc.digital_vario += (vario - fc.digital_vario) * fc.digital_vario_dampening;
 	fc.avg_vario += (vario - fc.avg_vario) * fc.avg_vario_dampening;

@@ -82,22 +82,22 @@ void gui_set_vario_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf("Digital vario int.", GUI_VAL_NUMBER, "%0.1f sec", set_vario_digital, 0, 30, 0.1, gui_set_vario_dig_int_cb);
+		gui_value_conf_P(PSTR("Digital vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), set_vario_digital, 0, 30, 0.1, gui_set_vario_dig_int_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(1):
-		gui_value_conf("Average vario int.", GUI_VAL_NUMBER, "%0.1f sec", set_vario_avg, 0, 90, 0.1, gui_set_vario_avg_int_cb);
+		gui_value_conf_P(PSTR("Average vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), set_vario_avg, 0, 90, 0.1, gui_set_vario_avg_int_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(2):
-		gui_value_conf("QNH1", GUI_VAL_NUMBER, "%0.2f hPa", fc.QNH1 / 100.0, 0, 1500, 0.25, gui_set_vario_qnh1_cb);
+		gui_value_conf_P(PSTR("QNH1"), GUI_VAL_NUMBER, PSTR("%0.2f hPa"), fc.QNH1 / 100.0, 0, 1500, 0.25, gui_set_vario_qnh1_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(3):
-		gui_value_conf("QNH2", GUI_VAL_NUMBER, "%0.2f hPa", fc.QNH2 / 100.0, 0, 1500, 0.25, gui_set_vario_qnh2_cb);
+		gui_value_conf_P(PSTR("QNH2"), GUI_VAL_NUMBER, PSTR("%0.2f hPa"), fc.QNH2 / 100.0, 0, 1500, 0.25, gui_set_vario_qnh2_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 

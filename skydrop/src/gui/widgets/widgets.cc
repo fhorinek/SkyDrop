@@ -12,7 +12,7 @@ widget widget_array[NUMBER_OF_WIDGETS] ={
 		w_vario, w_avg_vario, w_vario_bar,
 		w_alt1, w_alt2, w_alt3, w_alt4,
 		w_accx,
-		w_time,
+		w_time, w_ftime,
 };
 
 uint8_t widget_label(const char * label, uint8_t x, uint8_t y)

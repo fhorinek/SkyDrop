@@ -1,3 +1,20 @@
+Build 0093 - 11. 6. 2015
+=========================================================
+ADDED:
+ * Real time clock
+ * Auto start function
+ * 2 widgets
+    * Real Time
+    * Flight time - time after power up, or time after reaching autostart threshold 
+ * settings
+    * System
+        * Set time
+        * Set date
+    * Autostart
+        * Set Autostart treshold - 0 to disable
+        * Suppress audio - enable audio after reaching autostart threshold 
+ 
+
 Build 0035 - 10. 6. 2015
 =========================================================
 FIX:

@@ -110,15 +110,25 @@ void fc_init()
 	fc.usb_mode = eeprom_read_byte(&config.system.usb_mode);
 	DEBUG("audio_volume %d\n", fc.usb_mode);
 
+	fc.autostart_sensitivity = eeprom_read_byte(&config.autostart.sensititvity);
+	DEBUG("autostart_sensitivity %d\n", fc.autostart_sensitivity);
+
+	fc.audio_supress = eeprom_read_byte(&config.autostart.supress_audio);
+	DEBUG("audio_supress %d\n", fc.audio_supress);
+
+
 	DEBUG("\n");
+	//default values
+	fc.epoch_flight_start = 0;
+	fc.in_flight = false;
+
+
 	//init calculators
 	vario_init();
 	audio_init();
 
 //	gps_init();
 //	bt_init();
-
-	DEBUG("2\n");
 
 	//VCC to baro, acc/mag gyro
 	MEMS_POWER_ON;
@@ -133,13 +143,9 @@ void fc_init()
 		led_set(0xFF, 0, 0);
 	}
 
-	DEBUG("3\n");
-
 
 	//Barometer
 	ms5611.Init(&mems_i2c, MS5611_ADDRESS_CSB_LO);
-
-	DEBUG("4\n");
 
 
 	//Magnetometer + Accelerometer
@@ -155,8 +161,6 @@ void fc_init()
 
 	lsm_cfg.tempEnable = false;
 
-	DEBUG("5\n");
-
 	//Gyro
 	l3gd20_settings l3g_cfg;
 	l3g_cfg.enabled = true;
@@ -168,8 +172,6 @@ void fc_init()
 	sht_cfg.rh_enabled = true;
 	sht_cfg.temp_enabled = true;
 
-	DEBUG("6\n");
-
 	//XXX: do self-test?
 	lsm303d.Init(&mems_i2c, lsm_cfg);
 	lsm303d.Start();
@@ -178,8 +180,6 @@ void fc_init()
 	l3gd20.Start();
 
 	sht21.Init(&mems_i2c, sht_cfg);
-
-	DEBUG("7\n");
 
 	//Measurement timer
 	FC_MEAS_TIMER_PWR_ON;
@@ -248,7 +248,20 @@ ISR(FC_MEAS_TIMER_CMPA)
 
 	vario_calc(ms5611.pressure);
 	if (fc.baro_valid)
-		audio_step(fc.vario);
+	{
+		if (fc.audio_supress == false || fc.in_flight == true)
+			audio_step(fc.vario);
+
+		//auto start
+		if (fc.in_flight == false)
+		{
+			if (abs(fc.altitude1 - fc.start_altitude) > fc.autostart_sensitivity)
+			{
+				fc.in_flight = true;
+				fc.epoch_flight_start = time_get_actual();
+			}
+		}
+	}
 
 	ms5611.CompensateTemperature();
 
@@ -267,7 +280,6 @@ ISR(FC_MEAS_TIMER_CMPC)
 {
 	IO1_HIGH
 	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
-
 	IO1_LOW
 }
 

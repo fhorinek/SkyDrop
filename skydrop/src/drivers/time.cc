@@ -1,29 +1,44 @@
 #include "time.h"
 
-static  uint8_t monthDays[]={31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+uint8_t monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 volatile uint32_t unix_time __attribute__ ((section (".noinit")));
 
 #define LEAP_YEAR(_year) ((_year%4)==0)
 
-uint32_t time_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t month, uint16_t year)
+uint32_t datetime_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t month, uint16_t year)
 {
-	uint16_t mth[12] = {0, 31, 59, 90, 120, 151, 181, 212, 273, 304, 334};
-	uint16_t mthb[12] = {0, 31, 60, 91, 121, 152, 182, 213, 274, 305, 336};
+	uint16_t i;
+	uint32_t timestamp;
 
-	uint32_t timestamp = (year%4)?
-			(((int)(year-1970)/4)+(year-1970)*365+mthb[month-1] + day)*86400:
-			(((int)(year-1970)/4)+(year-1970)*365+mth[month-1] + day)*86400;
+	// seconds from 1970 till 1 jan 00:00:00 this year
+	timestamp = (year - 1970) * (60 * 60 * 24L * 365);
 
-	return timestamp + sec + min * 60 + hour * 3600;
+	// add extra days for leap years
+	for (i = 1970; i < year; i++) {
+		if (LEAP_YEAR(i)) {
+			timestamp += 60 * 60 * 24L;
+		}
+	}
+	// add days for this year
+	for (i = 0; i < month - 1; i++) {
+		if (i == 1 && LEAP_YEAR(year)) {
+			timestamp += 60 * 60 * 24L * 29;
+		} else {
+			timestamp += 60 * 60 * 24L * monthDays[i];
+		}
+	}
+
+	timestamp += (day - 1) * 3600 * 24L;
+	timestamp += hour * 3600L;
+	timestamp += min * 60L;
+	timestamp += sec;
+	return timestamp;
 }
+
 
 void time_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t * phour)
 {
-	uint8_t year;
-	uint8_t month, monthLength;
-	uint32_t days;
-
 	*psec=epoch%60;
 	epoch/=60; // now it is minutes
 	*pmin=epoch%60;
@@ -81,14 +96,14 @@ void datetime_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t
 	*pday=epoch+1;  // day of month
 }
 
-void time_str(char * buff, uint32_t epoch)
+void print_datetime()
 {
 	uint8_t sec, min, hour, day, wday, month;
 	uint16_t year;
 
-	datetime_from_epoch(epoch, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
 
-	sprintf(buff, "%02d.%02d.%04d %02d:%02d.%02d", day, month, year, hour, min, sec);
+	DEBUG("%02d.%02d.%04d %02d:%02d.%02d\n", day, month, year, hour, min, sec);
 }
 
 volatile bool time_rtc_irq;

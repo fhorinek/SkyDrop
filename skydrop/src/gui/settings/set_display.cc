@@ -56,17 +56,17 @@ void gui_set_display_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf("Contrast", GUI_VAL_NUMBER, "%1.0f %%", lcd_contrast, 0, 100, 1, gui_set_display_contrast_cb);
+		gui_value_conf_P(PSTR("Contrast"), GUI_VAL_NUMBER, PSTR("%1.0f %%"), lcd_contrast, 0, 100, 1, gui_set_display_contrast_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(1):
-		gui_value_conf("Backlight", GUI_VAL_NUMBER, "%1.0f %%", lcd_brightness, 0, 100, 20, gui_set_display_brightness_cb);
+		gui_value_conf_P(PSTR("Backlight"), GUI_VAL_NUMBER, PSTR("%1.0f %%"), lcd_brightness, 0, 100, 20, gui_set_display_brightness_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(2):
-		gui_value_conf("Backlight timeout", GUI_VAL_NUMBER, "%1.0f sec", lcd_brightness_timeout, 0, 30, 1, gui_set_display_brightness_timeout_cb);
+		gui_value_conf_P(PSTR("Backlight timeout"), GUI_VAL_NUMBER, PSTR("%1.0f sec"), lcd_brightness_timeout, 0, 30, 1, gui_set_display_brightness_timeout_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 

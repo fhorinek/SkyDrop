@@ -16,6 +16,7 @@
 #include "usb.h"
 #include "factory_test.h"
 #include "settings/set_system.h"
+#include "settings/set_autostart.h"
 
 
 n5110display disp;
@@ -25,16 +26,16 @@ volatile uint8_t gui_task = GUI_NONE;
 volatile uint8_t gui_new_task = GUI_SPLASH;
 
 void (* gui_init_array[])() =
-{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init};
+{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init, gui_set_autostart_init};
 
 void (* gui_stop_array[])() =
-{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop};
+{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop, gui_set_autostart_stop};
 
 void (* gui_loop_array[])() =
-{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop};
+{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop, gui_set_autostart_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
-{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh};
+{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh, gui_set_autostart_irqh};
 
 #define GUI_ANIM_STEPS	20
 
