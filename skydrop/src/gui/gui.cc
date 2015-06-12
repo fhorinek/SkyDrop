@@ -262,8 +262,8 @@ void gui_statusbar()
 	//battery indicator
 	uint8_t a = battery_per / 10;
 
-	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 14, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 14, 1);
-	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
-	disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 2 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
+	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
+	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
+	disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
 
 }
