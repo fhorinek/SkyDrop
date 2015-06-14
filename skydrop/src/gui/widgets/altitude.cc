@@ -1,4 +1,7 @@
 #include "altitude.h"
+#include "../../fc/kalman.h"
+
+extern KalmanFilter * kalmanFilter;
 
 
 void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -87,6 +90,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 				else
 					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
+				kalmanFilter->setXAbs(new_alt);
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
@@ -151,6 +155,7 @@ void widget_alt_menu_loop(uint8_t flags)
 				else
 					new_alt = fc.altimeter[flags - 2].altitude + inc;
 
+			    kalmanFilter->setXAbs(new_alt);
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 

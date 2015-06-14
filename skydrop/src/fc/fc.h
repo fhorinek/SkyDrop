@@ -28,12 +28,31 @@ typedef struct
 	int16_t altitude;
 } alt_data_t;
 
+#define GPS_SAT_CNT	12
+
 typedef struct
 {
+	bool valid;
 
+	float latitude;
+	float longtitude;
+	float groud_speed;
+
+	uint16_t heading;
+	uint32_t utc_time;
+
+	uint8_t fix;
+	float altitude;
+	float hdop;
+
+	uint8_t sat_used;
+	uint8_t sat_total;
+
+	uint8_t sat_id[GPS_SAT_CNT];
+	uint8_t sat_snr[GPS_SAT_CNT];
 } gps_data_t;
 
-extern gps_data_t gps_data;
+#define FC_TEMP_PERIOD	1000
 
 typedef struct
 {
@@ -42,8 +61,13 @@ typedef struct
 	vector_i16_t acc_data;
 	vector_i16_t gyro_data;
 
-	bool gps_data_new;
 	gps_data_t gps_data;
+
+	int16_t temperature;
+	int16_t humidity;
+
+	uint8_t temp_step;
+	uint32_t temp_next;
 
 	// --- CONST from cfg ---
 	float QNH1;
@@ -71,6 +95,8 @@ typedef struct
 	uint8_t usb_mode;
 
 	uint8_t autostart_sensitivity;
+
+	uint8_t use_gps;
 
 	// --- CALC ---
 	bool baro_valid;

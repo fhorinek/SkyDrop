@@ -15,12 +15,13 @@
 #define B_MIDDLE	1
 #define B_RIGHT		2
 
-#define BS_IDLE		0
-#define BS_DEBOUNCE	1
-#define BS_1DOWN	2
-#define BS_WAIT		3
-#define BS_2DOWN	4
-#define BS_PRESSED	5
+#define BS_RESET	0
+#define BS_IDLE		1
+#define BS_DEBOUNCE	2
+#define BS_1DOWN	3
+#define BS_WAIT		4
+#define BS_2DOWN	5
+#define BS_PRESSED	6
 
 //buttons events NEVER change the indexes
 #define BE_HOLD			0	//button was debounced and it is hold
@@ -32,5 +33,6 @@
 void buttons_init();
 void buttons_step();
 bool buttons_read(uint8_t index);
+void buttons_reset();
 
 #endif /* BUTTONS_H_ */

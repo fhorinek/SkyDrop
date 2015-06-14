@@ -36,7 +36,7 @@ void buttons_init()
 
 #define BUTTON_DEBOUNCE		10
 #define BUTTON_WAIT			100
-#define BUTTON_LONG			2000
+#define BUTTON_LONG			1000
 
 
 void button_handle(uint8_t index, uint8_t state)
@@ -87,6 +87,10 @@ void button_handle(uint8_t index, uint8_t state)
 	{
 		switch(buttons_state[index])
 		{
+			case(BS_RESET):
+				buttons_state[index] = BS_IDLE;
+			break;
+
 			case(BS_1DOWN):
 				{
 					res = BE_CLICK;
@@ -133,3 +137,9 @@ bool buttons_read(uint8_t index)
 	return (buttons_state[index] > BS_DEBOUNCE);
 }
 
+void buttons_reset()
+{
+	buttons_state[0] = BS_RESET;
+	buttons_state[1] = BS_RESET;
+	buttons_state[2] = BS_RESET;
+}

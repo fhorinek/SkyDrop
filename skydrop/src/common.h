@@ -310,7 +310,6 @@ public:
 
 //--------------------------------------------
 
-void print_cpu_usage();
 void test_memory();
 bool cmpn(char * s1, const char * s2, uint8_t n);
 bool cmpn_p(char * s1, const char * s2, uint8_t n);

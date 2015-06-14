@@ -13,6 +13,7 @@ widget widget_array[NUMBER_OF_WIDGETS] ={
 		w_alt1, w_alt2, w_alt3, w_alt4,
 		w_accx,
 		w_time, w_ftime,
+		w_temperature,
 };
 
 uint8_t widget_label(const char * label, uint8_t x, uint8_t y)
@@ -29,6 +30,44 @@ uint8_t widget_label(char * label, uint8_t x, uint8_t y)
 	disp.GotoXY(x + 1, y);
 	fprintf_P(lcd_out, PSTR("%s"), label);
 	return disp.GetAHeight();
+}
+
+void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	disp.LoadFont(F_TEXT_S);
+	uint8_t text_ws = disp.GetTextWidth(sub);
+	uint8_t text_hs = disp.GetTextHeight();
+
+	disp.LoadFont(F_VALUES_XL);
+	uint8_t text_w = disp.GetTextWidth(value);
+	uint8_t text_h = disp.GetTextHeight();
+
+	if (w < text_w || h < (text_h + text_hs))
+	{
+		disp.LoadFont(F_VALUES_L);
+		text_w = disp.GetTextWidth(value);
+		text_h = disp.GetTextHeight();
+		if (w < text_w || h < (text_h + text_hs))
+		{
+			disp.LoadFont(F_VALUES_M);
+			text_w = disp.GetTextWidth(value);
+			text_h = disp.GetTextHeight();
+			if (w < text_w || h < (text_h + text_hs))
+			{
+				disp.LoadFont(F_VALUES_S);
+				text_w = disp.GetTextWidth(value);
+				text_h = disp.GetTextHeight();
+				if (w < text_w || h < text_h)
+					return;
+			}
+		}
+	}
+
+	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - (text_h + text_hs) / 2);
+	fprintf_P(lcd_out, PSTR("%s"), value);
+	disp.GotoXY(x + w / 2 - text_ws / 2, y + h / 2 - (text_h + text_hs) / 2 + text_h);
+	disp.LoadFont(F_TEXT_S);
+	fprintf_P(lcd_out, PSTR("%s"), sub);
 }
 
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)

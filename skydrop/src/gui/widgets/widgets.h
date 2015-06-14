@@ -44,7 +44,7 @@ struct widget
 		draw, \
 		loop, \
 		irqh, \
-		NULL, \
+		0, \
 	}; \
 
 #define register_widget1(name, label, draw) \
@@ -54,7 +54,7 @@ struct widget
 		draw, \
 		NULL, \
 		NULL, \
-		NULL, \
+		0, \
 	}; \
 
 
@@ -85,7 +85,10 @@ extern float widget_menu_fvalue1;
 #define WIDGET_FTIME		11
 #include "time.h"
 
-#define NUMBER_OF_WIDGETS	12
+#define WIDGET_TEMPERATURE	12
+#include "temperature.h"
+
+#define NUMBER_OF_WIDGETS	13
 
 
 
@@ -95,6 +98,7 @@ void widgets_draw(uint8_t page);
 uint8_t widget_label(const char * label, uint8_t x, uint8_t y);
 uint8_t widget_label(char * label, uint8_t x, uint8_t y);
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 uint8_t layout_get_number_of_widgets(uint8_t type);
 void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t * y, uint8_t * w, uint8_t * h);

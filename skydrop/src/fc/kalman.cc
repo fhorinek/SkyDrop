@@ -87,6 +87,14 @@ float KalmanFilter::getXAbs()
 	return x_abs;
 }
 
+
+// Getters for the state and its covariance.
+void KalmanFilter::setXAbs(float X)
+{
+	x_abs = X;
+}
+
+
 float KalmanFilter::getXVel()
 {
 	return x_vel;

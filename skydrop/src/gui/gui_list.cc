@@ -142,8 +142,6 @@ void gui_list_action()
 
 void gui_list_irqh(uint8_t type, uint8_t * buff)
 {
-	DEBUG("%d, %d\n", type, *buff);
-
 	switch (type)
 	{
 	case(TASK_IRQ_BUTTON_L):

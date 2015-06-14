@@ -116,18 +116,23 @@ void fc_init()
 	fc.audio_supress = eeprom_read_byte(&config.autostart.supress_audio);
 	DEBUG("audio_supress %d\n", fc.audio_supress);
 
+	fc.use_gps = eeprom_read_byte(&config.system.use_gps);
+	DEBUG("use_gps %d\n", fc.use_gps);
 
 	DEBUG("\n");
 	//default values
 	fc.epoch_flight_start = 0;
 	fc.in_flight = false;
 
+	fc.temp_step = 0;
+
 
 	//init calculators
 	vario_init();
 	audio_init();
 
-//	gps_init();
+	if (fc.use_gps)
+		gps_init();
 //	bt_init();
 
 	//VCC to baro, acc/mag gyro
@@ -257,6 +262,7 @@ ISR(FC_MEAS_TIMER_CMPA)
 		{
 			if (abs(fc.altitude1 - fc.start_altitude) > fc.autostart_sensitivity)
 			{
+				gui_showmessage_P(PSTR("Take off"));
 				fc.in_flight = true;
 				fc.epoch_flight_start = time_get_actual();
 			}
@@ -280,6 +286,36 @@ ISR(FC_MEAS_TIMER_CMPC)
 {
 	IO1_HIGH
 	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
+
+	if (fc.temp_next < task_get_ms_tick())
+	{
+		switch (fc.temp_step)
+		{
+			case(0):
+				sht21.StartHumidity();
+			break;
+			case(1):
+				sht21.Read();
+			break;
+			case(2):
+				sht21.CompensateHumidity();
+				fc.humidity = sht21.humidity;
+			break;
+			case(3):
+				sht21.StartTemperature();
+			break;
+			case(4):
+				sht21.Read();
+			break;
+			case(5):
+				sht21.CompensateTemperature();
+				fc.temperature = sht21.temperature;
+			break;
+		}
+		fc.temp_next = task_get_ms_tick() + FC_TEMP_PERIOD;
+		fc.temp_step = (fc.temp_step + 1) % 6;
+	}
+
 	IO1_LOW
 }
 

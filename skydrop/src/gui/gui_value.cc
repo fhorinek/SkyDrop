@@ -72,8 +72,6 @@ void gui_value_loop()
 		case(GUI_VAL_DATE):
 			datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
 
-			sprintf_P(tmp, PSTR("%02d : %02d : %04d"), hour, min, sec);
-			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h *1.5);
 			sprintf_P(tmp, PSTR("%02d / %02d / %04d"), day, month, year);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 			if (gui_value_index == 0)

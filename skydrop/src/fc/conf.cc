@@ -117,6 +117,8 @@ EEMEM cfg_t config = {
 	{
 		//usb_mode
 		USB_MODE_MASSSTORAGE,
+		//use_gps
+		true,
 
 	},
 	//Autostart

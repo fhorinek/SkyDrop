@@ -34,6 +34,7 @@ public:
     float getCovAbsAbs();
     float getCovAbsVel();
     float getCovVelVel();
+    void setXAbs(float X);
 };
 
 #endif /* KALMAN_H_ */

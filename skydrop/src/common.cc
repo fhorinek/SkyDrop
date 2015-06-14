@@ -3,12 +3,6 @@
 #include "drivers/storage/storage.h"
 #include <string.h>
 
-extern float avg_task_loop;
-extern float avg_system_loop;
-extern float avg_sleep;
-extern float avg_irq;
-extern float avg_loop;
-
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
 
@@ -26,26 +20,6 @@ void print_fw_info()
 		DEBUG("%c", c);
 	}
 	DEBUG("\n");
-}
-
-void print_cpu_usage()
-{
-	float fcnt = avg_loop;
-
-	//DEBUG("%0.1f %0.1f %0.1f %0.1f\n", avg_task_loop, avg_system_loop, avg_sleep, avg_loop);
-
-	avg_irq = avg_loop - (avg_task_loop + avg_system_loop + avg_sleep);
-
-	//time in application task
-	float t1 = (avg_task_loop / fcnt) * 100;
-	//time in system task
-	float t2 = (avg_system_loop / fcnt) * 100;
-	//time in irq
-	float t3 = (avg_irq / fcnt) * 100;
-	//time in sleep
-	float t4 = (avg_sleep / fcnt) * 100;
-
-	DEBUG("CPU %3.1f%% %3.1f%% %3.1f%% %3.1f%%\n", t1, t2, t3, t4);
 }
 
 void test_memory()

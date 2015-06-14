@@ -118,9 +118,10 @@ void time_init()
 {
 	RTC_PWR_ON;
 
-	RtcSetPeriod(32);
-	//RtcSetValue(1);
-	RtcInit(rtc_32kHz_tosc, rtc_div1024); //f == 32Hz
+	unix_time += 1;
+
+	RtcSetPeriod(3);
+	RtcInit(rtc_1024Hz_tosc, rtc_div256); //f == 32Hz
 	RtcEnableInterrupts(rtc_overflow); //ovf every sec
 }
 

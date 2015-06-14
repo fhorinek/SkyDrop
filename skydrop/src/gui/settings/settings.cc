@@ -3,7 +3,7 @@
 
 void gui_settings_init()
 {
-	gui_list_set(gui_settings_item, gui_settings_action, 6);
+	gui_list_set(gui_settings_item, gui_settings_action, 7);
 }
 
 void gui_settings_stop()
@@ -46,6 +46,10 @@ void gui_settings_action(uint8_t index)
 	break;
 
 	case(5):
+		gui_switch_task(GUI_SET_GPS);
+	break;
+
+	case(6):
 		gui_switch_task(GUI_PAGES);
 	break;
 	}
@@ -76,6 +80,10 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 			*flags |= GUI_LIST_FOLDER;
 		break;
 		case (5):
+			sprintf_P(text, PSTR("GPS"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+		case (6):
 			sprintf_P(text, PSTR("back"));
 			*flags |= GUI_LIST_BACK;
 		break;

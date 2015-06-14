@@ -71,6 +71,7 @@ struct cfg_audio_profile
 struct cfg_system
 {
 	uint8_t usb_mode;
+	uint8_t use_gps;
 };
 
 struct cfg_autostart

@@ -46,7 +46,6 @@ void task_init();
 void task_set(uint8_t task);
 void task_rgui();
 
-uint64_t task_get_us_tick();
 uint32_t task_get_ms_tick();
 
 

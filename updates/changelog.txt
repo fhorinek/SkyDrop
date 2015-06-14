@@ -1,3 +1,32 @@
+Build 
+=========================================================
+FIX:
+ * Battery re-parametrisation (Bug #7)
+ * RTC timer fixed (Bug #9)
+ * Menu now stay on first item (Bug #8)
+ * Vario will not beep during Alt1 change
+
+REMOVED:
+ * us task timer
+ * cpu time statistics
+ 
+CHANGE:
+ * Shorten timeout for long-press (#4)
+ 
+ADDED:
+ * Pop-up message support
+ * settings
+    * gps settings
+        * gps detail
+ * GPS subsytem
+ * widgets
+    * Temperature + Relative humidity
+ * layouts
+    * 123
+ 
+
+
+
 Build 0093 - 11. 6. 2015
 =========================================================
 ADDED:

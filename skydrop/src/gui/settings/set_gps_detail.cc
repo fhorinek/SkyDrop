@@ -1,0 +1,71 @@
+#include "set_gps_detail.h"
+
+#include "../gui_list.h"
+#include "../gui_value.h"
+
+#include "../../fc/conf.h"
+#include "../../drivers/sensors/gps_l80.h"
+
+void gui_set_gps_detail_init()
+{
+
+}
+
+void gui_set_gps_detail_stop()
+{
+
+}
+
+void gui_set_gps_detail_loop()
+{
+	disp.LoadFont(F_TEXT_S);
+	uint8_t f_h = disp.GetAHeight();
+
+	disp.GotoXY(1, 0);
+	fprintf_P(lcd_out, PSTR("Lat: %2.7f"), fc.gps_data.latitude);
+	disp.GotoXY(0, f_h);
+	fprintf_P(lcd_out, PSTR("Lon: %2.7f"), fc.gps_data.longtitude);
+	disp.GotoXY(0, f_h * 2);
+	fprintf_P(lcd_out, PSTR("HDOP: %0.4f"), fc.gps_data.hdop);
+
+	char tmp[10];
+
+	sprintf_P(tmp, PSTR("%d/%d"), fc.gps_data.sat_used, fc.gps_data.sat_total);
+	gui_raligh_text(tmp, GUI_DISP_WIDTH, 0);
+	switch (fc.gps_data.fix)
+	{
+		case(1):
+				sprintf_P(tmp, PSTR("No Fix"));
+		break;
+		case(2):
+				sprintf_P(tmp, PSTR("2D Fix"));
+		break;
+		case(3):
+				sprintf_P(tmp, PSTR("3D Fix"));
+		break;
+	}
+	gui_raligh_text(tmp, GUI_DISP_WIDTH, f_h);
+
+	sprintf_P(tmp, PSTR("%0.0f"), fc.gps_data.altitude);
+	gui_raligh_text(tmp, GUI_DISP_WIDTH, f_h * 2);
+
+	disp.LoadFont(F_TEXT_S);
+	for (uint8_t i=0; i < GPS_SAT_CNT; i++)
+	{
+		uint8_t x = i < 6 ? (GUI_DISP_WIDTH  * 1 / 4) : (GUI_DISP_WIDTH  * 3 / 4);
+		uint8_t y = (3.5 + i % 6) * f_h;
+
+		x -= GUI_DISP_WIDTH / 8;
+
+		disp.GotoXY(x, y);
+		if (fc.gps_data.sat_id[i] != 0)
+			fprintf_P(lcd_out, PSTR("%03d: %d"), fc.gps_data.sat_id[i], fc.gps_data.sat_snr[i]);
+	}
+}
+
+void gui_set_gps_detail_irqh(uint8_t type, uint8_t * buff)
+{
+	if (*buff == BE_CLICK && type == B_MIDDLE)
+		gui_switch_task(GUI_SET_GPS);
+}
+

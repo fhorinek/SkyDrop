@@ -31,7 +31,7 @@ void gui_force_loop();
 
 void gui_trigger_backlight();
 void gui_set_contrast(uint8_t contrast);
-void gui_showmessage(const char * msg);
+void gui_showmessage_P(const char * msg);
 
 void gui_dialog(char * title);
 #define GUI_DIALOG_TOP 	13
@@ -60,8 +60,8 @@ void gui_statusbar();
 #define GUI_FTEST			11
 #define GUI_SET_SYSTEM		12
 #define GUI_SET_AUTOSTART	13
-
-#define GUI_NUMBER_OF_TASKS		1
+#define GUI_SET_GPS			14
+#define GUI_SET_GPS_DETAIL	15
 
 extern uint8_t lcd_brightness;
 extern uint8_t lcd_brightness_timeout;

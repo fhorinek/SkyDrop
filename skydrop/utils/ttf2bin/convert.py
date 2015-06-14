@@ -242,7 +242,7 @@ tiny.Convert()
 tiny.Save()
 
 values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 42, 59)
-values_36.Generate({49: 17}) #number must have fixed width for values
+values_36.Generate({49: 17, 52: 17}) #number must have fixed width for values
 values_36.Convert()
 values_36.Save()
 

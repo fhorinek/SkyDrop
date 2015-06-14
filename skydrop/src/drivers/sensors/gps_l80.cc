@@ -1,6 +1,8 @@
 #include "gps_l80.h"
 #include "../uart.h"
 
+#include "../../fc/fc.h"
+
 Usart gps_uart;
 
 CreateStdOut(gps_out, gps_uart.Write);
@@ -26,6 +28,11 @@ volatile uint8_t gps_rx_checksum;
 
 bool gps_init_ok = false;
 
+#define L80_SAT_CNT	12
+
+uint8_t l80_sat_id[L80_SAT_CNT];
+uint8_t l80_sat_snr[L80_SAT_CNT];
+
 uint8_t hex_to_num(uint8_t c)
 {
 	if (c >= 'A')
@@ -40,6 +47,8 @@ uint32_t atoi_n(char * str, uint8_t n)
 
 	for (uint8_t i = 0; i < n; i++)
 	{
+		if (str[i] == ',')
+			return 0;
 		if (str[i] == '.')
 		{
 			n++;
@@ -121,12 +130,12 @@ void gps_parse_rmc()
 	uint8_t min = atoi_n(ptr + 2, 2);
 	uint8_t sec = atoi_n(ptr + 4, 2);
 
-	DEBUG("%02d:%02d:%02d\n", hour, min, sec);
+//	DEBUG("%02d:%02d:%02d\n", hour, min, sec);
 
 	ptr = find_comma(ptr);
 
 	//Valid (A = valid)
-	bool valid = (*ptr) == 'A';
+	fc.gps_data.valid = (*ptr) == 'A';
 
 	ptr = find_comma(ptr);
 
@@ -140,6 +149,8 @@ void gps_parse_rmc()
 	if ((*ptr) == 'S')
 		latitude *= -1;
 
+	fc.gps_data.latitude = latitude;
+
 	ptr = find_comma(ptr);
 
 	//Longitude
@@ -152,28 +163,30 @@ void gps_parse_rmc()
 	if ((*ptr) == 'W')
 		longitude *= -1;
 
+
+	fc.gps_data.longtitude = longitude;
+
 	ptr = find_comma(ptr);
 
 	DEBUG("lat+lon %0.7f %0.7f\n", latitude, longitude);
 
-	//Ground speed in knots
-	float speed = atoi_f(ptr);
+	fc.gps_data.groud_speed = atoi_f(ptr) * 1.852;
 
 	ptr = find_comma(ptr);
 
 	//Ground course
-	float course = atoi_f(ptr);
+	fc.gps_data.heading = atoi_f(ptr);
 
 	ptr = find_comma(ptr);
-
-	DEBUG("spd+crs %0.2f %0.2f\n", speed, course);
 
 	//UTC date
 	uint8_t day = atoi_n(ptr + 0, 2);
 	uint8_t month = atoi_n(ptr + 2, 2);
 	uint16_t year = atoi_n(ptr + 4, 2) + 2000;
 
-	DEBUG("%02d.%02d.%04d\n", day, month, year);
+	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
+
+//	DEBUG("%02d.%02d.%04d\n", day, month, year);
 }
 
 //132405.000,4809.2356,N,01704.4263,E,1,6,1.95,160.3,M,42.7,M,,
@@ -192,46 +205,146 @@ void gps_parse_gga()
 	ptr = find_comma(ptr);
 	ptr = find_comma(ptr);
 
-	//Fix status
-	uint8_t fix = (*ptr) - '0';
+	//Skip fix status
 	ptr = find_comma(ptr);
 
 	//Number of sat
-	uint8_t sat = atoi_c(ptr);
+	fc.gps_data.sat_used = atoi_c(ptr);
 	ptr = find_comma(ptr);
 
 	//HDOP TODO:calc error
-	float hdop = atoi_f(ptr);
+	fc.gps_data.hdop = atoi_f(ptr);
 	ptr = find_comma(ptr);
 
 	//altitude
-	float altitude = atoi_f(ptr);
+	fc.gps_data.altitude = atoi_f(ptr);
 	ptr = find_comma(ptr);
 	ptr = find_comma(ptr); //skip M
 
 	//Geo id
-	float geo_id = atoi_f(ptr);
+//	float geo_id = atoi_f(ptr);
 
-	DEBUG("fix %d (%d), hdop: %0.2f\n", fix, sat, hdop);
-	DEBUG("alt %0.1fm geo: %0.1fm\n", altitude, geo_id);
+//	DEBUG("fix %d (%d), hdop: %0.2f\n", fix, sat, hdop);
+//	DEBUG("alt %0.1fm geo: %0.1fm\n", altitude, geo_id);
 }
+
+//
+void gps_parse_gsa()
+{
+	DEBUG("\nGSA\n");
+
+	char * ptr = find_comma(gps_parser_buffer);
+
+	//Skip mode
+	ptr = find_comma(ptr);
+	//fix status
+	fc.gps_data.fix = atoi_c(ptr);
+}
+
+void gps_parse_gsv()
+{
+	DEBUG("\nGSV\n");
+
+	char * ptr = find_comma(gps_parser_buffer);
+
+	//Number of messages
+	uint8_t msg_c = atoi_c(ptr);
+	ptr = find_comma(ptr);
+	//message number
+	uint8_t msg_i = atoi_c(ptr);
+	ptr = find_comma(ptr);
+	//sat in view
+	fc.gps_data.sat_total = atoi_c(ptr);
+	ptr = find_comma(ptr);
+
+	uint8_t sat_n;
+
+	sat_n = (msg_c > msg_i || msg_c * 4 == fc.gps_data.sat_total) ? 4 : fc.gps_data.sat_total % 4;
+
+
+	DEBUG(">> %d, %d", msg_c, msg_i);
+
+	for (uint8_t i = 0; i < 4 ; i++)
+	{
+		uint8_t index = (msg_i - 1) * 4 + i;
+
+		if (i >= sat_n)
+		{
+			fc.gps_data.sat_id[index] = 0;
+		    fc.gps_data.sat_snr[index] = 0;
+		    continue;
+		}
+		//sat_id
+		fc.gps_data.sat_id[index] = atoi_c(ptr);
+		ptr = find_comma(ptr);
+
+		//skip elevation
+		ptr = find_comma(ptr);
+
+		//skip azimut
+		ptr = find_comma(ptr);
+
+		//snr
+		fc.gps_data.sat_snr[index] = atoi_c(ptr);
+		ptr = find_comma(ptr);
+		DEBUG("%d %d,", fc.gps_data.sat_id[index], fc.gps_data.sat_snr[index]);
+	}
+	DEBUG("\n");
+}
+
+void gps_normal()
+{
+	DEBUG("set_nmea_output - normal\n");
+	fprintf(gps_out, "$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
+}
+
+void gps_detail()
+{
+	DEBUG("set_nmea_output - detail\n");
+	fprintf(gps_out, "$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
+}
+
+void gps_set_baudrate()
+{
+	DEBUG("set_baudrate\n");
+	fprintf(gps_out, "$PMTK251,115200*1F\r\n");
+	gps_uart.FlushTxBuffer();
+	_delay_ms(1);
+}
+
+
+//for 115200 @ 32M
+#define BSEL	2094
+#define BSCALE	-7
+
+void gps_change_uart_baudrate()
+{
+	gps_uart.Stop();
+	gps_uart.Init(GPS_UART, 115200);
+}
+
 
 void gps_parse_hello()
 {
 	DEBUG("HELLO\n");
 
 	gps_init_ok = true;
-
-	gps_setup();
-	gps_change_baud();
 }
 
+void gps_parse_sys()
+{
+	DEBUG("SYS");
+//	gps_set_baudrate();
+//	gps_change_uart_baudrate();
+
+	gps_normal();
+}
 
 void gps_parse(Usart * c_uart)
 {
 	uint8_t c = c_uart->Read();
 
-	DEBUG("%c", c);
+//	DEBUG("%c", c);
 
 	switch (gps_parser_state)
 	{
@@ -242,17 +355,16 @@ void gps_parse(Usart * c_uart)
 				gps_checksum = 0;
 				gps_parser_state = GPS_DATA;
 			}
-			else
-			{
-				gps_parser_buffer_index++;
-				if (gps_parser_buffer_index > 10)
-				{
-					gps_setup();
-					gps_change_baud();
-					gps_setup();
-					gps_parser_buffer_index = 0;
-				}
-			}
+//			else
+//			{
+//				gps_parser_buffer_index++;
+//				if (gps_parser_buffer_index > 10)
+//				{
+//					gps_set_baudrate();
+//					gps_change_uart_baudrate();
+//					gps_parser_buffer_index = 0;
+//				}
+//			}
 		break;
 
 		case(GPS_DATA):
@@ -295,6 +407,12 @@ void gps_parse(Usart * c_uart)
 
 					if (cmpn_p(gps_parser_ptr, PSTR("GGA"), 3))
 						gps_parse_gga();
+
+					if (cmpn_p(gps_parser_ptr, PSTR("GSA"), 3))
+						gps_parse_gsa();
+
+					if (cmpn_p(gps_parser_ptr, PSTR("GSV"), 3))
+						gps_parse_gsv();
 				}
 				else if (cmpn_p(gps_parser_buffer, PSTR("PMTK"), 4))
 				{
@@ -302,6 +420,9 @@ void gps_parse(Usart * c_uart)
 
 					if (cmpn_p(gps_parser_ptr, PSTR("011"), 3))
 						gps_parse_hello();
+
+					if (cmpn_p(gps_parser_ptr, PSTR("010"), 3))
+						gps_parse_sys();
 				}
 
 			}
@@ -315,35 +436,6 @@ void gps_parse(Usart * c_uart)
 	}
 }
 
-void gps_setup()
-{
-	DEBUG("set_nmea_output\n");
-	fprintf(gps_out, "$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n");
-
-	DEBUG("set_baudrate\n");
-	fprintf(gps_out, "$PMTK251,115200*1F\r\n");
-
-	DEBUG("setup done\n");
-}
-
-//for 115200 @ 32M
-#define BSEL	2094
-#define BSCALE	-7
-
-void gps_change_baud()
-{
-	gps_uart.Stop();
-	gps_uart.Init(GPS_UART, 115200);
-//	gps_uart.RegisterEvent(usart_event_rxcomplete, &gps_parse);
-
-//	gps_uart.usart->CTRLA = 0;
-//	gps_uart.usart->BAUDCTRLA = 0xFF & BSEL;
-//	gps_uart.usart->BAUDCTRLB = (BSCALE << 4) | (0x0F & (BSEL >> 8));
-//	gps_uart.usart->CTRLC = USART_CHSIZE_8BIT_gc;
-//	gps_uart.usart->CTRLB = USART_RXEN_bm | USART_TXEN_bm;
-//	gps_uart.SetInterruptPriority(LOW);
-}
-
 
 void gps_init()
 {
@@ -352,6 +444,7 @@ void gps_init()
 	GPS_UART_PWR_ON;
 	gps_uart.InitBuffers(250, 40);
 	gps_uart.Init(GPS_UART, 9600);
+	gps_uart.SetInterruptPriority(MEDIUM);
 
 	GpioSetDirection(GPS_EN, OUTPUT);	 //active high
 	GpioWrite(GPS_EN, LOW);

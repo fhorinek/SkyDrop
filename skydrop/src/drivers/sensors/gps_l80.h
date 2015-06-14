@@ -11,12 +11,15 @@
 #include "../../common.h"
 
 void gps_init();
-void gps_change_baud();
+void gps_change_uart_baudrate();
 void gps_stop();
 void gps_parse(Usart *);
 void gps_step();
-void gps_setup();
+void gps_set_baudrate();
 
 bool gps_selftest();
+
+void gps_normal();
+void gps_detail();
 
 #endif /* GPS_L80_H_ */

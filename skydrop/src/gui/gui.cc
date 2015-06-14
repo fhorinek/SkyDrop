@@ -17,6 +17,8 @@
 #include "factory_test.h"
 #include "settings/set_system.h"
 #include "settings/set_autostart.h"
+#include "settings/set_gps.h"
+#include "settings/set_gps_detail.h"
 
 
 n5110display disp;
@@ -26,16 +28,28 @@ volatile uint8_t gui_task = GUI_NONE;
 volatile uint8_t gui_new_task = GUI_SPLASH;
 
 void (* gui_init_array[])() =
-{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init, gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init, gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init, gui_set_autostart_init};
+	{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init,
+	gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init,
+	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
+	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init};
 
 void (* gui_stop_array[])() =
-{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop, gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop, gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop, gui_set_autostart_stop};
+	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
+	gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop,
+	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
+	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop};
 
 void (* gui_loop_array[])() =
-{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop, gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop, gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop, gui_set_autostart_loop};
+	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
+	gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop,
+	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
+	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
-{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh, gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh, gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh, gui_set_autostart_irqh};
+	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
+	gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh,
+	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
+	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -70,12 +84,12 @@ void gui_set_contrast(uint8_t contrast)
 
 char gui_message[32];
 uint32_t gui_message_end = 0;
-#define MESSAGE_DURATION	4
+#define MESSAGE_DURATION	5
 
-void gui_showmessage(const char * msg)
+void gui_showmessage_P(const char * msg)
 {
 	strcpy_P(gui_message, msg);
-	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000;
+	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
 }
 
 void gui_raligh_text(char * text, uint8_t x, uint8_t y)
@@ -162,7 +176,8 @@ void gui_loop()
 		return;
 
 //	DEBUG("draw\n");
-	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
+//	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
+	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
 
 	if (lcd_new_contrast)
 	{
@@ -177,6 +192,7 @@ void gui_loop()
 			gui_stop_array[gui_task]();
 
 		gui_task = gui_new_task;
+		buttons_reset();
 		gui_init_array[gui_task]();
 	}
 
@@ -186,10 +202,20 @@ void gui_loop()
 
 	if (gui_message_end > task_get_ms_tick())
 	{
-		disp.LoadFont(F_TEXT_L);
+		disp.LoadFont(F_TEXT_M);
 		uint8_t w = disp.GetTextWidth(gui_message);
 		uint8_t h = disp.GetAHeight();
-		disp.GotoXY(n5110_width / 2 - w / 2, n5110_height / 2 - h / 2);
+		uint8_t x = GUI_DISP_WIDTH / 2 - w / 2;
+		uint8_t y = GUI_DISP_HEIGHT / 2 - h / 2;
+		uint8_t pad = 3;
+		disp.DrawRectangle(x - 1 - pad, y - 1 - pad, x + w + pad, y + h + pad, 0, 1);
+
+		disp.DrawLine(x - pad,			y - 2 - pad, 		x + w + pad, 		y - 2 - pad, 		1);
+		disp.DrawLine(x - pad, 			y + h + 1 + pad, 	x + w + pad, 		y + h + 1 + pad, 	1);
+
+		disp.DrawLine(x - 1 - pad, 		y - 1 - pad, 		x - 1 - pad, 		y + h + pad, 	1);
+		disp.DrawLine(x + w + 1 + pad, 	y - 1 - pad, 		x + w + 1 + pad, 	y + h + pad, 	1);
+		disp.GotoXY(x, y);
 		fprintf_P(lcd_out, PSTR("%s"), gui_message);
 	}
 
