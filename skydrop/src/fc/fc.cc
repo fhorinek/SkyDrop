@@ -119,7 +119,14 @@ void fc_init()
 	fc.use_gps = eeprom_read_byte(&config.system.use_gps);
 	DEBUG("use_gps %d\n", fc.use_gps);
 
+	fc.sync_gps_time = eeprom_read_byte(&config.system.sync_gps_time);
+	DEBUG("sync_gps_time %d\n", fc.sync_gps_time);
+
+	eeprom_read_block((void *)&fc.time_zone, &config.system.time_zone, sizeof(int8_t));
+	DEBUG("time_zone %d\n", fc.time_zone);
+
 	DEBUG("\n");
+
 	//default values
 	fc.epoch_flight_start = 0;
 	fc.in_flight = false;
@@ -131,8 +138,9 @@ void fc_init()
 	vario_init();
 	audio_init();
 
+	gps_init();
 	if (fc.use_gps)
-		gps_init();
+		gps_start();
 //	bt_init();
 
 	//VCC to baro, acc/mag gyro
@@ -319,11 +327,21 @@ ISR(FC_MEAS_TIMER_CMPC)
 	IO1_LOW
 }
 
+void fc_sync_gps_time()
+{
+	time_set_actual(fc.gps_data.utc_time + (fc.time_zone * 3600ul) / 2);
+	gui_showmessage_P(PSTR("GPS Time set"));
+}
 
 void fc_step()
 {
 	gps_step();
 	bt_step();
+
+	if (fc.sync_gps_time && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
+	{
+		fc_sync_gps_time();
+	}
 }
 
 float fc_alt_to_qnh(float alt, float pressure)

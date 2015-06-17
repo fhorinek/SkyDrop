@@ -19,6 +19,7 @@
 #include "settings/set_autostart.h"
 #include "settings/set_gps.h"
 #include "settings/set_gps_detail.h"
+#include "settings/set_debug.h"
 
 
 n5110display disp;
@@ -31,25 +32,25 @@ void (* gui_init_array[])() =
 	{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init,
 	gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init,
 	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
-	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init};
+	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
 	gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop,
 	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
-	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop};
+	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
 	gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop,
 	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
-	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop};
+	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
 	gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh,
 	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
-	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh};
+	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -164,18 +165,9 @@ extern uint32_t task_timer_high;
 
 void gui_loop()
 {
-//	byte8 tmp;
-
-//	tmp.uint64 = task_get_us_tick();
-
-//	DEBUG("%lu %lu %lu\n", gui_loop_timer, task_get_ms_tick(), task_timer_high);
-
-//	DEBUG("%lx %lx\n\n", tmp.uint32[1], tmp.uint32[0]);
-
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
 
-//	DEBUG("draw\n");
 //	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
 	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
 
@@ -273,6 +265,8 @@ void gui_force_loop()
 
 void gui_irqh(uint8_t type, uint8_t * buff)
 {
+	if (type == B_LEFT || type == B_MIDDLE || type == B_RIGHT)
+		gui_message_end = task_get_ms_tick();
 
 	switch(type)
 	{
@@ -285,6 +279,23 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 
 void gui_statusbar()
 {
+	//GPS indicator
+	if (fc.use_gps)
+	{
+		char tmp[3];
+		disp.LoadFont(F_TEXT_S);
+		sprintf_P(tmp, PSTR("G"));
+		if(fc.gps_data.valid)
+		{
+			gui_raligh_text(tmp, GUI_DISP_WIDTH, 0);
+		}
+		else
+		{
+			if (GUI_BLINK_TGL(1000))
+				gui_raligh_text(tmp, GUI_DISP_WIDTH, 0);
+		}
+	}
+
 	//battery indicator
 	uint8_t a = battery_per / 10;
 

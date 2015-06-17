@@ -25,7 +25,6 @@ typedef enum {
 
 } wdt_timeout;
 
-#define wdt_reset()     asm("wdr")
 
 void wdt_init(wdt_timeout to);
 void wdt_deinit();

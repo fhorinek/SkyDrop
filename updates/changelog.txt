@@ -1,4 +1,4 @@
-Build 
+Build 0322 - 17. 6. 2015
 =========================================================
 FIX:
  * Battery re-parametrisation (Bug #7)
@@ -12,18 +12,36 @@ REMOVED:
  
 CHANGE:
  * Shorten timeout for long-press (#4)
+ * Battery live enhancements 
+    * ~30 hours without GPS
+    * ~10 hours with GPS
  
 ADDED:
  * Pop-up message support
  * settings
+    * settings
+        * Timezone
     * gps settings
+        * enable
         * gps detail
- * GPS subsytem
+        * time sync
+    * Debug info
+
+ * GPS subsystem
  * widgets
     * Temperature + Relative humidity
+    * Ground speed
+    * GPS heading
  * layouts
     * 123
- 
+    * 333
+ * GPS indicator "G" on top right
+    - not shown when GPS is disabled
+    - blink when GPS is looking for satellites
+    - solid on GPS Fix
+    
+KNOWN ISSUES
+ * Temperature is not correct
 
 
 

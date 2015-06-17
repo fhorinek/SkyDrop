@@ -18,6 +18,8 @@ extern FILE * lcd_out;
 #define GUI_DISP_WIDTH	n5110_width
 #define GUI_DISP_HEIGHT	n5110_height
 
+#define GUI_BLINK_TGL(PER) (task_get_ms_tick() % PER > (PER / 2))
+
 void gui_switch_task(uint8_t new_task);
 
 void gui_init();
@@ -62,6 +64,7 @@ void gui_statusbar();
 #define GUI_SET_AUTOSTART	13
 #define GUI_SET_GPS			14
 #define GUI_SET_GPS_DETAIL	15
+#define GUI_SET_DEBUG		16
 
 extern uint8_t lcd_brightness;
 extern uint8_t lcd_brightness_timeout;

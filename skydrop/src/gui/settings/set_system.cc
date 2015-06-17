@@ -7,7 +7,7 @@
 
 void gui_set_system_init()
 {
-	gui_list_set(gui_set_system_item, gui_set_system_action, 4);
+	gui_list_set(gui_set_system_item, gui_set_system_action, 5);
 
 	eeprom_busy_wait();
 
@@ -32,6 +32,15 @@ void gui_set_system_time_cb(float val)
 	gui_switch_task(GUI_SET_SYSTEM);
 }
 
+void gui_set_system_timezone_cb(float val)
+{
+	int8_t tmp = val * 2;
+	eeprom_busy_wait();
+	eeprom_update_block((void *)&fc.time_zone, &config.system.time_zone, sizeof(int8_t));
+	fc.time_zone = tmp;
+	gui_switch_task(GUI_SET_SYSTEM);
+}
+
 void gui_set_system_action(uint8_t index)
 {
 	switch(index)
@@ -53,6 +62,11 @@ void gui_set_system_action(uint8_t index)
 	break;
 
 	case(3):
+		gui_value_conf_P(PSTR("Time zone"), GUI_VAL_NUMBER, PSTR("UTC %+0.1f"), fc.time_zone / 2.0, -12, 12, 0.5, gui_set_system_timezone_cb);
+		gui_switch_task(GUI_SET_VAL);
+	break;
+
+	case(4):
 		gui_switch_task(GUI_SETTINGS);
 	break;
 	}
@@ -94,6 +108,12 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		break;
 
 		case (3):
+			sprintf_P(text, PSTR("Time Zone"));
+			sprintf_P(sub_text, PSTR("UTC %+0.1f"), fc.time_zone / 2.0);
+			*flags |= GUI_LIST_SUB_TEXT;
+		break;
+
+		case (4):
 			sprintf_P(text, PSTR("back"));
 			*flags |= GUI_LIST_BACK;
 		break;

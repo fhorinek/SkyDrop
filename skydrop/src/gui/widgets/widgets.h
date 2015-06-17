@@ -88,14 +88,18 @@ extern float widget_menu_fvalue1;
 #define WIDGET_TEMPERATURE	12
 #include "temperature.h"
 
-#define NUMBER_OF_WIDGETS	13
+#define WIDGET_GHEADING		13
+#define WIDGET_GROUND_SPD	14
+#include "gps.h"
+
+#define NUMBER_OF_WIDGETS	15
 
 
 
 void widgets_init();
 void widgets_draw(uint8_t page);
 
-uint8_t widget_label(const char * label, uint8_t x, uint8_t y);
+uint8_t widget_label_P(const char * label, uint8_t x, uint8_t y);
 uint8_t widget_label(char * label, uint8_t x, uint8_t y);
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h);

@@ -219,7 +219,7 @@ void gui_pages_loop()
 		disp.DrawLine(GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, GUI_DISP_WIDTH - 1, top + 1, 1);
 
 		//pwr
-		if ((page_state_timer - task_get_ms_tick() > PAGE_MENU_POWEROFF_BLIK) || (task_get_ms_tick() % 200 > 100) || page_state_dir != HOLD)
+		if ((page_state_timer - task_get_ms_tick() > PAGE_MENU_POWEROFF_BLIK) || GUI_BLINK_TGL(200) || page_state_dir != HOLD)
 			disp.DrawImage(img_pwr, 36, top + 2);
 
 		//menu

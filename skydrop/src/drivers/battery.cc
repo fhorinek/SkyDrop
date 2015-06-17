@@ -43,8 +43,8 @@ int8_t battery_per = 0;
 //#define BATT_COEF_B  (-672.1273455619)
 
 
-#define BATT_COEF_A	(0.1952529521)
-#define BATT_COEF_B  (-619.4665860497)
+#define BATT_COEF_A	(0.2147782473)
+#define BATT_COEF_B  (-681.4132446547)
 
 uint8_t battery_get_per()
 {

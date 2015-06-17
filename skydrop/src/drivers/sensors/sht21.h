@@ -29,8 +29,6 @@ struct sht21_settings
 
 #define SHT21_RESET				0b11111110
 
-#define SHT21_PERIOD			31250
-
 class SHT21
 {
 public:
@@ -45,6 +43,7 @@ public:
 	int16_t humidity;
 
 	void Init(I2c * i2c, struct sht21_settings settings);
+	void Reset();
 
 	bool SelfTest();
 

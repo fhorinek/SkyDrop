@@ -25,6 +25,7 @@ char * gps_parser_ptr;
 volatile uint8_t gps_parser_buffer_index = 0;
 volatile uint8_t gps_checksum;
 volatile uint8_t gps_rx_checksum;
+bool gps_detail_enabled = false;
 
 bool gps_init_ok = false;
 
@@ -120,8 +121,9 @@ char * find_comma(char * str)
 //hhmmss.XXX,
 void gps_parse_rmc()
 {
-	DEBUG("\nRMC\n");
+//	DEBUG("\nRMC\n");
 
+	gps_init_ok = true;
 
 	char * ptr = find_comma(gps_parser_buffer);
 
@@ -136,6 +138,13 @@ void gps_parse_rmc()
 
 	//Valid (A = valid)
 	fc.gps_data.valid = (*ptr) == 'A';
+	if (fc.gps_data.valid)
+	{
+		if (fc.gps_data.fix_cnt < GPS_FIX_CNT_MAX)
+			fc.gps_data.fix_cnt++;
+	}
+	else
+		fc.gps_data.fix_cnt = 0;
 
 	ptr = find_comma(ptr);
 
@@ -168,7 +177,7 @@ void gps_parse_rmc()
 
 	ptr = find_comma(ptr);
 
-	DEBUG("lat+lon %0.7f %0.7f\n", latitude, longitude);
+//	DEBUG("lat+lon %0.7f %0.7f\n", latitude, longitude);
 
 	fc.gps_data.groud_speed = atoi_f(ptr) * 1.852;
 
@@ -192,7 +201,7 @@ void gps_parse_rmc()
 //132405.000,4809.2356,N,01704.4263,E,1,6,1.95,160.3,M,42.7,M,,
 void gps_parse_gga()
 {
-	DEBUG("\nGGA\n");
+//	DEBUG("\nGGA\n");
 
 	char * ptr = find_comma(gps_parser_buffer);
 
@@ -222,7 +231,8 @@ void gps_parse_gga()
 	ptr = find_comma(ptr); //skip M
 
 	//Geo id
-//	float geo_id = atoi_f(ptr);
+	float geo_id = atoi_f(ptr);
+	fc.gps_data.altitude -= geo_id;
 
 //	DEBUG("fix %d (%d), hdop: %0.2f\n", fix, sat, hdop);
 //	DEBUG("alt %0.1fm geo: %0.1fm\n", altitude, geo_id);
@@ -231,7 +241,7 @@ void gps_parse_gga()
 //
 void gps_parse_gsa()
 {
-	DEBUG("\nGSA\n");
+//	DEBUG("\nGSA\n");
 
 	char * ptr = find_comma(gps_parser_buffer);
 
@@ -243,7 +253,7 @@ void gps_parse_gsa()
 
 void gps_parse_gsv()
 {
-	DEBUG("\nGSV\n");
+//	DEBUG("\nGSV\n");
 
 	char * ptr = find_comma(gps_parser_buffer);
 
@@ -261,8 +271,7 @@ void gps_parse_gsv()
 
 	sat_n = (msg_c > msg_i || msg_c * 4 == fc.gps_data.sat_total) ? 4 : fc.gps_data.sat_total % 4;
 
-
-	DEBUG(">> %d, %d", msg_c, msg_i);
+//	DEBUG(">> %d, %d", msg_c, msg_i);
 
 	for (uint8_t i = 0; i < 4 ; i++)
 	{
@@ -287,19 +296,21 @@ void gps_parse_gsv()
 		//snr
 		fc.gps_data.sat_snr[index] = atoi_c(ptr);
 		ptr = find_comma(ptr);
-		DEBUG("%d %d,", fc.gps_data.sat_id[index], fc.gps_data.sat_snr[index]);
+//		DEBUG("%d %d,", fc.gps_data.sat_id[index], fc.gps_data.sat_snr[index]);
 	}
-	DEBUG("\n");
+//	DEBUG("\n");
 }
 
 void gps_normal()
 {
+	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
 	fprintf(gps_out, "$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
 }
 
 void gps_detail()
 {
+	gps_detail_enabled = true;
 	DEBUG("set_nmea_output - detail\n");
 	fprintf(gps_out, "$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
 }
@@ -327,8 +338,6 @@ void gps_change_uart_baudrate()
 void gps_parse_hello()
 {
 	DEBUG("HELLO\n");
-
-	gps_init_ok = true;
 }
 
 void gps_parse_sys()
@@ -337,7 +346,10 @@ void gps_parse_sys()
 //	gps_set_baudrate();
 //	gps_change_uart_baudrate();
 
-	gps_normal();
+	if (gps_detail_enabled)
+		gps_detail();
+	else
+		gps_normal();
 }
 
 void gps_parse(Usart * c_uart)
@@ -436,13 +448,9 @@ void gps_parse(Usart * c_uart)
 	}
 }
 
-
-void gps_init()
+void gps_start()
 {
-	DEBUG("gps init\n");
-
 	GPS_UART_PWR_ON;
-	gps_uart.InitBuffers(250, 40);
 	gps_uart.Init(GPS_UART, 9600);
 	gps_uart.SetInterruptPriority(MEDIUM);
 
@@ -463,6 +471,22 @@ void gps_init()
 	GpioWrite(GPS_RESET, HIGH);
 
 	gps_parser_state = GPS_IDLE;
+	fc.gps_data.valid = false;
+	fc.gps_data.fix = 0;
+	fc.gps_data.fix_cnt = 0;
+
+	for (uint8_t i = 0; i < GPS_SAT_CNT; i++)
+	{
+		fc.gps_data.sat_id[i] = 0;
+		fc.gps_data.sat_snr[i] = 0;
+	}
+}
+
+void gps_init()
+{
+	DEBUG("gps init\n");
+
+	gps_uart.InitBuffers(250, 40);
 }
 
 bool gps_selftest()
@@ -475,6 +499,11 @@ void gps_stop()
 	GpioSetDirection(GPS_EN, INPUT);
 	GpioSetDirection(GPS_RESET, INPUT);
 
+	fc.gps_data.valid = false;
+	fc.gps_data.fix = 0;
+	fc.gps_data.fix_cnt = 0;
+
+	gps_init_ok = false;
 	gps_uart.Stop();
 	GPS_UART_PWR_OFF;
 }

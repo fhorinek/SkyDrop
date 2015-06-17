@@ -29,6 +29,9 @@ typedef struct
 } alt_data_t;
 
 #define GPS_SAT_CNT	12
+#define GPS_FIX_CNT_MAX		200
+#define GPS_FIX_TIME_SYNC	10
+#define GPS_FIX_ALT_SYNC	50
 
 typedef struct
 {
@@ -38,7 +41,7 @@ typedef struct
 	float longtitude;
 	float groud_speed;
 
-	uint16_t heading;
+	float heading;
 	uint32_t utc_time;
 
 	uint8_t fix;
@@ -50,6 +53,8 @@ typedef struct
 
 	uint8_t sat_id[GPS_SAT_CNT];
 	uint8_t sat_snr[GPS_SAT_CNT];
+
+	uint8_t fix_cnt;
 } gps_data_t;
 
 #define FC_TEMP_PERIOD	1000
@@ -97,6 +102,8 @@ typedef struct
 	uint8_t autostart_sensitivity;
 
 	uint8_t use_gps;
+	uint8_t sync_gps_time;
+	int8_t time_zone;
 
 	// --- CALC ---
 	bool baro_valid;
@@ -127,6 +134,8 @@ void fc_continue();
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);
+
+void fc_sync_gps_time();
 
 extern volatile flight_data_t fc;
 

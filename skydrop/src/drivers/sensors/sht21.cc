@@ -17,6 +17,7 @@ void SHT21::Init(I2c * i2c, struct sht21_settings settings)
 	if (!(this->settings.temp_enabled && this->settings.rh_enabled))
 		return;
 
+	this->Reset();
 }
 
 void SHT21::Deinit()
@@ -34,6 +35,11 @@ bool SHT21::SelfTest()
 	}
 
 	return true;
+}
+
+void SHT21::Reset()
+{
+	this->Write(SHT21_RESET);
 }
 
 void SHT21::Write(uint8_t cmd)
@@ -65,6 +71,8 @@ bool SHT21::Read()
     data.uint8[1] = this->i2c->Read();
     data.uint8[0] = this->i2c->Read();
 
+    DEBUG("data: %02X %02X\n", data.uint8[1], data.uint8[0]);
+
     bool humidity = (data.uint8[0] & 0b00000010);
 
     data.uint8[0] &= 0b11111100;
@@ -79,7 +87,10 @@ bool SHT21::Read()
 
 void SHT21::CompensateTemperature()
 {
-	this->temperature = -468.5 + 175.72/6553.6 * (float)this->raw_temperature;
+	DEBUG("RT -- %u\n", this->raw_temperature);
+	float tmp = -46.85 + 175.72 * ((float)this->raw_temperature / 65536.0);
+	DEBUG("  %0.2f\n", tmp);
+	this->temperature = tmp * 10;
 }
 
 

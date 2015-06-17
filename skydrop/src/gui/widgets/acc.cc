@@ -3,7 +3,7 @@
 
 void widget_accx_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label(PSTR("Acc X"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Acc X"), x, y);
 
 	float val = fc.acc_data.x / 100.0;
 

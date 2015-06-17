@@ -72,6 +72,8 @@ struct cfg_system
 {
 	uint8_t usb_mode;
 	uint8_t use_gps;
+	uint8_t sync_gps_time;
+	int8_t time_zone;
 };
 
 struct cfg_autostart

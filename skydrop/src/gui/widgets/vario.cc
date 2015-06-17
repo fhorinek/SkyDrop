@@ -2,7 +2,7 @@
 
 void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label(PSTR("Vario"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Vario"), x, y);
 
 	float val = fc.digital_vario;
 	if (abs(val) < 0.09)
@@ -18,7 +18,7 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 
 void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label(PSTR("Avg"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Avg"), x, y);
 
 	float val = fc.avg_vario;
 	if (abs(val) < 0.09)

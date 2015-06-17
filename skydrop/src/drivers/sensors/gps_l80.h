@@ -12,6 +12,7 @@
 
 void gps_init();
 void gps_change_uart_baudrate();
+void gps_start();
 void gps_stop();
 void gps_parse(Usart *);
 void gps_step();

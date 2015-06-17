@@ -11,8 +11,8 @@ int16_t gui_list_y_offset = 0;
 
 void gui_list_draw()
 {
-	char tmp_text[22];
-	char tmp_sub_text[16];
+	char tmp_text[64];
+	char tmp_sub_text[32];
 
 	uint8_t flags;
 
@@ -26,7 +26,7 @@ void gui_list_draw()
 
 	for (uint8_t i = 0; i < gui_list_size; i++)
 	{
-		height = t_h + 1;
+		height = 1+ t_h;
 
 		flags = 0;
 		gui_list_gen_f(i, tmp_text, &flags, tmp_sub_text);
@@ -43,6 +43,8 @@ void gui_list_draw()
 				x_val = 2;
 			break;
 		}
+
+		height += ((disp.GetTextWidth(tmp_text) + x_val) / GUI_DISP_WIDTH) * t_h;
 
 		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
 		{

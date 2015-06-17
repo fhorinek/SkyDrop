@@ -23,7 +23,7 @@ void gui_factory_test_init()
 	if (!gps_selftest())
 	{
 		DEBUG("Force enable GPS\n");
-		gps_init();
+		gps_start();
 	}
 
 	buzzer_set_freq(0);

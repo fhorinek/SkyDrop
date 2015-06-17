@@ -8,7 +8,7 @@
 
 void gui_set_gps_init()
 {
-	gui_list_set(gui_set_gps_item, gui_set_gps_action, 5);
+	gui_list_set(gui_set_gps_item, gui_set_gps_action, 6);
 
 	if (fc.use_gps)
 		gps_detail();
@@ -37,20 +37,50 @@ void gui_set_gps_action(uint8_t index)
 		fc.use_gps = !fc.use_gps;
 		eeprom_busy_wait();
 		eeprom_update_byte(&config.system.use_gps, fc.use_gps);
+		if (fc.use_gps)
+			gps_start();
+		else
+			gps_stop();
 	break;
 
 	case(1):
-		gui_switch_task(GUI_SET_GPS_DETAIL);
+		if (!fc.use_gps)
+			gui_showmessage_P(PSTR("Enable GPS first"));
+		else
+			gui_switch_task(GUI_SET_GPS_DETAIL);
 	break;
 
 	case(2):
+		if (fc.use_gps)
+		{
+			if (fc.gps_data.fix_cnt > GPS_FIX_TIME_SYNC)
+				fc_sync_gps_time();
+			else
+				gui_showmessage_P(PSTR("Wait for GPS"));
+		}
+		else
+			gui_showmessage_P(PSTR("Enable GPS first"));
 	break;
 
 	case(3):
-
+		if (fc.use_gps)
+		{
+			if (fc.gps_data.fix_cnt > GPS_FIX_TIME_SYNC)
+				fc_sync_gps_time();
+			else
+				gui_showmessage_P(PSTR("Wait for GPS"));
+		}
+		else
+			gui_showmessage_P(PSTR("Enable GPS first"));
 	break;
 
 	case(4):
+		fc.sync_gps_time = !fc.sync_gps_time;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.system.sync_gps_time, fc.sync_gps_time);
+	break;
+
+	case(5):
 		gui_switch_task(GUI_SETTINGS);
 		if (fc.use_gps)
 			gps_normal();
@@ -60,6 +90,21 @@ void gui_set_gps_action(uint8_t index)
 
 void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
+	char tmp[10];
+
+	uint8_t sec;
+	uint8_t min;
+	uint8_t hour;
+	uint8_t day;
+	uint8_t wday;
+	uint8_t month;
+	uint16_t year;
+
+	if (fc.gps_data.valid)
+	{
+		datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+	}
+
 	switch (index)
 	{
 		case (0):
@@ -70,31 +115,72 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 				*flags |= GUI_LIST_CHECK_OFF;
 
 		break;
+
 		case (1):
-			sprintf_P(text, PSTR("Satellites"));
-			sprintf_P(sub_text, PSTR("%d/%d"), fc.gps_data.sat_used, fc.gps_data.sat_total);
-			*flags |= GUI_LIST_SUB_TEXT;
-		break;
-		case (2):
-			sprintf_P(text, PSTR("GPS fix"));
-			switch (fc.gps_data.fix)
+			sprintf_P(text, PSTR("Status"));
+			if (fc.use_gps)
 			{
-				case(2):
-					sprintf_P(sub_text, PSTR("2D Fix"));
-				break;
-				case(3):
-					sprintf_P(sub_text, PSTR("3D Fix"));
-				break;
-				default:
-					sprintf_P(sub_text, PSTR("No Fix"));
-				break;
+				switch (fc.gps_data.fix)
+				{
+					case(2):
+						sprintf_P(tmp, PSTR("2D"));
+					break;
+					case(3):
+						sprintf_P(tmp, PSTR("3D"));
+					break;
+					default:
+						sprintf_P(tmp, PSTR("No"));
+					break;
+				}
+				sprintf_P(sub_text, PSTR("%d/%d %s Fix"), fc.gps_data.sat_used, fc.gps_data.sat_total, tmp);
 			}
+			else
+			{
+				sprintf_P(sub_text, PSTR("GPS disabled"));
+			}
+
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
-		case (3):
-			sprintf_P(text, PSTR("Details"));
+
+		case (2):
+			sprintf_P(text, PSTR("GPS time"));
+			if (fc.gps_data.valid)
+				sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
+			else
+			{
+				if (fc.use_gps)
+					sprintf_P(sub_text, PSTR("Waiting for fix"));
+				else
+					sprintf_P(sub_text, PSTR("GPS disabled"));
+			}
+
+			*flags |= GUI_LIST_SUB_TEXT;
 		break;
+
+		case (3):
+			sprintf_P(text, PSTR("GPS date"));
+			if (fc.gps_data.valid)
+				sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
+			else
+			{
+				if (fc.use_gps)
+					sprintf_P(sub_text, PSTR("Waiting for fix"));
+				else
+					sprintf_P(sub_text, PSTR("GPS disabled"));
+			}
+
+			*flags |= GUI_LIST_SUB_TEXT;
+		break;
+
 		case (4):
+			sprintf_P(text, PSTR("Sync GPS time"));
+			if (fc.sync_gps_time)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (5):
 			sprintf_P(text, PSTR("back"));
 			*flags |= GUI_LIST_BACK;
 		break;

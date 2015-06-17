@@ -8,7 +8,7 @@ void widget_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 	time_from_epoch(time_get_actual(), &sec, &min, &hour);
 
-	uint8_t lh = widget_label(PSTR("Time"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Time"), x, y);
 
 	char tmp[7];
 	sprintf_P(tmp, PSTR("%02d:%02d"), hour, min);
@@ -18,7 +18,7 @@ void widget_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label(PSTR("FTime"), x, y);
+	uint8_t lh = widget_label_P(PSTR("FTime"), x, y);
 
 	char tmp[7];
 	if (fc.in_flight || fc.epoch_flight_start != 0)

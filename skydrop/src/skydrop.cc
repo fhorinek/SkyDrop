@@ -37,6 +37,7 @@ void Setup()
 }
 
 int free_ram_at_start;
+uint8_t system_rst;
 
 void Post()
 {
@@ -46,6 +47,8 @@ void Post()
 
 	//Print reset reason
 	DEBUG("Reset reason ... ");
+
+	system_rst = RST.STATUS;
 
 	if (RST.STATUS & 0b00100000)
 		DEBUG("Software ");

@@ -15,7 +15,7 @@ void gui_set_widgets_init()
 	set_widget_mode = SET_WIDGETS_CHOOSE;
 	set_widget_cnt = layout_get_number_of_widgets(pages[active_page].type);
 	set_widget_index = 0;
-	gui_list_set(gui_set_widgets_item, gui_set_widgets_action, NUMBER_OF_WIDGETS);
+	gui_list_set(gui_set_widgets_item, gui_set_widgets_action, NUMBER_OF_WIDGETS + 1);
 }
 
 void gui_set_widgets_stop() {}
@@ -27,7 +27,7 @@ void gui_set_widgets_loop()
 	case(SET_WIDGETS_CHOOSE):
 		widgets_draw(active_page);
 
-		if (task_get_ms_tick() % 1000 < 500)
+		if (GUI_BLINK_TGL(1000))
 		{
 			//Highlight selected widget
 			uint8_t x, y, w, h;
@@ -99,13 +99,28 @@ void gui_set_widgets_irqh(uint8_t type, uint8_t * buff)
 
 void gui_set_widgets_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
-	strcpy_P(text, widget_array[index].label);
+	if (index < NUMBER_OF_WIDGETS)
+	{
+		strcpy_P(text, widget_array[index].label);
+	}
+	else
+	{
+		strcpy_P(text, PSTR("back"));
+		*flags |= GUI_LIST_BACK;
+	}
 }
 
 void gui_set_widgets_action(uint8_t index)
 {
-	pages[active_page].widgets[set_widget_index] = index;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config.gui.pages[active_page].widgets[set_widget_index], pages[active_page].widgets[set_widget_index]);
-	set_widget_mode = SET_WIDGETS_CHOOSE;
+	if (index < NUMBER_OF_WIDGETS)
+	{
+		pages[active_page].widgets[set_widget_index] = index;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.gui.pages[active_page].widgets[set_widget_index], pages[active_page].widgets[set_widget_index]);
+		set_widget_mode = SET_WIDGETS_CHOOSE;
+	}
+	else
+	{
+		gui_switch_task(GUI_LAYOUTS);
+	}
 }

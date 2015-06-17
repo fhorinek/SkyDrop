@@ -2,7 +2,7 @@
 
 void widget_temperature_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label(PSTR("Temp"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Temp"), x, y);
 
 	char tmp[5], sub[5];
 	sprintf_P(tmp, PSTR("%d.%d"), fc.temperature / 10, fc.temperature % 10);
