@@ -58,13 +58,12 @@ typedef struct
 } vector_float_t;
 
 #define APP_INFO_EE_offset	32
-#define APP_INFO_TEST_hex	0xAA
 #define APP_INFO_NAME_len	(APP_INFO_EE_offset - 1)
 
 struct app_info
 {
 	uint8_t app_name[APP_INFO_NAME_len];
-	uint8_t test_pass;
+	uint8_t reserved;
 };
 
 extern struct app_info fw_info;

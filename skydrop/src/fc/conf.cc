@@ -1,6 +1,7 @@
 #include "conf.h"
 #include "../gui/widgets/layouts/layouts.h"
 
+ro_cfg_t config_ro __attribute__ ((section(".cfg_ro")));
 
 EEMEM cfg_t config = {
 	//gui
@@ -133,3 +134,9 @@ EEMEM cfg_t config = {
 	},
 
 };
+
+bool cfg_factory_passed()
+{
+	eeprom_busy_wait();
+	return eeprom_read_byte(&config_ro.factory_passed) == CFG_FACTORY_PASSED_hex;
+}

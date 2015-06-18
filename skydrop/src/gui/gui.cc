@@ -64,6 +64,8 @@ uint8_t lcd_brightness;
 uint8_t lcd_brightness_timeout;
 uint32_t lcd_brightness_end = 0;
 uint8_t lcd_contrast;
+uint8_t lcd_contrast_min;
+uint8_t lcd_contrast_max;
 volatile bool lcd_new_contrast = false;
 
 void gui_trigger_backlight()
@@ -90,6 +92,12 @@ uint32_t gui_message_end = 0;
 void gui_showmessage_P(const char * msg)
 {
 	strcpy_P(gui_message, msg);
+	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
+}
+
+void gui_showmessage(char * msg)
+{
+	strcpy(gui_message, msg);
 	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
 }
 
@@ -124,8 +132,13 @@ void gui_load_eeprom()
 	if (lcd_brightness_timeout == 0xFF) lcd_brightness_timeout = 3;
 
 	lcd_contrast = eeprom_read_byte(&config.gui.contrast);
+	lcd_contrast_min = eeprom_read_byte(&config_ro.lcd_contrast_min);
+	lcd_contrast_max = eeprom_read_byte(&config_ro.lcd_contrast_max);
 	DEBUG("lcd_contrast %d\n", lcd_contrast);
-	if (lcd_contrast == 0xFF) lcd_contrast = 72;
+
+	if (lcd_contrast == 0xFF)
+		lcd_contrast = 72;
+
 
 	disp.SetContrast(lcd_contrast);
 }
@@ -162,6 +175,8 @@ void gui_dialog(char * title)
 // 1 - help layer
 
 extern uint32_t task_timer_high;
+
+uint8_t cont = 0;
 
 void gui_loop()
 {

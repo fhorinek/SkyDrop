@@ -34,6 +34,7 @@ void gui_force_loop();
 void gui_trigger_backlight();
 void gui_set_contrast(uint8_t contrast);
 void gui_showmessage_P(const char * msg);
+void gui_showmessage(char * msg);
 
 void gui_dialog(char * title);
 #define GUI_DIALOG_TOP 	13
@@ -69,5 +70,7 @@ void gui_statusbar();
 extern uint8_t lcd_brightness;
 extern uint8_t lcd_brightness_timeout;
 extern uint8_t lcd_contrast;
+extern uint8_t lcd_contrast_min;
+extern uint8_t lcd_contrast_max;
 
 #endif /* GUI_H_ */

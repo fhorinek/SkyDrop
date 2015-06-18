@@ -45,6 +45,7 @@ public:
 	void Stop();
 
 	void SetContrast(uint8_t val); //0-127
+	void SetBias(uint8_t bias);
 
 	void ClearBuffer();
 	void PutPixel(uint8_t x ,uint8_t  y ,uint8_t color);

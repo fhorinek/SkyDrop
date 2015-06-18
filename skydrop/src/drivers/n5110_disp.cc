@@ -157,9 +157,7 @@ void n5110display::Init()
 	GpioWrite(LCD_RST, HIGH);
 
 
-	sendcommand(0x21); //Extended
-	sendcommand(0x04); //Set Temp coefficent
-	sendcommand(0x13); //LCD bias mode 1:48: Try 0x13 or 0x14
+	this->SetBias(0x13);
 
 	this->SetContrast(72);
 
@@ -182,6 +180,13 @@ void n5110display::SetContrast(uint8_t val) //0-127
 	sendcommand(0x21); //Extended
 	sendcommand(0x80 | val); //Set LCD Vop (Contrast): Try 0xB1(good @ 3.3V) or 0xBF if your display is too dark
 	sendcommand(0x20); //Basic
+}
+
+void n5110display::SetBias(uint8_t bias) // 0x13 / 0x14
+{
+	sendcommand(0x21); //Extended
+	sendcommand(0x04); //Set Temp coefficent
+	sendcommand(bias); //LCD bias mode 1:48: Try 0x13 or 0x14
 }
 
 void n5110display::Stop()

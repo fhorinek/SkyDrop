@@ -1,5 +1,6 @@
 #include "tasks.h"
 #include "../xlib/core/watchdog.h"
+#include "../fc/conf.h"
 
 
 void (* task_init_array[])() =
@@ -108,10 +109,13 @@ void task_init()
 
 	powerdown_lock.Unlock();
 
-	DEBUG("usb in state == %d\n", GpioRead(USB_IN));
+	//if ftest is not done
+	if (!cfg_factory_passed())
+		task_set(TASK_ACTIVE);
+
 	//if is USB connected go directly to USB task
-//	if ((usb_state = USB_CONNECTED))
-//		task_set(TASK_USB);
+	if ((usb_state = USB_CONNECTED))
+		task_set(TASK_USB);
 
 	wdt_init(wdt_2s);
 }

@@ -94,7 +94,21 @@ struct cfg_t
 	cfg_autostart autostart;
 };
 
+//DO NOT CHANGE THE ORDER
+
+#define CFG_FACTORY_PASSED_hex	0xAA
+
+struct ro_cfg_t //128
+{
+	uint8_t factory_passed;
+	uint8_t lcd_contrast_min;
+	uint8_t lcd_contrast_max;
+
+	uint8_t reserved[125];
+};
+
 extern cfg_t config;
+extern ro_cfg_t config_ro __attribute__ ((section(".cfg_ro")));
 
 #define CheckRange(MIN, MAX, DEFAULT, VAL) \
 	if (VAL < MIN || VAL > MAX) VAL = DEFUALT;
@@ -102,5 +116,7 @@ extern cfg_t config;
 
 #define USB_MODE_NONE			0
 #define USB_MODE_MASSSTORAGE	1
+
+bool cfg_factory_passed();
 
 #endif /* CONF_H_ */

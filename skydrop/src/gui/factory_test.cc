@@ -5,8 +5,18 @@
 
 #include "splash.h"
 
-uint8_t f_test_button_test;
+#define FTEST_LCD_DONE		0
+#define FTEST_LCD_MIN_AUTO	1
+#define FTEST_LCD_MIN		2
+#define FTEST_LCD_MAX_AUTO	3
+#define FTEST_LCD_MAX		4
+#define FTEST_LCD_MID		5
 
+uint8_t f_test_button_test;
+uint8_t f_test_lcd;
+uint8_t f_test_lcd_cont = 0;
+uint8_t f_test_lcd_cont_min = 0;
+uint8_t f_test_lcd_cont_max = 0;
 
 void gui_factory_test_init()
 {
@@ -30,8 +40,7 @@ void gui_factory_test_init()
 	buzzer_set_vol(0);
 	f_test_button_test = 0;
 
-
-	mems_i2c.StartTransmittion(0, 0);
+	f_test_lcd = FTEST_LCD_MIN_AUTO;
 }
 
 void gui_factory_test_stop()
@@ -47,12 +56,81 @@ void gui_factory_test_loop()
 {
 	gui_dialog("Factory test");
 
-	disp.LoadFont(F_TEXT_S);
-	uint8_t f_h = disp.GetTextHeight();
 
-	bool blik = (task_get_ms_tick() % 1000 < 500) ? true : false;
+
+	bool blik = GUI_BLINK_TGL(1000);
 	bool res;
 	bool err = false;
+
+	if (f_test_lcd)
+	{
+		char tmp[16];
+
+		disp.LoadFont(F_TEXT_L);
+		switch (f_test_lcd)
+		{
+			case(FTEST_LCD_MIN_AUTO):
+				sprintf_P(tmp, PSTR("Min auto"));
+			break;
+			case(FTEST_LCD_MIN):
+				sprintf_P(tmp, PSTR("Set minimum"));
+			break;
+			case(FTEST_LCD_MAX_AUTO):
+				sprintf_P(tmp, PSTR("Max auto"));
+			break;
+			case(FTEST_LCD_MAX):
+				sprintf_P(tmp, PSTR("Set maximum"));
+			break;
+			case(FTEST_LCD_MID):
+				sprintf_P(tmp, PSTR("Set optimal"));
+			break;
+		}
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP);
+
+		disp.DrawLine(4, 24, 14, 24, 1);
+		disp.DrawLine(4, 26, 14, 26, 1);
+		disp.DrawLine(4, 28, 14, 28, 1);
+		disp.DrawLine(4, 30, 14, 30, 1);
+		disp.DrawLine(4, 32, 14, 32, 1);
+
+		disp.DrawLine(16, 24, 16, 32, 1);
+		disp.DrawLine(18, 24, 18, 32, 1);
+		disp.DrawLine(20, 24, 20, 32, 1);
+		disp.DrawLine(22, 24, 22, 32, 1);
+		disp.DrawLine(24, 24, 24, 32, 1);
+
+		disp.DrawRectangle(26, 24, 35, 33, 1, 1);
+
+		disp.DrawRectangle(37, 24, 46, 33, 1, 0);
+
+		disp.DrawRectangle(48, 24, 57, 33, 1, 0);
+		disp.DrawRectangle(50, 26, 55, 31, 1, 0);
+		disp.DrawRectangle(52, 28, 53, 29, 1, 0);
+
+		disp.DrawCircle(71, 35, 1, 1);
+		disp.DrawCircle(71, 35, 3, 1);
+		disp.DrawCircle(71, 35, 5, 1);
+		disp.DrawCircle(71, 35, 7, 1);
+		disp.DrawCircle(71, 35, 9, 1);
+
+		disp.LoadFont(F_TEXT_M);
+		disp.GotoXY(4, 36);
+		fprintf_P(lcd_out, PSTR("%03d"), f_test_lcd_cont_min);
+		disp.GotoXY(24, 36);
+		fprintf_P(lcd_out, PSTR("%03d"), f_test_lcd_cont);
+		disp.GotoXY(44, 36);
+		fprintf_P(lcd_out, PSTR("%03d"), f_test_lcd_cont_max);
+
+		if (f_test_lcd == FTEST_LCD_MIN_AUTO || f_test_lcd == FTEST_LCD_MAX_AUTO)
+			f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
+
+		gui_set_contrast(f_test_lcd_cont);
+
+		return;
+	}
+
+	disp.LoadFont(F_TEXT_S);
+	uint8_t f_h = disp.GetTextHeight();
 
 	if (!mems_i2c_selftest())
 	{
@@ -154,31 +232,82 @@ void gui_factory_test_loop()
 		gui_switch_task(GUI_SPLASH);
 
 		eeprom_busy_wait();
-		eeprom_update_byte(&ee_fw_info.test_pass, APP_INFO_TEST_hex);
+		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
+
+		eeprom_update_byte(&config_ro.lcd_contrast_max, f_test_lcd_cont_max);
+		eeprom_update_byte(&config_ro.lcd_contrast_min, f_test_lcd_cont_min);
+		eeprom_update_byte(&config.gui.contrast, f_test_lcd_cont);
 	}
 
 }
 
 void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 {
-	switch (type)
+	if (f_test_lcd)
 	{
-		case (TASK_IRQ_BUTTON_L):
-			f_test_button_test |= (1 << 0);
-			led_set(0xFF, 0x00, 0x00);
-			buzzer_set_vol(100);
-			buzzer_set_freq(200);
-		break;
-		case (TASK_IRQ_BUTTON_M):
-			f_test_button_test |= (1 << 1);
-			led_set(0x00, 0xFF, 0x00);
-			buzzer_set_vol(100);
-			buzzer_set_freq(300);
-		break;
-		case (TASK_IRQ_BUTTON_R):
-			f_test_button_test |= (1 << 2);
-			led_set(0x00, 0x00, 0xFF);
-			buzzer_set_vol(0);
-		break;
+		if (*buff == BE_CLICK || *buff == BE_DBL_CLICK)
+		switch (type)
+		{
+			case (TASK_IRQ_BUTTON_L):
+				if (f_test_lcd == FTEST_LCD_MIN_AUTO)
+					f_test_lcd = FTEST_LCD_MIN;
+				if (f_test_lcd == FTEST_LCD_MAX_AUTO)
+					f_test_lcd = FTEST_LCD_MAX;
+				f_test_lcd_cont = (f_test_lcd_cont - 1) % 128;
+			break;
+			case (TASK_IRQ_BUTTON_M):
+				switch (f_test_lcd)
+				{
+					case(FTEST_LCD_MIN_AUTO):
+						f_test_lcd = FTEST_LCD_MIN;
+					break;
+					case(FTEST_LCD_MIN):
+						f_test_lcd = FTEST_LCD_MAX_AUTO;
+						f_test_lcd_cont_min = f_test_lcd_cont;
+					break;
+					case(FTEST_LCD_MAX_AUTO):
+						f_test_lcd = FTEST_LCD_MAX;
+					break;
+					case(FTEST_LCD_MAX):
+						f_test_lcd = FTEST_LCD_MID;
+						f_test_lcd_cont_max = f_test_lcd_cont;
+						f_test_lcd_cont = f_test_lcd_cont_min + (f_test_lcd_cont_max - f_test_lcd_cont_min) / 2;
+					break;
+					case(FTEST_LCD_MID):
+						f_test_lcd = FTEST_LCD_DONE;
+					break;
+				}
+			break;
+			case (TASK_IRQ_BUTTON_R):
+				if (f_test_lcd == FTEST_LCD_MIN_AUTO)
+					f_test_lcd = FTEST_LCD_MIN;
+				if (f_test_lcd == FTEST_LCD_MAX_AUTO)
+					f_test_lcd = FTEST_LCD_MAX;
+				f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
+			break;
+		}
+	}
+	else
+	{
+		switch (type)
+		{
+			case (TASK_IRQ_BUTTON_L):
+				f_test_button_test |= (1 << 0);
+				led_set(0xFF, 0x00, 0x00);
+				buzzer_set_vol(100);
+				buzzer_set_freq(200);
+			break;
+			case (TASK_IRQ_BUTTON_M):
+				f_test_button_test |= (1 << 1);
+				led_set(0x00, 0xFF, 0x00);
+				buzzer_set_vol(100);
+				buzzer_set_freq(300);
+			break;
+			case (TASK_IRQ_BUTTON_R):
+				f_test_button_test |= (1 << 2);
+				led_set(0x00, 0x00, 0xFF);
+				buzzer_set_vol(0);
+			break;
+		}
 	}
 }

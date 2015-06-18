@@ -4,7 +4,7 @@
 
 Timer audio_timer;
 
-volatile uint16_t next_tone = 0;
+volatile float next_tone = 0;
 volatile uint16_t next_length = 0;
 volatile uint16_t next_pause = 0;
 
@@ -13,6 +13,8 @@ volatile bool delay_on = false;
 #define PERIOD_SOUND		0
 #define PERIOD_PAUSE		1
 volatile uint8_t audio_period = PERIOD_SOUND;
+
+#define AUDIO_LOW_PASS		10.0
 
 //linear aproximation between two points
 uint16_t get_near(float vario, volatile uint16_t * src)
@@ -35,7 +37,7 @@ uint16_t get_near(float vario, volatile uint16_t * src)
 		m = 0.0;
 	}
 
-	m = round(m * 10) / 10.0;
+//	m = round(m * 10) / 10.0;
 
 	int16_t start = src[index];
 
@@ -101,7 +103,21 @@ void audio_set_tone(uint16_t tone)
 	}
 	else
 	{
-		next_tone = tone;
+		if (next_tone != 0)
+		{
+			float tmp = ((float)tone - next_tone) / AUDIO_LOW_PASS;
+			next_tone = next_tone + tmp;
+			char stmp[16];
+			sprintf(stmp, "fr: %0.0f, %0.1f", next_tone, tmp);
+			gui_showmessage(stmp);
+		}
+		else
+		{
+			next_tone = tone;
+		}
+
+
+
 
 		//buzzer is running continuously update freq now
 		if (delay_on == false)

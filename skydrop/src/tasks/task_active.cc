@@ -12,7 +12,8 @@ void task_active_init()
 	gui_trigger_backlight();
 	wdt_reset();
 
-	if (fw_info.test_pass == APP_INFO_TEST_hex)
+
+	if (cfg_factory_passed())
 	{
 		gui_splash_set_mode(SPLASH_ON);
 		gui_switch_task(GUI_SPLASH);
