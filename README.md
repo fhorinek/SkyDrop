@@ -1,6 +1,9 @@
 SkyDrop
 =====
 
+<b> !!! If you are looking for updates go to this site (or download files from github as RAW) !!!</b>
+http://vps.skybean.eu:8080/repo/updates/
+
 <b>skydrop</b><br>
 SkyDrop vario source code<br>
 <b>skydrop_sd_bootloader</b><br>
