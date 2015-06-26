@@ -214,3 +214,12 @@ bool LoadEEPROM()
 	return false;
 }
 
+uint8_t flip_table[] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15};
+
+uint8_t fast_flip(uint8_t in)
+{
+	uint8_t out = flip_table[0x0F & in] << 4;
+	out |= flip_table[(0xF0 & in) >> 4];
+	return out;
+}
+

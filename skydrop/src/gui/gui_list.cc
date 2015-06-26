@@ -5,8 +5,9 @@ gui_list_gen * gui_list_gen_f = NULL;
 gui_list_act * gui_list_act_f = NULL;
 
 uint8_t gui_list_size = 0;
-uint8_t gui_list_index = 0;
+uint8_t gui_list_back = 0;
 int16_t gui_list_y_offset = 0;
+uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];
 
 
 void gui_list_draw()
@@ -29,7 +30,15 @@ void gui_list_draw()
 		height = 1+ t_h;
 
 		flags = 0;
-		gui_list_gen_f(i, tmp_text, &flags, tmp_sub_text);
+		if (i < gui_list_size - 1)
+		{
+			gui_list_gen_f(i, tmp_text, &flags, tmp_sub_text);
+		}
+		else
+		{
+			strcpy_P(tmp_text, PSTR("back"));
+			flags = GUI_LIST_BACK;
+		}
 
 		uint8_t x_val = 5;
 
@@ -52,7 +61,7 @@ void gui_list_draw()
 			height += sub_height;
 		}
 
-		if (gui_list_index == i)
+		if (gui_list_index[gui_task] == i)
 		{
 			if (y < 0)
 				gui_list_y_offset = -total_height;
@@ -91,7 +100,7 @@ void gui_list_draw()
 		}
 
 
-		if (gui_list_index == i)
+		if (gui_list_index[gui_task] == i)
 		{
 			disp.Invert(0, y, GUI_DISP_WIDTH - 1, y + height - 1);
 			disp.PutPixel(0, y, 0);
@@ -107,39 +116,45 @@ void gui_list_draw()
 
 
 
-void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size)
+void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size, uint8_t back)
 {
 	gui_list_gen_f = f_ptr;
 	gui_list_act_f = f_act;
-	gui_list_size = size;
-	gui_list_index = 0;
+	gui_list_size = size + 1;
+	gui_list_back = back;
 	gui_list_y_offset = 0;
 }
 
-void gui_list_set_index(uint8_t index)
+void gui_list_set_index(uint8_t task, uint8_t index)
 {
-	gui_list_index = index;
+	gui_list_index[task] = index;
 }
 
 void gui_list_moveup()
 {
-	if (gui_list_index > 0)
-		gui_list_index--;
+	if (gui_list_index[gui_task] > 0)
+		gui_list_index[gui_task]--;
 	else
-		gui_list_index = gui_list_size - 1;
+		gui_list_index[gui_task] = gui_list_size - 1;
 }
 
 void gui_list_movedown()
 {
-	if (gui_list_index < gui_list_size - 1)
-		gui_list_index++;
+	if (gui_list_index[gui_task] < gui_list_size - 1)
+		gui_list_index[gui_task]++;
 	else
-		gui_list_index = 0;
+		gui_list_index[gui_task] = 0;
 }
 
 void gui_list_action()
 {
-	gui_list_act_f(gui_list_index);
+	if (gui_list_index[gui_task] == gui_list_size - 1)
+	{
+		gui_list_set_index(gui_task, 0);
+		gui_switch_task(gui_list_back);
+	}
+	else
+		gui_list_act_f(gui_list_index[gui_task]);
 }
 
 void gui_list_irqh(uint8_t type, uint8_t * buff)
@@ -163,6 +178,8 @@ void gui_list_irqh(uint8_t type, uint8_t * buff)
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
 			gui_list_action();
+		if (*buff == BE_LONG)
+			gui_switch_task(gui_list_back);
 	break;
 	}
 }

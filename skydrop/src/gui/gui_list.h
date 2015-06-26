@@ -14,8 +14,8 @@ typedef void gui_list_gen(uint8_t index, char * text, uint8_t * flags, char * su
 typedef void gui_list_act(uint8_t index);
 
 void gui_list_draw();
-void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size);
-void gui_list_set_index(uint8_t index);
+void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size, uint8_t back);
+void gui_list_set_index(uint8_t task, uint8_t index);
 void gui_list_moveup();
 void gui_list_movedown();
 void gui_list_action();

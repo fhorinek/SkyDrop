@@ -8,7 +8,7 @@ void widget_accx_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	float val = fc.acc_data.x / 100.0;
 
 	char text[10];
-	sprintf(text, "%0.1f", val);
+	sprintf_P(text, PSTR("%0.1f"), val);
 
 	widget_value_int(text, x, y + lh, w, h - lh);
 }

@@ -8,7 +8,7 @@
 
 void gui_set_gps_init()
 {
-	gui_list_set(gui_set_gps_item, gui_set_gps_action, 6);
+	gui_list_set(gui_set_gps_item, gui_set_gps_action, 4, GUI_SETTINGS);
 
 	if (fc.use_gps)
 		gps_detail();
@@ -16,7 +16,8 @@ void gui_set_gps_init()
 
 void gui_set_gps_stop()
 {
-
+	if (fc.use_gps)
+		gps_normal();
 }
 
 void gui_set_gps_loop()
@@ -74,17 +75,6 @@ void gui_set_gps_action(uint8_t index)
 			gui_showmessage_P(PSTR("Enable GPS first"));
 	break;
 
-	case(4):
-		fc.sync_gps_time = !fc.sync_gps_time;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config.system.sync_gps_time, fc.sync_gps_time);
-	break;
-
-	case(5):
-		gui_switch_task(GUI_SETTINGS);
-		if (fc.use_gps)
-			gps_normal();
-	break;
 	}
 }
 
@@ -170,19 +160,6 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			}
 
 			*flags |= GUI_LIST_SUB_TEXT;
-		break;
-
-		case (4):
-			sprintf_P(text, PSTR("Sync GPS time"));
-			if (fc.sync_gps_time)
-				*flags |= GUI_LIST_CHECK_ON;
-			else
-				*flags |= GUI_LIST_CHECK_OFF;
-		break;
-
-		case (5):
-			sprintf_P(text, PSTR("back"));
-			*flags |= GUI_LIST_BACK;
 		break;
 
 	}

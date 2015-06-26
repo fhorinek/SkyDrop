@@ -15,16 +15,19 @@ void vario_init()
 
 int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 {
-	switch (flags)
+	switch (flags & 0b11000000)
 	{
-	case(ALT_ABS_QNH1):
-		return fc_press_to_alt(fc.pressure, fc.QNH1);
-	case(ALT_ABS_QNH2):
-		return fc_press_to_alt(fc.pressure, fc.QNH2);
-	default:
-		if (flags & ALT_DIFF)
-		{
-			uint8_t a_index = flags & 0x0F;
+		case(ALT_ABS_QNH1):
+			return fc_press_to_alt(fc.pressure, fc.QNH1);
+		case(ALT_ABS_QNH2):
+			return fc_press_to_alt(fc.pressure, fc.QNH2);
+		case(ALT_ABS_GPS):
+			if (fc.gps_data.valid)
+				return fc.gps_data.altitude;
+			else
+				return 0;
+		case(ALT_DIFF):
+			uint8_t a_index = (flags & 0b00001111) + 1;
 			if (a_index == 1)
 				return fc.altitude1 + fc.altimeter[index].delta;
 			else
@@ -32,8 +35,6 @@ int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 				a_index -= 2;
 				return fc.altimeter[a_index].altitude + fc.altimeter[index].delta;
 			}
-		}
-
 	}
 }
 

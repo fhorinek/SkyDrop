@@ -321,5 +321,6 @@ void turnoff_subsystems();
 void bat_en_high(uint8_t mask);
 void bat_en_low(uint8_t mask);
 
+uint8_t fast_flip(uint8_t in);
 
 #endif /* COMMON_H_ */

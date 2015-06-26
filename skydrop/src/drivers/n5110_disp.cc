@@ -162,7 +162,7 @@ void n5110display::Init()
 	this->SetContrast(72);
 
 	sendcommand(0x20); //Basic
-	sendcommand(0x0C); //Set display control, normal mode. 0x0D for inverse
+	this->SetInvert(false);
 
 	for (uint8_t i = 0; i < DISP_LAYERS; i++)
 	{
@@ -180,6 +180,20 @@ void n5110display::SetContrast(uint8_t val) //0-127
 	sendcommand(0x21); //Extended
 	sendcommand(0x80 | val); //Set LCD Vop (Contrast): Try 0xB1(good @ 3.3V) or 0xBF if your display is too dark
 	sendcommand(0x20); //Basic
+}
+
+void n5110display::SetInvert(uint8_t invert)
+{
+	 //Set display control, normal mode. 0x0D for inverse
+	if (invert)
+		sendcommand(0x0D);
+	else
+		sendcommand(0x0C);
+}
+
+void n5110display::SetFlip(bool flip)
+{
+	this->flip = flip;
 }
 
 void n5110display::SetBias(uint8_t bias) // 0x13 / 0x14
@@ -200,19 +214,6 @@ void n5110display::Stop()
 	GpioSetDirection(LCD_VCC, INPUT);
 
 	LCD_SPI_PWR_OFF;
-}
-
-/**
- * Send pixel data to display
- *
- */
-void n5110display::SendChar(unsigned char data)
-{
-	GpioWrite(LCD_DC, HIGH);
-
-	this->spi->SetSlave(LCD_CE);
-	this->spi->SendRaw(data);
-	this->spi->UnsetSlave();
 }
 
 /**
@@ -449,19 +450,38 @@ void n5110display::SetRowCol(unsigned char row,unsigned char col)
 	this->sendcommand(0x40 | row);
 }
 
+
 void n5110display::Draw()
 {
-	for (uint8_t j=0;j<6;j++)
+	if (this->flip)
 	{
-		SetRowCol(j, 0);
-
-		GpioWrite(LCD_DC, HIGH);
-		this->spi->SetSlave(LCD_CE);
-		for (uint8_t a=0;a<n5110_width;a++)
+		for (uint8_t j=0;j<6;j++)
 		{
-			this->spi->SendRaw(active_buffer[a+(j*n5110_width)]);
+			SetRowCol(5 - j, 0);
+
+			GpioWrite(LCD_DC, HIGH);
+			this->spi->SetSlave(LCD_CE);
+			for (uint8_t a=0;a<n5110_width;a++)
+			{
+				this->spi->SendRaw(fast_flip(active_buffer[n5110_width - 1 - a + (j*n5110_width)]));
+			}
+			this->spi->UnsetSlave();
 		}
-		this->spi->UnsetSlave();
+	}
+	else
+	{
+		for (uint8_t j=0;j<6;j++)
+		{
+			SetRowCol(j, 0);
+
+			GpioWrite(LCD_DC, HIGH);
+			this->spi->SetSlave(LCD_CE);
+			for (uint8_t a=0;a<n5110_width;a++)
+			{
+				this->spi->SendRaw(active_buffer[a+(j*n5110_width)]);
+			}
+			this->spi->UnsetSlave();
+		}
 	}
 }
 
@@ -518,12 +538,10 @@ void n5110display::ClearBuffer(void){
   unsigned char i,k;
   for(k=0;k<6;k++)
   {
-	{
 	  for(i=0;i<n5110_width;i++)     //clear all COL
 	  {
 		active_buffer[i+(k*n5110_width)] = 0;
 	  }
-	}
   }
 }
 

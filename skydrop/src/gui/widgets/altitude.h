@@ -14,5 +14,6 @@ extern widget w_alt1;
 extern widget w_alt2;
 extern widget w_alt3;
 extern widget w_alt4;
+extern widget w_alt5;
 
 #endif /* ALTITUDE_H_ */

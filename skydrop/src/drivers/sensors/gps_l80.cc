@@ -305,20 +305,20 @@ void gps_normal()
 {
 	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
-	fprintf(gps_out, "$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
 }
 
 void gps_detail()
 {
 	gps_detail_enabled = true;
 	DEBUG("set_nmea_output - detail\n");
-	fprintf(gps_out, "$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n");
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
 }
 
 void gps_set_baudrate()
 {
 	DEBUG("set_baudrate\n");
-	fprintf(gps_out, "$PMTK251,115200*1F\r\n");
+	fprintf_P(gps_out, PSTR("$PMTK251,115200*1F\r\n"));
 	gps_uart.FlushTxBuffer();
 	_delay_ms(1);
 }

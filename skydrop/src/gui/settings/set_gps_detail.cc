@@ -8,13 +8,10 @@
 
 void gui_set_gps_detail_init()
 {
-
+	gps_detail();
 }
 
-void gui_set_gps_detail_stop()
-{
-
-}
+void gui_set_gps_detail_stop() {}
 
 void gui_set_gps_detail_loop()
 {

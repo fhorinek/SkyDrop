@@ -3,7 +3,6 @@
 
 extern KalmanFilter * kalmanFilter;
 
-
 void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	char label[5];
@@ -13,49 +12,72 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	uint8_t lh = widget_label(label, x, y);
 
 	float val;
+	uint8_t alt_flags;
+
 	if (index == 1)
+	{
 		val = fc.altitude1;
+		alt_flags = fc.alt1_flags;
+	}
 	else
 	{
 		index -= 2;
+
 		val = fc.altimeter[index].altitude;
+		alt_flags = fc.altimeter[index].flags;
 	}
 
-	char text[10];
-	if (fc.baro_valid)
-		sprintf(text, "%0.0f", val);
+	if (alt_flags & ALT_UNIT_I)
+		val *= ALT_M_TO_F;
+
+	bool valid;
+	if ((alt_flags & 0b11000000) == ALT_ABS_GPS)
+		valid = fc.gps_data.valid;
 	else
-		sprintf(text, "---");
+		valid = fc.baro_valid;
+
+	char text[10];
+	if (valid)
+		sprintf_P(text, PSTR("%0.0f"), val);
+	else
+		sprintf_P(text, PSTR("---"));
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
 void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 {
-	if (!fc.baro_valid)
-		return;
-
 	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD || *buff == BE_RELEASED || *buff == BE_DBL_CLICK))
 		return;
 
 	uint8_t a_type;
+	uint8_t a_index = 0;
 	if (flags == 1)
+	{
 		a_type = ALT_ABS_QNH1;
+	}
 	else
-		a_type = fc.altimeter[flags - 2].flags & 0xF0;
+	{
+		a_type  = fc.altimeter[flags - 2].flags & 0b11000000;
+		a_index = fc.altimeter[flags - 2].flags & 0b00001111;
+	}
 
-	uint8_t a_index = fc.altimeter[flags - 2].flags & 0x0F;
+	if (a_type != ALT_ABS_GPS && fc.baro_valid == false)
+		return;
+
+	if (a_type == ALT_ABS_GPS && fc.gps_data.valid == false)
+		return;
 
 	if (type == TASK_IRQ_BUTTON_M && *buff == BE_LONG)
 	{
 		switch (a_type)
 		{
-		case(ALT_DIFF):
+			case(ALT_DIFF):
 
-			if (a_index == 1)
-				fc.altimeter[flags - 2].delta = -fc.altitude1;
-			else
-				fc.altimeter[flags - 2].delta = -fc.altimeter[a_index].altitude;
-		break;
+				if (a_index == 1)
+					fc.altimeter[flags - 2].delta = -fc.altitude1;
+				else
+					fc.altimeter[flags - 2].delta = -fc.altimeter[a_index].altitude;
+			break;
 		}
 
 		return;
@@ -126,14 +148,19 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 
 }
 
-void widget_alt_menu_loop(uint8_t flags)
+void widget_alt_menu_loop(uint8_t alt_index)
 {
 	uint8_t a_type;
-	if (flags == 1)
-		a_type = ALT_ABS_QNH1;
-	else
-		a_type = fc.altimeter[flags - 2].flags & 0xF0;
+	uint8_t a_flags;
+	uint8_t a_index;
 
+	if (alt_index == 1)
+		a_flags = fc.alt1_flags;
+	else
+		a_flags = fc.altimeter[alt_index - 2].flags;
+
+	a_type  = a_flags & 0b11000000;
+	a_index = a_flags & 0b00001111;
 
 	if (widget_menu_state)
 	{
@@ -150,26 +177,26 @@ void widget_alt_menu_loop(uint8_t flags)
 		switch (a_type)
 		{
 			case(ALT_ABS_QNH1):
-				if (flags == 1)
+				if (alt_index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[alt_index - 2].altitude + inc;
 
 			    kalmanFilter->setXAbs(new_alt);
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 
 			case(ALT_ABS_QNH2):
-				if (flags == 1)
+				if (alt_index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[alt_index - 2].altitude + inc;
 
 				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 
 			case(ALT_DIFF):
-				fc.altimeter[flags - 2].delta += inc;
+				fc.altimeter[alt_index - 2].delta += inc;
 			break;
 		}
 	}
@@ -179,61 +206,90 @@ void widget_alt_menu_loop(uint8_t flags)
 	disp.LoadFont(F_TEXT_M);
 	uint8_t h_t = disp.GetTextHeight();
 
-
-	uint8_t a_index = fc.altimeter[flags - 2].flags & 0x0F;
-
 	char title[20];
 	switch (a_type)
 	{
-	case(ALT_ABS_QNH1):
-		sprintf_P(title, PSTR("Absolute to QNH1"));
-	break;
-	case(ALT_ABS_QNH2):
-		sprintf_P(title, PSTR("Absolute to QNH2"));
-	break;
-	case(ALT_DIFF):
-		sprintf_P(title, PSTR("Relative to Alt%d"), a_index);
-	break;
+		case(ALT_ABS_QNH1):
+			sprintf_P(title, PSTR("Absolute QNH1"));
+		break;
+		case(ALT_ABS_QNH2):
+			sprintf_P(title, PSTR("Absolute QNH2"));
+		break;
+		case(ALT_DIFF):
+			sprintf_P(title, PSTR("Relative to Alt%d"), a_index + 1);
+		break;
+		case(ALT_ABS_GPS):
+			sprintf_P(title, PSTR("Absolute GPS"));
+		break;
 	}
 
 	gui_dialog(title);
 
+	//NAMES
 	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + 2 + h_v - h_t);
-	fprintf(lcd_out, "ALT%d", flags);
+	fprintf_P(lcd_out, PSTR("ALT%d"), alt_index);
 
 	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + 2 + h_v + h_v - h_t);
 	switch (a_type)
 	{
-	case(ALT_ABS_QNH1):
-		fprintf(lcd_out, "QNH1");
-	break;
-	case(ALT_ABS_QNH2):
-		fprintf(lcd_out, "QNH2");
-	break;
-	case(ALT_DIFF):
-		fprintf(lcd_out, "delta");
-	break;
+		case(ALT_ABS_QNH1):
+			fprintf_P(lcd_out, PSTR("QNH1"));
+		break;
+		case(ALT_ABS_QNH2):
+			fprintf_P(lcd_out, PSTR("QNH2"));
+		break;
+		case(ALT_DIFF):
+			fprintf_P(lcd_out, PSTR("delta"));
+		break;
+		case(ALT_ABS_GPS):
+			fprintf_P(lcd_out, PSTR("GPS fix"));
+		break;
 	}
 
+	//imperial unit marker
+	if (a_flags & ALT_UNIT_I)
+	{
+		disp.GotoXY(28, GUI_DIALOG_TOP + 2 + h_v - h_t);
+		disp.LoadFont(F_TEXT_S);
+		fprintf_P(lcd_out, PSTR("ft"));
+	}
+
+	//VALUES
 	disp.LoadFont(F_VALUES_L);
 	char tmp[10];
-	if (flags == 1)
-		sprintf(tmp, "%0.0f", fc.altitude1);
+	if (alt_index == 1)
+	{
+		if (a_flags & ALT_UNIT_I)
+			sprintf_P(tmp, PSTR("%0.0f"), fc.altitude1 * ALT_M_TO_F);
+		else
+			sprintf_P(tmp, PSTR("%0.0f"), fc.altitude1);
+	}
 	else
-		sprintf(tmp, "%d", fc.altimeter[flags - 2].altitude);
+	{
+		if (a_flags & ALT_UNIT_I)
+			sprintf_P(tmp, PSTR("%d"), (int16_t)(fc.altimeter[alt_index - 2].altitude * ALT_M_TO_F));
+		else
+			sprintf_P(tmp, PSTR("%d"), fc.altimeter[alt_index - 2].altitude);
+	}
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2);
 
 
 	switch (a_type)
 		{
 		case(ALT_ABS_QNH1):
-			sprintf(tmp, "%0.0f", fc.QNH1 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), fc.QNH1 / 10);
 		break;
 		case(ALT_ABS_QNH2):
-			sprintf(tmp, "%0.0f", fc.QNH2 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), fc.QNH2 / 10);
 		break;
 		case(ALT_DIFF):
-			sprintf(tmp, "%+d", fc.altimeter[flags - 2].delta);
+			sprintf_P(tmp, PSTR("%+d"), fc.altimeter[alt_index - 2].delta);
+		break;
+		case(ALT_ABS_GPS):
+			if (fc.gps_data.valid)
+				sprintf_P(tmp, PSTR("valid"));
+			else
+				sprintf_P(tmp, PSTR("invalid"));
 		break;
 	}
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2 + h_v);
@@ -244,3 +300,4 @@ register_widget3(w_alt1, "Altitude 1", widget_alt_draw, widget_alt_menu_loop, wi
 register_widget3(w_alt2, "Altitude 2", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 2);
 register_widget3(w_alt3, "Altitude 3", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 3);
 register_widget3(w_alt4, "Altitude 4", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 4);
+register_widget3(w_alt5, "Altitude 5", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 5);

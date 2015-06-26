@@ -3,7 +3,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 4);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 3, GUI_SET_SYSTEM);
 }
 
 void gui_set_debug_stop()
@@ -65,11 +65,6 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 
 		case (2):
 			sprintf_P(text, PSTR("ADC raw %d"), battery_adc_raw);
-		break;
-
-		case (3):
-			sprintf_P(text, PSTR("back"));
-			*flags |= GUI_LIST_BACK;
 		break;
 
 	}

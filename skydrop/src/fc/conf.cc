@@ -12,6 +12,10 @@ EEMEM cfg_t config = {
 		100,
 		//brightness_timeout
 		3,
+		//display_flags
+		CFG_DISP_ANIM,
+		//last_page
+		2,
 		//pages
 		{
 			//0
@@ -53,6 +57,8 @@ EEMEM cfg_t config = {
 		0,
 		//avg_vario_dampening
 		10, // << last 10 sec
+		//flags
+		VARIO_UNITS_M,
 	},
 	//altitude
 	{
@@ -60,7 +66,8 @@ EEMEM cfg_t config = {
 		103000,
 		//QNH2
 		101325,
-
+		//atl1_flags
+		ALT_UNIT_M,
 		//altimeter
 		{
 			//altimeter2
@@ -81,6 +88,13 @@ EEMEM cfg_t config = {
 			{
 				//flags
 				ALT_ABS_QNH2,
+				//diff
+				0,
+			},
+			//altimeter5
+			{
+				//flags
+				ALT_ABS_GPS,
 				//diff
 				0,
 			},
@@ -120,8 +134,8 @@ EEMEM cfg_t config = {
 		USB_MODE_MASSSTORAGE,
 		//use_gps
 		true,
-		//sync GPS time
-		true,
+		//time flags
+		TIME_DST | TIME_SYNC,
 		//timezone
 		+2 * 2,
 	},

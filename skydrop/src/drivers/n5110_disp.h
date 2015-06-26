@@ -40,12 +40,16 @@ private:
 	uint8_t font_begin;
 	uint8_t font_end;
 	uint8_t font_adr_start;
+
+	bool flip;
 public:
 	void Init();
 	void Stop();
 
 	void SetContrast(uint8_t val); //0-127
 	void SetBias(uint8_t bias);
+	void SetInvert(uint8_t invert);
+	void SetFlip(bool flip);
 
 	void ClearBuffer();
 	void PutPixel(uint8_t x ,uint8_t  y ,uint8_t color);

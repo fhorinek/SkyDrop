@@ -16,6 +16,7 @@ uint8_t active_widget;
 #define PAGE_MENU			5
 
 #define PAGE_SWITCH_STEPS			7
+#define PAGE_INFO_STEPS				20
 
 #define PAGE_WIDGET_SELECT_DURATION	10
 #define PAGE_WIDGET_MENU_DURATION	15
@@ -45,6 +46,7 @@ const uint8_t PROGMEM img_layout[16]={14,8,252,132,132,191,161,225,33,33,225,161
 void gui_pages_init()
 {
 	widgets_init();
+	page_state_step = PAGE_INFO_STEPS;
 	page_state = PAGE_IDLE;
 	active_widget = WIDGET_OFF;
 }
@@ -142,7 +144,7 @@ void gui_pages_loop()
 
 		if (page_state_step == 0)
 		{
-			page_state_step = PAGE_SWITCH_STEPS;
+			page_state_step = PAGE_INFO_STEPS;
 			page_state = PAGE_CHANGE_INFO;
 		}
 
@@ -197,6 +199,8 @@ void gui_pages_loop()
 			{
 				gui_splash_set_mode(SPLASH_OFF);
 				gui_switch_task(GUI_SPLASH);
+				eeprom_busy_wait();
+				eeprom_update_byte(&config.gui.last_page, active_page);
 			}
 		break;
 
@@ -227,9 +231,6 @@ void gui_pages_loop()
 
 		//layout
 		disp.DrawImage(img_layout, 3, top + 4);
-
-
-
 	break;
 
 
@@ -254,8 +255,18 @@ void page_switch(bool right)
 		page_change_dir = 0;
 	}
 
-	page_state = PAGE_CHANGE;
-	page_state_step = PAGE_SWITCH_STEPS;
+	if (lcd_flags & CFG_DISP_ANIM)
+	{
+		page_state_step = PAGE_SWITCH_STEPS;
+		page_state = PAGE_CHANGE;
+	}
+	else
+	{
+		page_state_step = PAGE_INFO_STEPS;
+		page_state = PAGE_CHANGE_INFO;
+	}
+
+
 }
 
 bool page_widgets_have_menu()

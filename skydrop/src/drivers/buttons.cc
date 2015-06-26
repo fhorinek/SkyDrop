@@ -7,6 +7,7 @@
 
 #include "buttons.h"
 #include "../tasks/tasks.h"
+#include "../fc/conf.h"
 
 uint8_t buttons_state[] = {BS_IDLE, BS_IDLE, BS_IDLE};
 uint32_t buttons_counter[] = {0, 0, 0};
@@ -122,9 +123,17 @@ void button_handle(uint8_t index, uint8_t state)
 
 void buttons_step()
 {
-	button_handle(0, GpioRead(SWITCH1));
+	if (lcd_flags & CFG_DISP_FLIP)
+	{
+		button_handle(2, GpioRead(SWITCH1));
+		button_handle(0, GpioRead(SWITCH3));
+	}
+	else
+	{
+		button_handle(0, GpioRead(SWITCH1));
+		button_handle(2, GpioRead(SWITCH3));
+	}
 	button_handle(1, GpioRead(SWITCH2));
-	button_handle(2, GpioRead(SWITCH3));
 
 	if (buttons_state[0] > BS_IDLE || buttons_state[1] > BS_IDLE || buttons_state[2] > BS_IDLE)
 		button_lock.Lock();

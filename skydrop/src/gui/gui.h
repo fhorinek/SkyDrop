@@ -32,11 +32,13 @@ void gui_irqh(uint8_t type, uint8_t * buff);
 void gui_force_loop();
 
 void gui_trigger_backlight();
-void gui_set_contrast(uint8_t contrast);
+void gui_change_disp_cfg();
 void gui_showmessage_P(const char * msg);
 void gui_showmessage(char * msg);
 
+void gui_dialog_P(const char * title);
 void gui_dialog(char * title);
+
 #define GUI_DIALOG_TOP 	13
 #define GUI_DIALOG_LEFT 2
 #define GUI_DIALOG_RIGHT (GUI_DISP_WIDTH - 3)
@@ -66,11 +68,20 @@ void gui_statusbar();
 #define GUI_SET_GPS			14
 #define GUI_SET_GPS_DETAIL	15
 #define GUI_SET_DEBUG		16
+#define GUI_SET_ALTIMETERS	17
+#define GUI_SET_ALTIMETER	18
+#define GUI_SET_TIME		19
+#define GUI_SET_LOGGER		20
+
+#define NUMBER_OF_GUI_TASKS	21
 
 extern uint8_t lcd_brightness;
 extern uint8_t lcd_brightness_timeout;
 extern uint8_t lcd_contrast;
 extern uint8_t lcd_contrast_min;
 extern uint8_t lcd_contrast_max;
+extern uint8_t lcd_flags;
+
+extern volatile uint8_t gui_task;
 
 #endif /* GUI_H_ */

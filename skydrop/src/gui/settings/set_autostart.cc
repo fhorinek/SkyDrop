@@ -7,15 +7,10 @@
 
 void gui_set_autostart_init()
 {
-	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 3);
-
-	eeprom_busy_wait();
-
+	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 3, GUI_SET_LOGGER);
 }
 
-void gui_set_autostart_stop()
-{
-}
+void gui_set_autostart_stop() {}
 
 void gui_set_autostart_loop()
 {
@@ -41,20 +36,16 @@ void gui_set_autostart_action(uint8_t index)
 {
 	switch(index)
 	{
-	case(0):
-		gui_value_conf_P(PSTR("Threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), fc.autostart_sensitivity, 0, 100, 1, gui_set_autostart_threshold_cb);
-		gui_switch_task(GUI_SET_VAL);
-	break;
+		case(1):
+			gui_value_conf_P(PSTR("Threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), fc.autostart_sensitivity, 0, 100, 1, gui_set_autostart_threshold_cb);
+			gui_switch_task(GUI_SET_VAL);
+		break;
 
-	case(1):
-		fc.audio_supress = !fc.audio_supress;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config.autostart.supress_audio, fc.audio_supress);
-	break;
-
-	case(2):
-		gui_switch_task(GUI_SETTINGS);
-	break;
+		case(2):
+			fc.audio_supress = !fc.audio_supress;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config.autostart.supress_audio, fc.audio_supress);
+		break;
 	}
 }
 
@@ -63,6 +54,24 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 	switch (index)
 	{
 		case (0):
+			sprintf_P(text, PSTR("State"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			switch (fc.autostart_state)
+			{
+				case(AUTOSTART_WAIT):
+					sprintf_P(sub_text, PSTR("Waiting"));
+				break;
+				case(AUTOSTART_FLIGHT):
+					sprintf_P(sub_text, PSTR("Flying"));
+				break;
+				case(AUTOSTART_LAND):
+					sprintf_P(sub_text, PSTR("Landed"));
+				break;
+			}
+
+		break;
+
+		case (1):
 			sprintf_P(text, PSTR("Threshold"));
 			if (fc.autostart_sensitivity)
 				sprintf_P(sub_text, PSTR("+/-%dm"), fc.autostart_sensitivity);
@@ -71,19 +80,13 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (1):
+		case (2):
 			sprintf_P(text, PSTR("Suppress audio"));
 			if (fc.audio_supress)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
-
-		case (2):
-			sprintf_P(text, PSTR("back"));
-			*flags |= GUI_LIST_BACK;
-		break;
-
 	}
 }
 

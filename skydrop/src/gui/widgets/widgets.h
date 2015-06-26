@@ -76,23 +76,24 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ALT2			6
 #define WIDGET_ALT3			7
 #define WIDGET_ALT4			8
+#define WIDGET_ALT5			9
 #include "altitude.h"
 
-#define WIDGET_ACCX			9
+#define WIDGET_ACCX			10
 #include "acc.h"
 
-#define WIDGET_TIME			10
-#define WIDGET_FTIME		11
+#define WIDGET_TIME			11
+#define WIDGET_FTIME		12
 #include "time.h"
 
-#define WIDGET_TEMPERATURE	12
+#define WIDGET_TEMPERATURE	13
 #include "temperature.h"
 
-#define WIDGET_GHEADING		13
-#define WIDGET_GROUND_SPD	14
+#define WIDGET_GHEADING		14
+#define WIDGET_GROUND_SPD	15
 #include "gps.h"
 
-#define NUMBER_OF_WIDGETS	15
+#define NUMBER_OF_WIDGETS	16
 
 
 

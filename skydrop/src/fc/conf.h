@@ -17,19 +17,30 @@ struct cfg_gui_layout
 	uint8_t widgets[WIDGES_PER_PAGE];
 };
 
+#define CFG_DISP_INVERT	0b00000001
+#define CFG_DISP_FLIP	0b00000010
+#define CFG_DISP_ANIM	0b00000100
+
 struct cfg_gui
 {
 	uint8_t contrast;
 	uint8_t brightness;
 	uint8_t brightness_timeout;
+	uint8_t disp_flags;
+	uint8_t last_page;
 
 	cfg_gui_layout pages[NUMBER_OF_PAGES];
 };
+
+#define VARIO_UNITS_M	0b00000000
+#define VARIO_UNITS_I	0b10000000
 
 struct cfg_vario
 {
 	float digital_vario_dampening;
 	float avg_vario_dampening;
+
+	uint8_t flags;
 };
 
 struct cfg_altimeter
@@ -43,6 +54,7 @@ struct cfg_altitude
 	float QNH1;
 	float QNH2;
 
+	uint8_t alt1_flags;
 	cfg_altimeter altimeter[NUMBER_OF_ALTIMETERS];
 };
 
@@ -68,11 +80,14 @@ struct cfg_audio_profile
 	uint8_t volume;		//0-100
 };
 
+#define TIME_DST	0b00000001
+#define TIME_SYNC	0b00000010
+
 struct cfg_system
 {
 	uint8_t usb_mode;
 	uint8_t use_gps;
-	uint8_t sync_gps_time;
+	uint8_t time_flags;
 	int8_t time_zone;
 };
 

@@ -54,9 +54,7 @@ void gui_factory_test_stop()
 
 void gui_factory_test_loop()
 {
-	gui_dialog("Factory test");
-
-
+	gui_dialog_P(PSTR("Factory test"));
 
 	bool blik = GUI_BLINK_TGL(1000);
 	bool res;
@@ -124,7 +122,8 @@ void gui_factory_test_loop()
 		if (f_test_lcd == FTEST_LCD_MIN_AUTO || f_test_lcd == FTEST_LCD_MAX_AUTO)
 			f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
 
-		gui_set_contrast(f_test_lcd_cont);
+		lcd_contrast = f_test_lcd_cont;
+		gui_change_disp_cfg();
 
 		return;
 	}

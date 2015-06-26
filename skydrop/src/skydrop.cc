@@ -100,8 +100,6 @@ int main()
 
 	task_init();
 
-	uint32_t counter_next = 0;
-
 	while (1)
 	{
 		//run main task
@@ -112,13 +110,5 @@ int main()
 
 		//sleep now
 		task_sleep();
-
-//		if (counter_next < task_get_ms_tick())
-//		{
-//			counter_next = task_get_ms_tick() + 5000;
-//
-//			print_datetime();
-//			DEBUG(">> %lums %lus\n", task_get_ms_tick(), task_get_ms_tick() / 1000);
-//		}
 	}
 }

@@ -107,9 +107,6 @@ void audio_set_tone(uint16_t tone)
 		{
 			float tmp = ((float)tone - next_tone) / AUDIO_LOW_PASS;
 			next_tone = next_tone + tmp;
-			char stmp[16];
-			sprintf(stmp, "fr: %0.0f, %0.1f", next_tone, tmp);
-			gui_showmessage(stmp);
 		}
 		else
 		{

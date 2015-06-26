@@ -7,12 +7,10 @@
 
 void gui_set_display_init()
 {
-	gui_list_set(gui_set_display_item, gui_set_display_action, 4);
+	gui_list_set(gui_set_display_item, gui_set_display_action, 6, GUI_SET_SYSTEM);
 }
 
-void gui_set_display_stop()
-{
-}
+void gui_set_display_stop() {}
 
 void gui_set_display_loop()
 {
@@ -30,7 +28,7 @@ void gui_set_display_contrast_cb(float val)
 	eeprom_busy_wait();
 	lcd_contrast = val;
 	eeprom_update_byte(&config.gui.contrast, lcd_contrast);
-	gui_set_contrast(lcd_contrast);
+	gui_change_disp_cfg();
 }
 
 void gui_set_display_brightness_cb(float val)
@@ -71,7 +69,23 @@ void gui_set_display_action(uint8_t index)
 	break;
 
 	case(3):
-		gui_switch_task(GUI_SETTINGS);
+		lcd_flags = lcd_flags ^ CFG_DISP_INVERT;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
+		gui_change_disp_cfg();
+	break;
+
+	case(4):
+		lcd_flags = lcd_flags ^ CFG_DISP_FLIP;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
+		disp.SetFlip(lcd_flags & CFG_DISP_FLIP);
+	break;
+
+	case(5):
+		lcd_flags = lcd_flags ^ CFG_DISP_ANIM;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
 	break;
 	}
 }
@@ -96,10 +110,26 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 		case (3):
-			sprintf_P(text, PSTR("back"));
-			*flags |= GUI_LIST_BACK;
+			sprintf_P(text, PSTR("Invert display"));
+			if (lcd_flags & CFG_DISP_INVERT)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
 		break;
-
+		case (4):
+			sprintf_P(text, PSTR("Flip orientation"));
+			if (lcd_flags & CFG_DISP_FLIP)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+		case (5):
+			sprintf_P(text, PSTR("Animation"));
+			if (lcd_flags & CFG_DISP_ANIM)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
 	}
 }
 

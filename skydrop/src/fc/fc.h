@@ -10,16 +10,24 @@
 
 #include "../common.h"
 
-#define NUMBER_OF_ALTIMETERS	3
+#define NUMBER_OF_ALTIMETERS	4
 #define AUDIO_PROFILE_SIZE		41
 
 #include "conf.h"
 
-#define ALT_ABS_QNH1	(0 << 4)
-#define ALT_ABS_QNH2	(1 << 4)
-//#define ALT_ABS_GPS		(2 << 4)
-//#define ALT_DIFF_GPS		(3 << 4)
-#define ALT_DIFF		(4 << 4)
+//metric to imperial
+#define ALT_M_TO_F		(3.2808399)
+#define VARIO_M_TO_F	(1.96850394)  //100 feat per min (WTF?)
+
+#define ALT_ABS_QNH1	0b00000000
+#define ALT_ABS_QNH2	0b01000000
+#define ALT_ABS_GPS		0b10000000
+#define ALT_DIFF		0b11000000
+
+#define ALT_UNIT_M		0b00000000
+#define ALT_UNIT_I		0b00100000
+
+#define ALT_AUTO_ZERO	0b00010000
 
 typedef struct
 {
@@ -59,6 +67,10 @@ typedef struct
 
 #define FC_TEMP_PERIOD	1000
 
+#define AUTOSTART_WAIT		0
+#define AUTOSTART_FLIGHT	1
+#define AUTOSTART_LAND		2
+
 typedef struct
 {
 	// --- RAW from sensors ---
@@ -81,6 +93,8 @@ typedef struct
 	float digital_vario_dampening;
 	float avg_vario_dampening;
 
+	uint8_t vario_flags;
+
 	vector_i16_t mag_bias;
 	vector_i16_t mag_sensitivity;
 
@@ -102,7 +116,7 @@ typedef struct
 	uint8_t autostart_sensitivity;
 
 	uint8_t use_gps;
-	uint8_t sync_gps_time;
+	uint8_t time_flags;
 	int8_t time_zone;
 
 	// --- CALC ---
@@ -113,6 +127,7 @@ typedef struct
 	float avg_vario;
 
 	float altitude1;
+	uint8_t alt1_flags;
 	alt_data_t altimeter[NUMBER_OF_ALTIMETERS];
 
 	vector_float_t mag_f;
@@ -121,7 +136,7 @@ typedef struct
 
 	uint32_t epoch_flight_start;
 	float start_altitude;
-	bool in_flight;
+	uint8_t autostart_state;
 } flight_data_t;
 
 void fc_init();

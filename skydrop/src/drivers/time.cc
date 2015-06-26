@@ -8,7 +8,7 @@ volatile uint32_t unix_time __attribute__ ((section (".noinit")));
 
 uint32_t datetime_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, uint8_t month, uint16_t year)
 {
-	uint16_t i;
+	int16_t i;
 	uint32_t timestamp;
 
 	// seconds from 1970 till 1 jan 00:00:00 this year

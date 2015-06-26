@@ -10,13 +10,7 @@ void gui_set_layout_init()
 	set_layout_type = pages[active_page].type;
 }
 
-void gui_set_layout_stop()
-{
-	pages[active_page].type = set_layout_type;
-	//store to EE
-	eeprom_busy_wait();
-	eeprom_update_byte(&config.gui.pages[active_page].type, set_layout_type);
-}
+void gui_set_layout_stop() {}
 
 void gui_set_layout_loop()
 {
@@ -30,7 +24,7 @@ void gui_set_layout_loop()
 		disp.DrawRectangle(x, y, x + w - 2, y + h - 2, 1, 0);
 		disp.LoadFont(F_VALUES_M);
 		char tmp[2];
-		sprintf(tmp, "%i", i + 1);
+		sprintf_P(tmp, PSTR("%i"), i + 1);
 		uint8_t t_h = disp.GetTextHeight();
 		gui_caligh_text(tmp, x + w / 2, y + h / 2 - t_h / 2);
 	}
@@ -62,8 +56,20 @@ void gui_set_layout_irqh(uint8_t type, uint8_t * buff)
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
 		{
+			pages[active_page].type = set_layout_type;
+			//store to EE
+			eeprom_busy_wait();
+			eeprom_update_byte(&config.gui.pages[active_page].type, set_layout_type);
+
 			gui_switch_task(GUI_LAYOUTS);
 		}
+
+	if (*buff == BE_LONG)
+	{
+		//escape
+		gui_switch_task(GUI_LAYOUTS);
+	}
+
 	break;
 	}
 }

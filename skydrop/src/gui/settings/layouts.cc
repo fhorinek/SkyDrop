@@ -3,7 +3,7 @@
 
 void gui_layouts_init()
 {
-	gui_list_set(gui_layouts_item, gui_layouts_action, 3);
+	gui_list_set(gui_layouts_item, gui_layouts_action, 2, GUI_PAGES);
 }
 
 void gui_layouts_stop()
@@ -51,11 +51,6 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			sprintf_P(text, PSTR("Change layout"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
-		case (2):
-			sprintf_P(text, PSTR("back"));
-			*flags |= GUI_LIST_BACK;
-		break;
-
 	}
 }
 

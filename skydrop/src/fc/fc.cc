@@ -40,6 +40,11 @@ void fc_init()
 
 	DEBUG("avg_vario_dampening %0.2f\n", fc.avg_vario_dampening);
 
+	fc.vario_flags = eeprom_read_byte(&config.vario.flags);
+	DEBUG("vario_flags %d\n", fc.vario_flags);
+
+	fc.alt1_flags = eeprom_read_byte(&config.altitude.alt1_flags);
+	DEBUG(" alt1_flags %02X\n", fc.alt1_flags);
 
 	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
 	{
@@ -119,17 +124,21 @@ void fc_init()
 	fc.use_gps = eeprom_read_byte(&config.system.use_gps);
 	DEBUG("use_gps %d\n", fc.use_gps);
 
-	fc.sync_gps_time = eeprom_read_byte(&config.system.sync_gps_time);
-	DEBUG("sync_gps_time %d\n", fc.sync_gps_time);
+	fc.time_flags = eeprom_read_byte(&config.system.time_flags);
+	DEBUG("time_flags %d\n", fc.time_flags);
 
 	eeprom_read_block((void *)&fc.time_zone, &config.system.time_zone, sizeof(int8_t));
 	DEBUG("time_zone %d\n", fc.time_zone);
 
+
 	DEBUG("\n");
 
-	//default values
+	//start values
+	eeprom_busy_wait();
+	active_page = eeprom_read_byte(&config.gui.last_page);
+
 	fc.epoch_flight_start = 0;
-	fc.in_flight = false;
+	fc.autostart_state = false;
 
 	fc.temp_step = 0;
 
@@ -262,17 +271,33 @@ ISR(FC_MEAS_TIMER_CMPA)
 	vario_calc(ms5611.pressure);
 	if (fc.baro_valid)
 	{
-		if (fc.audio_supress == false || fc.in_flight == true)
+		if (fc.audio_supress == false || fc.autostart_state == AUTOSTART_FLIGHT)
 			audio_step(fc.vario);
 
 		//auto start
-		if (fc.in_flight == false)
+		if (fc.autostart_state == AUTOSTART_WAIT)
 		{
 			if (abs(fc.altitude1 - fc.start_altitude) > fc.autostart_sensitivity)
 			{
 				gui_showmessage_P(PSTR("Take off"));
-				fc.in_flight = true;
+
+				fc.autostart_state = AUTOSTART_FLIGHT;
 				fc.epoch_flight_start = time_get_actual();
+
+				//zero altimeters at take off
+				for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
+				{
+					if (fc.altimeter[i].flags & ALT_DIFF && fc.altimeter[i].flags & ALT_AUTO_ZERO)
+					{
+						uint8_t a_index = fc.altimeter[i].flags & 0x0F;
+
+						if (a_index == 1)
+							fc.altimeter[i].delta = -fc.altitude1;
+						else
+							fc.altimeter[i].delta = -fc.altimeter[a_index].altitude;
+
+					}
+				}
 			}
 		}
 	}
@@ -338,7 +363,7 @@ void fc_step()
 	gps_step();
 	bt_step();
 
-	if (fc.sync_gps_time && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
+	if ((fc.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
 	{
 		fc_sync_gps_time();
 	}

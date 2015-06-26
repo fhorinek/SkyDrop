@@ -5,14 +5,18 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 	uint8_t lh = widget_label_P(PSTR("Vario"), x, y);
 
 	float val = fc.digital_vario;
+
+	if (fc.vario_flags & VARIO_UNITS_I)
+		val *= VARIO_M_TO_F;
+
 	if (abs(val) < 0.09)
 		val = 0;
 
 	char text[10];
 	if (fc.baro_valid)
-		sprintf(text, "%0.1f", val);
+		sprintf_P(text, PSTR("%0.1f"), val);
 	else
-		sprintf(text, "-.-", val);
+		sprintf_P(text, PSTR("-.-"), val);
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
@@ -21,14 +25,18 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	uint8_t lh = widget_label_P(PSTR("Avg"), x, y);
 
 	float val = fc.avg_vario;
+
+	if (fc.vario_flags & VARIO_UNITS_I)
+		val *= VARIO_M_TO_F;
+
 	if (abs(val) < 0.09)
 		val = 0;
 
 	char text[10];
 	if (fc.baro_valid)
-		sprintf(text, "%0.1f", val);
+		sprintf_P(text, PSTR("%0.1f"), val);
 	else
-		sprintf(text, "-.-", val);
+		sprintf_P(text, PSTR("-.-"), val);
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 

@@ -21,7 +21,7 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 	uint8_t lh = widget_label_P(PSTR("FTime"), x, y);
 
 	char tmp[7];
-	if (fc.in_flight || fc.epoch_flight_start != 0)
+	if (fc.autostart_state == AUTOSTART_FLIGHT || fc.epoch_flight_start != 0)
 	{
 		uint32_t diff = time_get_actual() - fc.epoch_flight_start;
 		uint8_t hour, min;

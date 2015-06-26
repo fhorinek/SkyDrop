@@ -1,6 +1,6 @@
 #include "i2c.h"
 
-#include "../stdio.h"
+#include "../../drivers/uart.h"
 
 extern uint32_t freq_cpu;
 
@@ -57,16 +57,16 @@ void I2c::Scan()
 {
 	uint8_t addr;
 
-	printf("scanning...\n");
+	DEBUG("scanning...\n");
 	for (addr = 0; addr < 128; addr++)
 	{
 		this->Wait();
 		this->StartTransmittion(addr, 0);
 		this->Wait();
 		if (!this->Error())
-			printf("%02X ", addr);
+			DEBUG("%02X ", addr);
 	}
-	printf("\ndone.\n");
+	DEBUG("\ndone.\n");
 
 }
 

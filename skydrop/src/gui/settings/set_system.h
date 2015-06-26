@@ -17,4 +17,4 @@ void gui_set_system_irqh(uint8_t type, uint8_t * buff);
 void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);
 void gui_set_system_action(uint8_t index);
 
-#endif /* SETTINGS_H_ */
+#endif /* SET_SYSTEM_H_ */

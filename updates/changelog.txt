@@ -1,3 +1,88 @@
+Build 0523 - 26. 6. 2015
+========================================================
+FIX:
+ * New contrast setting behavioural (#25)
+ * Factory test is now double checking for the GPS.
+
+ADDED:
+ * 1 additional Altimeter
+ * Imperial units can be used for altitude (ft) and vario (100 x ft / min) (#20)
+ * Display is able to invert (#23) and flip direction (#17)
+ * Last used screen will be shown after startup (#1)
+ * You can leave menu with long press
+ * Last used item in menu stay highlighted (#6)
+ * DST for automatic time set
+ * Pages animation can be now disabled
+
+CHANGED:
+ * Code clean-up, memory saving
+ * More logical menu layout
+    * Vario
+        * Lift threshold - moved from audio
+        * Sink threshold - moved from audio
+        * Weak lift - place-holder, not yet implemented
+        * Fluid lift - from audio
+        * Digital vario integration interval
+        * Average vario integration interval
+        * (New) Units - display units for vario and avg. vario
+            * metric m/s
+            * imperial 100 x ft / min
+    * (New) Altimeters - settings for altimeters
+        * Altimeter 1 - main altimeter used by audio, digital and analog vario
+            * Mode - always absolute to QNH1
+            * Units - display units for Alt1
+                * metric m
+                * imperial ft
+        * Altimeter 2-5 - auxiliary altimeters
+            * Mode
+                * Absolute QNH1
+                * Absolute QNH2
+                * Relative to Alt1-5
+                * Absolute GPS
+            * [Relative to] - only available when Relative mode is selected
+                * Altimeter used as base 
+            * [Zero at Take off] - only available when Relative mode is selected
+                * Altimeter will be zeroed after start
+            * Units - every altimeter can display different units
+                * metric m
+                * imperial ft    
+            * Get from GPS - place-holder, not yet implemented
+        * QNH1 - moved from vario
+        * QNH2 - moved from vario
+    * GPS - no changes here
+        * Enable GPS
+        * Status
+            * Detailed GPS status
+        * GPS time - on click will synchronise with device time and date using timezone
+        * GPS date - on click will synchronise with device time and date using timezone
+    * Bluetooth - place-holder, not yet implemented 
+    * Settings
+        * Time & Date - moved into own menu
+            * Time - actual device time
+                * Time setup
+            * Date - actual device date
+                * Date setup
+            * Time Zone - Time zone for automatic time set
+            * (New) DST - Daylight saving will add +1 to Time Zone
+            * Sync with GPS - moved from GPS
+                * Automatic time synchronisation after proper GPS fix using Time Zone 
+        * Display
+            * Contrast - boundaries are used from factory test
+            * Backlight
+            * Backlight timeout
+            * (New) Invert display - will invert display colors
+            * (New) Flip orientation - will flip image by 180 degrees
+            * (New) Animation - can enable or disable page animation
+        * Audio 
+            * General volume
+        * MassStorage - if you disable this option you can plug USB without going to USB mode
+        * Debug - info for development ant testing
+        
+KNOWN ISSUES
+ * Temperature is not correct            
+    
+    
+    
 Build 0322 - 17. 6. 2015
 =========================================================
 FIX:
