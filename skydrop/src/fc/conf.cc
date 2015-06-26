@@ -73,14 +73,14 @@ EEMEM cfg_t config = {
 			//altimeter2
 			{
 				//flags
-				ALT_DIFF | 1,
+				ALT_DIFF | 0,
 				//diff
 				+100,
 			},
 			//altimeter3
 			{
 				//flags
-				ALT_DIFF | 1,
+				ALT_DIFF | 0,
 				//diff
 				+200,
 			},
