@@ -1,3 +1,16 @@
+Build 0527 - 28. 6. 2015
+========================================================
+FIX:
+ * Wrong default EE configuration (Alt2 is relative to Alt2), caused Alt2 to cycle and owerflow. (#31)
+ 
+ADDED:
+ * One menu entry
+    * Logger - place holder for upcoming function
+        * Autostart - moved from settings
+            * State - state of autostart function
+            * Threshold - how large change have to be to enable flying related functions
+            * Suppress audio - Audio vario will be silent before take-off
+
 Build 0523 - 26. 6. 2015
 ========================================================
 FIX:

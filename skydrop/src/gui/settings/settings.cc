@@ -3,7 +3,7 @@
 
 void gui_settings_init()
 {
-	gui_list_set(gui_settings_item, gui_settings_action, 6, GUI_PAGES);
+	gui_list_set(gui_settings_item, gui_settings_action, 7, GUI_PAGES);
 }
 
 void gui_settings_stop()
@@ -34,18 +34,22 @@ void gui_settings_action(uint8_t index)
 	break;
 
 	case(2):
-		gui_switch_task(GUI_SET_GPS);
+		gui_switch_task(GUI_SET_LOGGER);
 	break;
 
 	case(3):
-		gui_showmessage_P(PSTR("Not implemented"));
+		gui_switch_task(GUI_SET_GPS);
 	break;
 
 	case(4):
-		gui_switch_task(GUI_SET_SYSTEM);
+		gui_showmessage_P(PSTR("Not implemented"));
 	break;
 
 	case(5):
+		gui_switch_task(GUI_SET_SYSTEM);
+	break;
+
+	case(6):
 		gui_switch_task(GUI_SET_DEBUG);
 	break;
 
@@ -65,18 +69,22 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 			*flags |= GUI_LIST_FOLDER;
 		break;
 		case (2):
-			sprintf_P(text, PSTR("GPS"));
+			sprintf_P(text, PSTR("Logger"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 		case (3):
-			sprintf_P(text, PSTR("Bluetooth"));
+			sprintf_P(text, PSTR("GPS"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 		case (4):
-			sprintf_P(text, PSTR("Settings"));
+			sprintf_P(text, PSTR("Bluetooth"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 		case (5):
+			sprintf_P(text, PSTR("Settings"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+		case (6):
 			sprintf_P(text, PSTR("Debug"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
