@@ -2,5 +2,5 @@
 
 #ifndef BUILD_NUMBER_H
 #define BUILD_NUMBER_H
-#define BUILD_NUMBER 527
+#define BUILD_NUMBER 530
 #endif

@@ -287,16 +287,8 @@ ISR(FC_MEAS_TIMER_CMPA)
 				//zero altimeters at take off
 				for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
 				{
-					if (fc.altimeter[i].flags & ALT_DIFF && fc.altimeter[i].flags & ALT_AUTO_ZERO)
-					{
-						uint8_t a_index = fc.altimeter[i].flags & 0x0F;
-
-						if (a_index == 1)
-							fc.altimeter[i].delta = -fc.altitude1;
-						else
-							fc.altimeter[i].delta = -fc.altimeter[a_index].altitude;
-
-					}
+					if (fc.altimeter[i].flags & ALT_AUTO_ZERO)
+						fc_zero_alt(i + 1);
 				}
 			}
 		}
@@ -382,4 +374,20 @@ float fc_press_to_alt(float pressure, float qnh)
 float fc_alt_to_press(float alt, float qnh)
 {
 	return qnh * pow(1.0 - (alt / 44330.0), 5.255);
+}
+
+void fc_zero_alt(uint8_t index)
+{
+	index -= 1;
+
+	if (fc.altimeter[index].flags & ALT_DIFF)
+		{
+			uint8_t a_index = fc.altimeter[index].flags & 0x0F;
+
+			if (a_index == 0)
+				fc.altimeter[index].delta = -fc.altitude1;
+			else
+				fc.altimeter[index].delta = -fc.altimeter[a_index].altitude;
+
+		}
 }

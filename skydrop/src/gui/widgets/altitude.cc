@@ -3,10 +3,9 @@
 
 extern KalmanFilter * kalmanFilter;
 
-void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 {
 	char label[5];
-	uint8_t index = flags;
 
 	sprintf_P(label, PSTR("Alt%d"), index);
 	uint8_t lh = widget_label(label, x, y);
@@ -44,21 +43,21 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
+void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
 	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD || *buff == BE_RELEASED || *buff == BE_DBL_CLICK))
 		return;
 
 	uint8_t a_type;
 	uint8_t a_index = 0;
-	if (flags == 1)
+	if (index == 1)
 	{
 		a_type = ALT_ABS_QNH1;
 	}
 	else
 	{
-		a_type  = fc.altimeter[flags - 2].flags & 0b11000000;
-		a_index = fc.altimeter[flags - 2].flags & 0b00001111;
+		a_type  = fc.altimeter[index - 2].flags & 0b11000000;
+		a_index = fc.altimeter[index - 2].flags & 0b00001111;
 	}
 
 	if (a_type != ALT_ABS_GPS && fc.baro_valid == false)
@@ -72,11 +71,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 		switch (a_type)
 		{
 			case(ALT_DIFF):
-
-				if (a_index == 1)
-					fc.altimeter[flags - 2].delta = -fc.altitude1;
-				else
-					fc.altimeter[flags - 2].delta = -fc.altimeter[a_index].altitude;
+				fc_zero_alt(index - 1);
 			break;
 		}
 
@@ -107,24 +102,24 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t flags)
 			switch (a_type)
 			{
 			case(ALT_ABS_QNH1):
-				if (flags == 1)
+				if (index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[index - 2].altitude + inc;
 
 				kalmanFilter->setXAbs(new_alt);
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
-				if (flags == 1)
+				if (index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[flags - 2].altitude + inc;
+					new_alt = fc.altimeter[index - 2].altitude + inc;
 
 				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_DIFF):
-				fc.altimeter[flags - 2].delta += inc;
+				fc.altimeter[index - 2].delta += inc;
 			break;
 			}
 		}

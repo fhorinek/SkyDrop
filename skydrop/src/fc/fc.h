@@ -150,6 +150,8 @@ float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);
 
+void fc_zero_alt(uint8_t index);
+
 void fc_sync_gps_time();
 
 extern volatile flight_data_t fc;
