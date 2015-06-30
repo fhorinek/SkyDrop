@@ -10,6 +10,9 @@
 
 #include "../common.h"
 
+#define NUMBER_OF_ALTIMETERS	4
+#define AUDIO_PROFILE_SIZE		41
+
 #include "conf.h"
 
 //metric to imperial

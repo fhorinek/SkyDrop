@@ -8,12 +8,16 @@
 #ifndef WIDGETS_H_
 #define WIDGETS_H_
 
+#define WIDGES_PER_PAGE		9
+#define NUMBER_OF_PAGES		5
+
 #include "../gui.h"
 #include "../../fc/fc.h"
 #include "../pages.h"
+
+
+
 #include "layouts/layouts.h"
-
-
 
 struct widget
 {

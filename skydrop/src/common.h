@@ -43,19 +43,19 @@ union byte2
 	uint8_t uint8[2];
 };
 
-typedef struct
+struct vector_i16_t
 {
 	int16_t x;
 	int16_t y;
 	int16_t z;
-} vector_i16_t;
+};
 
-typedef struct
+struct vector_float_t
 {
 	float x;
 	float y;
 	float z;
-} vector_float_t;
+};
 
 #define APP_INFO_EE_offset	32
 #define APP_INFO_NAME_len	(APP_INFO_EE_offset - 1)

@@ -24,7 +24,7 @@ void gui_set_debug_reset_fc(uint8_t ret)
 {
 	if (ret == GUI_DIALOG_YES)
 	{
-		cfg_factory_passed()
+		cfg_reset_factory_test();
 	}
 	else
 		gui_switch_task(GUI_SET_DEBUG);
