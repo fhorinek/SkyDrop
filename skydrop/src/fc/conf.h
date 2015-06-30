@@ -11,6 +11,12 @@
 #include "../gui/widgets/widgets.h"
 #include "fc.h"
 
+#define NUMBER_OF_ALTIMETERS	4
+#define AUDIO_PROFILE_SIZE		41
+#define WIDGES_PER_PAGE		9
+#define NUMBER_OF_PAGES		5
+
+
 struct cfg_gui_layout
 {
 	uint8_t type;
