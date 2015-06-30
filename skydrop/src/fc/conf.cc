@@ -154,3 +154,11 @@ bool cfg_factory_passed()
 	eeprom_busy_wait();
 	return eeprom_read_byte(&config_ro.factory_passed) == CFG_FACTORY_PASSED_hex;
 }
+
+void cfg_reset_factory_test()
+{
+	eeprom_busy_wait();
+	eeprom_update_byte(&config_ro.factory_passed, 0x00);
+	eeprom_busy_wait();
+	SystemReset();
+}

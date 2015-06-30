@@ -24,6 +24,7 @@
 #include "settings/set_altimeter.h"
 #include "settings/set_time.h"
 #include "settings/set_logger.h"
+#include "gui_dialog.h"
 
 
 n5110display disp;
@@ -37,28 +38,32 @@ void (* gui_init_array[])() =
 	gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init,
 	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
-	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init};
+	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
+	gui_dialog_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
 	gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop,
 	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
-	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop};
+	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
+	gui_dialog_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
 	gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop,
 	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
-	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop};
+	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
+	gui_dialog_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
 	gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh,
 	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
-	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh};
+	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
+	gui_dialog_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -122,10 +127,24 @@ void gui_showmessage(char * msg)
 	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
 }
 
+void gui_raligh_text_P(const char * text, uint8_t x, uint8_t y)
+{
+	char tmp[16];
+	strcpy_P(tmp, text);
+	gui_raligh_text(tmp, x, y);
+}
+
 void gui_raligh_text(char * text, uint8_t x, uint8_t y)
 {
 	disp.GotoXY(x - disp.GetTextWidth(text), y);
 	fprintf_P(lcd_out, PSTR("%s"), text);
+}
+
+void gui_caligh_text_P(const char * text, uint8_t x, uint8_t y)
+{
+	char tmp[16];
+	strcpy_P(tmp, text);
+	gui_caligh_text(tmp, x, y);
 }
 
 void gui_caligh_text(char * text, uint8_t x, uint8_t y)

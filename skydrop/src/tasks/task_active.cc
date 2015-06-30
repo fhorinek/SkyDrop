@@ -32,6 +32,13 @@ void task_active_init()
 		FILINFO fno;
 		bool wipe = true;
 
+		if (f_stat("RST_FT", &fno) == FR_OK)
+		{
+			f_unlink("RST_FT");
+			cfg_reset_factory_test();
+		}
+
+		//preserve EE and FW file
 		if (f_stat("NO_WIPE", &fno) == FR_OK)
 			wipe = false;
 

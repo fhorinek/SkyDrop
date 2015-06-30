@@ -1,14 +1,14 @@
 #include "set_debug.h"
 #include "../gui_list.h"
+#include "../gui_dialog.h"
+#include "../../fc/conf.h"
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 3, GUI_SET_SYSTEM);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 4, GUI_SET_SYSTEM);
 }
 
-void gui_set_debug_stop()
-{
-}
+void gui_set_debug_stop() {}
 
 void gui_set_debug_loop()
 {
@@ -20,14 +20,24 @@ void gui_set_debug_irqh(uint8_t type, uint8_t * buff)
 	gui_list_irqh(type, buff);
 }
 
+void gui_set_debug_reset_fc(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_YES)
+	{
+		cfg_factory_passed()
+	}
+	else
+		gui_switch_task(GUI_SET_DEBUG);
+}
 
 void gui_set_debug_action(uint8_t index)
 {
 	switch(index)
 	{
-	case(3):
-		gui_switch_task(GUI_SETTINGS);
-	break;
+		case(3):
+			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Do you want to\nreset Factory\ntest?"), GUI_STYLE_YESNO, gui_set_debug_reset_fc);
+			gui_switch_task(GUI_DIALOG);
+		break;
 	}
 }
 
@@ -67,6 +77,9 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 			sprintf_P(text, PSTR("ADC raw %d"), battery_adc_raw);
 		break;
 
+		case (3):
+			sprintf_P(text, PSTR("Reset Factory test"));
+		break;
 	}
 }
 

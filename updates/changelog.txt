@@ -1,7 +1,18 @@
+Build 0551 - 30. 6. 2015
+========================================================
+ADDED:
+ * 2 ways to reset factory test
+    * place any file called RST_FT 
+        - when you can't use LCD due wrong contrast settings
+        - in next power on it will trigger Factory test reset
+    * via menu
+        * Settings -> Debug -> Reset Factory test
+
+
 Build 0530 - 29. 6. 2015
 ========================================================
 FIX:
- * Altimeters zeroing
+ * Altimeters zeroing bug
 
 
 Build 0527 - 28. 6. 2015

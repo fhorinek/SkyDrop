@@ -36,6 +36,7 @@ int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 				return fc.altimeter[a_index].altitude + fc.altimeter[index].delta;
 			}
 	}
+	return 0;
 }
 
 //drop few first measurements (12s)

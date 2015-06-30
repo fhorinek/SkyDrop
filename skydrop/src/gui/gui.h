@@ -39,13 +39,17 @@ void gui_showmessage(char * msg);
 void gui_dialog_P(const char * title);
 void gui_dialog(char * title);
 
-#define GUI_DIALOG_TOP 	13
-#define GUI_DIALOG_LEFT 2
-#define GUI_DIALOG_RIGHT (GUI_DISP_WIDTH - 3)
-#define GUI_DIALOG_BOTTOM (GUI_DISP_HEIGHT - 3)
+#define GUI_DIALOG_TOP 		13
+#define GUI_DIALOG_LEFT 	2
+#define GUI_DIALOG_RIGHT 	(GUI_DISP_WIDTH - 3)
+#define GUI_DIALOG_BOTTOM 	(GUI_DISP_HEIGHT - 3)
+#define GUI_DIALOG_WIDTH	(GUI_DIALOG_RIGHT - GUI_DIALOG_LEFT)
+#define GUI_DIALOG_HEIGHT	(GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP)
 
-
+void gui_raligh_text_P(const char * text, uint8_t x, uint8_t y);
 void gui_raligh_text(char * text, uint8_t x, uint8_t y);
+
+void gui_caligh_text_P(const char * text, uint8_t x, uint8_t y);
 void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 
 void gui_statusbar();
@@ -72,8 +76,11 @@ void gui_statusbar();
 #define GUI_SET_ALTIMETER	18
 #define GUI_SET_TIME		19
 #define GUI_SET_LOGGER		20
+#define GUI_DIALOG			21
 
-#define NUMBER_OF_GUI_TASKS	21
+#define NUMBER_OF_GUI_TASKS	22
+
+#define GUI_LAST_TASK		0xFF
 
 extern uint8_t lcd_brightness;
 extern uint8_t lcd_brightness_timeout;

@@ -1,0 +1,62 @@
+ 
+               !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+               !!! Read before updating !!!
+               !!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+ !BEWARE! If you have unfixed GPS do NOT update to this software. See GPS (note).
+
+This release is using enhanced Factory test.
+You will need to re-run factory test yourself.
+
+                    **** BIG WARNING ****
+   ******************************************************
+   *                                                    *
+   *  IF YOU CANNOT SEE ANYTHING ON THE DISPLAY, PLEASE *
+   *  BE PATIENT, THE CONTRAST WILL GO UP AUTOMATICALLY *
+   *  BE SMART AND FOLLOW THE INSTRUCTION.              *
+   *  DO NOT PRESS BUTTONS LIKE CRAZY. YOU MAY PASS     *
+   *  THE TEST BLINDLY WITH INCORRECT CONTRAST VALUES.  *
+   *                                                    *
+   *  ONCE YOU PASS THE TEST YOU CANNOT RUN IT AGAIN.   *
+   *                                                    *
+   *  If you manage to fuck it up anyway just contact   *
+   *  me. No harm done, we can still fix it! :-)        *  
+   *                             Fero fero@skybean.eu   *
+   ******************************************************
+  
+Contrast calibration
+ 1. After power-up wait until you can see something on the display, then press left button
+ 2. Using left and right button tune contrast to barely visible value (very light).
+ 3. Confirm it using middle button.
+ 4. Contras will now go automatically up.
+ 5. When is the contrast at maximum press left button 
+ 6. Using left and right button tune contrast to barely visible value (very dark). 
+ 7. Confirm it using middle button.
+ 8. Test will try to calculate optimal contras.
+ 9. Fine tune optimal contrast value and confirm it using middle button.
+ 10. Next is peripheral detection.
+ 
+      *** Contrast note ***
+     If you manage to set wrong contrast values you will need to open the vario and
+     short RST and GND pads near gps module to restart factory test. 
+     
+     Alternativly you can place RST_FT on sd card
+     or via Settings->Debug->Reset factory test
+ 
+Peripheral detection
+ 1. SkyDrop will now check peripheral.
+ 
+      *** GPS note ***
+     New factory test will double check for GPS, if you have unfixed GPS 
+     (You have vario from first batch), you wont be able to proceed.
+     If you want to recover disassemble vario, remove battery and 
+     copy older update files (0322) to sd card and reconnect battery.
+    
+ 2. Press all three button, to confirm their functionality. 
+    (Buzzer will play tones and led will lid)
+ 3. When all peripheral are found and checked (No line is blinking)
+    test result and calibration values will be written into special memory and
+    the vario will proceed with start-up sequence.
+ 4. All done :)
+
+

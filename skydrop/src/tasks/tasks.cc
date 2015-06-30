@@ -187,7 +187,6 @@ void task_irqh(uint8_t type, uint8_t * buff)
 	}
 	else
 	{
-		DEBUG("IRQ %d for %d\n", type, actual_task);
 		task_irqh_array[actual_task](type, buff);
 	}
 }

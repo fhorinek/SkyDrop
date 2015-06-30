@@ -15,9 +15,9 @@
 #define GUI_VAL_TIME	2
 #define GUI_VAL_DATE	3
 
-typedef void void_cb(float val);
+typedef void float_cb(float val);
 
-void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, void_cb * cb);
+void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb);
 
 void gui_value_init();
 void gui_value_stop();

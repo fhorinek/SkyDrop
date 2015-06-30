@@ -10,9 +10,9 @@ float gui_value_max;
 float gui_value_step;
 volatile float gui_value_tmp;
 
-void_cb * gui_value_cb;
+float_cb * gui_value_cb;
 
-void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, void_cb * cb)
+void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb)
 {
 	strcpy_P(gui_value_label, label);
 	gui_value_type = type;

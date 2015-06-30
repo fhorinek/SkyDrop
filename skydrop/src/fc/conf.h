@@ -133,5 +133,6 @@ extern ro_cfg_t config_ro __attribute__ ((section(".cfg_ro")));
 #define USB_MODE_MASSSTORAGE	1
 
 bool cfg_factory_passed();
+void cfg_reset_factory_test();
 
 #endif /* CONF_H_ */
