@@ -1,3 +1,5 @@
+!!! If you are looking for updates go to this site (or download files from github as RAW) !!! http://vps.skybean.eu:8080/repo/updates/
+
 Updates
 =====
 
