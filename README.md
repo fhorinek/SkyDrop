@@ -4,6 +4,17 @@ SkyDrop
 <b> !!! If you are looking for updates go to this site (or download files from github as RAW) !!!</b>
 http://vps.skybean.eu:8080/repo/updates/
 
+I want to ...
+* [... update SkyDrop firmware](http://skybean.eu/page/support)
+* [... report bug/suggest feature/ask for help](https://github.com/fhorinek/SkyDrop/issues/new)
+* [... see what features are implemented in lastest release](https://github.com/fhorinek/SkyDrop/blob/master/updates/changelog.txt)
+* [... look for solution to my problem](https://github.com/fhorinek/SkyDrop/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3Aquestion)
+* [... see what features will be implemented in next release](https://github.com/fhorinek/SkyDrop/milestones)
+* [... browse issues](https://github.com/fhorinek/SkyDrop/issues)
+
+Folder structure
+=====
+
 <b>skydrop</b><br>
 SkyDrop vario source code<br>
 <b>skydrop_sd_bootloader</b><br>
