@@ -77,8 +77,9 @@ void gui_statusbar();
 #define GUI_SET_TIME		19
 #define GUI_SET_LOGGER		20
 #define GUI_DIALOG			21
+#define GUI_SET_BLUETOOTH	22
 
-#define NUMBER_OF_GUI_TASKS	22
+#define NUMBER_OF_GUI_TASKS	23
 
 #define GUI_LAST_TASK		0xFF
 

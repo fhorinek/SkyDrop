@@ -52,11 +52,11 @@ class pan1026
 {
 public:
 
-	Usart usart;
+	Usart * usart;
 
 	bool connected;
 
-	void Init();
+	void Init(Usart * uart);
 	void Restart();
 	void TxResume();
 

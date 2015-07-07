@@ -47,11 +47,11 @@ class pan1322
 
 public:
 
-	Usart usart;
+	Usart * usart;
 
-	void Init();
+	void Init(Usart * uart);
 	void TxResume();
-	void Restart();
+	bool Restart();
 
 	bool WaitForOK(uint16_t timeout_ms = 500);
 	bool SetName(const char * name);

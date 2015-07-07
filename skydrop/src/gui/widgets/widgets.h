@@ -94,7 +94,11 @@ extern float widget_menu_fvalue1;
 #define WIDGET_GROUND_SPD	15
 #include "gps.h"
 
-#define NUMBER_OF_WIDGETS	16
+#define WIDGET_BATTERY		16
+#include "battery.h"
+
+
+#define NUMBER_OF_WIDGETS	17
 
 
 

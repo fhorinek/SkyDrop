@@ -5,7 +5,7 @@ import serial
 from intelhex import IntelHex
 import time
 import datetime
-
+import struct
 
 def add8(a, b):
     return (a + b & 0xFF)
@@ -36,18 +36,25 @@ class Hex2BinConv():
         
         lab_str = '';
         
-        for i in range(32):
-            if i >= len(label):
-                c = chr(0)
-            else:
-                c = label[i]
-            lab_str += c
+
+        if (label == "ee"):
+            f = open("../utils/build/build_number.txt", "r")
+            number = int(f.readline())
+            f.close()
+            
+            lab_str += struct.pack("<H", number)
+        else:
+            for i in range(32):
+               if i >= len(label):
+                   c = chr(0)
+               else:
+                   c = label[i]
+               lab_str += c               
         
+        out_file.write(lab_str)
+
         print " label: %s" % lab_str
         print "Converting HEX 2 BIN ...", 
-        
-        if (label != "ee"):
-            out_file.write(lab_str)
 
         while(adr <= max_adr):
             out_file.write(chr(self.hex[adr]))
@@ -79,7 +86,7 @@ label = ""
 if (len(sys.argv) == 4):
     label = sys.argv[3]
     
-f = open("../utils/build_number.txt", "r")
+f = open("../utils/build/build_number.txt", "r")
 number = int(f.readline())
 f.close()
     

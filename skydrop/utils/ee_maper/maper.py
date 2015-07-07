@@ -1,11 +1,13 @@
+#!/usr/bin/python
+
 import CParser
 import json
 
-files = ["../../src/gui/widgets/widgets.h",
-         "../../src/common.h",
-         "../../src/gui/widgets/widget.h",
-         "../../src/fc/fc.h",
-         "../../src/fc/conf.h"]
+files = ["../src/gui/widgets/widgets.h",
+         "../src/common.h",
+         "../src/gui/widgets/widget.h",
+         "../src/fc/fc.h",
+         "../src/fc/conf.h"]
 p = CParser.CParser(files)
 p.processAll()
 
@@ -28,7 +30,7 @@ def map_struct(parser, path, map_path):
     global mem_index
     
     for struct in path:
-        print struct
+#         print struct
         struct_name = struct[0]
         struct_type = struct[1][0]
         if len(struct[1]) == 2:
@@ -61,12 +63,17 @@ mem_index = 0
 map = []
 map_struct(p, p.defs["structs"]["cfg_t"]["members"], "cfg")
 
-for item in map:
-    name, index, size, var_type = item
-    print "%04X %04d %s %s (%d)" % (index, index, var_type, name, size)
+# for item in map:
+#     name, index, size, var_type = item
+#     print "%04X %04d %s %s (%d)" % (index, index, var_type, name, size)
+
+f = open("../utils/build/build_number.txt", "r")
+number = int(f.readline())
+f.close()    
     
-f = open("../../../skydrop_configurator/server/app/ee_map.json", "w")
-f.write(json.dumps(map))
+
+f = open("../../skydrop_configurator/app/ref/ee_maps/ee_%05d.json" % number, "w")
+f.write(json.dumps({"build_number": number, "ee_map": map}))
 f.close()
 
 print "done"

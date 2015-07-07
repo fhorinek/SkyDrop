@@ -113,17 +113,19 @@ struct cfg_t
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 
-struct ro_cfg_t //128
+struct cfg_ro_t //128
 {
 	uint8_t factory_passed;
 	uint8_t lcd_contrast_min;
 	uint8_t lcd_contrast_max;
 
-	uint8_t reserved[125];
+	uint8_t bt_module_type;
+
+	uint8_t reserved[124];
 };
 
 extern cfg_t config;
-extern ro_cfg_t config_ro __attribute__ ((section(".cfg_ro")));
+extern cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
 #define CheckRange(MIN, MAX, DEFAULT, VAL) \
 	if (VAL < MIN || VAL > MAX) VAL = DEFUALT;
@@ -134,5 +136,6 @@ extern ro_cfg_t config_ro __attribute__ ((section(".cfg_ro")));
 
 bool cfg_factory_passed();
 void cfg_reset_factory_test();
+void cfg_load();
 
 #endif /* CONF_H_ */

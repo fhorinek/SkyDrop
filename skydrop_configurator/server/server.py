@@ -7,6 +7,8 @@ import threading
 import os
 import StringIO
 import json
+import posixpath
+import urllib
 
 PORT = 9999
 
@@ -91,7 +93,34 @@ class SkyDropCfgServer(SimpleHTTPServer.SimpleHTTPRequestHandler):
             return f
         except:
             f.close()
-            raise        
+            raise    
+            
+    def translate_path(self, path):
+        """Translate a /-separated PATH to the local filename syntax.
+
+        Components that mean special things to the local file system
+        (e.g. drive or directory names) are ignored.  (XXX They should
+        probably be diagnosed.)
+
+        """
+        # abandon query parameters
+        path = path.split('?',1)[0]
+        path = path.split('#',1)[0]
+        # Don't forget explicit trailing slash when normalizing. Issue17324
+        trailing_slash = path.rstrip().endswith('/')
+        path = posixpath.normpath(urllib.unquote(path))
+        words = path.split('/')
+        words = filter(None, words)
+        path = os.path.join(os.getcwd(), "..", "app")
+        for word in words:
+            drive, word = os.path.splitdrive(word)
+            head, word = os.path.split(word)
+            if word in (os.curdir, os.pardir): continue
+            path = os.path.join(path, word)
+        if trailing_slash:
+            path += '/'
+        return path
+
         
 
 def ServerThread():

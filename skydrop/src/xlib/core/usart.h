@@ -109,6 +109,7 @@ public:
 
 	void FlushTxBuffer();
 	void SetInterruptPriority(uint8_t p);
+	void ClearRxBuffer();
 
 	void SetRtsPin(PORT_t * port, uint8_t pin, uint8_t active, XLIB_USE_CORE_USART_INIT_VAR threshold);
 	void SetCtsPin(PORT_t * port, uint8_t pin, uint8_t active);
