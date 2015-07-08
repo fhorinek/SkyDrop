@@ -1,3 +1,24 @@
+Build 0789 - 8. 7. 2015
+========================================================
+FIX:
+ * Adjusting Altitude treats it like an immediate flight start. #48
+ * Wrong "back" link in debug menu #42
+ * Prevent cyclic Alt configuration #32
+ * default Alt2 configuration in EE #31
+ * USB Connection doesn't work on a Mac #11
+
+ADDED:
+ * Factory test for pan1026 #44
+ * Contrast and Backlight setting 'live adjustment' #40
+ * GPS information as widget values #30
+ * Configurable units in Ground speed
+ * Configurable format in GPS position format
+ * Battery percentage as a widget value. #29
+ 
+CHANGED:
+ * support for Atmel Studio renamed files from .cc to .cpp 
+
+
 Build 0551 - 30. 6. 2015
 ========================================================
 ADDED:
