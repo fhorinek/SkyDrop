@@ -125,6 +125,7 @@ void task_set(uint8_t task)
 
 void task_loop()
 {
+	wdt_reset();
 	if (actual_task != NO_TASK)
 		task_loop_array[actual_task]();
 }

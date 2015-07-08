@@ -10,10 +10,12 @@
 
 #include "gui.h"
 
-#define GUI_VAL_NUMBER	0
-#define GUI_VAL_VOLUME	0
-#define GUI_VAL_TIME	2
-#define GUI_VAL_DATE	3
+#define GUI_VAL_NUMBER		0
+#define GUI_VAL_TIME		1
+#define GUI_VAL_DATE		2
+#define GUI_VAL_VOLUME		(GUI_VAL_NUMBER)
+#define GUI_VAL_CONTRAST	4
+#define GUI_VAL_BRIGTHNES	5
 
 typedef void float_cb(float val);
 

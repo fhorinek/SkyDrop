@@ -60,9 +60,10 @@ void task_active_init()
 
 void task_active_stop()
 {
+	StoreEEPROM();
+
 	fc_deinit();
 	gui_stop();
-	StoreEEPROM();
 	storage_deinit();
 }
 

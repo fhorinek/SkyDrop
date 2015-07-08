@@ -1,7 +1,6 @@
 #include "altitude.h"
 #include "../../fc/kalman.h"
 
-extern KalmanFilter * kalmanFilter;
 
 void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 {
@@ -27,7 +26,7 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 	}
 
 	if (alt_flags & ALT_UNIT_I)
-		val *= ALT_M_TO_F;
+		val *= FC_METER_TO_FEET;
 
 	bool valid;
 	if ((alt_flags & 0b11000000) == ALT_ABS_GPS)
@@ -106,8 +105,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 					new_alt = fc.altitude1 + inc;
 				else
 					new_alt = fc.altimeter[index - 2].altitude + inc;
-
-				kalmanFilter->setXAbs(new_alt);
+				fc_manual_alt0_change(new_alt);
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
@@ -177,7 +175,8 @@ void widget_alt_menu_loop(uint8_t alt_index)
 				else
 					new_alt = fc.altimeter[alt_index - 2].altitude + inc;
 
-			    kalmanFilter->setXAbs(new_alt);
+				fc_manual_alt0_change(new_alt);
+
 				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 
@@ -255,14 +254,14 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	if (alt_index == 1)
 	{
 		if (a_flags & ALT_UNIT_I)
-			sprintf_P(tmp, PSTR("%0.0f"), fc.altitude1 * ALT_M_TO_F);
+			sprintf_P(tmp, PSTR("%0.0f"), fc.altitude1 * FC_METER_TO_FEET);
 		else
 			sprintf_P(tmp, PSTR("%0.0f"), fc.altitude1);
 	}
 	else
 	{
 		if (a_flags & ALT_UNIT_I)
-			sprintf_P(tmp, PSTR("%d"), (int16_t)(fc.altimeter[alt_index - 2].altitude * ALT_M_TO_F));
+			sprintf_P(tmp, PSTR("%d"), (int16_t)(fc.altimeter[alt_index - 2].altitude * FC_METER_TO_FEET));
 		else
 			sprintf_P(tmp, PSTR("%d"), fc.altimeter[alt_index - 2].altitude);
 	}

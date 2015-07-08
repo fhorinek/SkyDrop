@@ -8,7 +8,7 @@
 
 void gui_set_gps_init()
 {
-	gui_list_set(gui_set_gps_item, gui_set_gps_action, 4, GUI_SETTINGS);
+	gui_list_set(gui_set_gps_item, gui_set_gps_action, 6, GUI_SETTINGS);
 
 	if (fc.use_gps)
 		gps_detail();
@@ -32,6 +32,8 @@ void gui_set_gps_irqh(uint8_t type, uint8_t * buff)
 
 void gui_set_gps_action(uint8_t index)
 {
+	uint8_t tmp;
+
 	switch(index)
 	{
 	case(0):
@@ -73,6 +75,22 @@ void gui_set_gps_action(uint8_t index)
 		}
 		else
 			gui_showmessage_P(PSTR("Enable GPS first"));
+	break;
+
+	case(4):
+		tmp = (fc.gps_data.format_flags & GPS_SPD_MASK) >> 0;
+		tmp = (tmp + 1) % 4;
+		fc.gps_data.format_flags = (fc.gps_data.format_flags & ~GPS_SPD_MASK) | (tmp << 0);
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.system.gps_format_flags, fc.gps_data.format_flags);
+	break;
+
+	case(5):
+		tmp = (fc.gps_data.format_flags & GPS_FORMAT_MASK) >> 2;
+		tmp = (tmp + 1) % 3;
+		fc.gps_data.format_flags = (fc.gps_data.format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
+		eeprom_busy_wait();
+		eeprom_update_byte(&config.system.gps_format_flags, fc.gps_data.format_flags);
 	break;
 
 	}
@@ -160,6 +178,43 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			}
 
 			*flags |= GUI_LIST_SUB_TEXT;
+		break;
+
+		case (4):
+			sprintf_P(text, PSTR("Speed units"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			switch (fc.gps_data.format_flags & GPS_SPD_MASK)
+			{
+				case(GPS_SPD_KNOT):
+					sprintf_P(sub_text, PSTR("Knots"));
+				break;
+				case(GPS_SPD_KPH):
+					sprintf_P(sub_text, PSTR("Km/h"));
+				break;
+				case(GPS_SPD_MS):
+					sprintf_P(sub_text, PSTR("m/s"));
+				break;
+				case(GPS_SPD_MPH):
+					sprintf_P(sub_text, PSTR("MPH"));
+				break;
+			}
+		break;
+
+		case (5):
+			sprintf_P(text, PSTR("Format"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			switch (fc.gps_data.format_flags & GPS_FORMAT_MASK)
+			{
+				case(GPS_DDMMSS):
+					sprintf_P(sub_text, PSTR("DD*MM'SS\""));
+				break;
+				case(GPS_DDMMmmm):
+					sprintf_P(sub_text, PSTR("DD*MM.mmm'"));
+				break;
+				case(GPS_DDdddddd):
+					sprintf_P(sub_text, PSTR("DD.dddddd"));
+				break;
+			}
 		break;
 
 	}

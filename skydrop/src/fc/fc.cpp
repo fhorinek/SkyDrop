@@ -3,12 +3,15 @@
 #include "../drivers/sensors/devices.h"
 #include "../drivers/uart.h"
 
+#include "kalman.h"
 #include "vario.h"
 #include "audio.h"
 
 volatile flight_data_t fc;
 
 Timer fc_meas_timer;
+
+extern KalmanFilter * kalmanFilter;
 
 void fc_init()
 {
@@ -272,9 +275,17 @@ void fc_zero_alt(uint8_t index)
 			uint8_t a_index = fc.altimeter[index].flags & 0x0F;
 
 			if (a_index == 0)
+			{
 				fc.altimeter[index].delta = -fc.altitude1;
+			}
 			else
 				fc.altimeter[index].delta = -fc.altimeter[a_index].altitude;
 
 		}
+}
+
+void fc_manual_alt0_change(float val)
+{
+    kalmanFilter->setXAbs(val);
+    fc.start_altitude = val;
 }

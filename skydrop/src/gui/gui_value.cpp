@@ -32,6 +32,16 @@ void gui_value_init() {}
 
 void gui_value_stop() {}
 
+void gui_value_draw_bar()
+{
+	uint8_t pad = 3;
+	uint8_t bar_width = GUI_DIALOG_RIGHT - GUI_DIALOG_LEFT - pad * 2;
+	uint8_t pos = ((gui_value_tmp - gui_value_min) * bar_width) / (gui_value_max - gui_value_min);
+
+	disp.DrawRectangle(GUI_DIALOG_LEFT + pad - 1, GUI_DIALOG_TOP + 10, GUI_DIALOG_RIGHT - pad + 1, GUI_DIALOG_TOP + 20, 1, 0);
+	disp.DrawRectangle(GUI_DIALOG_LEFT + pad, GUI_DIALOG_TOP + 11, GUI_DIALOG_LEFT + pad + pos, GUI_DIALOG_TOP + 19, 1, 1);
+}
+
 void gui_value_loop()
 {
 	char tmp[20];
@@ -57,6 +67,7 @@ void gui_value_loop()
 			sprintf(tmp, gui_value_format, gui_value_tmp);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 		break;
+
 		case(GUI_VAL_TIME):
 			time_from_epoch(time_get_actual(), &sec, &min, &hour);
 
@@ -69,6 +80,7 @@ void gui_value_loop()
 			if (gui_value_index == 2)
 				disp.Invert(54, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 68, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 		break;
+
 		case(GUI_VAL_DATE):
 			datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
 
@@ -80,6 +92,14 @@ void gui_value_loop()
 				disp.Invert(30, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 44, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 2)
 				disp.Invert(50, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 76, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+		break;
+
+		case(GUI_VAL_CONTRAST):
+			gui_value_draw_bar();
+		break;
+
+		case(GUI_VAL_BRIGTHNES):
+			gui_value_draw_bar();
 		break;
 	}
 }
@@ -262,5 +282,18 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 	case(GUI_VAL_DATE):
 		gui_value_date_irqh(type, buff);
 	break;
+
+	case(GUI_VAL_CONTRAST):
+		gui_value_number_irqh(type, buff);
+		lcd_contrast = gui_value_tmp;
+		gui_change_disp_cfg();
+	break;
+
+	case(GUI_VAL_BRIGTHNES):
+		gui_value_number_irqh(type, buff);
+		lcd_brightness = gui_value_tmp;
+	break;
+
 	}
+
 }

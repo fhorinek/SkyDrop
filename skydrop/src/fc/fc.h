@@ -16,13 +16,23 @@
 #include "conf.h"
 
 //metric to imperial
-#define ALT_M_TO_F		(3.2808399)
-#define VARIO_M_TO_F	(1.96850394)  //100 feat per min (WTF?)
+#define FC_METER_TO_FEET		(3.2808399)
+#define FC_MPS_TO_100FPM		(1.96850394)  	//100 feat per min (WTF?)
+
+#define FC_KNOTS_TO_KPH		(1.852)				//Kilometers per hour
+#define FC_KNOTS_TO_MPH		(1.15077945)		//Miles per hour
+#define FC_KNOTS_TO_MPS		(0.51444444444)		//Meters peR seconds
+
+#define ALT_MODE_MASK	0b11000000
 
 #define ALT_ABS_QNH1	0b00000000
 #define ALT_ABS_QNH2	0b01000000
 #define ALT_ABS_GPS		0b10000000
 #define ALT_DIFF		0b11000000
+
+#define ALT_REL_MASK	0b00001111
+
+//single bit flags
 
 #define ALT_UNIT_M		0b00000000
 #define ALT_UNIT_I		0b00100000
@@ -47,7 +57,7 @@ typedef struct
 
 	float latitude;
 	float longtitude;
-	float groud_speed;
+	float groud_speed; //in knots
 
 	float heading;
 	uint32_t utc_time;
@@ -63,6 +73,8 @@ typedef struct
 	uint8_t sat_snr[GPS_SAT_CNT];
 
 	uint8_t fix_cnt;
+
+	uint8_t format_flags;
 } gps_data_t;
 
 #define FC_TEMP_PERIOD	1000
@@ -151,6 +163,7 @@ float fc_press_to_alt(float pressure, float qnh);
 float fc_alt_to_press(float alt, float qnh);
 
 void fc_zero_alt(uint8_t index);
+void fc_manual_alt0_change(float val);
 
 void fc_sync_gps_time();
 

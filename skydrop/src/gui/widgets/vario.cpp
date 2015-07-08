@@ -7,7 +7,7 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 	float val = fc.digital_vario;
 
 	if (fc.vario_flags & VARIO_UNITS_I)
-		val *= VARIO_M_TO_F;
+		val *= FC_MPS_TO_100FPM;
 
 	if (abs(val) < 0.09)
 		val = 0;
@@ -27,7 +27,7 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	float val = fc.avg_vario;
 
 	if (fc.vario_flags & VARIO_UNITS_I)
-		val *= VARIO_M_TO_F;
+		val *= FC_MPS_TO_100FPM;
 
 	if (abs(val) < 0.09)
 		val = 0;

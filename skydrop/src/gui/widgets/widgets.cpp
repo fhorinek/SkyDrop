@@ -14,7 +14,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_accx,
 		w_time, w_ftime,
 		w_temperature,
-		w_ghdg, w_gspd,
+		w_ghdg, w_gspd, w_gpos,
 		w_battery,
 };
 
@@ -104,6 +104,33 @@ void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value);
+}
+
+void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	disp.LoadFont(F_TEXT_L);
+	uint8_t text_w = disp.GetTextWidth(value1);
+	uint8_t text_h = disp.GetTextHeight() * 2;
+
+	if (w < text_w || h < text_h)
+	{
+		disp.LoadFont(F_TEXT_M);
+		text_w = disp.GetTextWidth(value1);
+		text_h = disp.GetTextHeight() * 2;
+		if (w < text_w || h < text_h)
+		{
+			disp.LoadFont(F_TEXT_S);
+			text_w = disp.GetTextWidth(value1);
+			text_h = disp.GetTextHeight() * 2;
+			if (w < text_w || h < text_h)
+				return;
+		}
+	}
+
+	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
+	fprintf_P(lcd_out, PSTR("%s"), value1);
+	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2);
+	fprintf_P(lcd_out, PSTR("%s"), value2);
 }
 
 void widgets_init()

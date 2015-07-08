@@ -71,7 +71,7 @@ bool SHT21::Read()
     data.uint8[1] = this->i2c->Read();
     data.uint8[0] = this->i2c->Read();
 
-    DEBUG("data: %02X %02X\n", data.uint8[1], data.uint8[0]);
+//    DEBUG("data: %02X %02X\n", data.uint8[1], data.uint8[0]);
 
     bool humidity = (data.uint8[0] & 0b00000010);
 
@@ -87,9 +87,9 @@ bool SHT21::Read()
 
 void SHT21::CompensateTemperature()
 {
-	DEBUG("RT -- %u\n", this->raw_temperature);
+//	DEBUG("RT -- %u\n", this->raw_temperature);
 	float tmp = -46.85 + 175.72 * ((float)this->raw_temperature / 65536.0);
-	DEBUG("  %0.2f\n", tmp);
+//	DEBUG("  %0.2f\n", tmp);
 	this->temperature = tmp * 10;
 }
 

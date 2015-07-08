@@ -138,6 +138,7 @@ void gps_parse_rmc()
 
 	//Valid (A = valid)
 	fc.gps_data.valid = (*ptr) == 'A';
+
 	if (fc.gps_data.valid)
 	{
 		if (fc.gps_data.fix_cnt < GPS_FIX_CNT_MAX)
@@ -179,7 +180,7 @@ void gps_parse_rmc()
 
 //	DEBUG("lat+lon %0.7f %0.7f\n", latitude, longitude);
 
-	fc.gps_data.groud_speed = atoi_f(ptr) * 1.852;
+	fc.gps_data.groud_speed = atoi_f(ptr); //in knots
 
 	ptr = find_comma(ptr);
 

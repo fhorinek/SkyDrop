@@ -138,6 +138,8 @@ EEMEM cfg_t config = {
 		TIME_DST | TIME_SYNC,
 		//timezone
 		+2 * 2,
+		//gps_format_flags
+		GPS_DDdddddd | GPS_SPD_KPH,
 	},
 	//Autostart
 	{
@@ -284,6 +286,8 @@ void cfg_load()
 	eeprom_read_block((void *)&fc.time_zone, &config.system.time_zone, sizeof(int8_t));
 	DEBUG("time_zone %d\n", fc.time_zone);
 
+	fc.gps_data.format_flags = eeprom_read_byte(&config.system.gps_format_flags);
+	DEBUG("gps_data.format_flags %d\n", fc.gps_data.format_flags);
 
 	DEBUG("\n");
 }

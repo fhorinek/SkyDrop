@@ -5,9 +5,9 @@
 
 #include "../../fc/conf.h"
 
-uint8_t set_alt_index;
-uint8_t set_alt_flags;
-uint8_t set_alt_list_num;
+volatile uint8_t set_alt_index;
+volatile uint8_t set_alt_flags;
+volatile uint8_t set_alt_list_num;
 
 void gui_set_altimeter_index(uint8_t index)
 {
@@ -62,6 +62,39 @@ void gui_set_altimeter_irqh(uint8_t type, uint8_t * buff)
 	gui_list_irqh(type, buff);
 }
 
+bool set_alt_find_abs(uint8_t index, uint8_t rep)
+{
+	//cyclic binding
+	if (rep > NUMBER_OF_ALTIMETERS)
+	{
+		return false;
+	}
+
+	//alt1 is always absolute
+	if (index == 0)
+	{
+		return true;
+	}
+
+
+	uint8_t flags;
+
+	if (index == set_alt_index)
+	{
+		return false;
+	}
+
+	flags = fc.altimeter[index - 1].flags;
+
+	if ((flags & ALT_MODE_MASK) == ALT_DIFF)
+	{
+		//binded altimeter is relative
+		return set_alt_find_abs(flags & ALT_REL_MASK, rep + 1);
+	}
+
+	return true;
+}
+
 void gui_set_altimeter_action(uint8_t index)
 {
 	uint8_t tmp;
@@ -70,9 +103,9 @@ void gui_set_altimeter_action(uint8_t index)
 	{
 		if (set_alt_index != 0)
 		{
-			tmp = (set_alt_flags & 0b11000000) >> 6;
+			tmp = (set_alt_flags & ALT_MODE_MASK) >> 6;
 			tmp = (tmp + 1) % 4;
-			set_alt_flags = (set_alt_flags & 0b00111111) | (tmp << 6);
+			set_alt_flags = (set_alt_flags & ~ALT_MODE_MASK) | (tmp << 6);
 			gui_set_altimeter_list();
 		}
 		else
@@ -86,13 +119,26 @@ void gui_set_altimeter_action(uint8_t index)
 	{
 		if (index == 1)
 		{
-			tmp = set_alt_flags & 0b00001111;
+			tmp = set_alt_flags & ALT_REL_MASK;
+
+			bool cont;
 
 			do
-				tmp = (tmp + 1) % NUMBER_OF_ALTIMETERS;
-			while (tmp == set_alt_index);
+			{
+				cont = false;
 
-			set_alt_flags = (set_alt_flags & 0b11110000) | (tmp);
+				tmp = (tmp + 1) % (NUMBER_OF_ALTIMETERS + 1);
+
+				if (tmp > 1 && tmp != set_alt_index)
+				{
+					if (!set_alt_find_abs(tmp, 0))
+						cont = true;
+				}
+
+			}
+			while (tmp == set_alt_index || cont == true);
+
+			set_alt_flags = (set_alt_flags & ~ALT_REL_MASK) | (tmp);
 			return;
 		}
 

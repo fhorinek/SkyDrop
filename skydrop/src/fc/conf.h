@@ -83,12 +83,26 @@ struct cfg_audio_profile
 #define TIME_DST	0b00000001
 #define TIME_SYNC	0b00000010
 
+#define GPS_FORMAT_MASK	0b00001100
+
+#define GPS_DDdddddd	0b00000000
+#define GPS_DDMMmmm		0b00000100
+#define GPS_DDMMSS		0b00001000
+
+#define GPS_SPD_MASK	0b00000011
+
+#define GPS_SPD_MS		0b00000000
+#define GPS_SPD_KPH		0b00000001
+#define GPS_SPD_MPH		0b00000010
+#define GPS_SPD_KNOT	0b00000011
+
 struct cfg_system
 {
 	uint8_t usb_mode;
 	uint8_t use_gps;
 	uint8_t time_flags;
 	int8_t time_zone;
+	uint8_t gps_format_flags;
 };
 
 struct cfg_autostart

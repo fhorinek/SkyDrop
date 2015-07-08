@@ -231,6 +231,7 @@ bool LoadEEPROM()
 
 bool StoreEEPROM()
 {
+	wdt_reset();
 	DEBUG("Storing settings\n");
 
 	FIL * ee_file;
@@ -248,11 +249,7 @@ bool StoreEEPROM()
 
 	tmp.uint16 = BUILD_NUMBER;
 
-	DEBUG("?? %04X\n", tmp.uint16);
-
 	uint8_t res = f_write(ee_file, tmp.uint8, sizeof(tmp), &wd);
-
-	DEBUG("?? = %d\n", res);
 
 	uint16_t i = 0;
 	do
@@ -272,7 +269,7 @@ bool StoreEEPROM()
 
 		DEBUG(" << \n");
 
-		f_write(ee_file, buf, sizeof(wd), &rwd);
+		res = f_write(ee_file, buf, wd, &rwd);
 
 		i += wd;
 		DEBUG("i %d s %d rwd %d\n", i, wd, rwd);
