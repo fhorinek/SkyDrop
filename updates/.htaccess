@@ -1,1 +1,8 @@
-Header set Content-Disposition attachment
+<Files ~ "\.(EE|FW)$">
+    Header set Content-Disposition attachment
+</Files>
+
+<Files "RST_FT">
+    Header set Content-Disposition attachment
+</Files>
+
