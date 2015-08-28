@@ -17,6 +17,8 @@ void buzzer_set_vol(uint8_t vol)
 {
 	uint16_t val = DAC_MIN + (DAC_DELTA / 100) * vol;
 
+	DEBUG("vol = %d\n", vol);
+
 	if (val > DAC_MAX)
 		val = DAC_MAX;
 
@@ -33,6 +35,8 @@ void buzzer_set_vol(uint8_t vol)
 
 void buzzer_set_freq(uint16_t freq_hz)
 {
+	DEBUG("freq = %d\n", freq_hz);
+
 	if (freq_hz == 0)
 	{
 		buzzer_timer.Stop();
@@ -41,10 +45,10 @@ void buzzer_set_freq(uint16_t freq_hz)
 
 	uint16_t buzzer_period = 31250 / freq_hz;
 
-	buzzer_timer.SetCompare(timer_A, buzzer_period / 2);
+	buzzer_timer.SetCompare(timer_A, buzzer_period / 5); //20% duty cycle = battery saving
 	buzzer_timer.SetTop(buzzer_period);
 	if (buzzer_timer.GetValue() > buzzer_period)
-		buzzer_timer.SetValue(0);
+		buzzer_timer.SetValue(1);
 
 	buzzer_timer.Start();
 }

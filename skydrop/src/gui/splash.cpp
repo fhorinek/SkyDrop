@@ -1,10 +1,15 @@
 #include "splash.h"
 
+#include "../fc/audio.h"
+
 uint32_t splash_timer = 0;
 uint8_t splash_cnt = 0;
 uint8_t splash_mode;
 #define SPLASH_TIMEOUT	500
 #define SPLASH_ANIM_TOP	35
+
+MK_BEEP(beep_on, ARR({261, 329, 392, 523}), ARR({250, 250, 250, 250}));
+MK_BEEP(beep_off, ARR({523, 392, 261}), ARR({250, 250, 250}));
 
 void gui_splash_set_mode(uint8_t mode)
 {
@@ -17,12 +22,14 @@ void gui_splash_init()
 	{
 		gui_trigger_backlight();
 		splash_cnt = 0;
+//		audio_beep_start(&beep_on);
 	}
 
 	if (splash_mode == SPLASH_OFF)
 	{
 		lcd_bckl(0);
 		splash_cnt = SPLASH_ANIM_TOP;
+//		audio_beep_start(&beep_off);
 	}
 }
 

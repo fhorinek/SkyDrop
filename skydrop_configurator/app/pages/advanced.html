@@ -1,0 +1,47 @@
+<div ng-controller="advanced">
+    <h1>Advanced configuration</h1>
+    <form name="adv_list" novalidate>
+	    <div ng-repeat="item in list | filter:global_search">
+	        <div class="panel panel-default" ng-switch="item.mode" ng-if="item.mode != 'readonly'">
+	            <div class="panel-heading">{{item.name}} ({{item.pname}}, {{item.mode}}, {{item.value}}) <a ng-if="item.link" ng-href="#/{{item.link}}">Editor</a></div>
+	            
+	            <div ng-switch-when="number" class="panel-body">
+	                <input ng-model="item.value" 
+	                    class="form-control" 
+	                    type="number" 
+	                    name="{{item.pname}}" 
+	                    min="{{item.min}}" 
+	                    max="{{item.max}}" 
+	                    ng-change="" required>
+	            </div>
+	            
+	            <div ng-switch-when="flags" class="panel-body">
+	                <div ng-repeat="macro in item.flags" class="checkbox">
+	                    <label>
+	                        <input type="checkbox" 
+	                            ng-false-value="0" 
+	                            ng-true-value="{{get_macro_value(macro[0])}}" 
+	                            ng-checked="{{flags_checked(item.value, macro[0])}}"
+	                            ng-model="item.models[macro[0]]"
+	                            ng-change="flags_change(item, macro[0])"
+	                        >{{macro[1]}}</label>
+	                </div>
+	            </div>
+	            
+	            <div ng-switch-when="select" class="panel-body">
+	                <select ng-model="item.value" ng-options="get_macro_value(opt[0]) as opt[1] for opt in item.options">
+	                </select>
+	            </div>               
+	            
+	            <div ng-switch-when="readonly"></div>            
+	            
+	            <div ng-switch-default class="panel-body">
+	                N/A - not (yet!) avalible
+	            </div>
+	            
+	        </div>
+	    </div>
+    </form>
+</div>
+
+

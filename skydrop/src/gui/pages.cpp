@@ -22,7 +22,7 @@ uint8_t active_widget;
 #define PAGE_WIDGET_MENU_DURATION	15
 
 #define PAGE_MENU_STEPS				5
-#define PAGE_MENU_WAIT				1000
+#define PAGE_MENU_WAIT				3000
 #define PAGE_MENU_HEIGHT			16
 #define PAGE_MENU_POWEROFF_BLIK		2000
 #define PAGE_MENU_POWEROFF			3000
@@ -68,6 +68,14 @@ void gui_exit_widget_menu()
 {
 	page_state = PAGE_WIDGET_SELECT;
 	page_state_timer = task_get_ms_tick() + PAGE_WIDGET_SELECT_DURATION * 1000;
+}
+
+void gui_page_power_off()
+{
+	gui_splash_set_mode(SPLASH_OFF);
+	gui_switch_task(GUI_SPLASH);
+	eeprom_busy_wait();
+	eeprom_update_byte(&config.gui.last_page, active_page);
 }
 
 void gui_pages_loop()
@@ -197,10 +205,7 @@ void gui_pages_loop()
 		case (HOLD):
 			if (page_state_timer < task_get_ms_tick())
 			{
-				gui_splash_set_mode(SPLASH_OFF);
-				gui_switch_task(GUI_SPLASH);
-				eeprom_busy_wait();
-				eeprom_update_byte(&config.gui.last_page, active_page);
+				gui_page_power_off();
 			}
 		break;
 
@@ -388,6 +393,10 @@ void gui_page_menu_irqh(uint8_t type, uint8_t * buff)
 		gui_switch_task(GUI_LAYOUTS);
 	}
 
+	if (type == TASK_IRQ_BUTTON_M && *buff == BE_HOLD)
+	{
+		gui_page_power_off();
+	}
 
 	if (type == TASK_IRQ_BUTTON_M && *buff == BE_RELEASED)
 	{

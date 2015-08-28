@@ -2,6 +2,7 @@
 #include "../gui/gui.h"
 #include "../fc/fc.h"
 #include "../gui/splash.h"
+#include "../fc/audio.h"
 
 void task_active_init()
 {
@@ -30,26 +31,33 @@ void task_active_init()
 		//Handle update files
 
 		FILINFO fno;
-		bool wipe = true;
 
+		//new way to update FW if SKYDROP.FW file found
+		if (f_stat("SKYDROP.FW", &fno) == FR_OK)
+		{
+			task_set(TASK_UPDATE);
+			return;
+		}
+
+		//Reset factory test if RST_FT file found
 		if (f_stat("RST_FT", &fno) == FR_OK)
 		{
 			f_unlink("RST_FT");
 			cfg_reset_factory_test();
 		}
 
-		//preserve EE and FW file
-		if (f_stat("NO_WIPE", &fno) == FR_OK)
-			wipe = false;
-
-		if (wipe)
-			f_unlink("UPDATE.FW");
-
+		//Load eeprom update
 		if (LoadEEPROM())
 		{
 			gui_load_eeprom();
-			if (wipe)
-				f_unlink("UPDATE.EE");
+		}
+
+		//preserve EE and FW file if NO_WIPE file found (factory programming)
+		if (f_stat("NO_WIPE", &fno) != FR_OK)
+		{
+			//remove applied update files
+			f_unlink("UPDATE.EE");
+			f_unlink("UPDATE.FW");
 		}
 	}
 

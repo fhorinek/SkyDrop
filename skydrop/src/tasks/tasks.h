@@ -13,10 +13,12 @@
 #include "task_usb/task_usb.h"
 #include "task_powerdown.h"
 #include "task_active.h"
+#include "task_update.h"
 
 #define TASK_POWERDOWN	0
 #define TASK_USB		1
 #define TASK_ACTIVE		2
+#define TASK_UPDATE		3
 
 #define NO_TASK			0xFF
 

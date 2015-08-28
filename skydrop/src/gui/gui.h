@@ -20,6 +20,8 @@ extern FILE * lcd_out;
 
 #define GUI_BLINK_TGL(PER) (task_get_ms_tick() % PER > (PER / 2))
 
+#define GUI_CONTRAST_STEPS 	10
+
 void gui_switch_task(uint8_t new_task);
 
 void gui_init();
@@ -33,6 +35,7 @@ void gui_force_loop();
 
 void gui_trigger_backlight();
 void gui_change_disp_cfg();
+void gui_update_disp_cfg();
 void gui_showmessage_P(const char * msg);
 void gui_showmessage(char * msg);
 
@@ -78,8 +81,9 @@ void gui_statusbar();
 #define GUI_SET_LOGGER		20
 #define GUI_DIALOG			21
 #define GUI_SET_BLUETOOTH	22
+#define GUI_UPDATE			23
 
-#define NUMBER_OF_GUI_TASKS	23
+#define NUMBER_OF_GUI_TASKS	24
 
 #define GUI_LAST_TASK		0xFF
 

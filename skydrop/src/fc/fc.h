@@ -33,7 +33,6 @@
 #define ALT_REL_MASK	0b00001111
 
 //single bit flags
-
 #define ALT_UNIT_M		0b00000000
 #define ALT_UNIT_I		0b00100000
 

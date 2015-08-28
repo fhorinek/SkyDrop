@@ -113,11 +113,12 @@ struct cfg_autostart
 
 struct cfg_t
 {
+	uint32_t build_number;
+
 	cfg_gui gui;
 
 	cfg_vario vario;
 	cfg_altitude altitude;
-	cfg_calibration calibration;
 	cfg_audio_profile audio_profile;
 	cfg_system system;
 	cfg_autostart autostart;
@@ -129,13 +130,15 @@ struct cfg_t
 
 struct cfg_ro_t //128
 {
-	uint8_t factory_passed;
-	uint8_t lcd_contrast_min;
-	uint8_t lcd_contrast_max;
+	uint8_t factory_passed;			//1
+	uint8_t lcd_contrast_min;		//1
+	uint8_t lcd_contrast_max;		//1
 
-	uint8_t bt_module_type;
+	uint8_t bt_module_type; 		//1
 
-	uint8_t reserved[124];
+	cfg_calibration calibration;	//24
+
+	uint8_t reserved[100];
 };
 
 extern cfg_t config;

@@ -11,6 +11,7 @@
 #include "widgets.h"
 
 extern widget w_dummy;
-extern widget w_debug;
+extern widget w_debug_etc;
+extern widget w_debug_imu;
 
 #endif /* DUMMY_H_ */

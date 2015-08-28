@@ -65,41 +65,42 @@ extern float widget_menu_fvalue1;
 
 #define WIDGET_OFF			0xFF
 #define WIDGET_EMPTY		0
-#define WIDGET_DEBUG		1
+#define WIDGET_DEBUG_ETC	1
+#define WIDGET_DEBUG_IMU	2
 #include "dummy.h"
 
-#define WIDGET_VARIO		2
-#define WIDGET_AVG_VARIO	3
-#define WIDGET_VARIO_BAR	4
+#define WIDGET_VARIO		3
+#define WIDGET_AVG_VARIO	4
+#define WIDGET_VARIO_BAR	5
 #include "vario.h"
 
-#define WIDGET_ALT1			5
-#define WIDGET_ALT2			6
-#define WIDGET_ALT3			7
-#define WIDGET_ALT4			8
-#define WIDGET_ALT5			9
+#define WIDGET_ALT1			6
+#define WIDGET_ALT2			7
+#define WIDGET_ALT3			8
+#define WIDGET_ALT4			9
+#define WIDGET_ALT5			10
 #include "altitude.h"
 
-#define WIDGET_ACCX			10
+#define WIDGET_ACCX			11
 #include "acc.h"
 
-#define WIDGET_TIME			11
-#define WIDGET_FTIME		12
+#define WIDGET_TIME			12
+#define WIDGET_FTIME		13
 #include "time.h"
 
-#define WIDGET_TEMPERATURE	13
+#define WIDGET_TEMPERATURE	14
 #include "temperature.h"
 
-#define WIDGET_GHEADING		14
-#define WIDGET_GROUND_SPD	15
-#define WIDGET_POSITION		16
+#define WIDGET_GHEADING		15
+#define WIDGET_GROUND_SPD	16
+#define WIDGET_POSITION		17
 #include "gps.h"
 
-#define WIDGET_BATTERY		17
+#define WIDGET_BATTERY		18
 #include "battery.h"
 
 
-#define NUMBER_OF_WIDGETS	18
+#define NUMBER_OF_WIDGETS	19
 
 
 

@@ -64,5 +64,8 @@ void gui_set_gps_detail_irqh(uint8_t type, uint8_t * buff)
 {
 	if (*buff == BE_CLICK && type == B_MIDDLE)
 		gui_switch_task(GUI_SET_GPS);
+
+	if (*buff == BE_LONG && type == B_MIDDLE)
+		gui_switch_task(GUI_SET_GPS);
 }
 

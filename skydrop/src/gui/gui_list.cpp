@@ -161,18 +161,18 @@ void gui_list_irqh(uint8_t type, uint8_t * buff)
 {
 	switch (type)
 	{
-	case(TASK_IRQ_BUTTON_L):
-		if (*buff == BE_CLICK)
-			gui_list_moveup();
-		if (*buff == BE_DBL_CLICK)
-			gui_list_moveup();
-	break;
-
 	case(TASK_IRQ_BUTTON_R):
 		if (*buff == BE_CLICK)
 			gui_list_movedown();
 		if (*buff == BE_DBL_CLICK)
 			gui_list_movedown();
+	break;
+
+	case(TASK_IRQ_BUTTON_L):
+		if (*buff == BE_CLICK)
+			gui_list_moveup();
+		if (*buff == BE_DBL_CLICK)
+			gui_list_moveup();
 	break;
 
 	case(TASK_IRQ_BUTTON_M):

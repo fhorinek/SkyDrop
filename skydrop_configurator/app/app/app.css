@@ -104,3 +104,13 @@ body {
   border-radius: 50%;
 }
 
+.ng-invalid.ng-dirty
+{
+    border-color: #FA787E;
+}
+
+/* hidden area */
+div.hidden
+{
+	display: none;
+}

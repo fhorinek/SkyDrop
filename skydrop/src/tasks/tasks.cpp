@@ -4,16 +4,16 @@
 
 
 void (* task_init_array[])() =
-{task_powerdown_init, task_usb_init, task_active_init};
+{task_powerdown_init, task_usb_init, task_active_init, task_update_init};
 
 void (* task_stop_array[])() =
-{task_powerdown_stop, task_usb_stop, task_active_stop};
+{task_powerdown_stop, task_usb_stop, task_active_stop, task_update_stop};
 
 void (* task_loop_array[])() =
-{task_powerdown_loop, task_usb_loop, task_active_loop};
+{task_powerdown_loop, task_usb_loop, task_active_loop, task_update_loop};
 
 void (* task_irqh_array[])(uint8_t type, uint8_t * buff) =
-{task_powerdown_irqh, task_usb_irqh, task_active_irqh};
+{task_powerdown_irqh, task_usb_irqh, task_active_irqh, task_update_irqh};
 
 //task variables
 Timer task_timer;

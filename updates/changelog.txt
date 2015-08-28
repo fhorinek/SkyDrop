@@ -1,3 +1,24 @@
+Build 0910 - 28. 8. 2015
+========================================================
+FIX:
+ * Sanity check for contrast
+ * Contrast settings right after Factory test
+
+ADDED:
+ * Long-click in value dialog will now change value rapidly. #55
+ * New single-file (SKYDROP.FW) update method with checksums.
+ * Poweroff can be performed using long + short middle button.
+ * Device generate configuration file CFG.EE before power down. (for configurator)
+ * Audio vario test Settings->Audio->Vario demo
+ * Online configurator on http://vps.skybean.eu:8080/configurator
+
+CHANGED:
+ * Sub menu on main screen now wait 3 seconds instead of 1. #55
+ * Buzzer duty cycle is reduced to 20% due to power consumption optimisation
+ * Audio subsystem reworked
+ * EEPROM configuration separated from calibration data
+ 
+
 Build 0789 - 8. 7. 2015
 ========================================================
 FIX:

@@ -16,6 +16,7 @@
 #define GUI_VAL_VOLUME		(GUI_VAL_NUMBER)
 #define GUI_VAL_CONTRAST	4
 #define GUI_VAL_BRIGTHNES	5
+#define GUI_VAL_VARIO_TEST	6
 
 typedef void float_cb(float val);
 

@@ -178,7 +178,7 @@ void n5110display::Init()
 void n5110display::SetContrast(uint8_t val) //0-127
 {
 	sendcommand(0x21); //Extended
-	sendcommand(0x80 | val); //Set LCD Vop (Contrast): Try 0xB1(good @ 3.3V) or 0xBF if your display is too dark
+	sendcommand(0x80 | val);
 	sendcommand(0x20); //Basic
 }
 
@@ -461,24 +461,24 @@ void n5110display::Draw()
 
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0;a<n5110_width;a++)
+			for (uint8_t a=0; a < n5110_width; a++)
 			{
-				this->spi->SendRaw(fast_flip(active_buffer[n5110_width - 1 - a + (j*n5110_width)]));
+				this->spi->SendRaw(fast_flip(active_buffer[n5110_width - 1 - a + (j * n5110_width)]));
 			}
 			this->spi->UnsetSlave();
 		}
 	}
 	else
 	{
+		SetRowCol(0, 0);
+
 		for (uint8_t j=0;j<6;j++)
 		{
-			SetRowCol(j, 0);
-
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0;a<n5110_width;a++)
+			for (uint8_t a=0; a < n5110_width; a++)
 			{
-				this->spi->SendRaw(active_buffer[a+(j*n5110_width)]);
+				this->spi->SendRaw(active_buffer[a+(j * n5110_width)]);
 			}
 			this->spi->UnsetSlave();
 		}

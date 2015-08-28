@@ -26,6 +26,7 @@
 #include "settings/set_logger.h"
 #include "gui_dialog.h"
 #include "settings/set_bluetooth.h"
+#include "update.h"
 
 
 n5110display disp;
@@ -40,7 +41,7 @@ void (* gui_init_array[])() =
 	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
-	gui_dialog_init, gui_set_bluetooth_init};
+	gui_dialog_init, gui_set_bluetooth_init, gui_update_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -48,7 +49,7 @@ void (* gui_stop_array[])() =
 	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
-	gui_dialog_stop, gui_set_bluetooth_stop};
+	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -56,7 +57,7 @@ void (* gui_loop_array[])() =
 	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
-	gui_dialog_loop, gui_set_bluetooth_loop};
+	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -64,7 +65,7 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
-	gui_dialog_irqh, gui_set_bluetooth_irqh};
+	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -164,28 +165,38 @@ void gui_init()
 void gui_load_eeprom()
 {
 	eeprom_busy_wait();
+
 	lcd_brightness = eeprom_read_byte(&config.gui.brightness);
-	DEBUG("lcd_brightness %d\n", lcd_brightness);
-	if (lcd_brightness == 0xFF) lcd_brightness = 100;
+	if (lcd_brightness == 0xFF)
+		lcd_brightness = 100;
 
 	lcd_brightness_timeout = eeprom_read_byte(&config.gui.brightness_timeout);
-	DEBUG("lcd_brightness_timeout %d\n", lcd_brightness_timeout);
-	if (lcd_brightness_timeout == 0xFF) lcd_brightness_timeout = 3;
+	if (lcd_brightness_timeout == 0xFF)
+		lcd_brightness_timeout = 3;
 
 	lcd_contrast = eeprom_read_byte(&config.gui.contrast);
-	lcd_contrast_min = eeprom_read_byte(&config_ro.lcd_contrast_min);
-	lcd_contrast_max = eeprom_read_byte(&config_ro.lcd_contrast_max);
-	lcd_flags = eeprom_read_byte(&config.gui.disp_flags);
+	if (lcd_contrast > GUI_CONTRAST_STEPS)
+		lcd_contrast = GUI_CONTRAST_STEPS / 2;
 
+	lcd_contrast_min = eeprom_read_byte(&config_ro.lcd_contrast_min);
+	if (lcd_contrast_min == 0xFF)
+		lcd_contrast_min = 16;
+
+	lcd_contrast_max = eeprom_read_byte(&config_ro.lcd_contrast_max);
+	if (lcd_contrast_max == 0xFF)
+		lcd_contrast_max = 127;
+
+	DEBUG("lcd_contrast_min %d\n", lcd_contrast_min);
+	DEBUG("lcd_contrast_max %d\n", lcd_contrast_max);
 	DEBUG("lcd_contrast %d\n", lcd_contrast);
 
-	if (lcd_contrast == 0xFF)
-		lcd_contrast = 72;
+	lcd_flags = eeprom_read_byte(&config.gui.disp_flags);
+	if (lcd_flags == 0xFF)
+		lcd_flags = CFG_DISP_ANIM;
 
-
-	disp.SetContrast(lcd_contrast);
 	disp.SetFlip(lcd_flags & CFG_DISP_FLIP);
-	disp.SetInvert(lcd_flags & CFG_DISP_INVERT);
+	gui_change_disp_cfg();
+	gui_update_disp_cfg();
 }
 
 void gui_stop()
@@ -193,7 +204,6 @@ void gui_stop()
 	disp.Stop();
 }
 
-uint8_t asdf = 0;
 uint8_t fps_counter = 0;
 uint8_t fps_val = 0;
 uint32_t fps_timer = 0;
@@ -222,29 +232,37 @@ void gui_dialog(char * title)
 	disp.DrawLine(1, n5110_height - 1, n5110_width - 2, n5110_height - 1, 1);
 }
 
+void gui_update_disp_cfg()
+{
+	if (lcd_new_cfg)
+	{
+		//need to be outside of IRQ
+		lcd_new_cfg = false;
+
+		DEBUG(" ** gui_update_disp_cfg **\n");
+		DEBUG("lcd_contrast %d\n", lcd_contrast);
+
+
+		uint8_t new_contrast = lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * lcd_contrast) / GUI_CONTRAST_STEPS;
+
+		DEBUG("new_contrast %d\n", new_contrast);
+
+		disp.SetContrast(new_contrast);
+		disp.SetInvert(lcd_flags & CFG_DISP_INVERT);
+	}
+}
+
 //disp layers
 // 0 - layer to draw
 // 1 - help layer
-
-extern uint32_t task_timer_high;
-
-uint8_t cont = 0;
-
 void gui_loop()
 {
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
 
-//	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)40; //25 fps
 	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
 
-	if (lcd_new_cfg)
-	{
-		//need to be outside of IRQ
-		lcd_new_cfg = false;
-		disp.SetContrast(lcd_contrast);
-		disp.SetInvert(lcd_flags & CFG_DISP_INVERT);
-	}
+	gui_update_disp_cfg();
 
 	if (gui_new_task != gui_task)
 	{
@@ -325,14 +343,9 @@ void gui_loop()
 
 void gui_force_loop()
 {
-	if (lcd_new_cfg)
-	{
-		//need to be outside of IRQ
-		lcd_new_cfg = false;
-		disp.SetContrast(lcd_contrast);
-	}
-
 	disp.ClearBuffer();
+
+	gui_update_disp_cfg();
 
 	if (gui_new_task != gui_task)
 	{

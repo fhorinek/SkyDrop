@@ -41,6 +41,9 @@ void gui_factory_test_init()
 	f_test_button_test = 0;
 
 	f_test_lcd = FTEST_LCD_MIN_AUTO;
+
+	disp.SetFlip(false);
+	disp.SetInvert(false);
 }
 
 void gui_factory_test_stop()
@@ -122,8 +125,10 @@ void gui_factory_test_loop()
 		if (f_test_lcd == FTEST_LCD_MIN_AUTO || f_test_lcd == FTEST_LCD_MAX_AUTO)
 			f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
 
-		lcd_contrast = f_test_lcd_cont;
-		gui_change_disp_cfg();
+//		lcd_contrast = f_test_lcd_cont;
+//		gui_change_disp_cfg();
+
+		disp.SetContrast(f_test_lcd_cont);
 
 		return;
 	}
@@ -237,9 +242,6 @@ void gui_factory_test_loop()
 
 	if (!err)
 	{
-		gui_splash_set_mode(SPLASH_ON);
-		gui_switch_task(GUI_SPLASH);
-
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
 
@@ -249,6 +251,8 @@ void gui_factory_test_loop()
 
 		eeprom_update_byte(&config.gui.contrast, f_test_lcd_cont);
 		eeprom_busy_wait();
+
+		SystemReset();
 	}
 
 }

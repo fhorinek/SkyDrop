@@ -54,7 +54,7 @@ void gui_set_display_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf_P(PSTR("Contrast"), GUI_VAL_CONTRAST, PSTR(""), lcd_contrast, lcd_contrast_min, lcd_contrast_max, 1, gui_set_display_contrast_cb);
+		gui_value_conf_P(PSTR("Contrast"), GUI_VAL_CONTRAST, PSTR(""), lcd_contrast, 0, GUI_CONTRAST_STEPS, 1, gui_set_display_contrast_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 

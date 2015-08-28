@@ -199,30 +199,35 @@ bool LoadEEPROM()
 		f_open(ee_file, "UPDATE.EE", FA_READ);
 		uint16_t rd = 0;
 
-		byte2 tmp;
+		byte4 tmp;
 
 		f_read(ee_file, tmp.uint8, sizeof(tmp), &rd);
-		if (tmp.uint16 != BUILD_NUMBER)
+		if (tmp.uint32 != BUILD_NUMBER)
 		{
 			gui_showmessage_P(PSTR("UPDATE.EE is not\ncompatibile!"));
+			DEBUG("Rejecting update file %lu != %lu\n", tmp.uint32, BUILD_NUMBER);
 			delete ee_file;
 			return false;
 		}
 
-		for (uint16_t i = 0; i < fno.fsize - sizeof(tmp); i += rd)
+		//rewind the file
+		f_lseek(ee_file, 0);
+		DEBUG("tell = %d\n", f_tell(ee_file));
+
+		for (uint16_t i = 0; i < fno.fsize; i += rd)
 		{
 			uint8_t buf[256];
 
 			f_read(ee_file, buf, sizeof(buf), &rd);
 
-
+			DEBUG("tell = %d\n", f_tell(ee_file));
 			DEBUG(" %d / %d\n", i + rd, fno.fsize);
 
 			eeprom_busy_wait();
 			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
 		}
 
-		gui_showmessage_P(PSTR("UPDATE.EE update\napplied."));
+		gui_showmessage_P(PSTR("UPDATE.EE\napplied."));
 		delete ee_file;
 		return true;
 	}
@@ -237,7 +242,7 @@ bool StoreEEPROM()
 	FIL * ee_file;
 	ee_file = new FIL;
 
-	if (f_open(ee_file, "DUMP.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
+	if (f_open(ee_file, "CFG.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
 	{
 		DEBUG("Unable to create file\n");
 		return false;
@@ -245,11 +250,10 @@ bool StoreEEPROM()
 	}
 	uint16_t wd = 0;
 
-	byte2 tmp;
+	eeprom_busy_wait();
+	eeprom_update_dword(&config.build_number, BUILD_NUMBER);
 
-	tmp.uint16 = BUILD_NUMBER;
-
-	uint8_t res = f_write(ee_file, tmp.uint8, sizeof(tmp), &wd);
+	uint16_t res;
 
 	uint16_t i = 0;
 	do

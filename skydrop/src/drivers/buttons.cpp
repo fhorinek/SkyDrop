@@ -147,6 +147,11 @@ bool buttons_read(uint8_t index)
 	return (buttons_state[index] > BS_DEBOUNCE);
 }
 
+bool button_hold(uint8_t index)
+{
+	return (buttons_state[index] == BS_PRESSED);
+}
+
 void buttons_reset()
 {
 	buttons_state[0] = BS_RESET;

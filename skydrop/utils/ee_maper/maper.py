@@ -2,10 +2,13 @@
 
 import CParser
 import json
+import os
+import shutil
+from collections import OrderedDict
 
 files = ["../src/gui/widgets/widgets.h",
+         "../src/gui/widgets/layouts/layouts.h",
          "../src/common.h",
-         "../src/gui/widgets/widget.h",
          "../src/fc/fc.h",
          "../src/fc/conf.h"]
 p = CParser.CParser(files)
@@ -45,7 +48,7 @@ def map_struct(parser, path, map_path):
                     map_name = map_path + "_" + struct_name + "_" + str(i)
                 else:
                     map_name = map_path + "_" + struct_name
-                map.append([map_name, mem_index, var_size, struct_type])
+                map[map_name] =  [mem_index, var_size, struct_type]
                 mem_index += var_size
         else:
             for i in range(struct_len):
@@ -60,8 +63,10 @@ def map_struct(parser, path, map_path):
         
 print "------------------------------"
 mem_index = 0
-map = []
+map = OrderedDict()
 map_struct(p, p.defs["structs"]["cfg_t"]["members"], "cfg")
+
+print p.defs["macros"]
 
 # for item in map:
 #     name, index, size, var_type = item
@@ -72,8 +77,20 @@ number = int(f.readline())
 f.close()    
     
 
-f = open("../../skydrop_configurator/app/ref/ee_maps/ee_%05d.json" % number, "w")
-f.write(json.dumps({"build_number": number, "ee_map": map}))
+path = "../../skydrop_configurator/app/fw/%08d/" % number
+
+try:
+    os.makedirs(path)
+except:
+    pass
+
+f = open(os.path.join(path, "ee_map.json"), "w")
+f.write(json.dumps({"map": map, "macros": p.defs["macros"]}))
 f.close()
 
+shutil.copyfile("UPDATE.FW", os.path.join(path, "UPDATE.FW"))
+shutil.copyfile("UPDATE.EE", os.path.join(path, "UPDATE.EE"))
+
+#copy last update file
+shutil.copyfile("UPDATE.EE", os.path.join("../../skydrop_configurator/app/", "UPDATE.EE"))
 print "done"

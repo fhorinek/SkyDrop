@@ -1,0 +1,20 @@
+<div ng-controller="varList">
+    <h1>Variablie list</h1>
+    <table class="table table-striped">
+        <tr>
+            <th>Parameter name</th>
+            <th>Name</th>
+            <th>Value</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+
+        <tr ng-repeat="item in list | filter:global_search">
+            <td>{{item.pname}}</td>
+            <td>{{item.name}}</td>            
+            <td>{{item.value}}</td>
+            <td>{{item.type}}</td>
+            <td>{{item.desc}}</td>
+        </tr>
+    </table>
+</div>

@@ -1,5 +1,7 @@
 #include "gui_value.h"
 
+#include "../fc/audio.h"
+
 char gui_value_label[20];
 uint8_t gui_value_type;
 uint8_t gui_value_index;
@@ -28,7 +30,6 @@ void gui_value_conf_P(const char * label, uint8_t type, const char * format, flo
 }
 
 void gui_value_init() {}
-
 
 void gui_value_stop() {}
 
@@ -64,6 +65,7 @@ void gui_value_loop()
 	switch(gui_value_type)
 	{
 		case(GUI_VAL_NUMBER):
+		case(GUI_VAL_VARIO_TEST):
 			sprintf(tmp, gui_value_format, gui_value_tmp);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 		break;
@@ -101,6 +103,19 @@ void gui_value_loop()
 		case(GUI_VAL_BRIGTHNES):
 			gui_value_draw_bar();
 		break;
+
+	}
+
+	if (button_hold(B_LEFT))
+	{
+		uint8_t t_param = BE_CLICK;
+		gui_value_irqh(TASK_IRQ_BUTTON_L, &t_param);
+	}
+
+	if (button_hold(B_RIGHT))
+	{
+		uint8_t t_param = BE_CLICK;
+		gui_value_irqh(TASK_IRQ_BUTTON_R, &t_param);
 	}
 }
 
@@ -294,6 +309,12 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 		lcd_brightness = gui_value_tmp;
 	break;
 
+	case(GUI_VAL_VARIO_TEST):
+		gui_value_number_irqh(type, buff);
+		gui_value_tmp = round(gui_value_tmp * 10) / 10;
+
+		audio_demo_val = gui_value_tmp;
+	break;
 	}
 
 }

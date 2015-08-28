@@ -42,7 +42,7 @@ class Hex2BinConv():
             number = int(f.readline())
             f.close()
             
-            lab_str += struct.pack("<H", number)
+            #lab_str += struct.pack("<H", number)
         else:
             for i in range(32):
                if i >= len(label):

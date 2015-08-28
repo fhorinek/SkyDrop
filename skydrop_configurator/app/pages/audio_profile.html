@@ -1,6 +1,8 @@
 <div ng-controller="audioProfile">
-    <h1>asdfas</h1>
-    <ul>
-        <li ng-repeat="item in items">kkt {{item.a}}</li>
-    </ul>
+    <h1>Audio profile editor</h1>
+    
+    <canvas id="line" class="chart chart-line" data="data" labels="labels" 
+    	legend="true" series="series" hover="onHover" mouseout="onUp"
+    	mousedown="onDown" mouseup="onUp"></canvas> 
+
 </div>

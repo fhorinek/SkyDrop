@@ -35,4 +35,6 @@ void buttons_step();
 bool buttons_read(uint8_t index);
 void buttons_reset();
 
+bool button_hold(uint8_t index);
+
 #endif /* BUTTONS_H_ */

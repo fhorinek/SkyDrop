@@ -159,11 +159,12 @@ ISR(FC_MEAS_TIMER_CMPA)
 	lsm303d.StartReadAccStream(16); //it take 1600us to transfer
 
 	vario_calc(ms5611.pressure);
+
+	//audio loop
+	audio_step();
+
 	if (fc.baro_valid)
 	{
-		if (fc.audio_supress == false || fc.autostart_state == AUTOSTART_FLIGHT)
-			audio_step(fc.vario);
-
 		//auto start
 		if (fc.autostart_state == AUTOSTART_WAIT)
 		{

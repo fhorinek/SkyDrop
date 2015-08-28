@@ -1,0 +1,104 @@
+{
+    "absolute": {
+        "cfg_build_number" : {
+            "name": "Build number",
+            "mode": "readonly"
+        },
+        "cfg_gui_contrast" : {
+            "name": "LCD contrast",
+            "desc": ""
+        },
+        "cfg_gui_brightness" : {
+            "name": "Backlight",
+            "desc": "in %",
+            "mode": "number",
+            "min": 0,
+            "max": 100
+        },    
+        "cfg_gui_brightness_timeout" : {
+            "name": "Backlight timeout",
+            "desc": "in seconds",
+            "mode": "number",
+            "min": 0,
+            "max": 30
+        }, 
+        "cfg_gui_disp_flags" : {
+            "name": "Display configuration",
+            "mode": "flags",
+            "flags": [
+                ["CFG_DISP_INVERT", "Invert display"],
+                ["CFG_DISP_FLIP", "Flip display"],
+                ["CFG_DISP_ANIM", "Enable animations"]
+            ]
+        },
+        "cfg_gui_last_page" : {
+        	"name": "Page active in last shutdown",
+            "mode": "readonly"
+        }
+    },
+    "regexp": {
+        "cfg_gui_pages_[0-4]_type" : {
+            "name": "Page layout type",
+            "mode": "select",
+            "options": [
+                ["LAYOUT_OFF", "Page layout off"],
+                ["LAYOUT_1", "Layout 1"],
+                ["LAYOUT_12", "Layout 1 | 2"],
+                ["LAYOUT_122", "Layout 1 | 2 | 2"],
+                ["LAYOUT_123", "Layout 1 | 2 | 3"],
+                ["LAYOUT_22", "Layout 2 | 2"],
+                ["LAYOUT_222", "Layout 2 | 2"],
+                ["LAYOUT_333", "Layout 3 | 3 | 3"]
+            ]
+        },
+        "cfg_gui_pages_[0-4]_widgets_[0-8]" : {
+            "name": "Widget type",
+            "mode": "select",
+            "options": [
+                ["WIDGET_OFF", "Widget off"],
+                ["WIDGET_EMPTY", "No widget"],
+                ["WIDGET_DEBUG_ETC", "Debug info"],
+                ["WIDGET_DEBUG_IMU", "Debug info IMU"],
+                ["WIDGET_VARIO", "Digital vario"],
+                ["WIDGET_AVG_VARIO", "Average vario"],
+                ["WIDGET_VARIO_BAR", "Analog vario bar"],
+                ["WIDGET_ALT1", "Altitude 1"],
+                ["WIDGET_ALT2", "Altitude 2"],
+                ["WIDGET_ALT3", "Altitude 3"],
+                ["WIDGET_ALT4", "Altitude 4"],
+                ["WIDGET_ALT5", "Altitude 5"],
+                ["WIDGET_ACCX", "Debug info Acc X"],
+                ["WIDGET_TIME", "Actual time"],
+                ["WIDGET_FTIME", "Flight time"],
+                ["WIDGET_TEMPERATURE", "Temperature and humidity"],
+                ["WIDGET_GHEADING", "GPS Heading"],
+                ["WIDGET_GROUND_SPD", "Ground speed"],
+                ["WIDGET_BATTERY", "Battery status"]
+            ]
+        },
+        "cfg_audio_profile_freq_[0-9]" : {
+            "name": "Buzzer frequency",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 0,
+            "max": 2000,
+            "link": "audio_profile"            
+        },
+        "cfg_audio_profile_pause_[0-9]" : {
+            "name": "Pause before next beep",
+            "desc": "in ms",
+            "mode": "number",
+            "min": 0,
+            "max": 2000,            
+            "link": "audio_profile"
+        },
+        "cfg_audio_profile_length_[0-9]" : {
+            "name": "Beep duration",
+            "desc": "in ms",
+            "mode": "number",
+            "min": 0,
+            "max": 2000,
+            "link": "audio_profile"           
+        }
+    }
+}

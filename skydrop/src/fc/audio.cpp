@@ -14,6 +14,11 @@ volatile bool delay_on = false;
 #define PERIOD_PAUSE		1
 volatile uint8_t audio_period = PERIOD_SOUND;
 
+volatile bool audio_demo = false;
+volatile float audio_demo_val = 0;
+
+volatile bool audio_beep = false;
+
 #define AUDIO_LOW_PASS		10.0
 
 //linear aproximation between two points
@@ -113,9 +118,6 @@ void audio_set_tone(uint16_t tone)
 			next_tone = tone;
 		}
 
-
-
-
 		//buzzer is running continuously update freq now
 		if (delay_on == false)
 		{
@@ -141,7 +143,7 @@ void audio_set_delay(uint16_t length, uint16_t pause)
 	else
 	//with pauses (lift)
 	{
-		//convert from Hz and ms
+		//convert from ms and ticks
 		next_length = 31 * length;
 		next_pause = 31 * pause;
 
@@ -176,7 +178,7 @@ void audio_init()
 	audio_timer.EnableInterrupts(timer_overflow);
 }
 
-void audio_step(float vario)
+void audio_vario_step(float vario)
 {
 	uint16_t freq;
 	uint16_t length;
@@ -214,3 +216,93 @@ void audio_step(float vario)
 	audio_set_tone(freq);
 	audio_set_delay(length, pause);
 }
+
+void audio_step()
+{
+	//sound effect is high priority
+	if (audio_beep)
+	{
+		audio_beep_loop();
+		return;
+	}
+
+	//vario demo sound suppress standard vario sound
+	if (audio_demo)
+	{
+		audio_vario_step(audio_demo_val);
+		return;
+	}
+
+	//barometer data are valid now
+	if (fc.baro_valid)
+	{
+		//audio is suppressed due auto start
+		if (fc.audio_supress)
+		{
+			//vario in flight -> enable sound
+			if ( fc.autostart_state == AUTOSTART_FLIGHT)
+				audio_vario_step(fc.vario);
+
+			return;
+		}
+			audio_vario_step(fc.vario);
+	}
+}
+
+void audio_off()
+{
+	audio_set_tone(0);
+	audio_set_delay(0, 0);
+}
+
+volatile const uint16_t * audio_beep_tone_ptr;
+volatile const uint16_t * audio_beep_length_ptr;
+volatile uint8_t audio_beep_index;
+volatile uint8_t audio_beep_len;
+volatile uint16_t audio_beep_duration;
+
+void audio_beep_start(const beep_t * beep)
+{
+	audio_beep = true;
+
+	audio_beep_len = pgm_read_byte(&beep->length);
+	audio_beep_tone_ptr = (const uint16_t*)pgm_read_word(&beep->tone_ptr);
+	audio_beep_length_ptr = (const uint16_t*)pgm_read_word(&beep->length_ptr);
+	audio_beep_index = 0;
+
+	DEBUG("beep start %d %d %d\n", audio_beep_len, audio_beep_tone_ptr, audio_beep_length_ptr);
+}
+
+void audio_beep_next()
+{
+	uint16_t tone = pgm_read_word(&audio_beep_tone_ptr[audio_beep_index]);
+	audio_beep_duration = pgm_read_word(&audio_beep_length_ptr[audio_beep_index]);
+	audio_beep_index++;
+
+	buzzer_set_vol(fc.audio_volume);
+	buzzer_set_freq(tone);
+
+	DEBUG("beep next %d %d\n", tone, audio_beep_index);
+}
+
+//audio_step @ 100Hz
+#define AUDIO_STEP_MS	10
+
+void audio_beep_loop()
+{
+	DEBUG("beep loop %d %d\n", audio_beep_duration, audio_beep_index);
+	if (audio_beep_duration > AUDIO_STEP_MS)
+	{
+		audio_beep_duration -= AUDIO_STEP_MS;
+	}
+	else
+	{
+		if (audio_beep_index == audio_beep_len)
+		{
+			audio_beep = false;
+			audio_off();
+		}
+		else
+			audio_beep_next();
+	}
+};

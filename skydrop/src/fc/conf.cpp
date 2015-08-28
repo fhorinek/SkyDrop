@@ -4,10 +4,12 @@
 cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
 EEMEM cfg_t config = {
+	//build_number
+	BUILD_NUMBER,
 	//gui
 	{
 		//contrast
-		70,
+		GUI_CONTRAST_STEPS / 2,
 		//brightness
 		100,
 		//brightness_timeout
@@ -22,7 +24,7 @@ EEMEM cfg_t config = {
 			{
 				//type
 				LAYOUT_12,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_DEBUG, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_AVG_VARIO, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//1
 			{
@@ -100,17 +102,6 @@ EEMEM cfg_t config = {
 			},
 		},
 	},
-	//calibration
-	{
-		//mag bias
-		{476, 1179, 1141},
-		//mag sensitivity
-		{-2486, -2494, -2442},
-		//acc bias
-		{6, -46, -59},
-		//acc sensitivity
-		{1376, 1369, 1325},
-	},
 	//audio_profile
 	{
 		//freq
@@ -150,6 +141,18 @@ EEMEM cfg_t config = {
 	},
 
 };
+
+////calibration
+//{
+//	//mag bias
+//	{476, 1179, 1141},
+//	//mag sensitivity
+//	{-2486, -2494, -2442},
+//	//acc bias
+//	{6, -46, -59},
+//	//acc sensitivity
+//	{1376, 1369, 1325},
+//},
 
 bool cfg_factory_passed()
 {
@@ -214,25 +217,25 @@ void cfg_load()
 		DEBUG(" delta %d\n", fc.altimeter[i].delta);
 	}
 
-	eeprom_read_block((void *)&fc.mag_bias, &config.calibration.mag_bias, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.mag_bias, &config_ro.calibration.mag_bias, sizeof(vector_i16_t));
 	DEBUG("mag_bias\n");
 	DEBUG(" x %d\n", fc.mag_bias.x);
 	DEBUG(" y %d\n", fc.mag_bias.y);
 	DEBUG(" z %d\n", fc.mag_bias.z);
 
-	eeprom_read_block((void *)&fc.mag_sensitivity, &config.calibration.mag_sensitivity, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.mag_sensitivity, &config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
 	DEBUG("mag_sensitivity\n");
 	DEBUG(" x %d\n", fc.mag_sensitivity.x);
 	DEBUG(" y %d\n", fc.mag_sensitivity.y);
 	DEBUG(" z %d\n", fc.mag_sensitivity.z);
 
-	eeprom_read_block((void *)&fc.acc_bias, &config.calibration.acc_bias, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.acc_bias, &config_ro.calibration.acc_bias, sizeof(vector_i16_t));
 	DEBUG("acc_bias\n");
 	DEBUG(" x %d\n", fc.acc_bias.x);
 	DEBUG(" y %d\n", fc.acc_bias.y);
 	DEBUG(" z %d\n", fc.acc_bias.z);
 
-	eeprom_read_block((void *)&fc.acc_sensitivity, &config.calibration.acc_sensitivity, sizeof(vector_i16_t));
+	eeprom_read_block((void *)&fc.acc_sensitivity, &config_ro.calibration.acc_sensitivity, sizeof(vector_i16_t));
 	DEBUG("acc_sensitivity\n");
 	DEBUG(" x %d\n", fc.acc_sensitivity.x);
 	DEBUG(" y %d\n", fc.acc_sensitivity.y);
@@ -269,7 +272,7 @@ void cfg_load()
 	DEBUG("audio_volume %d\n", fc.audio_volume);
 
 	fc.usb_mode = eeprom_read_byte(&config.system.usb_mode);
-	DEBUG("audio_volume %d\n", fc.usb_mode);
+	DEBUG("usb_mode %d\n", fc.usb_mode);
 
 	fc.autostart_sensitivity = eeprom_read_byte(&config.autostart.sensititvity);
 	DEBUG("autostart_sensitivity %d\n", fc.autostart_sensitivity);
