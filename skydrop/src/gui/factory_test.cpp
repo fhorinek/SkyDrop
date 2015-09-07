@@ -128,7 +128,10 @@ void gui_factory_test_loop()
 //		lcd_contrast = f_test_lcd_cont;
 //		gui_change_disp_cfg();
 
-		disp.SetContrast(f_test_lcd_cont);
+		if (f_test_lcd == FTEST_LCD_MID)
+			disp.SetContrast(lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * f_test_lcd_cont) / GUI_CONTRAST_STEPS);
+		else
+			disp.SetContrast(f_test_lcd_cont);
 
 		return;
 	}
@@ -249,7 +252,7 @@ void gui_factory_test_loop()
 		eeprom_update_byte(&config_ro.lcd_contrast_min, f_test_lcd_cont_min);
 		eeprom_update_byte(&config_ro.bt_module_type, bt_get_module_type());
 
-		eeprom_update_byte(&config.gui.contrast, f_test_lcd_cont);
+		eeprom_update_byte(&config_ee.gui.contrast, f_test_lcd_cont);
 		eeprom_busy_wait();
 
 		SystemReset();
@@ -269,7 +272,11 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 					f_test_lcd = FTEST_LCD_MIN;
 				if (f_test_lcd == FTEST_LCD_MAX_AUTO)
 					f_test_lcd = FTEST_LCD_MAX;
-				f_test_lcd_cont = (f_test_lcd_cont - 1) % 128;
+
+				if (f_test_lcd == FTEST_LCD_MID)
+					f_test_lcd_cont = (f_test_lcd_cont - 1) % GUI_CONTRAST_STEPS;
+				else
+					f_test_lcd_cont = (f_test_lcd_cont - 1) % 128;
 			break;
 			case (TASK_IRQ_BUTTON_M):
 				switch (f_test_lcd)
@@ -287,7 +294,7 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 					case(FTEST_LCD_MAX):
 						f_test_lcd = FTEST_LCD_MID;
 						f_test_lcd_cont_max = f_test_lcd_cont;
-						f_test_lcd_cont = f_test_lcd_cont_min + (f_test_lcd_cont_max - f_test_lcd_cont_min) / 2;
+						f_test_lcd_cont = GUI_CONTRAST_STEPS / 2;
 					break;
 					case(FTEST_LCD_MID):
 						f_test_lcd = FTEST_LCD_DONE;
@@ -299,7 +306,11 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 					f_test_lcd = FTEST_LCD_MIN;
 				if (f_test_lcd == FTEST_LCD_MAX_AUTO)
 					f_test_lcd = FTEST_LCD_MAX;
-				f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
+
+				if (f_test_lcd == FTEST_LCD_MID)
+					f_test_lcd_cont = (f_test_lcd_cont + 1) % GUI_CONTRAST_STEPS;
+				else
+					f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
 			break;
 		}
 	}

@@ -23,7 +23,7 @@ void widget_gspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	{
 		float val;
 
-		switch(fc.gps_data.format_flags & GPS_SPD_MASK)
+		switch(config.system.gps_format_flags & GPS_SPD_MASK)
 		{
 			case(GPS_SPD_KPH):
 				val = fc.gps_data.groud_speed * FC_KNOTS_TO_KPH;
@@ -66,7 +66,7 @@ void widget_gpos_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 	if (fc.gps_data.valid)
 	{
-		switch (fc.gps_data.format_flags & GPS_FORMAT_MASK)
+		switch (config.system.gps_format_flags & GPS_FORMAT_MASK)
 		{
 			case(GPS_DDdddddd):
 				sprintf_P(tmp1, PSTR("%+02.6f"), fc.gps_data.latitude);

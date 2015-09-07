@@ -2,7 +2,6 @@
 #include "../gui/gui.h"
 #include "../fc/fc.h"
 #include "../gui/splash.h"
-#include "../fc/audio.h"
 
 void task_active_init()
 {
@@ -49,6 +48,7 @@ void task_active_init()
 		//Load eeprom update
 		if (LoadEEPROM())
 		{
+			cfg_load();
 			gui_load_eeprom();
 		}
 
@@ -89,7 +89,7 @@ void task_active_irqh(uint8_t type, uint8_t * buff)
 	switch (type)
 	{
 	case(TASK_IRQ_USB):
-		if (*buff && fc.usb_mode == USB_MODE_MASSSTORAGE)
+		if (*buff && config.system.usb_mode == USB_MODE_MASSSTORAGE)
 			task_set(TASK_USB);
 		break;
 

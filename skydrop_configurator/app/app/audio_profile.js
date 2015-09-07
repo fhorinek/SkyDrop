@@ -107,6 +107,6 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", function
 	    	}
     	
     	}
-	}
+	};
 }]);
 

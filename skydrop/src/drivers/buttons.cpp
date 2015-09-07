@@ -124,7 +124,7 @@ void button_handle(uint8_t index, uint8_t state)
 
 void buttons_step()
 {
-	if (lcd_flags & CFG_DISP_FLIP)
+	if (config.gui.disp_flags & CFG_DISP_FLIP)
 	{
 		button_handle(2, GpioRead(SWITCH1));
 		button_handle(0, GpioRead(SWITCH3));

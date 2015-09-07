@@ -1,6 +1,8 @@
 #include "gui_value.h"
 
-#include "../fc/audio.h"
+#include "../drivers/audio/vario.h"
+#include "../drivers/audio/sequencer.h"
+#include "../fc/conf.h"
 
 char gui_value_label[20];
 uint8_t gui_value_type;
@@ -13,6 +15,8 @@ float gui_value_step;
 volatile float gui_value_tmp;
 
 float_cb * gui_value_cb;
+
+MK_SEQ(audio_feedback, ARR({600}), ARR({750}));
 
 void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb)
 {
@@ -36,12 +40,16 @@ void gui_value_stop() {}
 void gui_value_draw_bar()
 {
 	uint8_t pad = 3;
-	uint8_t bar_width = GUI_DIALOG_RIGHT - GUI_DIALOG_LEFT - pad * 2;
+	uint8_t bar_width = GUI_DIALOG_RIGHT - GUI_DIALOG_LEFT - pad * 2 + 1;
 	uint8_t pos = ((gui_value_tmp - gui_value_min) * bar_width) / (gui_value_max - gui_value_min);
 
 	disp.DrawRectangle(GUI_DIALOG_LEFT + pad - 1, GUI_DIALOG_TOP + 10, GUI_DIALOG_RIGHT - pad + 1, GUI_DIALOG_TOP + 20, 1, 0);
-	disp.DrawRectangle(GUI_DIALOG_LEFT + pad, GUI_DIALOG_TOP + 11, GUI_DIALOG_LEFT + pad + pos, GUI_DIALOG_TOP + 19, 1, 1);
+	disp.DrawRectangle(GUI_DIALOG_LEFT + pad - 1, GUI_DIALOG_TOP + 11, GUI_DIALOG_LEFT + pad + pos - 1, GUI_DIALOG_TOP + 19, 1, 1);
 }
+
+extern volatile float audio_vario_freq;
+extern volatile uint16_t audio_vario_pause;
+extern volatile uint16_t audio_vario_length;
 
 void gui_value_loop()
 {
@@ -65,10 +73,24 @@ void gui_value_loop()
 	switch(gui_value_type)
 	{
 		case(GUI_VAL_NUMBER):
-		case(GUI_VAL_VARIO_TEST):
 			sprintf(tmp, gui_value_format, gui_value_tmp);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 		break;
+
+		case(GUI_VAL_VARIO_TEST):
+			sprintf(tmp, gui_value_format, gui_value_tmp);
+			gui_raligh_text(tmp, GUI_DIALOG_RIGHT - 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
+			disp.LoadFont(F_TEXT_S);
+			f_h = disp.GetTextHeight();
+			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 2);
+			fprintf(lcd_out, "f=%0.0f", audio_vario_freq);
+			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 4 + f_h);
+			fprintf(lcd_out, "l=%4u", audio_vario_length / 31);
+			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 6 + f_h * 2);
+			fprintf(lcd_out, "p=%4u", audio_vario_pause / 31);
+		break;
+
+
 
 		case(GUI_VAL_TIME):
 			time_from_epoch(time_get_actual(), &sec, &min, &hour);
@@ -104,6 +126,9 @@ void gui_value_loop()
 			gui_value_draw_bar();
 		break;
 
+		case(GUI_VAL_VOLUME):
+			gui_value_draw_bar();
+		break;
 	}
 
 	if (button_hold(B_LEFT))
@@ -276,14 +301,23 @@ void gui_value_date_irqh(uint8_t type, uint8_t * buff)
 		break;
 	}
 
-	DEBUG("inc %d\n", inc);
-	print_datetime();
+	uint32_t diff = 0;
+
+	//do not change flight time during update
+	if (fc.autostart_state == AUTOSTART_FLIGHT)
+		diff = time_get_actual() - fc.epoch_flight_timer;
+
 	time_set_actual(datetime_to_epoch(sec, min, hour, day, month, year));
-	print_datetime();
+
+	//do not change flight time during update
+	if (fc.autostart_state == AUTOSTART_FLIGHT)
+		fc.epoch_flight_timer = time_get_actual() - diff;
 }
 
 void gui_value_irqh(uint8_t type, uint8_t * buff)
 {
+	float tmp;
+
 	switch (gui_value_type)
 	{
 	case(GUI_VAL_NUMBER):
@@ -300,13 +334,13 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 
 	case(GUI_VAL_CONTRAST):
 		gui_value_number_irqh(type, buff);
-		lcd_contrast = gui_value_tmp;
+		config.gui.contrast = gui_value_tmp;
 		gui_change_disp_cfg();
 	break;
 
 	case(GUI_VAL_BRIGTHNES):
 		gui_value_number_irqh(type, buff);
-		lcd_brightness = gui_value_tmp;
+		config.gui.brightness = gui_value_tmp;
 	break;
 
 	case(GUI_VAL_VARIO_TEST):
@@ -314,6 +348,18 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 		gui_value_tmp = round(gui_value_tmp * 10) / 10;
 
 		audio_demo_val = gui_value_tmp;
+	break;
+
+	case(GUI_VAL_VOLUME):
+		tmp = gui_value_tmp;
+		gui_value_number_irqh(type, buff);
+
+		//only when there is a change in volume
+		if (gui_value_tmp != tmp)
+		{
+			uint8_t vol = gui_value_tmp;
+			seq_start(&audio_feedback, vol);
+		}
 	break;
 	}
 

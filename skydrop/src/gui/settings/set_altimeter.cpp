@@ -28,9 +28,9 @@ void gui_set_altimeter_list()
 void gui_set_altimeter_init()
 {
 	if (set_alt_index == 0)
-		set_alt_flags = fc.alt1_flags;
+		set_alt_flags = config.altitude.alt1_flags;
 	else
-		set_alt_flags = fc.altimeter[set_alt_index - 1].flags;
+		set_alt_flags = config.altitude.altimeter[set_alt_index - 1].flags;
 
 	gui_set_altimeter_list();
 }
@@ -39,15 +39,15 @@ void gui_set_altimeter_stop()
 {
 	if (set_alt_index == 0)
 	{
-		fc.alt1_flags = set_alt_flags;
+		config.altitude.alt1_flags = set_alt_flags;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.altitude.alt1_flags, set_alt_flags);
+		eeprom_update_byte(&config_ee.altitude.alt1_flags, set_alt_flags);
 	}
 	else
 	{
-		fc.altimeter[set_alt_index - 1].flags = set_alt_flags;
+		config.altitude.altimeter[set_alt_index - 1].flags = set_alt_flags;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
+		eeprom_update_byte(&config_ee.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
 	}
 
 }
@@ -84,7 +84,7 @@ bool set_alt_find_abs(uint8_t index, uint8_t rep)
 		return false;
 	}
 
-	flags = fc.altimeter[index - 1].flags;
+	flags = config.altitude.altimeter[index - 1].flags;
 
 	if ((flags & ALT_MODE_MASK) == ALT_DIFF)
 	{

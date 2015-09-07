@@ -2,10 +2,10 @@
 
 #include "../drivers/sensors/devices.h"
 #include "../drivers/uart.h"
+#include "../drivers/audio/audio.h"
 
 #include "kalman.h"
 #include "vario.h"
-#include "audio.h"
 
 volatile flight_data_t fc;
 
@@ -17,15 +17,13 @@ void fc_init()
 {
 	DEBUG(" *** Flight computer init ***\n");
 
-	//load configuration
-	cfg_load();
-
 	//start values
-	eeprom_busy_wait();
-	active_page = eeprom_read_byte(&config.gui.last_page);
+	active_page = config.gui.last_page;
+	if (active_page >= config.gui.number_of_pages)
+		active_page = 0;
 
-	fc.epoch_flight_start = 0;
-	fc.autostart_state = false;
+	fc.epoch_flight_timer = time_get_actual();
+	fc.autostart_state = AUTOSTART_WAIT;
 
 	fc.temp_step = 0;
 
@@ -35,7 +33,7 @@ void fc_init()
 	audio_init();
 
 	gps_init();
-	if (fc.use_gps)
+	if (config.system.use_gps)
 		gps_start();
 
 	bt_init();
@@ -113,13 +111,13 @@ void fc_deinit()
 {
 	eeprom_busy_wait();
 	//store altimeter info
-	eeprom_update_float(&config.altitude.QNH1, fc.QNH1);
-	eeprom_update_float(&config.altitude.QNH2, fc.QNH2);
+	eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
+	eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
 
 
 	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
 	{
-		eeprom_update_word((uint16_t *)&config.altitude.altimeter[i].delta, fc.altimeter[i].delta);
+		eeprom_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
 	}
 
 	MEMS_POWER_OFF;
@@ -168,18 +166,17 @@ ISR(FC_MEAS_TIMER_CMPA)
 		//auto start
 		if (fc.autostart_state == AUTOSTART_WAIT)
 		{
-			if (abs(fc.altitude1 - fc.start_altitude) > fc.autostart_sensitivity)
+			if (abs(fc.altitude1 - fc.start_altitude) > config.autostart.sensititvity)
 			{
-				gui_showmessage_P(PSTR("Take off"));
-
-				fc.autostart_state = AUTOSTART_FLIGHT;
-				fc.epoch_flight_start = time_get_actual();
-
-				//zero altimeters at take off
-				for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
+				fc_takeoff();
+			}
+			else
+			{
+				//reset timer
+				if (time_get_actual() - fc.epoch_flight_timer > FC_AUTOSTART_RESET)
 				{
-					if (fc.altimeter[i].flags & ALT_AUTO_ZERO)
-						fc_zero_alt(i + 1);
+					fc.epoch_flight_timer = time_get_actual();
+					fc.start_altitude = fc.altitude1;
 				}
 			}
 		}
@@ -235,9 +232,43 @@ ISR(FC_MEAS_TIMER_CMPC)
 	IO1_LOW
 }
 
+void fc_takeoff()
+{
+	gui_showmessage_P(PSTR("Take off"));
+
+	fc.autostart_state = AUTOSTART_FLIGHT;
+	fc.epoch_flight_timer = time_get_actual();
+
+	//zero altimeters at take off
+	for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
+	{
+		if (config.altitude.altimeter[i].flags & ALT_AUTO_ZERO)
+			fc_zero_alt(i + 1);
+	}
+}
+
+void fc_landing()
+{
+	gui_showmessage_P(PSTR("Landing"));
+
+	fc.autostart_state = AUTOSTART_LAND;
+	fc.epoch_flight_timer = time_get_actual() - fc.epoch_flight_timer;
+}
+
 void fc_sync_gps_time()
 {
-	time_set_actual(fc.gps_data.utc_time + (fc.time_zone * 3600ul) / 2);
+	uint32_t diff = 0;
+
+	//do not change flight time during update
+	if (fc.autostart_state == AUTOSTART_FLIGHT)
+		diff = time_get_actual() - fc.epoch_flight_timer;
+
+	time_set_actual(fc.gps_data.utc_time + (config.system.time_zone * 3600ul) / 2);
+
+	//do not change flight time during update
+	if (fc.autostart_state == AUTOSTART_FLIGHT)
+		fc.epoch_flight_timer = time_get_actual() - diff;
+
 	gui_showmessage_P(PSTR("GPS Time set"));
 }
 
@@ -246,9 +277,24 @@ void fc_step()
 	gps_step();
 	bt_step();
 
-	if ((fc.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
+	//gps time sync
+	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
 	{
 		fc_sync_gps_time();
+	}
+
+	//glide ratio
+	//when you hav GPS, baro and speed is higher than 2km/h and you are sinking
+	if (fc.gps_data.valid && fc.baro_valid && fc.gps_data.groud_speed > FC_GLIDE_MIN_KNOTS && fc.avg_vario < 0.0)
+	{
+		float spd_m = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS;
+		fc.glide_ratio = spd_m / abs(fc.avg_vario);
+
+		fc.glide_ratio_valid = true;
+	}
+	else
+	{
+		fc.glide_ratio_valid = false;
 	}
 }
 
@@ -271,16 +317,16 @@ void fc_zero_alt(uint8_t index)
 {
 	index -= 1;
 
-	if (fc.altimeter[index].flags & ALT_DIFF)
+	if (config.altitude.altimeter[index].flags & ALT_DIFF)
 		{
-			uint8_t a_index = fc.altimeter[index].flags & 0x0F;
+			uint8_t a_index = config.altitude.altimeter[index].flags & 0x0F;
 
 			if (a_index == 0)
 			{
-				fc.altimeter[index].delta = -fc.altitude1;
+				config.altitude.altimeter[index].delta = -fc.altitude1;
 			}
 			else
-				fc.altimeter[index].delta = -fc.altimeter[a_index].altitude;
+				config.altitude.altimeter[index].delta = -fc.altitudes[a_index];
 
 		}
 }

@@ -1,5 +1,7 @@
 #include "buzzer.h"
 
+#include "../uart.h"
+
 Timer buzzer_timer;
 
 //V = (val / 0xFFF) * 3.3V
@@ -8,6 +10,8 @@ Timer buzzer_timer;
 #define DAC_MAX		1985	//1.6V
 #define DAC_DELTA	(DAC_MAX - DAC_MIN)
 
+volatile uint8_t buzzer_volume = 0;
+
 ISR(BUZZER_TIMER_OVF)
 {
 
@@ -15,9 +19,10 @@ ISR(BUZZER_TIMER_OVF)
 
 void buzzer_set_vol(uint8_t vol)
 {
-	uint16_t val = DAC_MIN + (DAC_DELTA / 100) * vol;
+	if (vol == buzzer_volume)
+		return;
 
-	DEBUG("vol = %d\n", vol);
+	uint16_t val = DAC_MIN + (DAC_DELTA / 100) * vol;
 
 	if (val > DAC_MAX)
 		val = DAC_MAX;
@@ -31,13 +36,13 @@ void buzzer_set_vol(uint8_t vol)
 		buzzer_timer.Stop();
 	else
 		buzzer_timer.Start();
+
+	buzzer_volume = vol;
 }
 
 void buzzer_set_freq(uint16_t freq_hz)
 {
-	DEBUG("freq = %d\n", freq_hz);
-
-	if (freq_hz == 0)
+	if (freq_hz == 0 || buzzer_volume == 0)
 	{
 		buzzer_timer.Stop();
 		return;

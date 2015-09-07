@@ -33,6 +33,9 @@ void Setup()
 	I2C_POWER_INIT;
 	SD_EN_INIT;
 
+	//load configuration
+	cfg_load();
+
 	_delay_ms(100);
 }
 

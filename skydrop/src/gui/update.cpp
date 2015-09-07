@@ -118,8 +118,6 @@ void gui_update_loop()
 
 //	DEBUG(" *** update loop start ***\n");
 
-	test_memory();
-
 	gui_update_bar();
 
 //	DEBUG("update_state %d\n", update_state);

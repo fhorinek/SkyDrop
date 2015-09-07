@@ -1,3 +1,42 @@
+Build 1098 - 28. 8. 2015
+========================================================
+FIX:
+ * Fixed length and pause settings #74
+ * GPS offset #41
+
+ADDED:
+ * Audio volume changed feedback #45
+ * Acoustic feedback for buttons and page #14
+ * Start-up / Exit sound
+ * Manual takeoff/landing (via Long press in Flight time widget) 
+ * 30s Timer in autostart detection to compensate drift
+ * Weak lift alert #70
+    - low frequency tone will be emitted when climb surpass weak lift value
+      Example: Week lift settings is 3 (0.3m/s) and lift threshold is set 0.1m/s
+               Buzzer will start low-frequency sound when climb will be grater
+               then -0.2 m/s (0.1 - 0.3)
+    * Added new menu entry Settings->Vario->Weak lift
+        * Enabled - enable / disable weak lift alert
+        * Sensitivity - this value (* 10cm/s) will be subtracted from lift threshold
+                      and used as weak lift value
+        * Buzzer frequency - start frequency of weak lift alert (end frequency is first beep)
+ * Flight time will not be changed during gps sync and manual time settings #55
+ * Ability to change page number (1-5) #43
+    * Added new menu
+        Layouts -> Page Count
+ * Widget glide ratio #59
+    so far drop can't detect circling so do not expect the value will be invalid during 
+    thermals
+
+CHANGED:
+ * Internal organisation of configuration structures fc & config (memory optimisation)
+ * Audio vario generation
+ * General Volume -> Vario volume
+                  -> Alert volume
+                  -> Menu volume
+ * 5 Step volume settings 0% / 25% / 50% / 75% / 100% #50
+
+
 Build 0910 - 28. 8. 2015
 ========================================================
 FIX:
@@ -10,7 +49,7 @@ ADDED:
  * Poweroff can be performed using long + short middle button.
  * Device generate configuration file CFG.EE before power down. (for configurator)
  * Audio vario test Settings->Audio->Vario demo
- * Online configurator on http://vps.skybean.eu:8080/configurator
+ * Online configurator on http://vps.skybean.eu:8080/configurator #33
 
 CHANGED:
  * Sub menu on main screen now wait 3 seconds instead of 1. #55

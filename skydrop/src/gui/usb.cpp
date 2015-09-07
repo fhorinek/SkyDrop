@@ -26,8 +26,8 @@ void gui_usb_loop()
 	strcpy_P(tmp, PSTR("PWR"));
 	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT - f_h);
 
-	strcpy_P(tmp, PSTR("RST"));
-	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - f_h);
+//	strcpy_P(tmp, PSTR("RST"));
+//	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - f_h);
 
 
 	sprintf_P(tmp, PSTR("batt %d %%"), battery_per);

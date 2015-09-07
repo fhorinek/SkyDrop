@@ -3,7 +3,7 @@
 #define BUZZER_H_
 
 
-#include "../skydrop.h"
+#include "../../common.h"
 
 void buzzer_init();
 void buzzer_set_freq(uint16_t freq_hz);

@@ -47,6 +47,8 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
+								<option id="de.innot.avreclipse.compiler.option.verbose.1267466800" superClass="de.innot.avreclipse.compiler.option.verbose" value="false" valueType="boolean"/>
+								<option id="de.innot.avreclipse.compiler.option.otherflags.1460454660" superClass="de.innot.avreclipse.compiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1206097751" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
@@ -62,6 +64,7 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
+								<option id="de.innot.avreclipse.cppcompiler.option.otherflags.443372134" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.1195678771" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.119995177" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release"/>
@@ -160,7 +163,7 @@
 								<option id="de.innot.avreclipse.asm.option.include.paths.1155925870" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/psychosonda_bt_ng/xlib}&quot;"/>
 								</option>
-								<option id="de.innot.avreclipse.assembler.option.debug.type.237574168" superClass="de.innot.avreclipse.assembler.option.debug.type" value="de.innot.avreclipse.assembler.option.debug.level.gdb" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.assembler.option.debug.type.237574168" name="Debug Info Format" superClass="de.innot.avreclipse.assembler.option.debug.type" value="de.innot.avreclipse.assembler.option.debug.level.gdb" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.tool.assembler.input.78231109" superClass="de.innot.avreclipse.tool.assembler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.63320727" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release">
@@ -176,7 +179,7 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.compiler.option.debug.type.18669201" superClass="de.innot.avreclipse.compiler.option.debug.type" value="de.innot.avreclipse.compiler.option.debug.level.stabsplus" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.debug.type.18669201" name="Debug Info Format" superClass="de.innot.avreclipse.compiler.option.debug.type" value="de.innot.avreclipse.compiler.option.debug.level.stabsplus" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1641878509" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.362795592" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
@@ -192,7 +195,7 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.cppcompiler.option.debug.type.2061312493" superClass="de.innot.avreclipse.cppcompiler.option.debug.type" value="de.innot.avreclipse.cppcompiler.option.debug.level.stabsplus" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.debug.type.2061312493" name="Debug Info Format" superClass="de.innot.avreclipse.cppcompiler.option.debug.type" value="de.innot.avreclipse.cppcompiler.option.debug.level.stabsplus" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.252211755" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.297109018" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release"/>

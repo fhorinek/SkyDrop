@@ -4,7 +4,13 @@ void widget_empty_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 {}
 
 void widget_debug_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{}
+{
+	uint8_t lh = widget_label_P(PSTR("dt"), x, y);
+
+	char text[10];
+//	sprintf_P(text, PSTR("%0.2f"), fc.vario_dt * 100);
+	widget_value_int(text, x, y + lh, w, h - lh);
+}
 
 void widget_imu_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {

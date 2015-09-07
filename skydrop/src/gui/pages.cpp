@@ -2,6 +2,8 @@
 #include "splash.h"
 #include "widgets/widgets.h"
 
+#include "../drivers/audio/sequencer.h"
+
 uint8_t active_page = 2;
 uint8_t old_page = 2;
 
@@ -43,9 +45,16 @@ const uint8_t PROGMEM img_pwr[26]={12,16,224,248,28,12,0,63,63,0,12,28,248,224,1
 const uint8_t PROGMEM img_menu[22]={10,16,51,51,51,51,51,51,51,51,51,51,3,3,3,3,3,3,3,3,3,3};
 const uint8_t PROGMEM img_layout[16]={14,8,252,132,132,191,161,225,33,33,225,161,191,132,132,252};
 
+MK_SEQ(snd_page_0, ARR({800}), ARR({100}));
+MK_SEQ(snd_page_1, ARR({800, 1000}), ARR({100, 100}));
+MK_SEQ(snd_page_2, ARR({800, 1000, 1200}), ARR({100, 100, 100}));
+MK_SEQ(snd_page_3, ARR({800, 1000, 1200, 1400}), ARR({100, 100, 100, 100}));
+MK_SEQ(snd_page_4, ARR({800, 1000, 1200, 1400, 1600}), ARR({100, 100, 100, 100, 100}));
+
+const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4};
+
 void gui_pages_init()
 {
-	widgets_init();
 	page_state_step = PAGE_INFO_STEPS;
 	page_state = PAGE_IDLE;
 	active_widget = WIDGET_OFF;
@@ -75,7 +84,7 @@ void gui_page_power_off()
 	gui_splash_set_mode(SPLASH_OFF);
 	gui_switch_task(GUI_SPLASH);
 	eeprom_busy_wait();
-	eeprom_update_byte(&config.gui.last_page, active_page);
+	eeprom_update_byte(&config_ee.gui.last_page, active_page);
 }
 
 void gui_pages_loop()
@@ -97,7 +106,7 @@ void gui_pages_loop()
 
 		//Highlight selected widget
 		uint8_t x, y, w, h;
-		layout_get_widget_rect(pages[active_page].type, active_widget, &x, &y, &w, &h);
+		layout_get_widget_rect(config.gui.pages[active_page].type, active_widget, &x, &y, &w, &h);
 
 
 		disp.Invert(x, y, x + w - 1, y + h - 1);
@@ -139,14 +148,21 @@ void gui_pages_loop()
 		gui_statusbar();
 		disp.CopyToLayerX(0, split);
 
-		start_x = ( -NUMBER_OF_PAGES * (8 + 4) + 4 + n5110_width) / 2;
-		disp.ClearPart(4, start_x, 5, start_x + NUMBER_OF_PAGES * (8 + 4) + (8 + 4));
+		start_x = (- config.gui.number_of_pages * (8 + 4) + 4 + n5110_width) / 2;
 
-		for (uint8_t i = 0; i < NUMBER_OF_PAGES; i++)
+		for (uint8_t i = 0; i < config.gui.number_of_pages; i++)
 		{
 			uint8_t x = start_x + i * 12;
 
-			disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, (i == active_page) ? 1 : 0);
+			if (i == active_page)
+			{
+				disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, 1);
+			}
+			else
+			{
+				disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, 0);
+				disp.DrawRectangle(x + 1, 8 * 4 + 1, x + 8 - 2, 8 * 5 - 2, 0, 1);
+			}
 			disp.CopyToLayerPart(0, 4, x, 5, x + 8);
 		}
 
@@ -164,14 +180,22 @@ void gui_pages_loop()
 		gui_statusbar();
 
 		disp.SetDrawLayer(1);
-		start_x = ( -NUMBER_OF_PAGES * (8 + 4) + 4 + n5110_width) / 2;
-		disp.ClearPart(4, start_x, 5, start_x + NUMBER_OF_PAGES * (8 + 4) + (8 + 4));
+		start_x = ( - config.gui.number_of_pages * (8 + 4) + 4 + n5110_width) / 2;
 
-		for (uint8_t i = 0; i < NUMBER_OF_PAGES; i++)
+		for (uint8_t i = 0; i <  config.gui.number_of_pages; i++)
 		{
 			uint8_t x = start_x + i * 12;
 
-			disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, (i == active_page) ? 1 : 0);
+			if (i == active_page)
+			{
+				disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, 1);
+			}
+			else
+			{
+				disp.DrawRectangle(x, 8 * 4, x + 8 - 1, 8 * 5 - 1, 1, 0);
+				disp.DrawRectangle(x + 1, 8 * 4 + 1, x + 8 - 2, 8 * 5 - 2, 0, 1);
+			}
+
 			disp.CopyToLayerPart(0, 4, x, 5, x + 8);
 		}
 
@@ -246,21 +270,29 @@ void page_switch(bool right)
 {
 	old_page = active_page;
 
+	if (config.gui.number_of_pages == 1)
+		return;
+
 	if (right)
 	{
-		active_page = (active_page + 1) % NUMBER_OF_PAGES;
+		active_page = (active_page + 1) % config.gui.number_of_pages;
 		page_change_dir = 1;
 	}
 	else
 	{
 		if (active_page == 0)
-			active_page = NUMBER_OF_PAGES - 1;
+			active_page = config.gui.number_of_pages - 1;
 		else
 			active_page = active_page - 1;
 		page_change_dir = 0;
 	}
 
-	if (lcd_flags & CFG_DISP_ANIM)
+	if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_PAGES)
+	{
+		seq_start(snd_pages[active_page], config.gui.menu_volume);
+	}
+
+	if (config.gui.disp_flags & CFG_DISP_ANIM)
 	{
 		page_state_step = PAGE_SWITCH_STEPS;
 		page_state = PAGE_CHANGE;
@@ -276,7 +308,7 @@ void page_switch(bool right)
 
 bool page_widgets_have_menu()
 {
-	uint8_t active_widgets = layout_get_number_of_widgets(pages[active_page].type);
+	uint8_t active_widgets = layout_get_number_of_widgets(config.gui.pages[active_page].type);
 
 	for (uint8_t i = 0; i < active_widgets; i++)
 	{
@@ -289,7 +321,7 @@ bool page_widgets_have_menu()
 
 bool page_select_next_widget()
 {
-	uint8_t active_widgets = layout_get_number_of_widgets(pages[active_page].type);
+	uint8_t active_widgets = layout_get_number_of_widgets(config.gui.pages[active_page].type);
 
 	do
 	{
@@ -304,7 +336,7 @@ bool page_select_next_widget()
 
 void page_select_first_widget()
 {
-	uint8_t active_widgets = layout_get_number_of_widgets(pages[active_page].type);
+	uint8_t active_widgets = layout_get_number_of_widgets(config.gui.pages[active_page].type);
 
 	active_widget = 0;
 

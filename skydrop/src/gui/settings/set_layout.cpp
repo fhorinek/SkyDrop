@@ -7,7 +7,7 @@ uint8_t set_layout_type;
 
 void gui_set_layout_init()
 {
-	set_layout_type = pages[active_page].type;
+	set_layout_type = config.gui.pages[active_page].type;
 }
 
 void gui_set_layout_stop() {}
@@ -56,10 +56,10 @@ void gui_set_layout_irqh(uint8_t type, uint8_t * buff)
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
 		{
-			pages[active_page].type = set_layout_type;
+			config.gui.pages[active_page].type = set_layout_type;
 			//store to EE
 			eeprom_busy_wait();
-			eeprom_update_byte(&config.gui.pages[active_page].type, set_layout_type);
+			eeprom_update_byte(&config_ee.gui.pages[active_page].type, set_layout_type);
 
 			gui_switch_task(GUI_LAYOUTS);
 		}

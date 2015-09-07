@@ -11,9 +11,8 @@ uint8_t set_widget_cnt;
 
 void gui_set_widgets_init()
 {
-	widgets_init();
 	set_widget_mode = SET_WIDGETS_CHOOSE;
-	set_widget_cnt = layout_get_number_of_widgets(pages[active_page].type);
+	set_widget_cnt = layout_get_number_of_widgets(config.gui.pages[active_page].type);
 	set_widget_index = 0;
 	gui_list_set(gui_set_widgets_item, gui_set_widgets_action, NUMBER_OF_WIDGETS, GUI_LAYOUTS);
 }
@@ -31,7 +30,7 @@ void gui_set_widgets_loop()
 		{
 			//Highlight selected widget
 			uint8_t x, y, w, h;
-			layout_get_widget_rect(pages[active_page].type, set_widget_index, &x, &y, &w, &h);
+			layout_get_widget_rect(config.gui.pages[active_page].type, set_widget_index, &x, &y, &w, &h);
 
 			disp.Invert(x, y, x + w - 1, y + h - 1);
 			disp.InvertPixel(x, y);
@@ -72,7 +71,7 @@ void gui_set_widgets_choose_irqh(uint8_t type, uint8_t * buff)
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
 		{
-			gui_list_set_index(GUI_SET_WIDGETS, pages[active_page].widgets[set_widget_index]);
+			gui_list_set_index(GUI_SET_WIDGETS, config.gui.pages[active_page].widgets[set_widget_index]);
 			set_widget_mode = SET_WIDGETS_LIST;
 		}
 		if (*buff == BE_LONG)
@@ -104,8 +103,8 @@ void gui_set_widgets_item(uint8_t index, char * text, uint8_t * flags, char * su
 
 void gui_set_widgets_action(uint8_t index)
 {
-	pages[active_page].widgets[set_widget_index] = index;
+	config.gui.pages[active_page].widgets[set_widget_index] = index;
 	eeprom_busy_wait();
-	eeprom_update_byte(&config.gui.pages[active_page].widgets[set_widget_index], pages[active_page].widgets[set_widget_index]);
+	eeprom_update_byte(&config_ee.gui.pages[active_page].widgets[set_widget_index], config.gui.pages[active_page].widgets[set_widget_index]);
 	set_widget_mode = SET_WIDGETS_CHOOSE;
 }

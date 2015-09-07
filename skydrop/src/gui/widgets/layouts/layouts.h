@@ -23,7 +23,7 @@ struct widget_pos {
 struct layout_desc {
 	uint8_t number_of_widgets;
 
-	widget_pos widgets[WIDGES_PER_PAGE];
+	widget_pos widgets[MAX_WIDGES_PER_PAGE];
 };
 
 
@@ -31,7 +31,7 @@ struct layout_t
 {
 	uint8_t type;
 
-	uint8_t widgets[WIDGES_PER_PAGE];
+	uint8_t widgets[MAX_WIDGES_PER_PAGE];
 };
 
 

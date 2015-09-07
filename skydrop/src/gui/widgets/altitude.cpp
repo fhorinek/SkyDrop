@@ -15,14 +15,12 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 	if (index == 1)
 	{
 		val = fc.altitude1;
-		alt_flags = fc.alt1_flags;
+		alt_flags = config.altitude.alt1_flags;
 	}
 	else
 	{
-		index -= 2;
-
-		val = fc.altimeter[index].altitude;
-		alt_flags = fc.altimeter[index].flags;
+		val = fc.altitudes[index - 2];
+		alt_flags = config.altitude.altimeter[index - 2].flags;
 	}
 
 	if (alt_flags & ALT_UNIT_I)
@@ -55,8 +53,8 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 	else
 	{
-		a_type  = fc.altimeter[index - 2].flags & 0b11000000;
-		a_index = fc.altimeter[index - 2].flags & 0b00001111;
+		a_type  = config.altitude.altimeter[index - 2].flags & 0b11000000;
+		a_index = config.altitude.altimeter[index - 2].flags & 0b00001111;
 	}
 
 	if (a_type != ALT_ABS_GPS && fc.baro_valid == false)
@@ -104,20 +102,20 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 				if (index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[index - 2].altitude + inc;
+					new_alt = fc.altitudes[index - 2] + inc;
 				fc_manual_alt0_change(new_alt);
-				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_ABS_QNH2):
 				if (index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[index - 2].altitude + inc;
+					new_alt = fc.altitudes[index - 2] + inc;
 
-				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 			case(ALT_DIFF):
-				fc.altimeter[index - 2].delta += inc;
+				config.altitude.altimeter[index - 2].delta += inc;
 			break;
 			}
 		}
@@ -148,9 +146,9 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	uint8_t a_index;
 
 	if (alt_index == 1)
-		a_flags = fc.alt1_flags;
+		a_flags = config.altitude.alt1_flags;
 	else
-		a_flags = fc.altimeter[alt_index - 2].flags;
+		a_flags = config.altitude.altimeter[alt_index - 2].flags;
 
 	a_type  = a_flags & 0b11000000;
 	a_index = a_flags & 0b00001111;
@@ -173,24 +171,24 @@ void widget_alt_menu_loop(uint8_t alt_index)
 				if (alt_index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[alt_index - 2].altitude + inc;
+					new_alt = fc.altitudes[alt_index - 2] + inc;
 
 				fc_manual_alt0_change(new_alt);
 
-				fc.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 
 			case(ALT_ABS_QNH2):
 				if (alt_index == 1)
 					new_alt = fc.altitude1 + inc;
 				else
-					new_alt = fc.altimeter[alt_index - 2].altitude + inc;
+					new_alt = fc.altitudes[alt_index - 2] + inc;
 
-				fc.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
 
 			case(ALT_DIFF):
-				fc.altimeter[alt_index - 2].delta += inc;
+				config.altitude.altimeter[alt_index - 2].delta += inc;
 			break;
 		}
 	}
@@ -261,9 +259,9 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	else
 	{
 		if (a_flags & ALT_UNIT_I)
-			sprintf_P(tmp, PSTR("%d"), (int16_t)(fc.altimeter[alt_index - 2].altitude * FC_METER_TO_FEET));
+			sprintf_P(tmp, PSTR("%d"), (int16_t)(fc.altitudes[alt_index - 2] * FC_METER_TO_FEET));
 		else
-			sprintf_P(tmp, PSTR("%d"), fc.altimeter[alt_index - 2].altitude);
+			sprintf_P(tmp, PSTR("%d"), fc.altitudes[alt_index - 2]);
 	}
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2);
 
@@ -271,13 +269,13 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	switch (a_type)
 		{
 		case(ALT_ABS_QNH1):
-			sprintf_P(tmp, PSTR("%0.0f"), fc.QNH1 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH1 / 10);
 		break;
 		case(ALT_ABS_QNH2):
-			sprintf_P(tmp, PSTR("%0.0f"), fc.QNH2 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH2 / 10);
 		break;
 		case(ALT_DIFF):
-			sprintf_P(tmp, PSTR("%+d"), fc.altimeter[alt_index - 2].delta);
+			sprintf_P(tmp, PSTR("%+d"), config.altitude.altimeter[alt_index - 2].delta);
 		break;
 		case(ALT_ABS_GPS):
 			if (fc.gps_data.valid)

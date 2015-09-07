@@ -8,8 +8,8 @@
 #ifndef WIDGETS_H_
 #define WIDGETS_H_
 
-#define WIDGES_PER_PAGE		9
-#define NUMBER_OF_PAGES		5
+#define MAX_WIDGES_PER_PAGE		9
+#define MAX_NUMBER_OF_PAGES		5
 
 #include "../gui.h"
 #include "../../fc/fc.h"
@@ -99,18 +99,21 @@ extern float widget_menu_fvalue1;
 #define WIDGET_BATTERY		18
 #include "battery.h"
 
+#define WIDGET_GLIDE_RATIO	19
+#include "flight.h"
 
-#define NUMBER_OF_WIDGETS	19
+#define NUMBER_OF_WIDGETS	20
 
 
-
-void widgets_init();
 void widgets_draw(uint8_t page);
 
 uint8_t widget_label_P(const char * label, uint8_t x, uint8_t y);
 uint8_t widget_label(char * label, uint8_t x, uint8_t y);
+
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+
+void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 uint8_t layout_get_number_of_widgets(uint8_t type);
@@ -118,7 +121,6 @@ void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t *
 
 uint8_t widget_get_type(uint8_t page, uint8_t widget);
 
-extern layout_t pages[NUMBER_OF_PAGES];
 extern widget widget_array[NUMBER_OF_WIDGETS];
 
 #endif /* WIDGETS_H_ */

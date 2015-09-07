@@ -5,12 +5,12 @@
  *      Author: horinek
  */
 
-#ifndef VARIO_H_
-#define VARIO_H_
+#ifndef FC_VARIO_H_
+#define FC_VARIO_H_
 
 #include "../common.h"
 
 void vario_init();
 void vario_calc(float pressure);
 
-#endif /* VARIO_H_ */
+#endif /* FC_VARIO_H_ */

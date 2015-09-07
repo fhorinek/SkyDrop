@@ -82,17 +82,15 @@ void gui_statusbar();
 #define GUI_DIALOG			21
 #define GUI_SET_BLUETOOTH	22
 #define GUI_UPDATE			23
+#define GUI_SET_WEEKLIFT	24
+#define GUI_SET_AUDIO_MENU	25
 
-#define NUMBER_OF_GUI_TASKS	24
+#define NUMBER_OF_GUI_TASKS	26
 
 #define GUI_LAST_TASK		0xFF
 
-extern uint8_t lcd_brightness;
-extern uint8_t lcd_brightness_timeout;
-extern uint8_t lcd_contrast;
 extern uint8_t lcd_contrast_min;
 extern uint8_t lcd_contrast_max;
-extern uint8_t lcd_flags;
 
 extern volatile uint8_t gui_task;
 

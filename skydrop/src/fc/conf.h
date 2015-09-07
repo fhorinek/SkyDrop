@@ -14,12 +14,16 @@
 struct cfg_gui_layout
 {
 	uint8_t type;
-	uint8_t widgets[WIDGES_PER_PAGE];
+	uint8_t widgets[MAX_WIDGES_PER_PAGE];
 };
 
-#define CFG_DISP_INVERT	0b00000001
-#define CFG_DISP_FLIP	0b00000010
-#define CFG_DISP_ANIM	0b00000100
+#define CFG_DISP_INVERT			0b00000001
+#define CFG_DISP_FLIP			0b00000010
+#define CFG_DISP_ANIM			0b00000100
+
+#define CFG_AUDIO_MENU_SPLASH	0b10000000
+#define CFG_AUDIO_MENU_PAGES	0b01000000
+#define CFG_AUDIO_MENU_BUTTONS	0b00100000
 
 struct cfg_gui
 {
@@ -27,13 +31,20 @@ struct cfg_gui
 	uint8_t brightness;
 	uint8_t brightness_timeout;
 	uint8_t disp_flags;
-	uint8_t last_page;
 
-	cfg_gui_layout pages[NUMBER_OF_PAGES];
+	uint8_t last_page;
+	uint8_t menu_audio_flags;
+
+	uint8_t menu_volume;
+	uint8_t vario_volume;
+	uint8_t alert_volume;
+
+	uint8_t number_of_pages;
+	cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };
 
-#define VARIO_UNITS_M	0b00000000
-#define VARIO_UNITS_I	0b10000000
+#define VARIO_UNITS_M		0b00000000
+#define VARIO_UNITS_I		0b10000000
 
 struct cfg_vario
 {
@@ -41,6 +52,8 @@ struct cfg_vario
 	float avg_vario_dampening;
 
 	uint8_t flags;
+	uint8_t weak_lift_enabled;
+	uint8_t weak_lift;
 };
 
 struct cfg_altimeter
@@ -73,11 +86,12 @@ struct cfg_audio_profile
 	uint16_t pause[41];	//in ms
 	uint16_t length[41];//in ms
 
+	uint16_t weak_lift_freq; //in Hz
+
 	int16_t lift;		//in cm
 	int16_t sink;		//in cm
 
 	uint8_t	fluid;		//true/false
-	uint8_t volume;		//0-100
 };
 
 #define TIME_DST	0b00000001
@@ -141,7 +155,11 @@ struct cfg_ro_t //128
 	uint8_t reserved[100];
 };
 
-extern cfg_t config;
+//configuration in RAM
+extern volatile cfg_t config;
+//configuration in EE
+extern cfg_t config_ee;
+
 extern cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
 #define CheckRange(MIN, MAX, DEFAULT, VAL) \

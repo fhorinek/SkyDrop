@@ -38,13 +38,6 @@
 
 #define ALT_AUTO_ZERO	0b00010000
 
-typedef struct
-{
-	uint8_t flags;
-	int16_t delta;
-	int16_t altitude;
-} alt_data_t;
-
 #define GPS_SAT_CNT	12
 #define GPS_FIX_CNT_MAX		200
 #define GPS_FIX_TIME_SYNC	10
@@ -72,8 +65,6 @@ typedef struct
 	uint8_t sat_snr[GPS_SAT_CNT];
 
 	uint8_t fix_cnt;
-
-	uint8_t format_flags;
 } gps_data_t;
 
 #define FC_TEMP_PERIOD	1000
@@ -81,6 +72,9 @@ typedef struct
 #define AUTOSTART_WAIT		0
 #define AUTOSTART_FLIGHT	1
 #define AUTOSTART_LAND		2
+
+#define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
+#define FC_AUTOSTART_RESET	(30)
 
 typedef struct
 {
@@ -97,55 +91,28 @@ typedef struct
 	uint8_t temp_step;
 	uint32_t temp_next;
 
-	// --- CONST from cfg ---
-	float QNH1;
-	float QNH2;
-
-	float digital_vario_dampening;
-	float avg_vario_dampening;
-
-	uint8_t vario_flags;
-
-	vector_i16_t mag_bias;
-	vector_i16_t mag_sensitivity;
-
-	vector_i16_t acc_bias;
-	vector_i16_t acc_sensitivity;
-
-	uint16_t buzzer_freq[AUDIO_PROFILE_SIZE];
-	uint16_t buzzer_pause[AUDIO_PROFILE_SIZE];
-	uint16_t buzzer_length[AUDIO_PROFILE_SIZE];
-
-	int16_t audio_lift;
-	int16_t audio_sink;
-	uint8_t audio_fluid;
-	uint8_t audio_volume;
-	uint8_t audio_supress;
-
-	uint8_t usb_mode;
-
-	uint8_t autostart_sensitivity;
-
-	uint8_t use_gps;
-	uint8_t time_flags;
-	int8_t time_zone;
-
 	// --- CALC ---
 	bool baro_valid;
 	float pressure;
+
 	float vario;
+
 	float digital_vario;
 	float avg_vario;
 
+	bool glide_ratio_valid;
+	float glide_ratio;
+
 	float altitude1;
-	uint8_t alt1_flags;
-	alt_data_t altimeter[NUMBER_OF_ALTIMETERS];
+
+	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
 	vector_float_t mag_f;
 	vector_float_t acc_f;
 	vector_float_t gyro_f;
 
-	uint32_t epoch_flight_start;
+	//serve as wait timer, flight time and flight duration holder after land
+	uint32_t epoch_flight_timer;
 	float start_altitude;
 	uint8_t autostart_state;
 } flight_data_t;
@@ -165,6 +132,9 @@ void fc_zero_alt(uint8_t index);
 void fc_manual_alt0_change(float val);
 
 void fc_sync_gps_time();
+
+void fc_takeoff();
+void fc_landing();
 
 extern volatile flight_data_t fc;
 

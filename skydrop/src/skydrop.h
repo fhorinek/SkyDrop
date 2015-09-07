@@ -10,12 +10,16 @@
 
 #include "common.h"
 
+#include "fc/conf.h"
+
 #include "drivers/led.h"
 #include "drivers/uart.h"
 #include "drivers/time.h"
-#include "drivers/buzzer.h"
 #include "drivers/battery.h"
 #include "drivers/buttons.h"
+
+#include "drivers/audio/audio.h"
+#include "drivers/audio/buzzer.h"
 
 #include "drivers/storage/storage.h"
 

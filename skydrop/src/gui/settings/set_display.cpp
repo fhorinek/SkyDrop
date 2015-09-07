@@ -26,8 +26,8 @@ void gui_set_display_contrast_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
 	eeprom_busy_wait();
-	lcd_contrast = val;
-	eeprom_update_byte(&config.gui.contrast, lcd_contrast);
+	config.gui.contrast = val;
+	eeprom_update_byte(&config_ee.gui.contrast, config.gui.contrast);
 	gui_change_disp_cfg();
 }
 
@@ -35,8 +35,8 @@ void gui_set_display_brightness_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
 	eeprom_busy_wait();
-	lcd_brightness = val;
-	eeprom_update_byte(&config.gui.brightness, lcd_brightness);
+	config.gui.brightness = val;
+	eeprom_update_byte(&config_ee.gui.brightness, config.gui.brightness);
 	gui_trigger_backlight();
 }
 
@@ -44,8 +44,8 @@ void gui_set_display_brightness_timeout_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
 	eeprom_busy_wait();
-	lcd_brightness_timeout = val;
-	eeprom_update_byte(&config.gui.brightness_timeout, lcd_brightness_timeout);
+	config.gui.brightness_timeout = val;
+	eeprom_update_byte(&config_ee.gui.brightness_timeout, config.gui.brightness_timeout);
 }
 
 
@@ -54,38 +54,38 @@ void gui_set_display_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf_P(PSTR("Contrast"), GUI_VAL_CONTRAST, PSTR(""), lcd_contrast, 0, GUI_CONTRAST_STEPS, 1, gui_set_display_contrast_cb);
+		gui_value_conf_P(PSTR("Contrast"), GUI_VAL_CONTRAST, PSTR(""), config.gui.contrast, 0, GUI_CONTRAST_STEPS, 1, gui_set_display_contrast_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(1):
-		gui_value_conf_P(PSTR("Backlight"), GUI_VAL_BRIGTHNES, PSTR(""), lcd_brightness, 0, 100, 20, gui_set_display_brightness_cb);
+		gui_value_conf_P(PSTR("Backlight"), GUI_VAL_BRIGTHNES, PSTR(""), config.gui.brightness, 0, 100, 20, gui_set_display_brightness_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(2):
-		gui_value_conf_P(PSTR("Backlight timeout"), GUI_VAL_NUMBER, PSTR("%1.0f sec"), lcd_brightness_timeout, 0, 30, 1, gui_set_display_brightness_timeout_cb);
+		gui_value_conf_P(PSTR("Backlight timeout"), GUI_VAL_NUMBER, PSTR("%1.0f sec"), config.gui.brightness_timeout, 0, 30, 1, gui_set_display_brightness_timeout_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(3):
-		lcd_flags = lcd_flags ^ CFG_DISP_INVERT;
+		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_INVERT;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
+		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 		gui_change_disp_cfg();
 	break;
 
 	case(4):
-		lcd_flags = lcd_flags ^ CFG_DISP_FLIP;
+		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_FLIP;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
-		disp.SetFlip(lcd_flags & CFG_DISP_FLIP);
+		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+		disp.SetFlip(config.gui.disp_flags & CFG_DISP_FLIP);
 	break;
 
 	case(5):
-		lcd_flags = lcd_flags ^ CFG_DISP_ANIM;
+		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_ANIM;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.gui.disp_flags, lcd_flags);
+		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 	break;
 	}
 }
@@ -106,26 +106,26 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 		break;
 		case (2):
 			sprintf_P(text, PSTR("Backlight timeout"));
-			sprintf_P(sub_text, PSTR("%d sec"), lcd_brightness_timeout);
+			sprintf_P(sub_text, PSTR("%d sec"), config.gui.brightness_timeout);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 		case (3):
 			sprintf_P(text, PSTR("Invert display"));
-			if (lcd_flags & CFG_DISP_INVERT)
+			if (config.gui.disp_flags & CFG_DISP_INVERT)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 		case (4):
 			sprintf_P(text, PSTR("Flip orientation"));
-			if (lcd_flags & CFG_DISP_FLIP)
+			if (config.gui.disp_flags & CFG_DISP_FLIP)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 		case (5):
 			sprintf_P(text, PSTR("Animation"));
-			if (lcd_flags & CFG_DISP_ANIM)
+			if (config.gui.disp_flags & CFG_DISP_ANIM)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;

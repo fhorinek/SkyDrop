@@ -39,9 +39,9 @@ void gui_set_system_action(uint8_t index)
 	break;
 
 	case(3):
-		fc.usb_mode = !fc.usb_mode;
+		config.system.usb_mode = !config.system.usb_mode ;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.system.usb_mode, fc.usb_mode);
+		eeprom_update_byte(&config_ee.system.usb_mode, config.system.usb_mode );
 	break;
 
 	}
@@ -79,7 +79,7 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 
 		case (3):
 			sprintf_P(text, PSTR("Mass Storage"));
-			if (fc.usb_mode == USB_MODE_MASSSTORAGE)
+			if (config.system.usb_mode == USB_MODE_MASSSTORAGE)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;

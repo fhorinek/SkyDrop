@@ -10,13 +10,13 @@ void gui_set_gps_init()
 {
 	gui_list_set(gui_set_gps_item, gui_set_gps_action, 6, GUI_SETTINGS);
 
-	if (fc.use_gps)
+	if (config.system.use_gps)
 		gps_detail();
 }
 
 void gui_set_gps_stop()
 {
-	if (fc.use_gps)
+	if (config.system.use_gps)
 		gps_normal();
 }
 
@@ -37,24 +37,24 @@ void gui_set_gps_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		fc.use_gps = !fc.use_gps;
+		config.system.use_gps = !config.system.use_gps;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.system.use_gps, fc.use_gps);
-		if (fc.use_gps)
+		eeprom_update_byte(&config_ee.system.use_gps, config.system.use_gps);
+		if (config.system.use_gps)
 			gps_start();
 		else
 			gps_stop();
 	break;
 
 	case(1):
-		if (!fc.use_gps)
+		if (!config.system.use_gps)
 			gui_showmessage_P(PSTR("Enable GPS first"));
 		else
 			gui_switch_task(GUI_SET_GPS_DETAIL);
 	break;
 
 	case(2):
-		if (fc.use_gps)
+		if (config.system.use_gps)
 		{
 			if (fc.gps_data.fix_cnt > GPS_FIX_TIME_SYNC)
 				fc_sync_gps_time();
@@ -66,7 +66,7 @@ void gui_set_gps_action(uint8_t index)
 	break;
 
 	case(3):
-		if (fc.use_gps)
+		if (config.system.use_gps)
 		{
 			if (fc.gps_data.fix_cnt > GPS_FIX_TIME_SYNC)
 				fc_sync_gps_time();
@@ -78,19 +78,19 @@ void gui_set_gps_action(uint8_t index)
 	break;
 
 	case(4):
-		tmp = (fc.gps_data.format_flags & GPS_SPD_MASK) >> 0;
+		tmp = (config.system.gps_format_flags & GPS_SPD_MASK) >> 0;
 		tmp = (tmp + 1) % 4;
-		fc.gps_data.format_flags = (fc.gps_data.format_flags & ~GPS_SPD_MASK) | (tmp << 0);
+		config.system.gps_format_flags = (config.system.gps_format_flags & ~GPS_SPD_MASK) | (tmp << 0);
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.system.gps_format_flags, fc.gps_data.format_flags);
+		eeprom_update_byte(&config_ee.system.gps_format_flags, config.system.gps_format_flags);
 	break;
 
 	case(5):
-		tmp = (fc.gps_data.format_flags & GPS_FORMAT_MASK) >> 2;
+		tmp = (config.system.gps_format_flags & GPS_FORMAT_MASK) >> 2;
 		tmp = (tmp + 1) % 3;
-		fc.gps_data.format_flags = (fc.gps_data.format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
+		config.system.gps_format_flags = (config.system.gps_format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
 		eeprom_busy_wait();
-		eeprom_update_byte(&config.system.gps_format_flags, fc.gps_data.format_flags);
+		eeprom_update_byte(&config_ee.system.gps_format_flags, config.system.gps_format_flags);
 	break;
 
 	}
@@ -117,7 +117,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 	{
 		case (0):
 			sprintf_P(text, PSTR("Enable GPS"));
-			if (fc.use_gps)
+			if (config.system.use_gps)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
@@ -126,7 +126,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 
 		case (1):
 			sprintf_P(text, PSTR("Status"));
-			if (fc.use_gps)
+			if (config.system.use_gps)
 			{
 				switch (fc.gps_data.fix)
 				{
@@ -156,7 +156,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 				sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
 			else
 			{
-				if (fc.use_gps)
+				if (config.system.use_gps)
 					sprintf_P(sub_text, PSTR("Waiting for fix"));
 				else
 					sprintf_P(sub_text, PSTR("GPS disabled"));
@@ -171,7 +171,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 				sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
 			else
 			{
-				if (fc.use_gps)
+				if (config.system.use_gps)
 					sprintf_P(sub_text, PSTR("Waiting for fix"));
 				else
 					sprintf_P(sub_text, PSTR("GPS disabled"));
@@ -183,7 +183,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 		case (4):
 			sprintf_P(text, PSTR("Speed units"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			switch (fc.gps_data.format_flags & GPS_SPD_MASK)
+			switch (config.system.gps_format_flags & GPS_SPD_MASK)
 			{
 				case(GPS_SPD_KNOT):
 					sprintf_P(sub_text, PSTR("Knots"));
@@ -203,7 +203,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 		case (5):
 			sprintf_P(text, PSTR("Format"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			switch (fc.gps_data.format_flags & GPS_FORMAT_MASK)
+			switch (config.system.gps_format_flags & GPS_FORMAT_MASK)
 			{
 				case(GPS_DDMMSS):
 					sprintf_P(sub_text, PSTR("DD*MM'SS\""));

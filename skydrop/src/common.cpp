@@ -251,7 +251,7 @@ bool StoreEEPROM()
 	uint16_t wd = 0;
 
 	eeprom_busy_wait();
-	eeprom_update_dword(&config.build_number, BUILD_NUMBER);
+	eeprom_update_dword(&config_ee.build_number, BUILD_NUMBER);
 
 	uint16_t res;
 
@@ -261,10 +261,10 @@ bool StoreEEPROM()
 		uint8_t buf[256];
 		uint16_t rwd;
 
-		if (i + sizeof(buf) < sizeof(config))
+		if (i + sizeof(buf) < sizeof(cfg_t))
 			wd = sizeof(buf);
 		else
-			wd = sizeof(config) - i;
+			wd = sizeof(cfg_t) - i;
 
 		DEBUG(" >> i %d s %d rwd %d\n", i, wd, rwd);
 
@@ -277,7 +277,7 @@ bool StoreEEPROM()
 
 		i += wd;
 		DEBUG("i %d s %d rwd %d\n", i, wd, rwd);
-	} while (i < sizeof(config));
+	} while (i < sizeof(cfg_t));
 
 	f_close(ee_file);
 	DEBUG("File closed\n");

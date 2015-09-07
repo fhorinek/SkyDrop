@@ -26,8 +26,8 @@ void gui_set_autostart_threshold_cb(float val)
 {
 	uint8_t tmp = val;
 	eeprom_busy_wait();
-	eeprom_update_byte(&config.autostart.sensititvity, tmp);
-	fc.autostart_sensitivity = tmp;
+	eeprom_update_byte(&config_ee.autostart.sensititvity, tmp);
+	config.autostart.sensititvity = tmp;
 
 	gui_switch_task(GUI_SET_AUTOSTART);
 }
@@ -37,14 +37,14 @@ void gui_set_autostart_action(uint8_t index)
 	switch(index)
 	{
 		case(1):
-			gui_value_conf_P(PSTR("Threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), fc.autostart_sensitivity, 0, 100, 1, gui_set_autostart_threshold_cb);
+			gui_value_conf_P(PSTR("Threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), config.autostart.sensititvity, 0, 100, 1, gui_set_autostart_threshold_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(2):
-			fc.audio_supress = !fc.audio_supress;
+			config.autostart.supress_audio = !config.autostart.supress_audio;
 			eeprom_busy_wait();
-			eeprom_update_byte(&config.autostart.supress_audio, fc.audio_supress);
+			eeprom_update_byte(&config_ee.autostart.supress_audio, config.autostart.supress_audio);
 		break;
 	}
 }
@@ -73,8 +73,8 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		case (1):
 			sprintf_P(text, PSTR("Threshold"));
-			if (fc.autostart_sensitivity)
-				sprintf_P(sub_text, PSTR("+/-%dm"), fc.autostart_sensitivity);
+			if (config.autostart.sensititvity > 0)
+				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.sensititvity);
 			else
 				sprintf_P(sub_text, PSTR("disabled"));
 			*flags |= GUI_LIST_SUB_TEXT;
@@ -82,7 +82,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		case (2):
 			sprintf_P(text, PSTR("Suppress audio"));
-			if (fc.audio_supress)
+			if (config.autostart.supress_audio)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;

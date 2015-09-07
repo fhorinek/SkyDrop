@@ -18,9 +18,9 @@ int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 	switch (flags & 0b11000000)
 	{
 		case(ALT_ABS_QNH1):
-			return fc_press_to_alt(fc.pressure, fc.QNH1);
+			return fc_press_to_alt(fc.pressure, config.altitude.QNH1);
 		case(ALT_ABS_QNH2):
-			return fc_press_to_alt(fc.pressure, fc.QNH2);
+			return fc_press_to_alt(fc.pressure, config.altitude.QNH2);
 		case(ALT_ABS_GPS):
 			if (fc.gps_data.valid)
 				return fc.gps_data.altitude;
@@ -29,11 +29,11 @@ int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 		case(ALT_DIFF):
 			uint8_t a_index = (flags & 0b00001111) + 1;
 			if (a_index == 1)
-				return fc.altitude1 + fc.altimeter[index].delta;
+				return fc.altitude1 + config.altitude.altimeter[index].delta;
 			else
 			{
 				a_index -= 2;
-				return fc.altimeter[a_index].altitude + fc.altimeter[index].delta;
+				return fc.altitudes[a_index] + config.altitude.altimeter[index].delta;
 			}
 	}
 	return 0;
@@ -45,14 +45,14 @@ uint16_t vario_drop = 0;
 
 void vario_calc(float pressure)
 {
-	float rawAltitude = fc_press_to_alt(pressure, fc.QNH1);
+	float rawAltitude = fc_press_to_alt(pressure, config.altitude.QNH1);
 
 	kalmanFilter->update(rawAltitude);
 
 	float vario = kalmanFilter->getXVel();
 	float altitude = kalmanFilter->getXAbs();
 
-	fc.pressure = fc_alt_to_press(altitude, fc.QNH1);
+	fc.pressure = fc_alt_to_press(altitude, config.altitude.QNH1);
 
 	fc.vario = vario;
 
@@ -69,11 +69,11 @@ void vario_calc(float pressure)
 	}
 
 	//AVG vario and alt shoud start only on valid vario data
-	fc.digital_vario += (vario - fc.digital_vario) * fc.digital_vario_dampening;
-	fc.avg_vario += (vario - fc.avg_vario) * fc.avg_vario_dampening;
+	fc.digital_vario += (vario - fc.digital_vario) * config.vario.digital_vario_dampening;
+	fc.avg_vario += (vario - fc.avg_vario) * config.vario.avg_vario_dampening;
 
 	fc.altitude1 = altitude;
 
 	for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
-		fc.altimeter[i].altitude = vario_get_altitude(fc.altimeter[i].flags, i);
+		fc.altitudes[i] = vario_get_altitude(config.altitude.altimeter[i].flags, i);
 }

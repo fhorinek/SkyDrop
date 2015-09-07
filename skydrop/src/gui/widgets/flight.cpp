@@ -1,0 +1,18 @@
+#include "battery.h"
+
+#include "../../drivers/battery.h"
+
+void widget_glide_ratio(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(PSTR("Glide"), x, y);
+
+	char text[6];
+	if (fc.glide_ratio_valid)
+		sprintf_P(text, PSTR("%0.1f"), fc.glide_ratio);
+	else
+		sprintf_P(text, PSTR("---"));
+
+	widget_value_int(text, x, y + lh, w, h - lh);
+}
+
+register_widget1(w_glide_ratio, "Glide ratio", widget_glide_ratio);

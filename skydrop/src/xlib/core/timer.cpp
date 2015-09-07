@@ -133,9 +133,9 @@ void Timer::DisableOutputs(uint8_t flags)
 void Timer::SetTop(uint16_t top)
 {
 	if (this->tc0)
-		this->tc0->PERBUF = top;
+		this->tc0->PER = top;
 	else
-		this->tc1->PERBUF = top;
+		this->tc1->PER = top;
 }
 
 void Timer::SetCompare(uint8_t flags, uint16_t compare)

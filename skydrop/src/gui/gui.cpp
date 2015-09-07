@@ -1,5 +1,7 @@
 #include "gui.h"
-#include "../drivers/buzzer.h"
+
+#include "../drivers/audio/sequencer.h"
+
 #include "widgets/widgets.h"
 
 #include "pages.h"
@@ -27,6 +29,8 @@
 #include "gui_dialog.h"
 #include "settings/set_bluetooth.h"
 #include "update.h"
+#include "settings/set_weaklift.h"
+#include "settings/set_menu_audio.h"
 
 
 n5110display disp;
@@ -41,7 +45,8 @@ void (* gui_init_array[])() =
 	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
-	gui_dialog_init, gui_set_bluetooth_init, gui_update_init};
+	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
+	gui_set_menu_audio_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -49,7 +54,8 @@ void (* gui_stop_array[])() =
 	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
-	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop};
+	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
+	gui_set_menu_audio_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -57,7 +63,8 @@ void (* gui_loop_array[])() =
 	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
-	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop};
+	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
+	gui_set_menu_audio_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -65,9 +72,13 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
-	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh};
+	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
+	gui_set_menu_audio_irqh};
 
 #define GUI_ANIM_STEPS	20
+
+MK_SEQ(snd_but_short, ARR({1000}), ARR({50}));
+MK_SEQ(snd_but_long, ARR({800}), ARR({200}));
 
 void gui_switch_task(uint8_t new_task)
 {
@@ -75,23 +86,21 @@ void gui_switch_task(uint8_t new_task)
 }
 
 
-uint8_t lcd_brightness;
-uint8_t lcd_brightness_timeout;
 uint32_t lcd_brightness_end = 0;
-uint8_t lcd_contrast;
+
 uint8_t lcd_contrast_min;
 uint8_t lcd_contrast_max;
-uint8_t lcd_flags;
+
 volatile bool lcd_new_cfg = false;
 
 void gui_trigger_backlight()
 {
-	if (lcd_brightness == 0 || lcd_brightness_timeout == 0)
+	if (config.gui.brightness == 0 || config.gui.brightness_timeout == 0)
 		lcd_bckl(0);
 	else
 	{
-		lcd_bckl(lcd_brightness);
-		lcd_brightness_end = task_get_ms_tick() + lcd_brightness_timeout * 1000;
+		lcd_bckl(config.gui.brightness);
+		lcd_brightness_end = task_get_ms_tick() + config.gui.brightness_timeout * 1000;
 	}
 }
 
@@ -166,17 +175,14 @@ void gui_load_eeprom()
 {
 	eeprom_busy_wait();
 
-	lcd_brightness = eeprom_read_byte(&config.gui.brightness);
-	if (lcd_brightness == 0xFF)
-		lcd_brightness = 100;
+	if (config.gui.brightness == 0xFF)
+		config.gui.brightness = 100;
 
-	lcd_brightness_timeout = eeprom_read_byte(&config.gui.brightness_timeout);
-	if (lcd_brightness_timeout == 0xFF)
-		lcd_brightness_timeout = 3;
+	if (config.gui.brightness_timeout == 0xFF)
+		config.gui.brightness_timeout = 3;
 
-	lcd_contrast = eeprom_read_byte(&config.gui.contrast);
-	if (lcd_contrast > GUI_CONTRAST_STEPS)
-		lcd_contrast = GUI_CONTRAST_STEPS / 2;
+	if (config.gui.contrast > GUI_CONTRAST_STEPS)
+		config.gui.contrast = GUI_CONTRAST_STEPS / 2;
 
 	lcd_contrast_min = eeprom_read_byte(&config_ro.lcd_contrast_min);
 	if (lcd_contrast_min == 0xFF)
@@ -188,13 +194,12 @@ void gui_load_eeprom()
 
 	DEBUG("lcd_contrast_min %d\n", lcd_contrast_min);
 	DEBUG("lcd_contrast_max %d\n", lcd_contrast_max);
-	DEBUG("lcd_contrast %d\n", lcd_contrast);
+	DEBUG("lcd_contrast %d\n", config.gui.contrast);
 
-	lcd_flags = eeprom_read_byte(&config.gui.disp_flags);
-	if (lcd_flags == 0xFF)
-		lcd_flags = CFG_DISP_ANIM;
+	if (config.gui.disp_flags == 0xFF)
+		config.gui.disp_flags = CFG_DISP_ANIM;
 
-	disp.SetFlip(lcd_flags & CFG_DISP_FLIP);
+	disp.SetFlip(config.gui.disp_flags & CFG_DISP_FLIP);
 	gui_change_disp_cfg();
 	gui_update_disp_cfg();
 }
@@ -240,15 +245,15 @@ void gui_update_disp_cfg()
 		lcd_new_cfg = false;
 
 		DEBUG(" ** gui_update_disp_cfg **\n");
-		DEBUG("lcd_contrast %d\n", lcd_contrast);
+		DEBUG("lcd_contrast %d\n", config.gui.contrast);
 
 
-		uint8_t new_contrast = lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * lcd_contrast) / GUI_CONTRAST_STEPS;
+		uint8_t new_contrast = lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * config.gui.contrast) / GUI_CONTRAST_STEPS;
 
 		DEBUG("new_contrast %d\n", new_contrast);
 
 		disp.SetContrast(new_contrast);
-		disp.SetInvert(lcd_flags & CFG_DISP_INVERT);
+		disp.SetInvert(config.gui.disp_flags & CFG_DISP_INVERT);
 	}
 }
 
@@ -363,7 +368,16 @@ void gui_force_loop()
 void gui_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_LEFT || type == B_MIDDLE || type == B_RIGHT)
+	{
 		gui_message_end = task_get_ms_tick();
+		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS)
+		{
+			if (*buff == BE_CLICK)
+				seq_start(&snd_but_short, config.gui.menu_volume);
+			if (*buff == BE_LONG)
+				seq_start(&snd_but_long, config.gui.menu_volume);
+		}
+	}
 
 	switch(type)
 	{
@@ -377,7 +391,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 void gui_statusbar()
 {
 	//GPS indicator
-	if (fc.use_gps)
+	if (config.system.use_gps)
 	{
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);

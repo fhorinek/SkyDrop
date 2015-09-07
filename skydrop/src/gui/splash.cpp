@@ -1,6 +1,6 @@
 #include "splash.h"
 
-#include "../fc/audio.h"
+#include "../drivers/audio/sequencer.h"
 
 uint32_t splash_timer = 0;
 uint8_t splash_cnt = 0;
@@ -8,8 +8,8 @@ uint8_t splash_mode;
 #define SPLASH_TIMEOUT	500
 #define SPLASH_ANIM_TOP	35
 
-MK_BEEP(beep_on, ARR({261, 329, 392, 523}), ARR({250, 250, 250, 250}));
-MK_BEEP(beep_off, ARR({523, 392, 261}), ARR({250, 250, 250}));
+MK_SEQ(beep_on, ARR({261, 523}), ARR({150, 150}));
+MK_SEQ(beep_off, ARR({523, 261, 0}), ARR({150, 150, 2000}));
 
 void gui_splash_set_mode(uint8_t mode)
 {
@@ -22,14 +22,16 @@ void gui_splash_init()
 	{
 		gui_trigger_backlight();
 		splash_cnt = 0;
-//		audio_beep_start(&beep_on);
+		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_SPLASH)
+			seq_start(&beep_on, config.gui.menu_volume);
 	}
 
 	if (splash_mode == SPLASH_OFF)
 	{
 		lcd_bckl(0);
 		splash_cnt = SPLASH_ANIM_TOP;
-//		audio_beep_start(&beep_off);
+		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_SPLASH)
+			seq_start(&beep_off, config.gui.menu_volume);
 	}
 }
 
@@ -103,9 +105,6 @@ void gui_splash_loop()
 	}
 }
 
-void gui_splash_irqh(uint8_t type, uint8_t * buff)
-{
-
-}
+void gui_splash_irqh(uint8_t type, uint8_t * buff) {}
 
 
