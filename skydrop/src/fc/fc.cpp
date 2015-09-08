@@ -37,8 +37,8 @@ void fc_init()
 		gps_start();
 
 	bt_init();
-//	if (fc.use_flage & ENABLE_BT)
-//		bt_module_init();
+	if (config.system.use_bt)
+		bt_module_init();
 
 	//VCC to baro, acc/mag gyro
 	MEMS_POWER_ON;
@@ -144,7 +144,6 @@ ISR(FC_MEAS_TIMER_OVF)
 
 	ms5611.CompensatePressure();
 	IO1_LOW
-
 }
 
 
@@ -275,6 +274,7 @@ void fc_sync_gps_time()
 void fc_step()
 {
 	gps_step();
+
 	bt_step();
 
 	//gps time sync

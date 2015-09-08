@@ -28,6 +28,8 @@ void bt_step();
 
 void bt_module_reset();
 void bt_module_init();
+void bt_module_deinit();
+bool bt_device_active();
 
 void bt_send(char * str);
 void bt_irgh(uint8_t type, uint8_t * buf);

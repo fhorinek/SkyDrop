@@ -73,7 +73,8 @@
                 ["WIDGET_TEMPERATURE", "Temperature and humidity"],
                 ["WIDGET_GHEADING", "GPS Heading"],
                 ["WIDGET_GROUND_SPD", "Ground speed"],
-                ["WIDGET_BATTERY", "Battery status"]
+                ["WIDGET_BATTERY", "Battery status"],
+                ["WIDGET_GLIDE_RATIO", "Glide Ratio"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {

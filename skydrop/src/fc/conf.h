@@ -110,12 +110,22 @@ struct cfg_audio_profile
 #define GPS_SPD_MPH		0b00000010
 #define GPS_SPD_KNOT	0b00000011
 
+#define PROTOCOL_DIGIFLY	0
+#define PROTOCOL_FLYNET		1
+#define PROTOCOL_LK8EX		2
+#define PROTOCOL_BLUEFLY	3
+
 struct cfg_system
 {
 	uint8_t usb_mode;
+
 	uint8_t use_gps;
+	uint8_t use_bt;
+	uint8_t protocol;
+
 	uint8_t time_flags;
 	int8_t time_zone;
+
 	uint8_t gps_format_flags;
 };
 

@@ -93,5 +93,6 @@ extern uint8_t lcd_contrast_min;
 extern uint8_t lcd_contrast_max;
 
 extern volatile uint8_t gui_task;
+extern volatile bool gui_buttons_override;
 
 #endif /* GUI_H_ */

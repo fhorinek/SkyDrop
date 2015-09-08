@@ -36,8 +36,8 @@ void gui_factory_test_init()
 		gps_start();
 	}
 
-	buzzer_set_freq(0);
 	buzzer_set_vol(0);
+	buzzer_set_freq(0);
 	f_test_button_test = 0;
 
 	f_test_lcd = FTEST_LCD_MIN_AUTO;

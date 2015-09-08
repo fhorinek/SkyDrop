@@ -59,6 +59,7 @@
 	                    <li><a href="" ng-click="load()">Load</a></li>
 	                    <li><a href="" ng-click="save()">Save</a></li>
 	                    <li><a href="" ng-click="restore_default()">Reset to default</a></li>
+	                    <li><a ng-if="is_old()" href="" ng-click="upgrade()">Upgrade to {{newest()}} (Experimental)</a></li>
 	                </ul>
 					<div class="hidden">
 						<form name="file-form">

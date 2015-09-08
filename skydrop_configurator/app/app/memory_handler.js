@@ -1,39 +1,12 @@
 "use strict";
 
-/*//XXX add callback function for this!!!
-function load_resource_bin(url_path)
-{
-    var done = false;
-
-    console.log("loading bin resource %s", url_path);
-    console.group();
-
-    $.ajax({
-        url: url_path,
-        dataType: "binary",
-        processData: false,        
-        success: function(data) {
-            console.log("sucess");
-            console.log(data);
-            done = true;
-            //XXX this is hack
-            memory.init(data);
-        },
-        error: function(xhr, status, error) {
-            console.warn("error", xhr, status, error);
-            done = true;
-            //XXX this is hack            
-            memory.init(false);
-        },
-    })*/
-    
-    
 app.service("memory", ["$http", "$q", function($http, $q){
     //Variabiles
     this.ee_buffer = false;
     this.ee_map = false;
     this.ee_desc = false;
     this.build_number = false;
+    this.newest_build = false;
     this.fw_path = false;
     this.macros = false; 
     this.data_holder = false;
@@ -80,7 +53,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
         var callback = cb;
         var service = this;
     
-        console.log("loading bin resource %s", url_path, deferred);
+        console.log("loading bin resource %s", url_path);
 
         $http.get(url_path)     
         .success(function(data) {
@@ -222,19 +195,6 @@ app.service("memory", ["$http", "$q", function($http, $q){
         }
         
         return this.ee_buffer; 
-                
-        /*$http.post(
-            url_path,
-            this.ee_buffer,
-            {
-                contentType: 'application/octet-stream',  
-            }
-            ).then(function(data) {
-                console.log("sucess");
-                console.log(data);
-            }, function(data) {
-                console.warn("error", data);
-        });*/
     };
 
     this.getAllValues_async = function()
@@ -298,8 +258,10 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.init_step_1 = function(data, service, deferred)    
     {
         service.ee_buffer = new Uint8Array(data);
-        service.build_number = get_uint16(service.ee_buffer, 0);
-        console.log("DUMP.EE build_number =", service.build_number);        
+        service.build_number = get_uint32(service.ee_buffer, 0);
+        console.log("build_number =", service.build_number);        
+        if (service.newest_build === false)
+        	service.newest_build = service.build_number;
         
         //load ee_map
         service.fw_path = "fw/" + zero_pad(8, service.build_number) + "/";
@@ -349,7 +311,6 @@ app.service("memory", ["$http", "$q", function($http, $q){
             //    console.log(key + " = " + val)
         }
         
-        console.log(res);
         return res;
     };
     
@@ -369,101 +330,44 @@ app.service("memory", ["$http", "$q", function($http, $q){
     	
     	return deferred.promise;
     };
+    
+    this.is_old_version = function()
+    {
+    	return this.build_number != this.newest_build;    	
+    };
+    
+    this.upgrade = function()
+    {
+    	console.log(this.data_holder);
+    	
+    	var old_values = {};
+    	
+    	//store old values
+    	for (var key in this.data_holder)
+    	{
+    		var line = this.data_holder[key];
+    		if (line.pname != "cfg_build_number")
+    			old_values[line.pname] = line.value;
+    	}
+    	
+    	console.log(old_values);
+    	
+    	//load newest fw
+        var deferred = $q.defer();
+        
+        this.load_bin("UPDATE.EE", this.init_step_1, deferred);
+        
+        var service = this;
+        
+        deferred.promise.then(function (){
+        	console.log(old_values);
+        	//restore values
+        	for (var key in old_values)
+        	{
+        		service.setActualValue(key, old_values[key]);
+        	}
+        });    	
+    };
+    
 }]);
 
-/*
-function save_resource(url_path, data)
-{
-    var ret_data;
-
-    console.log("saving resource %s", url_path);
-    console.group();
-
-    $.ajax({
-        type: "POST",
-        url: url_path,
-        async: false,
-        data: data,
-        contentType: 'application/octet-stream',  
-        success: function(data) {
-            console.log("sucess");
-            console.log(data);
-            ret_data = data;
-        },
-        error: function(xhr, status, error) {
-            console.warn("error", xhr, status, error);
-            ret_data = false;
-        },
-    })
-    
-    console.groupEnd();
-    
-    return ret_data;
-}
-
-
-function MemoryHandler()
-{
-    var ee_buffer;
-    var ee_map;
-    var ee_desc;
-    var build_number;
-    var fw_path;
-    var macros;
-
-    this.init = function(data)
-    {
-        this.ee_buffer = new Uint8Array(data);
-            
-        this.build_number = get_uint16(this.ee_buffer, 0);
-        console.log("build_number", this.build_number);
-
-        //load ee_map
-        this.fw_path = "fw/" + zero_pad(8, this.build_number) + "/";
-        
-        var res = load_resource(this.fw_path + "ee_map.json");
-        
-        this.ee_map = res.map;
-        this.macros = res.macros;
-        
-        this.ee_desc = load_resource("res/desc.json");
-    }
-    
-    //load dump.ee
-    load_resource_bin("up_dir/DUMP.EE")
-    
-    
-
-    
-
-    
-    this.printAllValues = function()
-    {
-        var vars = this.listVariabiles();
-    
-        for (var i in vars)
-        {
-            var k = vars[i];
-            console.log(k, this.getValue(k), this.getType(k));
-        }
-    }
-   
-
-   
-
-    
-    this.save = function()
-    {
-        
-    }
-    
-    this.getBuffer = function()
-    {
-        var buff = "";
-        for (var i = 0; i < this.ee_buffer.length; i++)
-            buff += String.fromCharCode(this.ee_buffer[i])
-        
-        return btoa(buff);
-    }
-}   
-*/

@@ -1,3 +1,25 @@
+Build 0 - 28. 8. 2015
+========================================================
+FIX:
+ * Audio frequency stay the same #78
+
+ADDED:
+ * Upgrade to newest build option in configurator
+ * Update procedure will rename CFG.EE to OLD.EE so user can load it to configurator
+   and update it
+ * Button sound override for vario demo
+   
+
+CHANGED:
+ * Single file update procedure will unmount sd card sooner before reboot
+   so SD card will have more time to recover and the update will not fail #78
+
+NOTE:
+ * This release if only bug fix for 1098
+ * Bluetooth is super buggy do not touch it!
+
+
+
 Build 1098 - 28. 8. 2015
 ========================================================
 FIX:

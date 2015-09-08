@@ -1,12 +1,12 @@
 #include "gui.h"
 
 #include "../drivers/audio/sequencer.h"
+#include "../drivers/bluetooth/bt.h"
 
 #include "widgets/widgets.h"
 
 #include "pages.h"
 #include "splash.h"
-
 #include "settings/settings.h"
 #include "settings/set_vario.h"
 #include "settings/set_audio.h"
@@ -90,6 +90,8 @@ uint32_t lcd_brightness_end = 0;
 
 uint8_t lcd_contrast_min;
 uint8_t lcd_contrast_max;
+
+volatile bool gui_buttons_override = false;
 
 volatile bool lcd_new_cfg = false;
 
@@ -370,7 +372,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 	if (type == B_LEFT || type == B_MIDDLE || type == B_RIGHT)
 	{
 		gui_message_end = task_get_ms_tick();
-		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS)
+		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS && gui_buttons_override == false)
 		{
 			if (*buff == BE_CLICK)
 				seq_start(&snd_but_short, config.gui.menu_volume);
@@ -396,6 +398,7 @@ void gui_statusbar()
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);
 		sprintf_P(tmp, PSTR("G"));
+
 		if(fc.gps_data.valid)
 		{
 			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 1);
@@ -406,6 +409,25 @@ void gui_statusbar()
 				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 1);
 		}
 	}
+
+	//BT indicator
+	if (config.system.use_bt)
+	{
+		char tmp[3];
+		disp.LoadFont(F_TEXT_S);
+		sprintf_P(tmp, PSTR("B"));
+
+		if(bt_device_active())
+		{
+			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 10);
+		}
+		else
+		{
+			if (GUI_BLINK_TGL(1000))
+				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 10);
+		}
+	}
+
 
 	//battery indicator
 	uint8_t a = battery_per / 10;

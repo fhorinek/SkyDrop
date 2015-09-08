@@ -560,7 +560,5 @@ ISR(USARTC1_DRE_vect){UsartTxInteruptHandler(4);}
 ISR(USARTD1_RXC_vect){UsartRxInteruptHandler(5);}
 ISR(USARTD1_DRE_vect){UsartTxInteruptHandler(5);}
 //usart6
-ISR(USARTD0_RXC_vect){UsartRxInteruptHandler(6);
-DEBUG("WTF??\n");
-}
+ISR(USARTD0_RXC_vect){UsartRxInteruptHandler(6);}
 ISR(USARTD0_DRE_vect){UsartTxInteruptHandler(6);}

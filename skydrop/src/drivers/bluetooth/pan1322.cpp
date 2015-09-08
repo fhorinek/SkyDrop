@@ -271,7 +271,6 @@ void pan1322::Parse(uint8_t c)
 				this->error = true;
 				this->p_state = BT_STATE_START;
 				this->FindRN();
-//				task_irqh(TASK_IRQ_BT, param);
 				bt_irgh(BT_IRQ_ERROR, &param);
 			}
 		}
@@ -301,7 +300,6 @@ void pan1322::Parse(uint8_t c)
 				// this is hack
 				this->FindRN();
 
-//				param[0] = BT_EVENT_INCOMING;
 				this->p_state = BT_STATE_START;
 				this->AcceptConnection();
 				break;
@@ -310,10 +308,8 @@ void pan1322::Parse(uint8_t c)
 			{
 				this->FindRN();
 
-//				param[0] = BT_EVENT_CONNECTED;
 				this->connected = true;
 				this->p_state = BT_STATE_START;
-//				task_irqh(TASK_IRQ_BT, param);
 				bt_irgh(BT_IRQ_CONNECTED, 0);
 				break;
 			}
@@ -321,7 +317,6 @@ void pan1322::Parse(uint8_t c)
 			{
 				this->FindRN();
 
-//				param[0] = BT_EVENT_DISCONNECTED;
 				this->connected = false;
 				this->p_state = BT_STATE_START;
 				bt_irgh(BT_IRQ_DISCONNECTED, 0);
@@ -403,12 +398,11 @@ void pan1322::Parse(uint8_t c)
 				this->FindRN();
 				this->p_state = BT_STATE_START;
 			}
-
 			//HANDLE INCOMING DATA HERE
 			//XXX: hack sa to bude stale nahodne zasekavat tu bude chyba
 //			if (rgui.ParserStep(c))
 //				task_irqh(TASK_IRQ_RGUI, NULL);
-//			break;
+			break;
 
 		}
 		break;

@@ -8,7 +8,7 @@
 
 void gui_set_bluetooth_init()
 {
-	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 1, GUI_SETTINGS);
+	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 2, GUI_SETTINGS);
 }
 
 void gui_set_bluetooth_stop() {}
@@ -25,19 +25,29 @@ void gui_set_bluetooth_irqh(uint8_t type, uint8_t * buff)
 
 void gui_set_bluetooth_action(uint8_t index)
 {
+	switch (index)
+	{
+		case(1):
+			config.system.use_bt = !config.system.use_bt;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.system.use_bt, config.system.use_bt);
 
+			if (config.system.use_bt)
+				bt_module_init();
+			else
+				bt_module_deinit();
+		break;
+	}
 }
 
 void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
-	uint8_t bt_mod = bt_get_module_type();
-
 	switch (index)
 	{
 		case (0):
 			sprintf_P(text, PSTR("Bluetooth module"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			switch (bt_mod)
+			switch (bt_get_module_type())
 			{
 				case(BT_UNKNOWN):
 					sprintf_P(sub_text, PSTR("Unknown"));
@@ -52,6 +62,13 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		break;
 
+		case (1):
+			sprintf_P(text, PSTR("Enabled"));
+			if (config.system.use_bt)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
 
 	}
 }

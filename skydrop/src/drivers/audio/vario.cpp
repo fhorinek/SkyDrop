@@ -71,8 +71,8 @@ ISR(AUDIO_TIMER_OVF)
 	if (audio_vario_mode == VARIO_PAUSE)
 	//sound start
 	{
-		buzzer_set_freq(audio_vario_freq);
 		buzzer_set_vol(config.gui.vario_volume);
+		buzzer_set_freq(audio_vario_freq);
 
 		if (audio_vario_length > 0)
 		{
@@ -94,8 +94,8 @@ void audio_vario_apply()
 			//start the beeps
 			if (audio_vario_length > 0 && audio_vario_pause > 0)
 			{
-				buzzer_set_freq(audio_vario_freq);
 				buzzer_set_vol(config.gui.vario_volume);
+				buzzer_set_freq(audio_vario_freq);
 
 				audio_timer.SetValue(0);
 				audio_timer.SetTop(audio_vario_length);
@@ -107,8 +107,8 @@ void audio_vario_apply()
 			//continous tone
 			else
 			{
-				buzzer_set_freq(audio_vario_freq);
 				buzzer_set_vol(config.gui.vario_volume);
+				buzzer_set_freq(audio_vario_freq);
 
 				audio_vario_mode = VARIO_CONT;
 				break;
@@ -120,8 +120,8 @@ void audio_vario_apply()
 			if (audio_vario_length == 0 || audio_vario_pause == 0)
 			{
 				audio_timer.Stop();
-				buzzer_set_freq(audio_vario_freq);
 				buzzer_set_vol(config.gui.vario_volume);
+				buzzer_set_freq(audio_vario_freq);
 
 				audio_vario_mode = VARIO_CONT;
 				break;

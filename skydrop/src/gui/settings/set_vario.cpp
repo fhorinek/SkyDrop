@@ -78,6 +78,7 @@ void gui_set_vario_sink_cb(float val)
 
 void gui_set_vario_demo_cb(float val)
 {
+	gui_buttons_override = false;
 	audio_demo = false;
 	audio_demo_val = 0;
 	audio_off();
@@ -130,6 +131,7 @@ void gui_set_vario_action(uint8_t index)
 			gui_switch_task(GUI_SET_VAL);
 			audio_demo_val = 0;
 			audio_demo = true;
+			gui_buttons_override = true;
 		break;
 	}
 }

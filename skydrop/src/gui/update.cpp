@@ -43,9 +43,6 @@ void gui_update_done_cb(uint8_t ret)
 {
 	eeprom_busy_wait();
 
-	f_unlink("SKYDROP.FW");
-
-	storage_deinit();
 	gui_stop();
 
 	SystemReset();
@@ -344,6 +341,11 @@ void gui_update_loop()
 			{
 				gui_dialog_set_P(PSTR("Success"), PSTR("Update done.\nSkyDrop will reboot"), GUI_STYLE_OK, gui_update_done_cb);
 				gui_switch_task(GUI_DIALOG);
+
+				f_rename("CFG.EE", "OLD.EE");
+				f_unlink("SKYDROP.FW");
+
+				storage_deinit();
 			}
 
 		break;

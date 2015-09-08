@@ -141,6 +141,10 @@ EEMEM cfg_t config_ee = {
 		USB_MODE_MASSSTORAGE,
 		//use_gps
 		true,
+		//use_bt
+		false,
+		//protocol
+		PROTOCOL_DIGIFLY,
 		//time flags
 		TIME_DST | TIME_SYNC,
 		//timezone

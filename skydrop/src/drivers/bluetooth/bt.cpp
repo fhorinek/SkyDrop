@@ -36,8 +36,8 @@ bool bt_pan1322_init()
 	if (!bt_pan1322.Restart())
 		return false;
 
-//	if (!bt_pan1322.SetBaudrate(921600ul))
-//		return false;
+	if (!bt_pan1322.SetBaudrate(921600ul))
+		return false;
 
 	if (!bt_pan1322.SetName(PSTR("SkyDrop")))
 	{
