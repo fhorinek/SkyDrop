@@ -11,7 +11,7 @@ EEMEM cfg_t config_ee = {
 	//gui
 	{
 		//contrast
-		GUI_CONTRAST_STEPS / 2,
+		GUI_CONTRAST_STEPS / 2 + 1,
 		//brightness
 		100,
 		//brightness_timeout
@@ -74,7 +74,7 @@ EEMEM cfg_t config_ee = {
 		//flags
 		VARIO_UNITS_M,
 		//weak_lift_enabled
-		true,
+		false,
 		//weak_lift
 		30, // << -0.3 m/s (buzzer start at lift - week_lift)
 	},

@@ -30,7 +30,6 @@ void Lsm303d::Deinit()
 	this->Stop();
 
 	DisableAccFIFO();
-	GpioSetInterrupt(AM_INT2, gpio_clear);
 
 	this->settings.enabled = false;
 }

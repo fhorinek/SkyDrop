@@ -371,13 +371,20 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_LEFT || type == B_MIDDLE || type == B_RIGHT)
 	{
-		gui_message_end = task_get_ms_tick();
 		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS && gui_buttons_override == false)
 		{
 			if (*buff == BE_CLICK)
 				seq_start(&snd_but_short, config.gui.menu_volume);
 			if (*buff == BE_LONG)
 				seq_start(&snd_but_long, config.gui.menu_volume);
+		}
+
+		if (gui_message_end > task_get_ms_tick())
+		{
+			if (type == B_MIDDLE && *buff == BE_CLICK)
+				gui_message_end = 0;
+
+			return;
 		}
 	}
 

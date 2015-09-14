@@ -5,6 +5,33 @@
 extern pan1322 bt_pan1322;
 CreateStdOut(bt_pan1322_out, bt_pan1322.StreamWrite);
 
+enum pan1322_emd_e
+{
+	pan_cmd_none 				= 0,
+	pan_cmd_set_name			= 1,
+	pan_cmd_create_service		= 2,
+	pan_cmd_set_discoverable	= 3,
+	pan_cmd_accept_connection	= 4,
+};
+
+//ERR=-
+//+RSLE 					pair sucesfull
+//+RCOI=XXXXXXXXXXXX		incoming connection (12 HEX bt address)
+//+RCCRCNF					connected
+//+RDII						disconnected
+//+RDAI=DDD,data			data
+
+#define BT_STATE_START		0
+#define BT_STATE_ERR		1
+#define BT_STATE_RESP		2
+#define BT_STATE_DATA		3
+#define BT_STATE_OK			4
+#define BT_STATE_ROK		5
+#define BT_STATE_FIND_RN	6
+
+#define BT_TIMEOUT			1000
+#define BT_NO_TIMEOUT		0
+
 void pan1322::TxResume()
 {
 	this->usart->TxComplete();
@@ -19,48 +46,43 @@ void pan1322::Init(Usart * uart)
 
 	bt_irgh(BT_IRQ_INIT, 0);
 
+	this->Restart();
+
 	this->connected = false;
 }
 
 bool pan1322::SetBaudrate(uint32_t baud)
 {
-	fprintf_P(bt_pan1322_out, PSTR("AT+JSBR=%07lu\r\n"), baud);
-
-	if (!this->WaitForOK())
-	{
-		DEBUG1("SetBaudrate FAILED");
-		return false;
-	}
-
-	this->usart->Stop();
-
-	while(GpioRead(BT_CTS) == HIGH);
-
-	_delay_ms(150);
-	this->usart->Init(BT_UART, baud);
-//	this->usart.dbg = true;
-	this->usart->SetCtsPin(BT_RTS, LOW);
-	this->usart->SetInterruptPriority(MEDIUM);
-
-	return true;
+//	fprintf_P(bt_pan1322_out, PSTR("AT+JSBR=%07lu\r\n"), baud);
+//
+//	if (!this->WaitForOK())
+//	{
+//		DEBUG1("SetBaudrate FAILED");
+//		return false;
+//	}
+//
+//	this->usart->Stop();
+//
+//	while(GpioRead(BT_CTS) == HIGH);
+//
+//	_delay_ms(150);
+//	this->usart->Init(BT_UART, baud);
+////	this->usart.dbg = true;
+//	this->usart->SetInterruptPriority(MEDIUM);
+//
+//	return true;
 }
 
-bool pan1322::Restart()
+void pan1322::Restart()
 {
 	DEBUG("reset_start\n");
 	this->connected = false;
 	this->p_state = BT_STATE_START;
+	this->p_cmd = pan_cmd_none;
 
-	bt_irgh(BT_IRQ_DISCONNECTED, 0);
+	bt_irgh(BT_IRQ_RESET, 0);
 
 	bt_module_reset();
-
-	if (!this->WaitForOK())
-	{
-		DEBUG1("Reset FAILED");
-		return false;
-	}
-	return true;
 }
 
 void pan1322::StreamWrite(uint8_t data)
@@ -76,100 +98,112 @@ void pan1322::SendString(char *str)
 	this->StreamHead(len);
 	fprintf_P(bt_pan1322_out, PSTR("%s"), str);
 	this->StreamTail();
+	this->WaitForOK();
 }
 
-bool pan1322::WaitForOK(uint16_t timeout_ms)
-{
-	this->ok_ans = false;
-	this->error = false;
-
-	while (timeout_ms > 0)
-	{
-		if (!this->usart->isRxBufferEmpty())
-		{
-			this->Step();
-			if (this->ok_ans == true)
-			{
-				return true;
-			}
-			if (this->error)
-			{
-				this->error = false;
-				return false;
-			}
-		}
-		else
-		{
-			_delay_ms(1);
-			timeout_ms--;
-		}
-	}
-
-	return false;
-}
-
-bool pan1322::SetName(const char * name)
+void pan1322::SetName(const char * name)
 {
 	uint8_t nameLength = strlen_P(name);
 	if (nameLength > 18)
-		return false;
+	{
+		DEBUG1("Wrong name length");
+		return;
+	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JSLN=%02i,%S\r\n"), nameLength, name);
-
-	return this->WaitForOK();
+	this->WaitForOK();
 }
 
-bool pan1322::SetDiscoverable(bool discoverable)
+void pan1322::SetDiscoverable(bool discoverable)
 {
 	fprintf_P(bt_pan1322_out, PSTR("AT+JDIS=%i\r\n"), (discoverable) ? 3 : 0);
-
-	return this->WaitForOK();
+	this->WaitForOK();
 }
 
-bool pan1322::CreateService(const char * uuid, const char * name, uint8_t channel, const char * deviceClass)
+void pan1322::CreateService(const char * uuid, const char * name, uint8_t channel, const char * deviceClass)
 {
 	uint8_t nameLength = strlen_P(name);
 	if (nameLength > 16)
-		return false;
+	{
+		DEBUG1("Wrong name length");
+		return;
+	}
 
 	uint8_t uuidLength = strlen_P(uuid);
 	if (uuidLength > 32 || uuidLength < 4)
-		return false;
+	{
+		DEBUG1("Wrong uuid length");
+		return;
+	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JRLS=%02d,%02d,%S,%S,%02d,%S\r\n"), uuidLength, nameLength, uuid, name, channel, deviceClass);
-
-	return this->WaitForOK();
+	this->WaitForOK();
 }
 
 void pan1322::Step()
 {
 	while (!this->usart->isRxBufferEmpty())
 	{
-		uint8_t c = this->usart->Peek();
-		DEBUG("1322>%02X %c (%d)\n", c, c, this->usart->rx_len);
+//		uint8_t c = this->usart->Peek();
+//		DEBUG("1322>%02X %c (%d)\n", c, c, this->usart->rx_len);
 		this->Parse(this->usart->Read());
 	}
+
+	if (this->p_cmd != pan_cmd_none)
+	{
+		DEBUG("cmd %d\n", this->p_cmd);
+
+		switch(this->p_cmd)
+		{
+			case(pan_cmd_set_name):
+				this->SetName(PSTR("SkyDrop Pan1322"));
+			break;
+
+			case(pan_cmd_create_service):
+				this->CreateService(PSTR("0000110100001000800000805f9b34fb"), PSTR("SPP"), 01, PSTR("080510"));
+			break;
+
+			case(pan_cmd_set_discoverable):
+				this->SetDiscoverable(true);
+			break;
+
+			case(pan_cmd_accept_connection):
+				this->AcceptConnection();
+			break;
+		}
+		this->p_last_cmd = this->p_cmd;
+		this->p_cmd = pan_cmd_none;
+	}
+
+	if (this->timer != BT_NO_TIMEOUT && this->timer < task_get_ms_tick())
+	{
+		DEBUG1("timeout %d\n", this->p_last_cmd);
+		this->timer = BT_NO_TIMEOUT;
+
+		switch (this->p_last_cmd)
+		{
+			case(pan_cmd_none):
+				//ROK not recieved
+				bt_irgh(BT_IRQ_INIT_FAIL, 0);
+			break;
+
+			case(pan_cmd_set_name):
+				this->SetName(PSTR("SkyDrop Pan1322"));
+			break;
+
+			case(pan_cmd_accept_connection):
+				this->SetName(PSTR("SkyDrop Pan1322"));
+			break;
+		}
+
+	}
+
+
 }
 
-bool pan1322::AcceptConnection()
+void pan1322::AcceptConnection()
 {
 	fprintf_P(bt_pan1322_out, PSTR("AT+JACR=1\r\n"));
-
-	return this->WaitForOK();
-}
-
-void pan1322::FindRN()
-{
-//	return;
-	uint8_t c;
-
-	while (1)
-	{
-		c = this->usart->Read();
-		//DEBUG("%c", c);
-		if (c == '\n')
-			return;
-	}
 }
 
 void pan1322::StreamHead(uint16_t len)
@@ -199,8 +233,6 @@ void pan1322::StreamTail()
 {
 	fprintf_P(bt_pan1322_out, "\r\n");
 	this->usart->FlushTxBuffer();
-
-	this->WaitForOK();
 }
 
 bool pan1322::isIdle()
@@ -213,18 +245,19 @@ bool pan1322::isConnected()
 	return this->connected;
 }
 
+void pan1322::WaitForOK()
+{
+//	DEBUG("Wait for ok\n");
+	this->timer = task_get_ms_tick() + BT_TIMEOUT;
+}
+
 void pan1322::Parse(uint8_t c)
 {
 	uint8_t param;
 	uint8_t tmp;
 	uint8_t n;
 
-//	if (c == 10)
-//		DEBUG("P \\r,%d,%d,%d,%d\n", this->p_state, this->p_len, this->usart.rx_len, this->data_len);
-//	else if (c == 13)
-//		DEBUG("P \\n,%d,%d,%d,%d\n", this->p_state, this->p_len, this->usart.rx_len, this->data_len);
-//	else
-//		DEBUG("P %c,%d,%d,%d,%d\n", c, this->p_state, this->p_len, this->usart.rx_len, this->data_len);
+//	DEBUG("P %d,%d\n", this->p_state, this->p_len);
 
 	uint8_t state = this->p_state;
 	switch (state)
@@ -235,26 +268,78 @@ void pan1322::Parse(uint8_t c)
 			this->p_state = BT_STATE_RESP;
 			this->p_len = 4;
 			this->p_index = 0;
+			break;
 		}
 		if (c == 'E')
 		{
 			this->p_state = BT_STATE_ERR;
 			this->p_len = 4;
 			this->p_index = 0;
+			break;
 		}
 		if (c == 'O')
 		{
 			this->p_state = BT_STATE_OK;
+			break;
+		}
+		if (c == 'R')
+		{
+			this->p_state = BT_STATE_ROK;
+			this->p_len = 2;
+			this->p_index = 0;
+			break;
+		}
+	break;
+
+	case(BT_STATE_ROK):
+		if (this->p_len > this->p_index)
+		{
+			this->p_buff[this->p_index] = c;
+			this->p_index++;
+		}
+		else
+		{
+			if (cmpn(this->p_buff, "OK", 2))
+			{
+				DEBUG("pan1322 reset ok\n");
+				this->p_cmd = pan_cmd_set_name;
+				this->p_state = BT_STATE_FIND_RN;
+			}
 		}
 	break;
 
 	case(BT_STATE_OK):
 		if (c == 'K')
 		{
-			this->ok_ans = true;
+			this->timer = BT_NO_TIMEOUT;
+
+			DEBUG("OK %d\n", this->p_last_cmd);
+
+			switch(this->p_last_cmd)
+			{
+				case(pan_cmd_set_name):
+					this->p_cmd = pan_cmd_create_service;
+				break;
+
+				case(pan_cmd_create_service):
+					this->p_cmd = pan_cmd_set_discoverable;
+				break;
+
+				case(pan_cmd_set_discoverable):
+					DEBUG("pan1322 init ok\n");
+
+					bt_irgh(BT_IRQ_INIT_OK, 0);
+				break;
+			}
 		}
-		this->p_state = BT_STATE_START;
-		this->FindRN();
+		this->p_state = BT_STATE_FIND_RN;
+	break;
+
+	case(BT_STATE_FIND_RN):
+		if (c == '\n')
+		{
+			this->p_state = BT_STATE_START;
+		}
 	break;
 
 	case(BT_STATE_ERR):
@@ -269,8 +354,7 @@ void pan1322::Parse(uint8_t c)
 			{
 				param = c - '0';
 				this->error = true;
-				this->p_state = BT_STATE_START;
-				this->FindRN();
+				this->p_state = BT_STATE_FIND_RN;
 				bt_irgh(BT_IRQ_ERROR, &param);
 			}
 		}
@@ -286,51 +370,48 @@ void pan1322::Parse(uint8_t c)
 		{
 			if (cmpn(this->p_buff, "RSLE", 4))
 			{
-				this->FindRN();
-
-//				param[0] = BT_EVENT_PAIR;
-				this->p_state = BT_STATE_START;
-//				task_irqh(TASK_IRQ_BT, param);
-//				this->AcceptConnection();
+				//pair sucesfull
+				this->p_state = BT_STATE_FIND_RN;
+				bt_irgh(BT_IRQ_PAIR, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RCOI", 4))
 			{
 				//TODO: decode btaddress
-				// this is hack
-				this->FindRN();
+				this->p_state = BT_STATE_FIND_RN;
 
-				this->p_state = BT_STATE_START;
-				this->AcceptConnection();
+//				this->AcceptConnection();
+				this->p_cmd = pan_cmd_accept_connection;
 				break;
 			}
 			if (cmpn(this->p_buff, "RCCR", 4))
 			{
-				this->FindRN();
+				//device connected
+				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = true;
-				this->p_state = BT_STATE_START;
 				bt_irgh(BT_IRQ_CONNECTED, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RDII", 4))
 			{
-				this->FindRN();
+				//device disconnected
+				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = false;
-				this->p_state = BT_STATE_START;
 				bt_irgh(BT_IRQ_DISCONNECTED, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RDAI", 4))
 			{
+				//incoming data
+
 				this->p_state = BT_STATE_DATA;
 				this->p_len = 0;
 				break;
 			}
 
-			this->p_state = BT_STATE_START;
-			this->FindRN();
+			this->p_state = BT_STATE_FIND_RN;
 		}
 
 
@@ -395,13 +476,10 @@ void pan1322::Parse(uint8_t c)
 
 			if (this->data_len == 0)
 			{
-				this->FindRN();
-				this->p_state = BT_STATE_START;
+				this->p_state = BT_STATE_FIND_RN;
 			}
 			//HANDLE INCOMING DATA HERE
-			//XXX: hack sa to bude stale nahodne zasekavat tu bude chyba
-//			if (rgui.ParserStep(c))
-//				task_irqh(TASK_IRQ_RGUI, NULL);
+			//...drop data here :)...
 			break;
 
 		}

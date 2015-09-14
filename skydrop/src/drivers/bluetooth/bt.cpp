@@ -5,6 +5,7 @@
 #include "pan1322.h"
 #include "pan1026.h"
 
+bool bt_autodetect = false;
 uint8_t bt_module_type = BT_PAN1322;
 
 pan1026 bt_pan1026;
@@ -22,6 +23,7 @@ volatile uint8_t bt_module_state = BT_MOD_STATE_OFF;
 
 ISR(BT_CTS_PIN_INT)
 {
+	DEBUG("CTS\n");
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.TxResume();
 
@@ -29,42 +31,11 @@ ISR(BT_CTS_PIN_INT)
 		bt_pan1026.TxResume();
 }
 
-bool bt_pan1322_init()
+void bt_pan1322_init()
 {
+	DEBUG("bt_pan1322_init\n");
+
 	bt_pan1322.Init(&bt_uart);
-
-	if (!bt_pan1322.Restart())
-		return false;
-
-	if (!bt_pan1322.SetBaudrate(921600ul))
-		return false;
-
-	if (!bt_pan1322.SetName(PSTR("SkyDrop")))
-	{
-		if (!bt_pan1322.SetName(PSTR("SkyDrop")))
-		{
-			DEBUG("SetName FAILED\n");
-			return false;
-		}
-	}
-
-	if (!bt_pan1322.CreateService(PSTR("0000110100001000800000805f9b34fb"), PSTR("SPP"), 01, PSTR("080510")))
-	{
-		DEBUG("CreateService FAILED\n");
-		return false;
-	}
-
-	if (!bt_pan1322.SetDiscoverable(true))
-	{
-		DEBUG("SetDiscoverable FAILED\n");
-		return false;
-	}
-
-
-	DEBUG("pan1322 init SUCESS\n");
-	uint8_t tmp = BT_PAN1322;
-	bt_irgh(BT_IRQ_INIT_OK, &tmp);
-	return true;
 }
 
 void bt_pan1026_init()
@@ -76,7 +47,6 @@ void bt_pan1026_init()
 
 void bt_module_deinit()
 {
-	GpioWrite(BT_RTS, LOW);
 	GpioWrite(BT_EN, LOW);
 	GpioWrite(BT_RESET, LOW);
 
@@ -99,36 +69,32 @@ void bt_module_reset()
 
 void bt_module_init()
 {
+	//enable bt uart
+	BT_UART_PWR_ON;
+
 	//module specific code
-	if (bt_module_type == BT_PAN1322)
-		bt_pan1322_init();
-
-	if (bt_module_type == BT_PAN1026)
-		bt_pan1026_init();
-
-	if (bt_module_type == BT_UNKNOWN)
+	switch (bt_module_type)
 	{
-		bt_module_type = BT_PAN1322;
-		if (!bt_pan1322_init())
-		{
-			bt_module_deinit();
-			DEBUG("de_init_now\n");
-			bt_module_type = BT_UNKNOWN;
-			_delay_ms(500);
+		case(BT_PAN1322):
+			bt_pan1322_init();
+		break;
 
-			BT_UART_PWR_ON;
-
-			bt_module_type = BT_PAN1026;
+		case(BT_PAN1026):
 			bt_pan1026_init();
-		}
+		break;
 
+		default: //UNKNOWN module
+			bt_autodetect = true;
+			bt_module_type = BT_PAN1322;
+			bt_pan1322_init();
+		break;
 	}
+
 }
 
 void bt_init()
 {
 	DEBUG("bt_init\n");
-	BT_UART_PWR_ON;
 
 	//get module type
 	eeprom_busy_wait();
@@ -189,33 +155,75 @@ void bt_send(char * str)
 
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.SendString(str);
+
 	if (bt_module_type == BT_PAN1026)
 		bt_pan1026.SendString(str);
 }
 
 void bt_irgh(uint8_t type, uint8_t * buf)
 {
+	uint8_t old_type;
+
 	switch(type)
 	{
 		case(BT_IRQ_INIT):
+		DEBUG("BT_MOD_STATE_INIT\n");
 			bt_module_state = BT_MOD_STATE_INIT;
 		break;
 		case(BT_IRQ_INIT_OK):
-			DEBUG("BT module init ok\n");
+			DEBUG("BT_MOD_STATE_OK\n");
 			bt_module_state = BT_MOD_STATE_OK;
+			bt_autodetect = false;
 		break;
 		case(BT_IRQ_DEINIT):
+			DEBUG("BT_MOD_STATE_OFF\n");
 			bt_module_state = BT_MOD_STATE_OFF;
 		break;
 		case(BT_IRQ_CONNECTED):
-			DEBUG("device connected\n");
+			DEBUG("BT_IRQ_CONNECTED\n");
+			gui_showmessage_P(PSTR("Bluetooth\nconnected"));
 			bt_device_connected = true;
 		break;
 		case(BT_IRQ_DISCONNECTED):
-			DEBUG("device disconnected\n");
+			DEBUG("BT_IRQ_DISCONNECTED\n");
+			gui_showmessage_P(PSTR("Bluetooth\ndisconnected"));
 			bt_device_connected = false;
 		break;
+		case(BT_IRQ_RESET):
+			DEBUG("BT_IRQ_RESET\n");
+			bt_device_connected = false;
+		break;
+		case(BT_IRQ_INIT_FAIL):
+			DEBUG("BT_IRQ_INIT_FAIL!\n");
+			if (bt_autodetect)
+			{
+				old_type = bt_module_type;
 
+				bt_module_deinit();
+				DEBUG("de_init_now\n");
+				bt_module_type = BT_UNKNOWN;
+				_delay_ms(500);
+
+				BT_UART_PWR_ON;
+
+				if (old_type == BT_PAN1322)
+				{
+					bt_module_type = BT_PAN1026;
+					bt_pan1026_init();
+				}
+
+				if (old_type == BT_PAN1026)
+				{
+					bt_module_type = BT_PAN1322;
+					bt_pan1322_init();
+				}
+
+			}
+			else
+			{
+//				gui_showmessage_P(PSTR("Bluetooth\nInit failed!"));
+			}
+		break;
 	}
 }
 

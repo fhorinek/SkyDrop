@@ -201,19 +201,19 @@ void audio_vario_step(float vario)
 
 		//update audio with new settings
 		audio_vario_apply();
+
+		return;
 	}
-	else
+
 	//no threshold was exceeded -> silent
-	{
-		audio_off();
-	}
+	audio_off();
 }
 
 void audio_vario_reset()
 {
 	//so lowpass will not affect affect new beeps
 	audio_vario_freq = 0;
-	//next vario sound will go fro OFF state
+	//next vario sound will go from OFF state
 	audio_vario_mode = VARIO_OFF;
 
 }

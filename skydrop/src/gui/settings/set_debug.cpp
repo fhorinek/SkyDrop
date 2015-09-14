@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 4, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 5, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -70,15 +70,30 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("FW %s"), fw_info.app_name);
+			sprintf_P(text, PSTR("FW name"));
+			sprintf_P(sub_text, PSTR("%s"), fw_info.app_name);
+			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("ADC raw %d"), battery_adc_raw);
+			sprintf_P(text, PSTR("ADC raw value"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			sprintf_P(sub_text, PSTR("%d"), battery_adc_raw);
 		break;
 
 		case (3):
 			sprintf_P(text, PSTR("Reset Factory test"));
+		break;
+
+		case (4):
+			sprintf_P(text, PSTR("Board rev."));
+			*flags |= GUI_LIST_SUB_TEXT;
+
+			if (hw_revision == HW_REW_1504)
+				sprintf_P(sub_text, PSTR("drop 1504"));
+			if (hw_revision == HW_REW_1506)
+				sprintf_P(sub_text, PSTR("drop 1506"));
+
 		break;
 	}
 }

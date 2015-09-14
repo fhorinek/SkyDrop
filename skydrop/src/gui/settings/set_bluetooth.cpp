@@ -8,7 +8,7 @@
 
 void gui_set_bluetooth_init()
 {
-	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 2, GUI_SETTINGS);
+	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 3, GUI_SETTINGS);
 }
 
 void gui_set_bluetooth_stop() {}
@@ -68,6 +68,18 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (2):
+			sprintf_P(text, PSTR("Protocol"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			switch(config.system.protocol)
+			{
+				case(PROTOCOL_DIGIFLY):
+					sprintf_P(sub_text, PSTR("DigiFly"));
+				break;
+
+			}
 		break;
 
 	}

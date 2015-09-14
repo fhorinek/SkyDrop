@@ -18,8 +18,6 @@ bool mems_i2c_ok = false;
 
 bool mems_i2c_init()
 {
-	//Enable I2c pull-ups
-	I2C_POWER_ON;
 	//Enable I2C peripheral
 	MEMS_I2C_PWR_ON;
 
@@ -61,12 +59,12 @@ int8_t to_dec_1(int8_t c)
 	return c - 64;
 }
 
-ISR(AM_INT1_INT)
-{
-//	fc_mag_irq();
-}
-
-ISR(AM_INT2_INT)
-{
-//	fc_acc_irq();
-}
+//ISR(AM_INT1_INT)
+//{
+////	fc_mag_irq();
+//}
+//
+//ISR(AM_INT2_INT)
+//{
+////	fc_acc_irq();
+//}

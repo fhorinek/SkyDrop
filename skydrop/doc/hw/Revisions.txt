@@ -1,0 +1,36 @@
+drop 1501 - DEVELOPMENT ONLY, NOT IN PRODUCTION
+========================
+devices
+ * pan1322
+ * lsm303d
+ * l3g3d20
+gpio
+ * io0 - portb1
+ * io1 - portd1
+ 
+drop 1504
+========================
+devices
+ * pan1322 || pan1026
+ * lsm303d
+ * l3g3d20
+gpio
+ * io0 - portb1 (not usable)
+ * io1 - portd1
+note 
+ * io0 is connected with MEMS_EN
+ 
+drop 1506
+========================
+devices
+ * pan1026
+ * lsm9ds0
+gpio
+ * io0 - portd1 (old rev io1)
+ * io1 - portb1 (old rev io0)
+ * io2 - portr0 (old rev AM_INT1)
+ * io3 - portf7 (old rev AM_INT2)
+ * io4 - portf5 (old rev I2C_EN)
+note
+ * I2C_EN is driven by MEMS_EN now
+ * lsm9ds0 act the same as lsm303d and l3g3d20

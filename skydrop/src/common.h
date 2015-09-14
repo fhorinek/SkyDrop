@@ -128,6 +128,10 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 
 #define BT_CTS_PIN_INT			portb_interrupt1
 
+//suppress and allow uart communication from bt module
+#define BT_SUPRESS_TX			GpioWrite(BT_RTS, HIGH);
+#define BT_ALLOW_TX				GpioWrite(BT_RTS, LOW);
+
 #define DAC_PWR_ON				PR.PRPB &= 0b11111011;
 #define DDC_PWR_OFF				PR.PRPB |= 0b00000100;
 
@@ -226,11 +230,9 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 //SD_MISO						portf2
 //SD_MOSI						portf3
 #define SD_EN					portf4
-#define I2C_EN					portf5
+#define IO4						portf5
 #define MEMS_EN					portf6
-#define AM_INT2					portf7
-
-#define AM_INT2_INT				portf_interrupt0
+#define IO3						portf7
 
 #define SD_SPI					usartf0
 #define SD_SPI_PWR_ON			PR.PRPF &= 0b11101111;
@@ -241,51 +243,25 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define SD_EN_INIT				GpioSetDirection(SD_EN, OUTPUT); \
 								SD_EN_OFF;
 
-#define I2C_POWER_ON			GpioWrite(I2C_EN, HIGH);
-#define I2C_POWER_OFF			GpioWrite(I2C_EN, LOW);
-#define I2C_POWER_INIT			GpioSetDirection(I2C_EN, OUTPUT); \
-								I2C_POWER_OFF;
-
-#define MEMS_POWER_ON			GpioWrite(MEMS_EN, HIGH); \
-								GpioWrite(IO0, HIGH);
-
-#define MEMS_POWER_OFF			GpioWrite(MEMS_EN, LOW); \
-								GpioWrite(IO0, LOW);
-
-
-#define MEMS_POWER_INIT			GpioSetDirection(MEMS_EN, OUTPUT); \
-								GpioSetDirection(IO0, OUTPUT); \
-								MEMS_POWER_OFF;
-
-
 #define BUZZER_TIMER			timerf0
 #define BUZZER_TIMER_OVF		timerf0_overflow_interrupt
 #define BUZZER_TIMER_PWR_OFF	PR.PRPF |= 0b00000001
 #define BUZZER_TIMER_PWR_ON		PR.PRPF &= 0b11111110
 
 //---------------- PORTR ---------------------
-#define AM_INT1					portr0
+#define IO2						portr0
 #define SD_SS					portr1
-
-#define AM_INT1_INT				portr_interrupt0
 
 #define BUILD_VER	"%02d%02d%02d-%02d%02d", BUILD_YEAR, BUILD_MONTH, BUILD_DAY, BUILD_HOUR, BUILD_MIN
 
 //--------------------------------------------
 
-#define IO1_INIT				GpioSetDirection(IO1, OUTPUT);
-#define IO1_HIGH				GpioWrite(IO1, HIGH);
-#define IO1_LOW					GpioWrite(IO1, LOW);
+//revision specific pins
+#define HW_REW_1504		0
+#define HW_REW_1506		1
 
-#define IO0_INIT				GpioSetDirection(IO0, OUTPUT);
-#define IO0_HIGH				GpioWrite(IO0, HIGH);
-#define IO0_LOW					GpioWrite(IO0, LOW);
-
-//#define IO0_INIT
-//#define IO0_HIGH
-//#define IO0_LOW
-
-
+#define REV_1504_MEMS_EN_2		portb1
+#define REV_1504_I2C_EN			portf5
 
 class DataBuffer
 {
@@ -309,19 +285,37 @@ public:
 
 //--------------------------------------------
 
+//memory
 void test_memory();
+int freeRam();
+
+//common
 bool cmpn(char * s1, const char * s2, uint8_t n);
 bool cmpn_p(char * s1, const char * s2, uint8_t n);
-void print_fw_info();
-int freeRam();
+uint8_t fast_flip(uint8_t in);
+
+//settings
 bool LoadEEPROM();
 bool StoreEEPROM();
+
+//system info
+void print_fw_info();
+void guess_hw_rew();
+extern uint8_t hw_revision;
+
+//power
+void mems_power_init();
+void mems_power_on();
+void mems_power_off();
 
 void turnoff_subsystems();
 
 void bat_en_high(uint8_t mask);
 void bat_en_low(uint8_t mask);
 
-uint8_t fast_flip(uint8_t in);
+//GPIO
+void io_init();
+void io_write(uint8_t io, uint8_t level);
+
 
 #endif /* COMMON_H_ */

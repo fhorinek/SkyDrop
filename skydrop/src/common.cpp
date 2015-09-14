@@ -9,6 +9,8 @@
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
 
+uint8_t hw_revision;
+
 void print_fw_info()
 {
 	eeprom_busy_wait();
@@ -95,10 +97,6 @@ uint16_t DataBuffer::Read(uint16_t len, uint8_t * * data)
 
 bool DataBuffer::Write(uint16_t len, uint8_t * data)
 {
-//	for (uint16_t i=0;i<len;i++)
-//		DEBUG(" %02X", data[i]);
-//	DEBUG(" << \n");
-
 	if (this->size - this->length < len)
 		return false;
 
@@ -115,16 +113,6 @@ bool DataBuffer::Write(uint16_t len, uint8_t * data)
 
 	this->write_index = (this->write_index + len) % this->size;
 	this->length += len;
-
-//	DEBUG("wi: %d ", this->write_index);
-//	DEBUG("ri: %d ", this->read_index);
-//	DEBUG("ln: %d\n", this->length);
-//
-//	DEBUG("S");
-//	for (uint16_t i=this->read_index;i < this->read_index + this->length;i++)
-//		DEBUG(" %02X", this->data[i]);
-//	DEBUG("\n");
-//	DEBUG("\n");
 
 	return true;
 }
@@ -212,16 +200,12 @@ bool LoadEEPROM()
 
 		//rewind the file
 		f_lseek(ee_file, 0);
-		DEBUG("tell = %d\n", f_tell(ee_file));
 
 		for (uint16_t i = 0; i < fno.fsize; i += rd)
 		{
 			uint8_t buf[256];
 
 			f_read(ee_file, buf, sizeof(buf), &rd);
-
-			DEBUG("tell = %d\n", f_tell(ee_file));
-			DEBUG(" %d / %d\n", i + rd, fno.fsize);
 
 			eeprom_busy_wait();
 			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
@@ -239,14 +223,21 @@ bool StoreEEPROM()
 	wdt_reset();
 	DEBUG("Storing settings\n");
 
+	if (!storage_selftest())
+	{
+		DEBUG("Error: Storage not available\n");
+		return false;
+	}
+
 	FIL * ee_file;
 	ee_file = new FIL;
 
 	if (f_open(ee_file, "CFG.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
 	{
 		DEBUG("Unable to create file\n");
-		return false;
 		delete ee_file;
+
+		return false;
 	}
 	uint16_t wd = 0;
 
@@ -266,17 +257,14 @@ bool StoreEEPROM()
 		else
 			wd = sizeof(cfg_t) - i;
 
-		DEBUG(" >> i %d s %d rwd %d\n", i, wd, rwd);
 
 		eeprom_busy_wait();
 		eeprom_read_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), wd);
 
-		DEBUG(" << \n");
 
 		res = f_write(ee_file, buf, wd, &rwd);
 
 		i += wd;
-		DEBUG("i %d s %d rwd %d\n", i, wd, rwd);
 	} while (i < sizeof(cfg_t));
 
 	f_close(ee_file);
@@ -295,3 +283,111 @@ uint8_t fast_flip(uint8_t in)
 	return out;
 }
 
+void guess_hw_rew()
+{
+	DEBUG(" *** Guessing the revision ***\n");
+
+	//MEMS_EN high
+	GpioSetDirection(MEMS_EN, OUTPUT);
+	GpioWrite(MEMS_EN, HIGH);
+	_delay_us(1500);
+
+	GpioSetDirection(portb1, INPUT);
+
+	//when mens_en is high			1504	1506
+	uint8_t ioh1 = GpioRead(portb1);	//	 H		 L
+
+	if (ioh1 == HIGH)
+	{
+		DEBUG("Board revision is 1504\n");
+		hw_revision = HW_REW_1504;
+	}
+	else
+	{
+		DEBUG("Board revision is 1506\n");
+		hw_revision = HW_REW_1506;
+	}
+
+	GpioWrite(MEMS_EN, LOW);
+	GpioSetDirection(MEMS_EN, INPUT);
+}
+
+void io_init()
+{
+	if (hw_revision == HW_REW_1504)
+	{
+		GpioSetDirection(IO1, OUTPUT);
+	}
+
+	if (hw_revision == HW_REW_1506)
+	{
+		GpioSetDirection(IO0, OUTPUT);
+		GpioSetDirection(IO1, OUTPUT);
+		GpioSetDirection(IO2, OUTPUT);
+		GpioSetDirection(IO3, OUTPUT);
+		GpioSetDirection(IO4, OUTPUT);
+	}
+}
+
+void io_write(uint8_t io, uint8_t level)
+{
+	if (hw_revision == HW_REW_1504)
+	{
+		GpioWrite(IO1, level);
+	}
+
+	if (hw_revision == HW_REW_1506)
+	{
+		switch (io)
+		{
+			case(0):
+				GpioWrite(IO0, level);
+			break;
+			case(1):
+				GpioWrite(IO1, level);
+			break;
+			case(2):
+				GpioWrite(IO2, level);
+			break;
+			case(3):
+				GpioWrite(IO3, level);
+			break;
+			case(4):
+				GpioWrite(IO4, level);
+			break;
+		}
+	}
+}
+
+void mems_power_init()
+{
+	GpioSetDirection(MEMS_EN, OUTPUT);
+
+	if (hw_revision == HW_REW_1504)
+	{
+		GpioSetDirection(REV_1504_MEMS_EN_2, OUTPUT);
+		GpioSetDirection(REV_1504_I2C_EN, OUTPUT);
+	}
+}
+
+void mems_power_on()
+{
+	GpioWrite(MEMS_EN, HIGH);
+
+	if (hw_revision == HW_REW_1504)
+	{
+		GpioWrite(REV_1504_MEMS_EN_2, HIGH);
+		GpioWrite(REV_1504_I2C_EN, HIGH);
+	}
+}
+
+void mems_power_off()
+{
+	GpioWrite(MEMS_EN, LOW);
+
+	if (hw_revision == HW_REW_1504)
+	{
+		GpioWrite(REV_1504_MEMS_EN_2, LOW);
+		GpioWrite(REV_1504_I2C_EN, LOW);
+	}
+}

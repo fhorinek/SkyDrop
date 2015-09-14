@@ -1,4 +1,24 @@
-Build 0 - 28. 8. 2015
+Build 1186beta - 14. 9. 2015 
+========================================================
+FIX:
+ * Weak lift + manual stop flight #82
+ * "Unknown macro name" warnings #84
+ 
+ADDED:
+ * DigiFly protocol
+ * Bluetooth functionality
+
+CHANGED:
+ * gui message box will now disappear after middle click
+ * gui message box now block user input until it is dismissed
+ * way how IO pins/mems_en/i2c_en works
+ * Bluetooth rewrite to support async operation (pan1322)
+
+NOTE:
+ * This release is highly unstable during Bluetooth connection
+ * The connection is not always successful you have to try multiple times (reconnect, reset vario)
+
+Build 1112beta - 8. 9. 2015
 ========================================================
 FIX:
  * Audio frequency stay the same #78
@@ -20,7 +40,7 @@ NOTE:
 
 
 
-Build 1098 - 28. 8. 2015
+Build 1098beta - 7. 9. 2015
 ========================================================
 FIX:
  * Fixed length and pause settings #74

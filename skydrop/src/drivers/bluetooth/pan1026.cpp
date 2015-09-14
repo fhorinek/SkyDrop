@@ -4,6 +4,41 @@
 extern pan1026 bt_pan1026;
 CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 
+enum pan1026_state_e
+{
+	pan_state_reset,
+
+};
+
+enum pan1026_cmd_e
+{
+	pan_cmd_none 			= 0,
+	pan_cmd_reset 			= 1,
+	pan_cmd_fw 				= 2,
+	pan_cmd_en_i2c 			= 3,
+	pan_cmd_eeprom_write_en = 4,
+	pan_cmd_eeprom_read 	= 5,
+	pan_cmd_write_mac 		= 6,
+	pan_cmd_set_mode 		= 7,
+	pan_cmd_mng_init 		= 8,
+	pan_cmd_write_cod		= 9,
+	pan_cmd_spp_setup		= 10,
+	pan_cmd_listen			= 11,
+	pan_cmd_accept_connection = 12,
+	pan_cmd_io_cap_respose	= 13,
+	pan_cmd_confirmation_reply	= 14,
+	pan_cmd_create_spp		= 15,
+};
+
+enum pan1026_parser_e
+{
+	pan_parser_idle,
+	pan_parser_head,
+	pan_hci_packet,
+	pan_tcu_packet,
+};
+
+
 #define PAN1026_ERROR \
 	do { \
 	DEBUG1("HARD ERROR, Restart"); \
@@ -26,6 +61,8 @@ void pan1026::Init(Usart * uart)
 
 	this->usart->Init(BT_UART, 115200);
 	this->usart->SetInterruptPriority(MEDIUM);
+//	this->usart->SetCtsPin(BT_CTS);
+//	this->usart->SetRtsPin(BT_CTS);
 
 	bt_irgh(BT_IRQ_INIT, 0);
 
@@ -41,12 +78,12 @@ void pan1026::Restart()
 	this->parser_buffer_index = 0;
 	this->parser_status = pan_parser_idle;
 
-	bt_irgh(BT_IRQ_DISCONNECTED, 0);
+	bt_irgh(BT_IRQ_RESET, 0);
 
 	bt_module_reset();
 }
 
-void pan1026::SetNextStep(pan1026_cmd_e cmd)
+void pan1026::SetNextStep(uint8_t cmd)
 {
 	this->next_cmd = cmd;
 }
@@ -398,7 +435,7 @@ void pan1026::ParseSPP()
 
 void pan1026::Parse(uint8_t c)
 {
-	DEBUG("1026>%02X %c\n", c, c);
+//	DEBUG("1026>%02X %c\n", c, c);
 
 	switch(this->parser_status)
 	{
@@ -422,7 +459,10 @@ void pan1026::Parse(uint8_t c)
 				{
 					uint32_t tmp_len = this->parser_buffer[0] | (this->parser_buffer[1] << 8) | ((uint32_t)this->parser_buffer[2] << 16);
 					if (tmp_len > 0xFFFF)
-						DEBUG("WARNING len = %ld\n", tmp_len);
+					{
+						DEBUG("WARNING len = %lu\n", tmp_len);
+
+					}
 					this->parser_packet_length = tmp_len;
 					this->parser_status = pan_tcu_packet;
 				}

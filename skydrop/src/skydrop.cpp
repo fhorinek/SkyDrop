@@ -6,13 +6,8 @@ void Setup()
 
 	//set clock to max for init 32MHz
 	ClockSetSource(x32MHz);
-//	ClockSetPrescaler(clk_div2);
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
-
-	//debug pins
-//	IO0_INIT;
-	IO1_INIT;
 
 	//save power
 	turnoff_subsystems();
@@ -28,9 +23,12 @@ void Setup()
 	battery_init();
 	buttons_init();
 
+	//guess board rev
+	guess_hw_rew();
+
 	//basic power control
-	MEMS_POWER_INIT;
-	I2C_POWER_INIT;
+	mems_power_init();
+	io_init();
 	SD_EN_INIT;
 
 	//load configuration

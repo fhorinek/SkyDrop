@@ -319,7 +319,10 @@ app.service("memory", ["$http", "$q", function($http, $q){
         if (macro_name in this.macros)
             return this.macros[macro_name];
         else
-            err("Unknown macro name " + macro_name);
+        {
+            console.log("Unknown macro name " + macro_name);
+            return 0;
+        }
     };
     
     this.restore_default = function()

@@ -18,6 +18,9 @@
 #define BT_IRQ_INIT_OK		3
 #define BT_IRQ_INIT			4
 #define BT_IRQ_DEINIT		5
+#define BT_IRQ_PAIR			6
+#define BT_IRQ_INIT_FAIL	7
+#define BT_IRQ_RESET		8
 
 #define BT_PAN1322	0
 #define BT_PAN1026	1

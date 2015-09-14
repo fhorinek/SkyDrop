@@ -438,30 +438,30 @@ uint8_t Usart::Peek()
  * \param active level of active CTS signal
  * \param threshold if count of bytes in RX buffer is higher than threshold CTS pin will be set to non active level
  */
-void Usart::SetRtsPin(PORT_t * port, uint8_t pin, uint8_t active, XLIB_USE_CORE_USART_INIT_VAR threshold)
-{
-	this->cts_port = port;
-	this->cts_pin = pin;
-	this->cts_active = active;
-	this->cts_threshold = threshold;
-
-	GpioSetDirection(this->cts_port, this->cts_pin, OUTPUT);
-
-	if (this->rx_len >= this->cts_threshold)
-		GpioWrite(this->cts_port, this->cts_pin, !this->cts_active);
-	else
-		GpioWrite(this->cts_port, this->cts_pin, this->cts_active);
-}
-
-/**
- * TODO: not implemented
- */
-void Usart::SetCtsPin(PORT_t * port, uint8_t pin, uint8_t active)
-{
-	this->rts_port = port;
-	this->rts_pin = pin;
-	this->rts_active = active;
-}
+//void Usart::SetRtsPin(PORT_t * port, uint8_t pin, uint8_t active, XLIB_USE_CORE_USART_INIT_VAR threshold)
+//{
+//	this->cts_port = port;
+//	this->cts_pin = pin;
+//	this->cts_active = active;
+//	this->cts_threshold = threshold;
+//
+//	GpioSetDirection(this->cts_port, this->cts_pin, OUTPUT);
+//
+//	if (this->rx_len >= this->cts_threshold)
+//		GpioWrite(this->cts_port, this->cts_pin, !this->cts_active);
+//	else
+//		GpioWrite(this->cts_port, this->cts_pin, this->cts_active);
+//}
+//
+///**
+// * TODO: not implemented
+// */
+//void Usart::SetCtsPin(PORT_t * port, uint8_t pin, uint8_t active)
+//{
+//	this->rts_port = port;
+//	this->rts_pin = pin;
+//	this->rts_active = active;
+//}
 
 void Usart::BecomeSPI(uint8_t mode, uint8_t dataorder, uint32_t speed)
 {

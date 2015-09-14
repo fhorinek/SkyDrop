@@ -7,6 +7,8 @@
 #include "kalman.h"
 #include "vario.h"
 
+#include "protocols/protocol.h"
+
 volatile flight_data_t fc;
 
 Timer fc_meas_timer;
@@ -40,11 +42,8 @@ void fc_init()
 	if (config.system.use_bt)
 		bt_module_init();
 
-	//VCC to baro, acc/mag gyro
-	MEMS_POWER_ON;
-
-	GpioSetDirection(IO0, OUTPUT);
-	GpioWrite(IO0, HIGH);
+	//VCC to baro, acc/mag gyro + i2c pull-ups
+	mems_power_on();
 
 	//init and test i2c
 	if (!mems_i2c_init())
@@ -120,8 +119,7 @@ void fc_deinit()
 		eeprom_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
 	}
 
-	MEMS_POWER_OFF;
-	I2C_POWER_OFF;
+	mems_power_off();
 }
 
 void fc_pause()
@@ -135,21 +133,39 @@ void fc_continue()
 }
 
 
+//First fc meas period
+// * Read pressure from ms5611
+// * Start temperature conversion ms5611
+// * Init lsm303d i2c readout for magnetometer (block the i2c bus)
+// * Compensate pressure from ms5611
 ISR(FC_MEAS_TIMER_OVF)
 {
-	IO1_HIGH
+	BT_SUPRESS_TX
+	io_write(1, HIGH);
+
 	ms5611.ReadPressure();
 	ms5611.StartTemperature();
 	lsm303d.StartReadMag(); //it takes 152us to transfer
 
 	ms5611.CompensatePressure();
-	IO1_LOW
+
+	io_write(1, LOW);
+	BT_ALLOW_TX
 }
 
-
+//Second fc meas period
+// * Load lsm303d magnetometer data from buffer (free the i2c bus)
+// * Read temperature form ms5611
+// * Start pressure conversion ms5611
+// * Init lsm303d i2c readout for accelerometer (block the i2c bus)
+// * Calculate time sensitive values
+// * Setup the Buzzer
+// * Compensate temperature
 ISR(FC_MEAS_TIMER_CMPA)
 {
-	IO1_HIGH
+	BT_SUPRESS_TX
+	io_write(1, HIGH);
+
 	lsm303d.ReadMag(&fc.mag_data.x, &fc.mag_data.y, &fc.mag_data.z);
 	ms5611.ReadTemperature();
 	ms5611.StartPressure();
@@ -160,43 +176,35 @@ ISR(FC_MEAS_TIMER_CMPA)
 	//audio loop
 	audio_step();
 
-	if (fc.baro_valid)
-	{
-		//auto start
-		if (fc.autostart_state == AUTOSTART_WAIT)
-		{
-			if (abs(fc.altitude1 - fc.start_altitude) > config.autostart.sensititvity)
-			{
-				fc_takeoff();
-			}
-			else
-			{
-				//reset timer
-				if (time_get_actual() - fc.epoch_flight_timer > FC_AUTOSTART_RESET)
-				{
-					fc.epoch_flight_timer = time_get_actual();
-					fc.start_altitude = fc.altitude1;
-				}
-			}
-		}
-	}
-
 	ms5611.CompensateTemperature();
 
-	IO1_LOW
+	io_write(1, LOW);
+	BT_ALLOW_TX
 }
 
+//Third fc meas period
+// * Load lsm303d accelerometer data from buffer (free the i2c bus)
+// * Init l3gd20 i2c readout for gyroscope (block the i2c bus)
 ISR(FC_MEAS_TIMER_CMPB)
 {
-	IO1_HIGH
+	BT_SUPRESS_TX
+	io_write(1, HIGH);
+
 	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
-	IO1_LOW
+
+	io_write(1, LOW);
+	BT_ALLOW_TX
 }
 
+//Final fc meas period
+// * Load l3gd20 gyroscope data from buffer (free the i2c bus)
+// * Handle slow sht21 conversions
 ISR(FC_MEAS_TIMER_CMPC)
 {
-	IO1_HIGH
+	BT_SUPRESS_TX
+	io_write(1, HIGH);
+
 	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
 
 	if (fc.temp_next < task_get_ms_tick())
@@ -228,7 +236,8 @@ ISR(FC_MEAS_TIMER_CMPC)
 		fc.temp_step = (fc.temp_step + 1) % 6;
 	}
 
-	IO1_LOW
+	io_write(1, LOW);
+	BT_ALLOW_TX
 }
 
 void fc_takeoff()
@@ -252,6 +261,8 @@ void fc_landing()
 
 	fc.autostart_state = AUTOSTART_LAND;
 	fc.epoch_flight_timer = time_get_actual() - fc.epoch_flight_timer;
+
+	audio_off();
 }
 
 void fc_sync_gps_time()
@@ -276,6 +287,26 @@ void fc_step()
 	gps_step();
 
 	bt_step();
+
+	protocol_step();
+
+	//auto start
+	if (fc.baro_valid && fc.autostart_state == AUTOSTART_WAIT)
+	{
+		if (abs(fc.altitude1 - fc.start_altitude) > config.autostart.sensititvity)
+		{
+			fc_takeoff();
+		}
+		else
+		{
+			//reset wait timer
+			if (time_get_actual() - fc.epoch_flight_timer > FC_AUTOSTART_RESET)
+			{
+				fc.epoch_flight_timer = time_get_actual();
+				fc.start_altitude = fc.altitude1;
+			}
+		}
+	}
 
 	//gps time sync
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)

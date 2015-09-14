@@ -12,40 +12,6 @@
 #include "../uart.h"
 #include "../../xlib/core/usart.h"
 
-enum pan1026_state_e
-{
-	pan_state_reset,
-
-};
-
-enum pan1026_cmd_e
-{
-	pan_cmd_none 			= 0,
-	pan_cmd_reset 			= 1,
-	pan_cmd_fw 				= 2,
-	pan_cmd_en_i2c 			= 3,
-	pan_cmd_eeprom_write_en = 4,
-	pan_cmd_eeprom_read 	= 5,
-	pan_cmd_write_mac 		= 6,
-	pan_cmd_set_mode 		= 7,
-	pan_cmd_mng_init 		= 8,
-	pan_cmd_write_cod		= 9,
-	pan_cmd_spp_setup		= 10,
-	pan_cmd_listen			= 11,
-	pan_cmd_accept_connection = 12,
-	pan_cmd_io_cap_respose	= 13,
-	pan_cmd_confirmation_reply	= 14,
-	pan_cmd_create_spp		= 15,
-};
-
-enum pan1026_parser_e
-{
-	pan_parser_idle,
-	pan_parser_head,
-	pan_hci_packet,
-	pan_tcu_packet,
-};
-
 #define PARSER_BUFFER_SIZE 64
 
 class pan1026
@@ -62,14 +28,14 @@ public:
 
 	void Step();
 
-	pan1026_cmd_e next_cmd;
-	pan1026_state_e state;
-	pan1026_parser_e parser_status;
+	uint8_t next_cmd;
+	uint8_t state;
+	uint8_t parser_status;
 	uint16_t parser_packet_length;
 	uint8_t parser_buffer_index;
 	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 
-	void SetNextStep(pan1026_cmd_e cmd);
+	void SetNextStep(uint8_t cmd);
 
 	void Parse(uint8_t c);
 	void ParseHCI();
