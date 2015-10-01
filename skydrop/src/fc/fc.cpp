@@ -50,6 +50,34 @@ void fc_init()
 	{
 		DEBUG("ERROR I2C\n");
 		led_set(0xFF, 0, 0);
+
+		if (hw_revision == HW_REW_UNKNOWN)
+		{
+			hw_revision = HW_REW_1504;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ro.hw_revision, hw_revision);
+			eeprom_busy_wait();
+
+			mems_power_init();
+			io_init();
+			mems_power_on();
+			mems_i2c_init();
+		}
+	}
+	else
+	{
+		if (hw_revision == HW_REW_UNKNOWN)
+		{
+			hw_revision = HW_REW_1506;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ro.hw_revision, hw_revision);
+			eeprom_busy_wait();
+
+			mems_power_init();
+			io_init();
+			mems_power_on();
+			mems_i2c_init();
+		}
 	}
 
 
@@ -237,6 +265,11 @@ ISR(FC_MEAS_TIMER_CMPC)
 	}
 
 	io_write(1, LOW);
+
+//	DEBUG("A;%d;%d;%d\n", fc.acc_data.x, fc.acc_data.y, fc.acc_data.z);
+//	DEBUG("M;%d;%d;%d\n", fc.mag_data.x, fc.mag_data.y, fc.mag_data.z);
+//	DEBUG("G;%d;%d;%d\n", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
+
 	BT_ALLOW_TX
 }
 
@@ -367,3 +400,4 @@ void fc_manual_alt0_change(float val)
     kalmanFilter->setXAbs(val);
     fc.start_altitude = val;
 }
+

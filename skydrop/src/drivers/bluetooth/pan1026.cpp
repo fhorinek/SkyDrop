@@ -4,6 +4,8 @@
 extern pan1026 bt_pan1026;
 CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 
+//#define DEBUG_BT
+
 enum pan1026_state_e
 {
 	pan_state_reset,
@@ -12,22 +14,22 @@ enum pan1026_state_e
 
 enum pan1026_cmd_e
 {
-	pan_cmd_none 			= 0,
-	pan_cmd_reset 			= 1,
-	pan_cmd_fw 				= 2,
-	pan_cmd_en_i2c 			= 3,
-	pan_cmd_eeprom_write_en = 4,
-	pan_cmd_eeprom_read 	= 5,
-	pan_cmd_write_mac 		= 6,
-	pan_cmd_set_mode 		= 7,
-	pan_cmd_mng_init 		= 8,
-	pan_cmd_write_cod		= 9,
-	pan_cmd_spp_setup		= 10,
-	pan_cmd_listen			= 11,
-	pan_cmd_accept_connection = 12,
-	pan_cmd_io_cap_respose	= 13,
+	pan_cmd_none 				= 0,
+	pan_cmd_reset 				= 1,
+	pan_cmd_fw 					= 2,
+	pan_cmd_en_i2c 				= 3,
+	pan_cmd_eeprom_write_en 	= 4,
+	pan_cmd_eeprom_read 		= 5,
+	pan_cmd_write_mac 			= 6,
+	pan_cmd_set_mode 			= 7,
+	pan_cmd_mng_init 			= 8,
+	pan_cmd_write_cod			= 9,
+	pan_cmd_spp_setup			= 10,
+	pan_cmd_listen				= 11,
+	pan_cmd_accept_connection	= 12,
+	pan_cmd_io_cap_respose		= 13,
 	pan_cmd_confirmation_reply	= 14,
-	pan_cmd_create_spp		= 15,
+	pan_cmd_create_spp			= 15,
 };
 
 enum pan1026_parser_e
@@ -93,22 +95,29 @@ void pan1026::ParseHCI()
 	uint16_t op_code;
 	uint8_t status;
 
+#ifdef DEBUG_BT
 	DEBUG("\n - HCI ----\n");
 	for (uint8_t i = 0; i < this->parser_packet_length; i++)
 		DEBUG("%02X ", this->parser_buffer[i]);
 	DEBUG("\n");
+#endif
 
 	uint8_t event_code = this->parser_buffer[1];
 
+#ifdef DEBUG_BT
 	DEBUG("event_code %02X\n", event_code);
+#endif
 
 	switch (event_code)
 	{
 		case(0x0e): // HCI Command Complete
 			op_code = this->parser_buffer[4] | (this->parser_buffer[5] << 8);
 			status =  this->parser_buffer[6];
+
+#ifdef DEBUG_BT
 			DEBUG("op_code %04X\n", op_code);
 			DEBUG("status %02X\n", status);
+#endif
 
 			switch(op_code)
 			{
@@ -208,15 +217,20 @@ void pan1026::ParseMNG()
 	uint8_t status, hci_status, op_code, t_len;
 	uint16_t hci_op_code;
 
+#ifdef DEBUG_BT
 	DEBUG("\n - MNG ----\n");
 	for (uint8_t i = 0; i < this->parser_packet_length; i++)
 		DEBUG("%02X ", this->parser_buffer[i]);
 	DEBUG("\n");
+#endif
 
 	op_code = this->parser_buffer[4];
 	status = this->parser_buffer[7];
+
+#ifdef DEBUG_BT
 	DEBUG("op_code: %02X\n", op_code);
 	DEBUG("status: %02X\n", status);
+#endif
 
 	switch (op_code)
 	{
@@ -392,17 +406,22 @@ void pan1026::ParseMNG()
 
 void pan1026::ParseSPP()
 {
+
+#ifdef DEBUG_BT
 	DEBUG("\n - SPP ----\n");
 	for (uint8_t i = 0; i < this->parser_packet_length; i++)
 		DEBUG("%02X ", this->parser_buffer[i]);
 	DEBUG("\n");
+#endif
 
 	uint8_t op_code, status;
 	op_code = this->parser_buffer[4];
 	status = this->parser_buffer[7];
 
+#ifdef DEBUG_BT
 	DEBUG("op_code: %02X\n", op_code);
 	DEBUG("status: %02X\n", status);
+#endif
 
 	switch(op_code)
 	{
@@ -428,7 +447,9 @@ void pan1026::ParseSPP()
 		break;
 
 		case(0xF1): // TCU_SPP_DATA_SEND_EVENT
+#ifdef DEBUG_BT
 			DEBUG("data send!\n");
+#endif
 		break;
 	}
 }
@@ -436,6 +457,13 @@ void pan1026::ParseSPP()
 void pan1026::Parse(uint8_t c)
 {
 //	DEBUG("1026>%02X %c\n", c, c);
+
+	if (this->usart->rx_ovf)
+	{
+		DEBUG("RX OVF\n");
+		this->usart->rx_ovf = false;
+	}
+
 
 	switch(this->parser_status)
 	{
@@ -461,7 +489,7 @@ void pan1026::Parse(uint8_t c)
 					if (tmp_len > 0xFFFF)
 					{
 						DEBUG("WARNING len = %lu\n", tmp_len);
-
+						PAN1026_ERROR;
 					}
 					this->parser_packet_length = tmp_len;
 					this->parser_status = pan_tcu_packet;

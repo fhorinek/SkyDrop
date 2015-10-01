@@ -70,9 +70,7 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("FW name"));
-			sprintf_P(sub_text, PSTR("%s"), fw_info.app_name);
-			*flags |= GUI_LIST_SUB_TEXT;
+			sprintf_P(text, PSTR("FW name %s"), fw_info.app_name);
 		break;
 
 		case (2):
@@ -91,8 +89,9 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 
 			if (hw_revision == HW_REW_1504)
 				sprintf_P(sub_text, PSTR("drop 1504"));
-			if (hw_revision == HW_REW_1506)
+			else if (hw_revision == HW_REW_1506)
 				sprintf_P(sub_text, PSTR("drop 1506"));
+			else sprintf_P(sub_text, PSTR("???"));
 
 		break;
 	}

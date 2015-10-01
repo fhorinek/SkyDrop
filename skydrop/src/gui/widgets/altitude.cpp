@@ -103,6 +103,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 					new_alt = fc.altitude1 + inc;
 				else
 					new_alt = fc.altitudes[index - 2] + inc;
+
 				fc_manual_alt0_change(new_alt);
 				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
@@ -241,7 +242,7 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	//imperial unit marker
 	if (a_flags & ALT_UNIT_I)
 	{
-		disp.GotoXY(28, GUI_DIALOG_TOP + 2 + h_v - h_t);
+		disp.GotoXY(28, GUI_DIALOG_TOP + 6 + h_v - h_t);
 		disp.LoadFont(F_TEXT_S);
 		fprintf_P(lcd_out, PSTR("ft"));
 	}

@@ -2,6 +2,7 @@
 
 #include "../gui_list.h"
 #include "../gui_value.h"
+#include "../gui_dialog.h"
 
 #include "../../fc/conf.h"
 
@@ -95,6 +96,44 @@ bool set_alt_find_abs(uint8_t index, uint8_t rep)
 	return true;
 }
 
+void gui_set_altimeter_gps_alt(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_YES)
+	{
+		if (fc.gps_data.valid)
+		{
+			uint8_t a_type  = set_alt_flags & 0b11000000;
+
+			if (a_type == ALT_ABS_QNH1)
+			{
+				config.altitude.QNH1 = fc_alt_to_qnh(fc.gps_data.altitude, fc.pressure);
+				fc_manual_alt0_change(fc.gps_data.altitude);
+			}
+
+			if (a_type == ALT_ABS_QNH2)
+			{
+				config.altitude.QNH2 = fc_alt_to_qnh(fc.gps_data.altitude, fc.pressure);
+			}
+
+			if (a_type == ALT_DIFF)
+			{
+				uint8_t a_index = set_alt_flags & 0b00001111;
+				int16_t p_alt;
+
+				if (a_index == 0)
+					p_alt = fc.altitude1;
+				else
+					p_alt = fc.altitudes[a_index - 1];
+
+				config.altitude.altimeter[set_alt_index - 1].delta = fc.gps_data.altitude - p_alt;
+			}
+
+		}
+	}
+
+	gui_switch_task(GUI_SET_ALTIMETER);
+}
+
 void gui_set_altimeter_action(uint8_t index)
 {
 	uint8_t tmp;
@@ -156,8 +195,43 @@ void gui_set_altimeter_action(uint8_t index)
 	}
 
 	if ((index == 4 && set_alt_list_num == 5) || index == 2)
-		gui_showmessage_P(PSTR("Not implemented"));
+	{
+		if (fc.gps_data.valid)
+		{
+			char tmp_msg[64];
+			char tmp_tit[16];
+			float alt;
+
+			if (set_alt_index == 0)
+			{
+				alt = fc.altitude1;
+			}
+			else
+				alt = fc.altitudes[set_alt_index - 1];
+
+			if (set_alt_flags & ALT_UNIT_I)
+			{
+				sprintf_P(tmp_msg, PSTR("Set GPS alt?\nGPS: %0.0fft\nALT%d:%0.0fft"), fc.gps_data.altitude * FC_METER_TO_FEET, set_alt_index + 1, alt * FC_METER_TO_FEET);
+			}
+			else
+			{
+				sprintf_P(tmp_msg, PSTR("Set GPS alt?\nGPS: %0.0fm\nALT%d:%0.0fm"), fc.gps_data.altitude, set_alt_index + 1, alt);
+			}
+
+			strcpy_P(tmp_tit, PSTR("Confirmation"));
+
+			gui_dialog_set(tmp_tit, tmp_msg, GUI_STYLE_YESNO, gui_set_altimeter_gps_alt);
+			gui_switch_task(GUI_DIALOG);
+		}
+		else
+		{
+			gui_showmessage_P(PSTR("No GPS fix"));
+		}
+	}
 }
+
+
+
 
 void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {

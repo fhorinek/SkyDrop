@@ -17,7 +17,7 @@ ISR(GPS_TIMER_INT)
 #define GPS_CRC		2
 #define GPS_END		3
 
-#define NMEA_MAX_LEN	82
+#define NMEA_MAX_LEN	85
 
 volatile uint8_t gps_parser_state;
 char gps_parser_buffer[NMEA_MAX_LEN];
@@ -68,7 +68,7 @@ uint8_t atoi_c(char * str)
 	uint8_t tmp = 0;
 	uint8_t i = 0;
 
-	while(str[i] != ',')
+	while(str[i] != ',' && str[i] != '*')
 	{
 		tmp *= 10;
 		tmp += str[i] - '0';
@@ -197,6 +197,12 @@ void gps_parse_rmc()
 	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 
 //	DEBUG("%02d.%02d.%04d\n", day, month, year);
+	if (config.system.forward_gps)
+	{
+		char tmp[NMEA_MAX_LEN];
+		sprintf(tmp, "$%s", gps_parser_buffer);
+		bt_send(tmp);
+	}
 }
 
 //132405.000,4809.2356,N,01704.4263,E,1,6,1.95,160.3,M,42.7,M,,
@@ -235,8 +241,15 @@ void gps_parse_gga()
 //	float geo_id = atoi_f(ptr);
 //	fc.gps_data.altitude -= geo_id;
 
-//	DEBUG("fix %d (%d), hdop: %0.2f\n", fix, sat, hdop);
-//	DEBUG("alt %0.1fm geo: %0.1fm\n", altitude, geo_id);
+//	DEBUG("fix %d (%d), hdop: %0.2f\n", fc.gps_data.sat_used, fc.gps_data.sat_total, fc.gps_data.hdop);
+//	DEBUG("alt %0.1fm geo: %0.1fm\n", fc.gps_data.altitude, 0);
+
+	if (config.system.forward_gps)
+	{
+		char tmp[NMEA_MAX_LEN];
+		sprintf(tmp, "$%s", gps_parser_buffer);
+		bt_send(tmp);
+	}
 }
 
 //
@@ -266,6 +279,7 @@ void gps_parse_gsv()
 	ptr = find_comma(ptr);
 	//sat in view
 	fc.gps_data.sat_total = atoi_c(ptr);
+//	DEBUG("sat_total %d\n", fc.gps_data.sat_total);
 	ptr = find_comma(ptr);
 
 	uint8_t sat_n;
@@ -306,6 +320,7 @@ void gps_normal()
 {
 	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
+	//enable RMC, GGA
 	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
 }
 
@@ -313,6 +328,7 @@ void gps_detail()
 {
 	gps_detail_enabled = true;
 	DEBUG("set_nmea_output - detail\n");
+	//enable RMC, GGA, GSA, GSV
 	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
 }
 
@@ -383,8 +399,10 @@ void gps_parse(Usart * c_uart)
 		case(GPS_DATA):
 			if (c == '*')
 			{
+				gps_parser_buffer[gps_parser_buffer_index] = c;
+				gps_parser_buffer_index++;
+
 				gps_parser_state = GPS_CRC;
-				gps_parser_buffer_index = 0;
 			}
 			else
 			{
@@ -395,19 +413,29 @@ void gps_parse(Usart * c_uart)
 
 			if (gps_parser_buffer_index >= NMEA_MAX_LEN)
 			{
-				gps_parser_state = GPS_IDLE;
 				gps_parser_buffer_index = 0;
+				gps_parser_state = GPS_IDLE;
 			}
 		break;
 
 		case(GPS_CRC):
 			gps_rx_checksum = hex_to_num(c) << 4;
+			gps_parser_buffer[gps_parser_buffer_index] = c;
+			gps_parser_buffer_index++;
+
 			gps_parser_state = GPS_END;
 		break;
 
 		case(GPS_END):
 			gps_rx_checksum += hex_to_num(c);
+			gps_parser_buffer[gps_parser_buffer_index] = c;
+			gps_parser_buffer[gps_parser_buffer_index + 1] = '\n';
+			gps_parser_buffer[gps_parser_buffer_index + 2] = '\0';
+
+			gps_parser_buffer_index = 0;
 			gps_parser_state = GPS_IDLE;
+
+//			DEBUG(">>%s<<\n", gps_parser_buffer);
 
 			if (gps_rx_checksum == gps_checksum)
 			{

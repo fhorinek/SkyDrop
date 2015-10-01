@@ -143,6 +143,8 @@ EEMEM cfg_t config_ee = {
 		true,
 		//use_bt
 		false,
+		//forward_gps
+		true,
 		//protocol
 		PROTOCOL_DIGIFLY,
 		//time flags

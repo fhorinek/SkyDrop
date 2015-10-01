@@ -9,7 +9,7 @@
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
 
-uint8_t hw_revision;
+uint8_t hw_revision = HW_REW_1506;
 
 void print_fw_info()
 {
@@ -283,34 +283,7 @@ uint8_t fast_flip(uint8_t in)
 	return out;
 }
 
-void guess_hw_rew()
-{
-	DEBUG(" *** Guessing the revision ***\n");
 
-	//MEMS_EN high
-	GpioSetDirection(MEMS_EN, OUTPUT);
-	GpioWrite(MEMS_EN, HIGH);
-	_delay_us(1500);
-
-	GpioSetDirection(portb1, INPUT);
-
-	//when mens_en is high			1504	1506
-	uint8_t ioh1 = GpioRead(portb1);	//	 H		 L
-
-	if (ioh1 == HIGH)
-	{
-		DEBUG("Board revision is 1504\n");
-		hw_revision = HW_REW_1504;
-	}
-	else
-	{
-		DEBUG("Board revision is 1506\n");
-		hw_revision = HW_REW_1506;
-	}
-
-	GpioWrite(MEMS_EN, LOW);
-	GpioSetDirection(MEMS_EN, INPUT);
-}
 
 void io_init()
 {
@@ -331,7 +304,7 @@ void io_init()
 
 void io_write(uint8_t io, uint8_t level)
 {
-	if (hw_revision == HW_REW_1504)
+	if (hw_revision == HW_REW_1504 && io == 1)
 	{
 		GpioWrite(IO1, level);
 	}
@@ -361,6 +334,9 @@ void io_write(uint8_t io, uint8_t level)
 
 void mems_power_init()
 {
+	eeprom_busy_wait();
+	hw_revision = eeprom_read_byte(&config_ro.hw_revision);
+
 	GpioSetDirection(MEMS_EN, OUTPUT);
 
 	if (hw_revision == HW_REW_1504)

@@ -23,7 +23,7 @@ volatile uint8_t bt_module_state = BT_MOD_STATE_OFF;
 
 ISR(BT_CTS_PIN_INT)
 {
-	DEBUG("CTS\n");
+//	DEBUG("CTS\n");
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.TxResume();
 
@@ -101,7 +101,7 @@ void bt_init()
 	bt_module_type = eeprom_read_byte(&config_ro.bt_module_type);
 
 	//init bt_uart
-	bt_uart.InitBuffers(BUFFER_SIZE, BUFFER_SIZE);
+	bt_uart.InitBuffers(BUFFER_SIZE * 2, BUFFER_SIZE);
 
 	//pin init
 	GpioSetDirection(BT_EN, OUTPUT);

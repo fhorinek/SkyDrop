@@ -35,7 +35,8 @@ void gui_usb_loop()
 
 	disp.GotoXY(0, 0);
 	fprintf_P(lcd_out, PSTR("build %04d"), BUILD_NUMBER);
-
+	disp.GotoXY(0, 7);
+	fprintf_P(lcd_out, PSTR("rev %04d"), (hw_revision == HW_REW_1504) ? 1504 : 1506);
 }
 
 void gui_usb_irqh(uint8_t type, uint8_t * buff)

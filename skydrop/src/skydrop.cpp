@@ -23,9 +23,6 @@ void Setup()
 	battery_init();
 	buttons_init();
 
-	//guess board rev
-	guess_hw_rew();
-
 	//basic power control
 	mems_power_init();
 	io_init();

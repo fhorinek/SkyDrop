@@ -1,3 +1,24 @@
+Build 1278 - 1. 10. 2015
+========================================================
+FIX:
+ * 1186 - hw revision detection is not working correctly #86
+ 
+ADDED:
+ * Get altitude form GPS #27
+ * Bluetooth functionality
+     * BlueFly protocol (only PRS)
+     * LK8EX1 protocol 
+     * GPS NMEA messages forwarding
+ 
+CHANGED:
+ * Larger buffer for Bluetooth
+ 
+NOTE:
+ * Single file update is already included but SKYDROP.FW for 1278 is not avalible, since it is not working correctly in 0910. Next release will be available only via new method
+
+KNOWN ISSUES:
+ * SkyDrop with pan1026 want to pair every connection
+
 Build 1186beta - 14. 9. 2015 
 ========================================================
 FIX:
@@ -5,8 +26,8 @@ FIX:
  * "Unknown macro name" warnings #84
  
 ADDED:
- * DigiFly protocol
  * Bluetooth functionality
+     * DigiFly protocol 
 
 CHANGED:
  * gui message box will now disappear after middle click

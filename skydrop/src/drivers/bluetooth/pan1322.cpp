@@ -227,11 +227,12 @@ void pan1322::StreamHead(uint16_t len)
 	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JSDA=%03d,"), len);
+//	DEBUG("AT+JSDA=%03d,", len);
 }
 
 void pan1322::StreamTail()
 {
-	fprintf_P(bt_pan1322_out, "\r\n");
+	fprintf_P(bt_pan1322_out, PSTR("\r\n"));
 	this->usart->FlushTxBuffer();
 }
 
@@ -257,7 +258,7 @@ void pan1322::Parse(uint8_t c)
 	uint8_t tmp;
 	uint8_t n;
 
-//	DEBUG("P %d,%d\n", this->p_state, this->p_len);
+//	DEBUG("P %c %d,%d\n", c, this->p_state, this->p_len);
 
 	uint8_t state = this->p_state;
 	switch (state)

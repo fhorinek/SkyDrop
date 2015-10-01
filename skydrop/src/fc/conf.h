@@ -111,9 +111,12 @@ struct cfg_audio_profile
 #define GPS_SPD_KNOT	0b00000011
 
 #define PROTOCOL_DIGIFLY	0
-#define PROTOCOL_FLYNET		1
-#define PROTOCOL_LK8EX		2
-#define PROTOCOL_BLUEFLY	3
+#define PROTOCOL_LK8EX1		1
+#define PROTOCOL_BLUEFLY	2
+
+#define NUMBER_OF_PROTOCOLS	3
+
+//#define PROTOCOL_FLYNET		3
 
 struct cfg_system
 {
@@ -121,6 +124,7 @@ struct cfg_system
 
 	uint8_t use_gps;
 	uint8_t use_bt;
+	uint8_t forward_gps;
 	uint8_t protocol;
 
 	uint8_t time_flags;
@@ -162,7 +166,9 @@ struct cfg_ro_t //128
 
 	cfg_calibration calibration;	//24
 
-	uint8_t reserved[100];
+	uint8_t hw_revision;			//1
+
+	uint8_t reserved[99];
 };
 
 //configuration in RAM

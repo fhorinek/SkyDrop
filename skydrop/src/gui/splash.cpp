@@ -71,8 +71,14 @@ void gui_splash_loop()
 
 	disp.LoadFont(F_TEXT_S);
 	uint8_t t_h = disp.GetTextHeight();
+	char tmp[10];
+
 	disp.GotoXY(0, GUI_DISP_HEIGHT - t_h);
 	fprintf_P(lcd_out, PSTR("build %04d"), BUILD_NUMBER);
+
+	sprintf_P(tmp, PSTR("rev %04d"), (hw_revision == HW_REW_1504) ? 1504 : 1506);
+	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - t_h);
+
 
 
 	if (splash_mode == SPLASH_ON)

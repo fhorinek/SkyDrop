@@ -8,7 +8,7 @@
 
 void gui_set_bluetooth_init()
 {
-	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 3, GUI_SETTINGS);
+	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 4, GUI_SETTINGS);
 }
 
 void gui_set_bluetooth_stop() {}
@@ -36,6 +36,18 @@ void gui_set_bluetooth_action(uint8_t index)
 				bt_module_init();
 			else
 				bt_module_deinit();
+		break;
+
+		case(2):
+			config.system.protocol = (config.system.protocol + 1) % NUMBER_OF_PROTOCOLS;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.system.protocol, config.system.protocol);
+		break;
+
+		case(3):
+			config.system.forward_gps = !config.system.forward_gps;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.system.forward_gps, config.system.forward_gps);
 		break;
 	}
 }
@@ -78,8 +90,22 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 				case(PROTOCOL_DIGIFLY):
 					sprintf_P(sub_text, PSTR("DigiFly"));
 				break;
+				case(PROTOCOL_LK8EX1):
+					sprintf_P(sub_text, PSTR("LK8EX1"));
+				break;
+				case(PROTOCOL_BLUEFLY):
+					sprintf_P(sub_text, PSTR("BlueFly"));
+				break;
 
 			}
+		break;
+
+		case (3):
+			sprintf_P(text, PSTR("Forward GPS"));
+			if (config.system.forward_gps)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
 	}

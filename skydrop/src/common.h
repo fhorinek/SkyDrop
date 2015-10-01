@@ -259,6 +259,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 //revision specific pins
 #define HW_REW_1504		0
 #define HW_REW_1506		1
+#define HW_REW_UNKNOWN	0xFF
 
 #define REV_1504_MEMS_EN_2		portb1
 #define REV_1504_I2C_EN			portf5
@@ -300,7 +301,6 @@ bool StoreEEPROM();
 
 //system info
 void print_fw_info();
-void guess_hw_rew();
 extern uint8_t hw_revision;
 
 //power
