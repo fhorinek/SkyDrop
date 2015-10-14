@@ -15,18 +15,18 @@
 extern uint8_t debug_level;
 
 #define DEBUG(format, ...) \
-	do \
+	do { \
 	if (debug_level > 0) \
 	{ \
 		printf_P(PSTR(format), ##__VA_ARGS__); \
 		uart.FlushTxBuffer(); \
 	} \
-	while(0) \
+	} while(0) \
 
 //#define DEBUG1
 
 #define DEBUG1(x...) \
-	do \
+	do {\
 	if (debug_level > 1) \
 	{ \
 		DEBUG("%S@%d: ", PSTR(__FILE__), __LINE__); \
@@ -34,7 +34,7 @@ extern uint8_t debug_level;
 		DEBUG("\n"); \
 		uart.FlushTxBuffer(); \
 	} \
-	while(0)
+	}while(0)
 
 
 void uart_init_buffers();

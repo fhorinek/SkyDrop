@@ -123,7 +123,11 @@ void gui_factory_test_loop()
 		fprintf_P(lcd_out, PSTR("%03d"), f_test_lcd_cont_max);
 
 		if (f_test_lcd == FTEST_LCD_MIN_AUTO || f_test_lcd == FTEST_LCD_MAX_AUTO)
+		{
 			f_test_lcd_cont = (f_test_lcd_cont + 1) % 128;
+		}
+
+		led_set(0, f_test_lcd_cont / 4, 0);
 
 //		lcd_contrast = f_test_lcd_cont;
 //		gui_change_disp_cfg();
@@ -298,6 +302,7 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 					break;
 					case(FTEST_LCD_MID):
 						f_test_lcd = FTEST_LCD_DONE;
+						led_set(0,0,0);
 					break;
 				}
 			break;

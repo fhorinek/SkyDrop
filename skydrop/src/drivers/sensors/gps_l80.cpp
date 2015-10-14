@@ -145,7 +145,9 @@ void gps_parse_rmc()
 			fc.gps_data.fix_cnt++;
 	}
 	else
+	{
 		fc.gps_data.fix_cnt = 0;
+	}
 
 	ptr = find_comma(ptr);
 

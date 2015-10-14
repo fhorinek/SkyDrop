@@ -43,7 +43,19 @@
 #define GPS_FIX_TIME_SYNC	10
 #define GPS_FIX_ALT_SYNC	50
 
-typedef struct
+#define LOGGER_IDLE		0
+#define LOGGER_ACTIVE	1
+
+struct flight_stats_t
+{
+	int16_t max_alt;	//in m
+	int16_t min_alt;	//in m
+
+	int16_t max_climb; 	//in cm
+	int16_t max_sink;	//in cm
+};
+
+struct gps_data_t
 {
 	bool valid;
 
@@ -65,18 +77,18 @@ typedef struct
 	uint8_t sat_snr[GPS_SAT_CNT];
 
 	uint8_t fix_cnt;
-} gps_data_t;
+};
 
 #define FC_TEMP_PERIOD	1000
 
-#define AUTOSTART_WAIT		0
-#define AUTOSTART_FLIGHT	1
-#define AUTOSTART_LAND		2
+#define FLIGHT_WAIT		0
+#define FLIGHT_FLIGHT	1
+#define FLIGHT_LAND		2
 
 #define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
-#define FC_AUTOSTART_RESET	(30)
+#define FC_GLIDE_MIN_SINK	(-0.01)
 
-typedef struct
+struct flight_data_t
 {
 	// --- RAW from sensors ---
 	vector_i16_t mag_data;
@@ -91,8 +103,22 @@ typedef struct
 	uint8_t temp_step;
 	uint32_t temp_next;
 
-	// --- CALC ---
+	// --- STATE ---
 	bool baro_valid;
+	bool glide_ratio_valid;
+
+	//serve as wait timer, flight time and flight duration holder after land
+	uint32_t flight_timer;
+	uint8_t flight_state;
+
+	uint32_t autostart_timer;
+	float autostart_altitude;
+
+	uint8_t logger_state;
+
+	flight_stats_t stats;
+
+	// --- CALC ---
 	float pressure;
 
 	float vario;
@@ -100,7 +126,6 @@ typedef struct
 	float digital_vario;
 	float avg_vario;
 
-	bool glide_ratio_valid;
 	float glide_ratio;
 
 	float altitude1;
@@ -111,11 +136,7 @@ typedef struct
 	vector_float_t acc_f;
 	vector_float_t gyro_f;
 
-	//serve as wait timer, flight time and flight duration holder after land
-	uint32_t epoch_flight_timer;
-	float start_altitude;
-	uint8_t autostart_state;
-} flight_data_t;
+};
 
 void fc_init();
 void fc_step();
@@ -135,6 +156,7 @@ void fc_sync_gps_time();
 
 void fc_takeoff();
 void fc_landing();
+void fc_reset();
 
 extern volatile flight_data_t fc;
 

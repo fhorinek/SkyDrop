@@ -14,6 +14,9 @@ void Setup()
 
 	EnableInterrupts();
 
+	//load device id
+	GetID();
+
 	//init basic peripherals
 	led_init();
 	uart_init_buffers();
@@ -39,8 +42,6 @@ uint8_t system_rst;
 
 void Post()
 {
-	//buzzer_beep(_1sec, 0, 0, 0, 0);
-
 	DEBUG("\n *** POST *** \n");
 
 	//Print reset reason
@@ -76,10 +77,14 @@ void Post()
 
 	//Print actual time
 	DEBUG("Time is ... \n");
-	print_datetime();
+	print_datetime(time_get_actual());
 
 	DEBUG("Free RAM at start ... %d\n", free_ram_at_start);
 	test_memory();
+
+	char id[22];
+	GetID_str(id);
+	DEBUG("Device serial number ... %s\n", id);
 
 	DEBUG("\n");
 }

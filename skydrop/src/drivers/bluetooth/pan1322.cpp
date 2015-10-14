@@ -12,6 +12,7 @@ enum pan1322_emd_e
 	pan_cmd_create_service		= 2,
 	pan_cmd_set_discoverable	= 3,
 	pan_cmd_accept_connection	= 4,
+	pan_cmd_reset 				= 5,
 };
 
 //ERR=-
@@ -75,14 +76,14 @@ bool pan1322::SetBaudrate(uint32_t baud)
 
 void pan1322::Restart()
 {
-	DEBUG("reset_start\n");
 	this->connected = false;
 	this->p_state = BT_STATE_START;
-	this->p_cmd = pan_cmd_none;
+	this->p_cmd = pan_cmd_reset;
 
 	bt_irgh(BT_IRQ_RESET, 0);
 
 	bt_module_reset();
+	this->WaitForOK();
 }
 
 void pan1322::StreamWrite(uint8_t data)
@@ -182,7 +183,7 @@ void pan1322::Step()
 
 		switch (this->p_last_cmd)
 		{
-			case(pan_cmd_none):
+			case(pan_cmd_reset):
 				//ROK not recieved
 				bt_irgh(BT_IRQ_INIT_FAIL, 0);
 			break;
@@ -314,7 +315,7 @@ void pan1322::Parse(uint8_t c)
 		{
 			this->timer = BT_NO_TIMEOUT;
 
-			DEBUG("OK %d\n", this->p_last_cmd);
+//			DEBUG("OK %d\n", this->p_last_cmd);
 
 			switch(this->p_last_cmd)
 			{

@@ -264,6 +264,18 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define REV_1504_MEMS_EN_2		portb1
 #define REV_1504_I2C_EN			portf5
 
+//bat_en
+#define BAT_EN_ADC	(1 << 0)
+#define BAT_EN_LED	(1 << 1)
+#define BAT_EN_LCD	(1 << 2)
+
+//assert
+#define assert(cond) \
+	do{ \
+	if (!cond) \
+		DEBUG("Assertion failed %S@%d!\n", PSTR(__FILE__), __LINE__); \
+	} while(0); \
+
 class DataBuffer
 {
 public:
@@ -302,6 +314,9 @@ bool StoreEEPROM();
 //system info
 void print_fw_info();
 extern uint8_t hw_revision;
+extern uint8_t device_id[11];
+void GetID(); //11 b
+void GetID_str(char * id); //22 b
 
 //power
 void mems_power_init();

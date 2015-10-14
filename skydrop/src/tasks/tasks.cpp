@@ -62,7 +62,7 @@ ISR(TASK_TIMER_OVF)
 
 ISR(USB_CONNECTED_IRQ)
 {
-	//dummy
+	//dummy ISR
 	//just wake up the device
 	//usb_in is checked in main loop
 }
@@ -146,6 +146,10 @@ void task_system_loop()
 
 			//XXX: this will guarantee that task switched from the powerdown task will be vanilla
 			if (new_task == TASK_POWERDOWN)
+				SystemReset();
+
+			//XXX: usb is bit unstable when it is switched from another task, this is hack
+			if (new_task == TASK_USB && actual_task != NO_TASK)
 				SystemReset();
 		}
 

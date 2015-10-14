@@ -200,7 +200,6 @@ void bt_irgh(uint8_t type, uint8_t * buf)
 				old_type = bt_module_type;
 
 				bt_module_deinit();
-				DEBUG("de_init_now\n");
 				bt_module_type = BT_UNKNOWN;
 				_delay_ms(500);
 

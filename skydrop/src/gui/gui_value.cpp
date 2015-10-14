@@ -304,14 +304,14 @@ void gui_value_date_irqh(uint8_t type, uint8_t * buff)
 	uint32_t diff = 0;
 
 	//do not change flight time during update
-	if (fc.autostart_state == AUTOSTART_FLIGHT)
-		diff = time_get_actual() - fc.epoch_flight_timer;
+	if (fc.flight_state == FLIGHT_FLIGHT)
+		diff = time_get_actual() - fc.flight_timer;
 
 	time_set_actual(datetime_to_epoch(sec, min, hour, day, month, year));
 
 	//do not change flight time during update
-	if (fc.autostart_state == AUTOSTART_FLIGHT)
-		fc.epoch_flight_timer = time_get_actual() - diff;
+	if (fc.flight_state == FLIGHT_FLIGHT)
+		fc.flight_timer = time_get_actual() - diff;
 }
 
 void gui_value_irqh(uint8_t type, uint8_t * buff)

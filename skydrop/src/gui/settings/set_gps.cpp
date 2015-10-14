@@ -69,9 +69,13 @@ void gui_set_gps_action(uint8_t index)
 		if (config.system.use_gps)
 		{
 			if (fc.gps_data.fix_cnt > GPS_FIX_TIME_SYNC)
+			{
 				fc_sync_gps_time();
+			}
 			else
+			{
 				gui_showmessage_P(PSTR("Wait for GPS"));
+			}
 		}
 		else
 			gui_showmessage_P(PSTR("Enable GPS first"));

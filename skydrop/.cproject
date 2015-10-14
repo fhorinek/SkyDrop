@@ -47,8 +47,8 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.compiler.option.verbose.1267466800" superClass="de.innot.avreclipse.compiler.option.verbose" value="false" valueType="boolean"/>
-								<option id="de.innot.avreclipse.compiler.option.otherflags.1460454660" superClass="de.innot.avreclipse.compiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
+								<option id="de.innot.avreclipse.compiler.option.verbose.1267466800" name="Verbose (-v)" superClass="de.innot.avreclipse.compiler.option.verbose" value="false" valueType="boolean"/>
+								<option id="de.innot.avreclipse.compiler.option.otherflags.1460454660" name="Other flags" superClass="de.innot.avreclipse.compiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1206097751" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
@@ -57,6 +57,8 @@
 								<option id="de.innot.avreclipse.cppcompiler.option.incpath.116555785" name="Include Paths (-I)" superClass="de.innot.avreclipse.cppcompiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/tasks/task_usb}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/skydrop_vali/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/fc/logger}&quot;"/>
 								</option>
 								<option id="de.innot.avreclipse.cppcompiler.option.def.1921592811" name="Define Syms (-D)" superClass="de.innot.avreclipse.cppcompiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="F_USB=48000000"/>
@@ -64,7 +66,7 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.cppcompiler.option.otherflags.443372134" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.otherflags.443372134" name="Other flags" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" value="-fdump-rtl-expand" valueType="string"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.1195678771" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.119995177" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release"/>
@@ -168,7 +170,7 @@
 							</tool>
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.63320727" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release">
 								<option id="de.innot.avreclipse.compiler.option.debug.level.1468232131" name="Generate Debugging Info" superClass="de.innot.avreclipse.compiler.option.debug.level" value="de.innot.avreclipse.compiler.option.debug.level.g2" valueType="enumerated"/>
-								<option id="de.innot.avreclipse.compiler.option.optimize.1497835158" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.none" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.optimize.1497835158" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1097196807" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/tasks/task_usb}&quot;"/>
@@ -179,15 +181,18 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.compiler.option.debug.type.18669201" name="Debug Info Format" superClass="de.innot.avreclipse.compiler.option.debug.type" value="de.innot.avreclipse.compiler.option.debug.level.stabsplus" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.debug.type.18669201" name="Debug Info Format" superClass="de.innot.avreclipse.compiler.option.debug.type" value="de.innot.avreclipse.compiler.option.debug.level.default" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.optimize.other.306997685" name="Other Optimization Flags" superClass="de.innot.avreclipse.compiler.option.optimize.other" value="-fno-omit-frame-pointer" valueType="string"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1641878509" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.362795592" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">
 								<option id="de.innot.avreclipse.cppcompiler.option.debug.level.969812743" name="Generate Debugging Info" superClass="de.innot.avreclipse.cppcompiler.option.debug.level" value="de.innot.avreclipse.cppcompiler.option.debug.level.g2" valueType="enumerated"/>
-								<option id="de.innot.avreclipse.cppcompiler.option.optimize.149649439" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.none" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.optimize.149649439" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.incpath.539448688" name="Include Paths (-I)" superClass="de.innot.avreclipse.cppcompiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/tasks/task_usb}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/skydrop_vali/src}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src/fc/logger}&quot;"/>
 								</option>
 								<option id="de.innot.avreclipse.cppcompiler.option.def.504589540" name="Define Syms (-D)" superClass="de.innot.avreclipse.cppcompiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="F_USB=48000000"/>
@@ -195,7 +200,9 @@
 									<listOptionValue builtIn="false" value="ARCH=ARCH_XMEGA"/>
 									<listOptionValue builtIn="false" value="BOARD=BOARD_USER"/>
 								</option>
-								<option id="de.innot.avreclipse.cppcompiler.option.debug.type.2061312493" name="Debug Info Format" superClass="de.innot.avreclipse.cppcompiler.option.debug.type" value="de.innot.avreclipse.cppcompiler.option.debug.level.stabsplus" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.debug.type.2061312493" name="Debug Info Format" superClass="de.innot.avreclipse.cppcompiler.option.debug.type" value="de.innot.avreclipse.cppcompiler.option.debug.level.default" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.optimize.other.138530139" name="Other Optimization Flags" superClass="de.innot.avreclipse.cppcompiler.option.optimize.other" value="" valueType="string"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.debug.other.1502978379" name="Other Debug Flags" superClass="de.innot.avreclipse.cppcompiler.option.debug.other" value="-fno-omit-frame-pointer" valueType="string"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.252211755" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.297109018" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release"/>
@@ -267,11 +274,11 @@
 								<inputType id="de.innot.avreclipse.tool.assembler.input.1111844873" superClass="de.innot.avreclipse.tool.assembler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.83958629" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release.63320727">
-								<option id="de.innot.avreclipse.compiler.option.optimize.1381102776" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.none" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.optimize.1381102776" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.975766531" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.68779954" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.362795592">
-								<option id="de.innot.avreclipse.cppcompiler.option.optimize.1523563698" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.none" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.optimize.1523563698" name="Optimization Level" superClass="de.innot.avreclipse.cppcompiler.option.optimize" value="de.innot.avreclipse.cppcompiler.optimize.one" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.1159486883" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.485349041" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release.297109018"/>

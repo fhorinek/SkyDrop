@@ -1,3 +1,19 @@
+Build 1449beta - 14. 10. 2015
+========================================================
+FIX:
+ * Removed Reset Factory test from debug menu #93
+ * pan1026 detection in Factory test #92
+ 
+ADDED
+ * IGC file logging #22
+ * LED feedback during factory test #93
+ * Autolanding / End flight #71 #52
+ * Flight statistic #71 #73
+ 
+NOTE
+ * IGC will NOT be valid for XContest for now!
+ 
+
 Build 1278 - 1. 10. 2015
 ========================================================
 FIX:

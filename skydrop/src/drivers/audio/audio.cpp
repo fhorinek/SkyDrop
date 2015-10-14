@@ -42,7 +42,7 @@ void audio_step()
 		if (config.autostart.supress_audio)
 		{
 			//vario in flight -> enable sound
-			if (fc.autostart_state == AUTOSTART_FLIGHT)
+			if (fc.flight_state == FLIGHT_FLIGHT)
 				audio_vario_step(fc.vario);
 
 			return;

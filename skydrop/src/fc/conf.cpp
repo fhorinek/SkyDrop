@@ -156,12 +156,22 @@ EEMEM cfg_t config_ee = {
 	},
 	//Autostart
 	{
-		//sensitivity
+		//start_sensititvity
 		4,
+		//land_sensitivity
+		1,
+		//timeout
+		60,
 		//supress_audio
 		true,
 	},
-
+	//Logger
+	{
+		//enabled
+		true,
+		//format
+		LOGGER_IGC,
+	},
 };
 
 ////calibration

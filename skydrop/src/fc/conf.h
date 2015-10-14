@@ -113,10 +113,15 @@ struct cfg_audio_profile
 #define PROTOCOL_DIGIFLY	0
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
+#define PROTOCOL_FLYNET		3
 
+//FlyNet is disabled
 #define NUMBER_OF_PROTOCOLS	3
 
-//#define PROTOCOL_FLYNET		3
+#define LOGGER_IGC	0
+#define LOGGER_KML	1
+
+#define NUMBER_OF_FORMATS	2
 
 struct cfg_system
 {
@@ -135,8 +140,16 @@ struct cfg_system
 
 struct cfg_autostart
 {
-	uint8_t sensititvity;
+	uint8_t start_sensititvity;
+	uint8_t land_sensititvity;
+	uint8_t timeout;
 	uint8_t supress_audio;
+};
+
+struct cfg_logger
+{
+	uint8_t enabled;
+	uint8_t format;
 };
 
 struct cfg_t
@@ -150,6 +163,7 @@ struct cfg_t
 	cfg_audio_profile audio_profile;
 	cfg_system system;
 	cfg_autostart autostart;
+	cfg_logger logger;
 };
 
 //DO NOT CHANGE THE ORDER
@@ -168,7 +182,10 @@ struct cfg_ro_t //128
 
 	uint8_t hw_revision;			//1
 
-	uint8_t reserved[99];
+	uint8_t flight_number;			//1
+	uint32_t flight_date;		//4
+
+	uint8_t reserved[94];
 };
 
 //configuration in RAM

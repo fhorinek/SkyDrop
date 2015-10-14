@@ -3,6 +3,7 @@
 	<name>skydrop</name>
 	<comment></comment>
 	<projects>
+		<project>skydrop_vali</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -6,6 +6,8 @@ extern Usart sd_spi_usart;
 
 void task_usb_init()
 {
+	SD_EN_OFF;
+	_delay_ms(200);
 
 	USB_PWR_ON;
 	SD_SPI_PWR_ON;
@@ -17,8 +19,8 @@ void task_usb_init()
 	usb_lock.Lock();
 
 	XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC2MHZ);
-	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_INT_RC32KHZ, 2000000);
-	XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000, F_USB);
+	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_INT_RC32KHZ, 2000000ul);
+	XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000ul, F_USB);
 
 	DEBUG("SD card init in RAW mode ... ");
 	if (SDCardManager_Init())

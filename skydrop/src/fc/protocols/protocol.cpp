@@ -3,12 +3,13 @@
 #include "digifly.h"
 #include "LK8EX1.h"
 #include "bluefly.h"
+#include "flynet.h"
 
 #include "../fc.h"
 
 uint32_t protocol_next_step = 0;
 
-uint8_t protocol_gps_checksum(char *s)
+uint8_t protocol_nmea_checksum(char *s)
 {
 	uint8_t c = 0;
 
@@ -42,6 +43,10 @@ void protocol_step()
 
 		case(PROTOCOL_BLUEFLY):
 			protocol_bluefly_step(buffer);
+		break;
+
+		case(PROTOCOL_FLYNET):
+			protocol_flynet_step(buffer);
 		break;
 	}
 

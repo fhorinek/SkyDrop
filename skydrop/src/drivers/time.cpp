@@ -96,12 +96,12 @@ void datetime_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t
 	*pday=epoch+1;  // day of month
 }
 
-void print_datetime()
+void print_datetime(uint32_t epoch)
 {
 	uint8_t sec, min, hour, day, wday, month;
 	uint16_t year;
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(epoch, &sec, &min, &hour, &day, &wday, &month, &year);
 
 	DEBUG("%02d.%02d.%04d %02d:%02d.%02d\n", day, month, year, hour, min, sec);
 }

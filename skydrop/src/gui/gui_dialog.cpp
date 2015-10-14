@@ -60,14 +60,57 @@ void gui_dialog_loop()
 	disp.LoadFont(F_TEXT_M);
 	uint8_t f_h = disp.GetTextHeight();
 
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 0);
-	fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line1);
+	if (gui_dialog_style == GUI_STYLE_STATS)
+	{
+		uint32_t diff = fc.flight_timer;
+		uint8_t hour, min;
 
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 1);
-	fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line2);
+		hour = diff / 3600;
+		diff %= 3600;
 
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2);
-	fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line3);
+		min = diff / 60;
+		diff %= 60;
+
+		char tmp[10];
+
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 0);
+		if (hour > 0)
+			fprintf_P(lcd_out, PSTR("%02d:%02d"), hour, min);
+		else
+			fprintf_P(lcd_out, PSTR("%02d.%02d"), min, diff);
+
+		sprintf_P(tmp, PSTR("Alt"));
+		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 0);
+		sprintf_P(tmp, PSTR("Vario"));
+		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 0);
+
+		sprintf_P(tmp, PSTR("%dm"), fc.stats.max_alt);
+		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 1);
+		sprintf_P(tmp, PSTR("%dm"), fc.stats.min_alt);
+		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 2);
+
+		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.stats.max_climb / 100.0);
+		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 1);
+		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.stats.max_sink / 100.0);
+		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 2);
+
+		disp.LoadFont(F_TEXT_S);
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 1 + 2);
+		fprintf_P(lcd_out, PSTR("min"));
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2 + 2);
+		fprintf_P(lcd_out, PSTR("max"));
+	}
+	else
+	{
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 0);
+		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line1);
+
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 1);
+		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line2);
+
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2);
+		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line3);
+	}
 
 	disp.LoadFont(F_TEXT_S);
 	f_h = disp.GetAHeight();
@@ -75,6 +118,7 @@ void gui_dialog_loop()
 	switch (gui_dialog_style)
 	{
 		case(GUI_STYLE_OK):
+		case(GUI_STYLE_STATS):
 			gui_caligh_text_P(PSTR("OK"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
 		break;
 

@@ -12,7 +12,8 @@
 
 #define GUI_STYLE_OK			0
 #define GUI_STYLE_OKCANCEL		1
-#define GUI_STYLE_YESNO		2
+#define GUI_STYLE_YESNO			2
+#define GUI_STYLE_STATS			3
 
 #define GUI_DIALOG_OK			1
 #define GUI_DIALOG_CANCEL		2

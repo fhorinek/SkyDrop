@@ -426,15 +426,24 @@ void gui_statusbar()
 
 		if(bt_device_active())
 		{
-			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 10);
+			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 9);
 		}
 		else
 		{
 			if (GUI_BLINK_TGL(1000))
-				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 10);
+				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 9);
 		}
 	}
 
+	//LOG indicator
+	if (fc.logger_state == LOGGER_ACTIVE)
+	{
+		char tmp[3];
+		disp.LoadFont(F_TEXT_S);
+		sprintf_P(tmp, PSTR("L"));
+
+		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+	}
 
 	//battery indicator
 	uint8_t a = battery_per / 10;

@@ -35,10 +35,6 @@
 
 #define BUFFER_SIZE	64
 
-#define BAT_EN_ADC	(1 << 0)
-#define BAT_EN_LED	(1 << 1)
-#define BAT_EN_LCD	(1 << 2)
-
 #ifdef abs
 #undef abs
 #endif
@@ -57,7 +53,6 @@ void EnableInterrupts();
 void DisableInterrupts();
 void CCPIOWrite(volatile uint8_t * address, uint8_t value);
 uint8_t CalcCRC(uint8_t old_crc, uint8_t key, uint8_t data);
-
 
 #ifdef __cplusplus
 }

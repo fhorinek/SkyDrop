@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 5, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 4, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -34,10 +34,10 @@ void gui_set_debug_action(uint8_t index)
 {
 	switch(index)
 	{
-		case(3):
-			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Do you want to\nreset Factory\ntest?"), GUI_STYLE_YESNO, gui_set_debug_reset_fc);
-			gui_switch_task(GUI_DIALOG);
-		break;
+//		case(3):
+//			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Do you want to\nreset Factory\ntest?"), GUI_STYLE_YESNO, gui_set_debug_reset_fc);
+//			gui_switch_task(GUI_DIALOG);
+//		break;
 	}
 }
 
@@ -79,11 +79,11 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 			sprintf_P(sub_text, PSTR("%d"), battery_adc_raw);
 		break;
 
-		case (3):
-			sprintf_P(text, PSTR("Reset Factory test"));
-		break;
+//		case (3):
+//			sprintf_P(text, PSTR("Reset Factory test"));
+//		break;
 
-		case (4):
+		case (3):
 			sprintf_P(text, PSTR("Board rev."));
 			*flags |= GUI_LIST_SUB_TEXT;
 

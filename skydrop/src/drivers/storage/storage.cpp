@@ -75,19 +75,13 @@ bool storage_init()
 
 	res = f_getfree("", &size, &FatFs1);
 
-//	DEBUG1("f_getfree res = %d, size = %lu MiB", res, size / 256);
-
 	uint32_t sector_count;
 
 	res = disk_ioctl(0, GET_SECTOR_COUNT, &sector_count);
 
-//	DEBUG1("GET_SECTOR_COUNT res = %d, size = %lu", res, sector_count);
-
 	uint16_t sector_size;
 
 	res = disk_ioctl(0, GET_SECTOR_SIZE, &sector_size);
-
-//	DEBUG1("GET_SECTOR_SIZE res = %d, size = %u", res, sector_size);
 
 	storage_space = sector_count * sector_size;
 	storage_free_space = size * 4 * 1024;

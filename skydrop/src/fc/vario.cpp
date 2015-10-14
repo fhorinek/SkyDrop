@@ -62,7 +62,7 @@ void vario_calc(float pressure)
 		if (vario_drop == VARIO_DROP)
 		{
 			fc.baro_valid = true;
-			fc.start_altitude = altitude;
+			fc.autostart_altitude = altitude;
 		}
 		else
 			return;
