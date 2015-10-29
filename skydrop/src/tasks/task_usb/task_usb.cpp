@@ -62,7 +62,7 @@ void task_usb_loop()
 	for (uint8_t i=0; i < 128; i++)
 	{
 		MassStorage_Loop();
-		wdt_reset();
+		ewdt_reset();
 	}
 }
 

@@ -43,7 +43,7 @@ enum pan1026_parser_e
 
 #define PAN1026_ERROR \
 	do { \
-	DEBUG1("HARD ERROR, Restart"); \
+	DEBUG("PAN1026 HARD ERROR, Restart"); \
 	this->Restart(); } while(0); \
 
 void pan1026::TxResume()

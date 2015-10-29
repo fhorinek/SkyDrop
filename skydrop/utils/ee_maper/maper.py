@@ -88,8 +88,14 @@ f = open(os.path.join(path, "ee_map.json"), "w")
 f.write(json.dumps({"map": map, "macros": p.defs["macros"]}))
 f.close()
 
+#update pack
+shutil.copyfile("SKYDROP.FW", os.path.join(path, "SKYDROP.FW"))
+#firmware image
 shutil.copyfile("UPDATE.FW", os.path.join(path, "UPDATE.FW"))
+#eeprom image
 shutil.copyfile("UPDATE.EE", os.path.join(path, "UPDATE.EE"))
+#disassembly
+shutil.copyfile("skydrop.lss", os.path.join(path, "skydrop.lss"))
 
 #copy last update file
 shutil.copyfile("UPDATE.EE", os.path.join("../../skydrop_configurator/app/", "UPDATE.EE"))

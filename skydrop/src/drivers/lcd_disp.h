@@ -8,15 +8,17 @@
 #define DISP_COLOR_WHITE	1
 #define DISP_LAYERS			2
 
-#define n5110_width		84
-#define n5110_height	48
+#define lcd_width		84
+#define lcd_height		48
+//#define lcd_width		102
+//#define lcd_height		68
 
-class n5110display{
+class lcd_display{
 private:
 	Spi * spi;
 	uint8_t * active_buffer;
 
-	uint8_t layers[DISP_LAYERS][(n5110_height / 8) * n5110_width];
+	uint8_t layers[DISP_LAYERS][(lcd_height / 8) * lcd_width];
 
 	void sendcommand(unsigned char cmd);
 	void SendChar(unsigned char data);
@@ -47,7 +49,6 @@ public:
 	void Stop();
 
 	void SetContrast(uint8_t val); //0-127
-	void SetBias(uint8_t bias);
 	void SetInvert(uint8_t invert);
 	void SetFlip(bool flip);
 

@@ -105,9 +105,11 @@ void pan1322::SendString(char *str)
 void pan1322::SetName(const char * name)
 {
 	uint8_t nameLength = strlen_P(name);
+
+	assert(nameLength > 18);
 	if (nameLength > 18)
 	{
-		DEBUG1("Wrong name length");
+		DEBUG("Wrong name length");
 		return;
 	}
 
@@ -124,16 +126,19 @@ void pan1322::SetDiscoverable(bool discoverable)
 void pan1322::CreateService(const char * uuid, const char * name, uint8_t channel, const char * deviceClass)
 {
 	uint8_t nameLength = strlen_P(name);
+
+	assert(nameLength > 16);
 	if (nameLength > 16)
 	{
-		DEBUG1("Wrong name length");
+		DEBUG("Wrong name length");
 		return;
 	}
 
 	uint8_t uuidLength = strlen_P(uuid);
+	assert(uuidLength > 32 || uuidLength < 4);
 	if (uuidLength > 32 || uuidLength < 4)
 	{
-		DEBUG1("Wrong uuid length");
+		DEBUG("Wrong uuid length");
 		return;
 	}
 
@@ -178,7 +183,7 @@ void pan1322::Step()
 
 	if (this->timer != BT_NO_TIMEOUT && this->timer < task_get_ms_tick())
 	{
-		DEBUG1("timeout %d\n", this->p_last_cmd);
+		DEBUG("PAN1322 timeout, last cmd %d\n", this->p_last_cmd);
 		this->timer = BT_NO_TIMEOUT;
 
 		switch (this->p_last_cmd)
@@ -428,9 +433,9 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
+			assert(n > 9);
 			if (n > 9)
 			{
-				DEBUG1("?? 2 %c = %02X\n", c, c);
 				this->p_state = BT_STATE_START;
 				break;
 			}
@@ -441,9 +446,9 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
+			assert(n > 9);
 			if (n > 9)
 			{
-				DEBUG1("?? 3 %c = %02X\n", c, c);
 				this->p_state = BT_STATE_START;
 				break;
 			}
@@ -454,9 +459,9 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
+			assert(n > 9);
 			if (n > 9)
 			{
-				DEBUG1("?? 4 %c = %02X\n", c, c);
 				this->p_state = BT_STATE_START;
 				break;
 			}
@@ -466,9 +471,9 @@ void pan1322::Parse(uint8_t c)
 		case(3): // semicolon
 			this->p_len++;
 
+			assert(c != ',');
 			if (c != ',')
 			{
-				DEBUG1("?? 5 %c = %02X\n", c, c);
 				this->p_state = BT_STATE_START;
 				break;
 			}
@@ -480,6 +485,7 @@ void pan1322::Parse(uint8_t c)
 			{
 				this->p_state = BT_STATE_FIND_RN;
 			}
+
 			//HANDLE INCOMING DATA HERE
 			//...drop data here :)...
 			break;

@@ -26,6 +26,8 @@ EEMEM cfg_t config_ee = {
 		75,
 		//vario_volume
 		75,
+		//vario_mute
+		false,
 		//alert_volume
 		75,
 		//number_of_pages
@@ -59,8 +61,8 @@ EEMEM cfg_t config_ee = {
 			//4
 			{
 				//type
-				LAYOUT_12,
-				{WIDGET_VARIO_BAR, WIDGET_GHEADING, WIDGET_GROUND_SPD, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_22,
+				{WIDGET_CTRL_AUDIO, WIDGET_CTRL_WLIFT, WIDGET_BATTERY, WIDGET_TEMPERATURE, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 		},
 
@@ -137,22 +139,14 @@ EEMEM cfg_t config_ee = {
 	},
 	//System
 	{
-		//usb_mode
-		USB_MODE_MASSSTORAGE,
-		//use_gps
-		true,
-		//use_bt
-		false,
-		//forward_gps
-		true,
-		//protocol
-		PROTOCOL_DIGIFLY,
 		//time flags
-		TIME_DST | TIME_SYNC,
+		TIME_SYNC,
 		//timezone
 		+2 * 2,
-		//gps_format_flags
-		GPS_DDdddddd | GPS_SPD_KPH,
+		//debug_log
+		DEBUG_MAGIC_ON,
+		//auto_power_off
+		25,
 	},
 	//Autostart
 	{
@@ -172,6 +166,21 @@ EEMEM cfg_t config_ee = {
 		//format
 		LOGGER_IGC,
 	},
+	//Connectivity
+	{
+		//usb_mode
+		USB_MODE_MASSSTORAGE,
+		//use_gps
+		true,
+		//gps_format_flags
+		GPS_DDdddddd | GPS_SPD_KPH,
+		//use_bt
+		false,
+		//forward_gps
+		true,
+		//protocol
+		PROTOCOL_DIGIFLY,
+	}
 };
 
 ////calibration

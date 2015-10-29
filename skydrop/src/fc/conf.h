@@ -25,6 +25,8 @@ struct cfg_gui_layout
 #define CFG_AUDIO_MENU_PAGES	0b01000000
 #define CFG_AUDIO_MENU_BUTTONS	0b00100000
 
+
+
 struct cfg_gui
 {
 	uint8_t contrast;
@@ -37,6 +39,7 @@ struct cfg_gui
 
 	uint8_t menu_volume;
 	uint8_t vario_volume;
+	uint8_t vario_mute;
 	uint8_t alert_volume;
 
 	uint8_t number_of_pages;
@@ -115,7 +118,7 @@ struct cfg_audio_profile
 #define PROTOCOL_BLUEFLY	2
 #define PROTOCOL_FLYNET		3
 
-//FlyNet is disabled
+//FlyNet is disabled for now
 #define NUMBER_OF_PROTOCOLS	3
 
 #define LOGGER_IGC	0
@@ -123,19 +126,16 @@ struct cfg_audio_profile
 
 #define NUMBER_OF_FORMATS	2
 
+//prevent fake true (0xFF) on not loaded eeprom
+#define DEBUG_MAGIC_ON		0b10100101
+
 struct cfg_system
 {
-	uint8_t usb_mode;
-
-	uint8_t use_gps;
-	uint8_t use_bt;
-	uint8_t forward_gps;
-	uint8_t protocol;
-
 	uint8_t time_flags;
 	int8_t time_zone;
 
-	uint8_t gps_format_flags;
+	uint8_t debug_log;
+	uint8_t auto_power_off; //in minutes
 };
 
 struct cfg_autostart
@@ -152,6 +152,20 @@ struct cfg_logger
 	uint8_t format;
 };
 
+struct cfg_connectivity
+{
+	uint8_t usb_mode;
+
+	uint8_t use_gps;
+	uint8_t gps_format_flags;
+
+	uint8_t use_bt;
+	uint8_t forward_gps;
+	uint8_t protocol;
+};
+
+//Main user configurations
+//start address				32	0x20
 struct cfg_t
 {
 	uint32_t build_number;
@@ -164,28 +178,45 @@ struct cfg_t
 	cfg_system system;
 	cfg_autostart autostart;
 	cfg_logger logger;
+	cfg_connectivity connectivity;
 };
 
-//DO NOT CHANGE THE ORDER
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 
-struct cfg_ro_t //128
+//DO NOT CHANGE THE ORDER, add new value at the end
+
+struct debug_info
 {
-	uint8_t factory_passed;			//1
-	uint8_t lcd_contrast_min;		//1
-	uint8_t lcd_contrast_max;		//1
+	uint32_t time;				//4
+	uint16_t build_number;		//2
+	uint32_t program_counter;	//4
+	uint16_t min_stack;			//2
+	uint16_t max_heap;			//2
+};
 
-	uint8_t bt_module_type; 		//1
+//Device config not related to user settings
+//						dec		hex
+//size 					128		0x80
+//start address			1920	0x780
+struct cfg_ro_t
+{									//offset	size
+	uint8_t factory_passed;			//+0		1
+	uint8_t lcd_contrast_min;		//+1		1
+	uint8_t lcd_contrast_max;		//+2		1
 
-	cfg_calibration calibration;	//24
+	uint8_t bt_module_type; 		//+3		1
 
-	uint8_t hw_revision;			//1
+	cfg_calibration calibration;	//+4		24
 
-	uint8_t flight_number;			//1
-	uint32_t flight_date;		//4
+	uint8_t hw_revision;			//+28		1
 
-	uint8_t reserved[94];
+	uint8_t flight_number;			//+29		1
+	uint32_t flight_date;			//+30		4
+
+	debug_info debug;				//+34		14
+
+	uint8_t reserved[80];			//+48
 };
 
 //configuration in RAM

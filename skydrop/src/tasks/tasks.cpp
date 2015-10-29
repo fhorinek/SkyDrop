@@ -57,7 +57,13 @@ bool SleepLock::Active()
 
 ISR(TASK_TIMER_OVF)
 {
-	task_timer_high++;
+	if (SP<debug_min_stack_pointer)
+		debug_min_stack_pointer = SP;
+
+	if (debug_max_heap_pointer < freeRam())
+		debug_max_heap_pointer = freeRam();
+
+	task_timer_high += 512ul;
 }
 
 ISR(USB_CONNECTED_IRQ)
@@ -69,7 +75,7 @@ ISR(USB_CONNECTED_IRQ)
 
 uint32_t task_get_ms_tick()
 {
-	uint32_t res = (task_timer_high * 512ul) + (uint32_t)(task_timer.GetValue() / 125);
+	uint32_t res = (task_timer_high) + (uint32_t)(task_timer.GetValue() / 125);
 
 	return res;
 }
@@ -115,7 +121,7 @@ void task_init()
 	if ((usb_state = USB_CONNECTED))
 		task_set(TASK_USB);
 
-	wdt_init(wdt_2s);
+	ewdt_init();
 }
 
 void task_set(uint8_t task)
@@ -125,7 +131,7 @@ void task_set(uint8_t task)
 
 void task_loop()
 {
-	wdt_reset();
+	ewdt_reset();
 	if (actual_task != NO_TASK)
 		task_loop_array[actual_task]();
 }
@@ -134,7 +140,7 @@ uint64_t loop_start = 0;
 
 void task_system_loop()
 {
-	wdt_reset();
+	ewdt_reset();
 
 	//task switching outside interrupt
 	if (new_task != actual_task)

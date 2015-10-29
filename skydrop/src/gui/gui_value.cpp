@@ -77,6 +77,14 @@ void gui_value_loop()
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 		break;
 
+		case(GUI_VAL_NUMBER_DISABLE):
+			if (gui_value_tmp > 0)
+				sprintf(tmp, gui_value_format, gui_value_tmp);
+			else
+				strcpy_P(tmp, PSTR("disabled"));
+			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
+		break;
+
 		case(GUI_VAL_VARIO_TEST):
 			sprintf(tmp, gui_value_format, gui_value_tmp);
 			gui_raligh_text(tmp, GUI_DIALOG_RIGHT - 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
@@ -321,6 +329,7 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 	switch (gui_value_type)
 	{
 	case(GUI_VAL_NUMBER):
+	case(GUI_VAL_NUMBER_DISABLE):
 		gui_value_number_irqh(type, buff);
 	break;
 

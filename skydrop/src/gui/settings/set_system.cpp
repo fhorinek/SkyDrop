@@ -7,7 +7,7 @@
 
 void gui_set_system_init()
 {
-	gui_list_set(gui_set_system_item, gui_set_system_action, 4, GUI_SETTINGS);
+	gui_list_set(gui_set_system_item, gui_set_system_action, 5, GUI_SETTINGS);
 }
 
 void gui_set_system_stop() {}
@@ -20,6 +20,17 @@ void gui_set_system_loop()
 void gui_set_system_irqh(uint8_t type, uint8_t * buff)
 {
 	gui_list_irqh(type, buff);
+}
+
+void gui_set_system_auto_power_off_cb(float ret)
+{
+	uint8_t val = ret;
+
+	config.system.auto_power_off = val;
+	eeprom_busy_wait();
+	eeprom_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
+
+	gui_switch_task(GUI_SET_SYSTEM);
 }
 
 void gui_set_system_action(uint8_t index)
@@ -39,11 +50,15 @@ void gui_set_system_action(uint8_t index)
 	break;
 
 	case(3):
-		config.system.usb_mode = !config.system.usb_mode ;
+		config.connectivity.usb_mode = !config.connectivity.usb_mode;
 		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.system.usb_mode, config.system.usb_mode );
+		eeprom_update_byte(&config_ee.connectivity.usb_mode, config.connectivity.usb_mode);
 	break;
 
+	case(4):
+		gui_value_conf_P(PSTR("Auto power-off"), GUI_VAL_NUMBER_DISABLE, PSTR("%0.0f min"), config.system.auto_power_off, 0, 120, 1, gui_set_system_auto_power_off_cb);
+		gui_switch_task(GUI_SET_VAL);
+	break;
 	}
 }
 
@@ -76,14 +91,23 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
-
 		case (3):
 			sprintf_P(text, PSTR("Mass Storage"));
-			if (config.system.usb_mode == USB_MODE_MASSSTORAGE)
+			if (config.connectivity.usb_mode == USB_MODE_MASSSTORAGE)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
+
+		case (4):
+			sprintf_P(text, PSTR("Auto power-off"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			if (config.system.auto_power_off > 0)
+				sprintf_P(sub_text, PSTR("%u min"), config.system.auto_power_off);
+			else
+				sprintf_P(sub_text, PSTR("disabled"));
+		break;
+
 	}
 }
 

@@ -35,9 +35,7 @@ void buttons_init()
 	GpioSetInterrupt(SWITCH3, gpio_interrupt0, gpio_bothedges);
 }
 
-#define BUTTON_DEBOUNCE		10
-#define BUTTON_WAIT			100
-#define BUTTON_LONG			1000
+
 
 //#define task_irqh(a,b)
 
@@ -150,6 +148,11 @@ bool buttons_read(uint8_t index)
 bool button_hold(uint8_t index)
 {
 	return (buttons_state[index] == BS_PRESSED);
+}
+
+bool button_in_reset(uint8_t index)
+{
+	return (buttons_state[index] == BS_RESET);
 }
 
 void buttons_reset()

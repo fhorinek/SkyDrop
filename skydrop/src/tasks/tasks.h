@@ -50,10 +50,11 @@ void task_rgui();
 
 uint32_t task_get_ms_tick();
 
-
 void task_loop();
 void task_system_loop();
 void task_sleep();
 void task_irqh(uint8_t type, uint8_t * buff);
+
+extern volatile uint8_t actual_task;
 
 #endif /* TASKS_H_ */

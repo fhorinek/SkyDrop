@@ -31,7 +31,7 @@ void protocol_step()
 
 	char buffer[512];
 
-	switch (config.system.protocol)
+	switch (config.connectivity.protocol)
 	{
 		case(PROTOCOL_DIGIFLY):
 			protocol_digifly_step(buffer);

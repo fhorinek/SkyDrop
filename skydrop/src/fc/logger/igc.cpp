@@ -36,9 +36,9 @@ void igc_writeline(char * line)
 
 IGC_PRIVATE_KEY_BODY
 
-bool igc_start()
+bool igc_start(char * path)
 {
-	char filename[64];
+	char filename[128];
 
 	uint8_t sec;
 	uint8_t min;
@@ -49,21 +49,23 @@ bool igc_start()
 	uint16_t year;
 
 	char line[79];
-	char id[22];
+	char id[32];
 
 	sha256.init();
 
 	IGC_PRIVATE_KEY_ADD;
 
 	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+
 	//XXX
 	#define device_uid "DRP"
 
-	sprintf_P(filename, PSTR("/%s/%d%c%cX%s%c.IGC"), LOG_DIR, year % 10, igc_i2c(month), igc_i2c(day), device_uid, igc_i2c(logger_flight_number));
+	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.IGC"), path, logger_flight_number, hour, min);
 	DEBUG("IGC filename %s\n", filename);
 
 	uint8_t res = f_open(log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
 	assert(res == FR_OK);
+	DEBUG("res == %02X\n", res);
 
 	//cannot create file
 	if (res != FR_OK)
@@ -73,12 +75,13 @@ bool igc_start()
 	GetID_str(id);
 	sprintf_P(line, PSTR("A%S%s:%s"), LOG_MID_P, device_uid, id);
 	igc_writeline(line);
+
 	//H records
 	//H F DTE
-	sprintf_P(line, PSTR("HFDTE%02d%02d%02d"), day, month, year - 2000);
+	sprintf_P(line, PSTR("HFDTE%02u%02u%02u"), day, month, year % 100);
 	igc_writeline(line);
 	//H F DTE
-	sprintf_P(line, PSTR("HFDTEDATE:%02d%02d%02d,%02d"), day, month, year - 2000, logger_flight_number);
+	sprintf_P(line, PSTR("HFDTEDATE:%02u%02u%02u,%02u"), day, month, year  % 100, logger_flight_number);
 	igc_writeline(line);
 	//H F PLT PILOT IN CHARGE XXX
 	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE:"));
@@ -141,25 +144,22 @@ void igc_step()
 	float decimal;
 	float deg;
 	float fmin;
-	uint16_t min_d;
 	char c;
 	char tmp1[32];
 
 	c = (fc.gps_data.latitude < 0) ? 'S' : 'N';
 	decimal = abs(fc.gps_data.latitude);
-	deg = abs(floor(decimal));
-	fmin = (decimal - deg) * 60;
-	min_d = fmin;
-	sprintf_P(tmp1, PSTR("%02.0f%02d%03d%c"), deg, min_d, (uint16_t)(fmin - min_d) * 100, c);
+	deg = floor(decimal);
+	fmin = (decimal - deg) * 60 * 1000;
+	sprintf_P(tmp1, PSTR("%02.0f%05.0f%c"), deg, fmin, c);
 
 	char tmp2[32];
 
 	c = (fc.gps_data.longtitude < 0) ? 'W' : 'E';
 	decimal = abs(fc.gps_data.longtitude);
-	deg = abs(floor(decimal));
-	fmin = (decimal - deg) * 60;
-	min_d = fmin;
-	sprintf_P(tmp2, PSTR("%03.0f%02d%03d%c"), deg, min_d, (uint16_t)(fmin - min_d) * 100, c);
+	deg = floor(decimal);
+	fmin = (decimal - deg) * 60 * 1000;
+	sprintf_P(tmp2, PSTR("%03.0f%05.0f%c"), deg, fmin, c);
 
 	c = (fc.gps_data.valid) ? 'A' : 'V';
 

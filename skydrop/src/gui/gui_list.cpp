@@ -8,7 +8,10 @@ uint8_t gui_list_size = 0;
 uint8_t gui_list_back = 0;
 int16_t gui_list_y_offset = 0;
 uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];
+uint32_t gui_list_middle_hold;
 
+#include "../../drivers/audio/sequencer.h"
+MK_SEQ(snd_menu_exit, ARR({800}), ARR({200}));
 
 void gui_list_draw()
 {
@@ -24,6 +27,20 @@ void gui_list_draw()
 	uint8_t height;
 	uint8_t total_height = 0;
 	uint8_t sub_height;
+
+	//emulate middle click
+	if (button_in_reset(B_MIDDLE))
+	{
+		if (task_get_ms_tick() - gui_list_middle_hold > BUTTON_LONG)
+		{
+			gui_switch_task(gui_list_back);
+			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS && gui_buttons_override == false)
+				seq_start(&snd_menu_exit, config.gui.menu_volume);
+
+		}
+	}
+	else
+		gui_list_middle_hold = task_get_ms_tick();
 
 	for (uint8_t i = 0; i < gui_list_size; i++)
 	{
@@ -89,16 +106,12 @@ void gui_list_draw()
 			}
 		}
 
-
-
-
 		if (flags & GUI_LIST_DISABLED)
 		{
 			for (uint8_t cx = 0; cx < GUI_DISP_WIDTH - 1; cx++)
 				for (uint8_t cy = y + cx % 2 + 1; cy < y + t_h; cy += 2)
 					disp.PutPixel(cx, cy, 0);
 		}
-
 
 		if (gui_list_index[gui_task] == i)
 		{
@@ -123,6 +136,8 @@ void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size, uint
 	gui_list_size = size + 1;
 	gui_list_back = back;
 	gui_list_y_offset = 0;
+
+	gui_list_middle_hold = task_get_ms_tick();
 }
 
 void gui_list_set_index(uint8_t task, uint8_t index)

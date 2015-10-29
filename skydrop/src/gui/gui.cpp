@@ -33,7 +33,7 @@
 #include "settings/set_menu_audio.h"
 
 
-n5110display disp;
+lcd_display disp;
 CreateStdOut(lcd_out, disp.Write);
 
 volatile uint8_t gui_task = GUI_NONE;
@@ -79,6 +79,9 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 
 MK_SEQ(snd_but_short, ARR({1000}), ARR({50}));
 MK_SEQ(snd_but_long, ARR({800}), ARR({200}));
+
+uint32_t gui_idle_timer;
+#define GUI_IDLE_RETURN			30000
 
 void gui_switch_task(uint8_t new_task)
 {
@@ -171,6 +174,7 @@ void gui_init()
 {
 	disp.Init();
 	gui_load_eeprom();
+	gui_idle_timer = task_get_ms_tick();
 }
 
 void gui_load_eeprom()
@@ -229,14 +233,14 @@ void gui_dialog(char * title)
 	disp.LoadFont(F_TEXT_M);
 	gui_caligh_text(title, GUI_DISP_WIDTH / 2, 2);
 
-	disp.InvertPart(0, 0, n5110_width, 0);
+	disp.InvertPart(0, 0, GUI_DISP_WIDTH, 0);
 	disp.PutPixel(0, 0, 0);
-	disp.PutPixel(n5110_width - 1, 0 ,0);
-	disp.Invert(0, 8, n5110_width, 11);
+	disp.PutPixel(GUI_DISP_WIDTH - 1, 0 ,0);
+	disp.Invert(0, 8, GUI_DISP_WIDTH, 11);
 
-	disp.DrawLine(0, 12, 0, n5110_height - 2, 1);
-	disp.DrawLine(n5110_width - 1, 12, n5110_width - 1, n5110_height - 2, 1);
-	disp.DrawLine(1, n5110_height - 1, n5110_width - 2, n5110_height - 1, 1);
+	disp.DrawLine(0, 12, 0, GUI_DISP_HEIGHT - 2, 1);
+	disp.DrawLine(GUI_DISP_WIDTH - 1, 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 2, 1);
+	disp.DrawLine(1, GUI_DISP_HEIGHT - 1, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1);
 }
 
 void gui_update_disp_cfg()
@@ -270,6 +274,29 @@ void gui_loop()
 	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
 
 	gui_update_disp_cfg();
+
+	//timeout tasks
+	if (actual_task == TASK_ACTIVE)
+	{
+		//return to main gui task, except for GPS detail page, dialog or splash
+		if (gui_task != GUI_PAGES && gui_task != GUI_SET_GPS_DETAIL && gui_task != GUI_DIALOG && gui_task != GUI_SPLASH)
+		{
+			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)
+				gui_switch_task(GUI_PAGES);
+		}
+
+		//no activity for a long time -> power off
+		if (gui_task == GUI_PAGES)
+		{
+			if (fc.flight_state != FLIGHT_FLIGHT && config.system.auto_power_off > 0)
+			{
+				if (task_get_ms_tick() - gui_idle_timer > (uint32_t)config.system.auto_power_off * 60ul * 1000ul)
+				{
+					gui_page_power_off();
+				}
+			}
+		}
+	}
 
 	if (gui_new_task != gui_task)
 	{
@@ -337,12 +364,14 @@ void gui_loop()
 //	fprintf_P(lcd_out, PSTR("%d"), fps_val);
 
 	// FPS end
-
 	disp.Draw();
 
 	if (gui_task != GUI_SPLASH)
 		if (buttons_read(B_LEFT) || buttons_read(B_RIGHT) || buttons_read(B_MIDDLE))
+		{
 			gui_trigger_backlight();
+			gui_idle_timer = task_get_ms_tick();
+		}
 
 	if (lcd_brightness_end < task_get_ms_tick())
 		lcd_bckl(0);
@@ -381,7 +410,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 
 		if (gui_message_end > task_get_ms_tick())
 		{
-			if (type == B_MIDDLE && *buff == BE_CLICK)
+			if (type == B_MIDDLE && (*buff == BE_CLICK || *buff == BE_LONG))
 				gui_message_end = 0;
 
 			return;
@@ -400,7 +429,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 void gui_statusbar()
 {
 	//GPS indicator
-	if (config.system.use_gps)
+	if (config.connectivity.use_gps)
 	{
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);
@@ -418,7 +447,7 @@ void gui_statusbar()
 	}
 
 	//BT indicator
-	if (config.system.use_bt)
+	if (config.connectivity.use_bt)
 	{
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);

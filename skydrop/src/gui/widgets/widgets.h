@@ -102,7 +102,11 @@ extern float widget_menu_fvalue1;
 #define WIDGET_GLIDE_RATIO	19
 #include "flight.h"
 
-#define NUMBER_OF_WIDGETS	20
+#define WIDGET_CTRL_AUDIO	20
+#define WIDGET_CTRL_WLIFT	21
+#include "ctrl.h"
+
+#define NUMBER_OF_WIDGETS	22
 
 
 void widgets_draw(uint8_t page);

@@ -40,34 +40,33 @@ void fc_init()
 	logger_init();
 
 	gps_init();
-	if (config.system.use_gps)
+	if (config.connectivity.use_gps)
 		gps_start();
 
 	bt_init();
-	if (config.system.use_bt)
+	if (config.connectivity.use_bt)
 		bt_module_init();
 
 	//VCC to baro, acc/mag gyro + i2c pull-ups
 	mems_power_on();
 
 	//init and test i2c
+	//HW_REW_1504 have two mems enable pins, both have to be enabled!
+	//HW_REW_1506 have standalone ldo for mems, hence only one pin is needed
 	if (!mems_i2c_init())
 	{
-		DEBUG("ERROR I2C\n");
+		DEBUG("ERROR I2C, Wrong board rev? (%02X)\n", hw_revision);
 		led_set(0xFF, 0, 0);
 
-		if (hw_revision == HW_REW_UNKNOWN)
-		{
-			hw_revision = HW_REW_1504;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ro.hw_revision, hw_revision);
-			eeprom_busy_wait();
+		hw_revision = HW_REW_1504;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ro.hw_revision, hw_revision);
+		eeprom_busy_wait();
 
-			mems_power_init();
-			io_init();
-			mems_power_on();
-			mems_i2c_init();
-		}
+		mems_power_init();
+		io_init();
+		mems_power_on();
+		assert(mems_i2c_init());
 	}
 	else
 	{
@@ -85,6 +84,12 @@ void fc_init()
 		}
 	}
 
+
+	if (!mems_i2c_init())
+	{
+		DEBUG("I2C error!\nUnable to init flight computer!\n");
+		return;
+	}
 
 	//Barometer
 	ms5611.Init(&mems_i2c, MS5611_ADDRESS_CSB_LO);
@@ -436,7 +441,7 @@ void fc_step()
 	//flight statistic
 	if (fc.flight_state == FLIGHT_FLIGHT)
 	{
-		int16_t t_vario = fc.vario * 100;
+		int16_t t_vario = fc.avg_vario * 100;
 
 		if (fc.altitude1 > fc.stats.max_alt)
 			fc.stats.max_alt = fc.altitude1;
@@ -485,6 +490,8 @@ void fc_manual_alt0_change(float val)
 {
     kalmanFilter->setXAbs(val);
     if (fc.flight_state == FLIGHT_WAIT)
+    {
     	fc.autostart_altitude = val;
+    }
 }
 

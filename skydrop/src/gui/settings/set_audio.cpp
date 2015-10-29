@@ -9,7 +9,7 @@
 
 void gui_set_audio_init()
 {
-	gui_list_set(gui_set_audio_item, gui_set_audio_action, 4, GUI_SET_SYSTEM);
+	gui_list_set(gui_set_audio_item, gui_set_audio_action, 5, GUI_SET_SYSTEM);
 }
 
 void gui_set_audio_stop() {}
@@ -29,6 +29,7 @@ void gui_set_audio_vario_vol_cb(float val)
 	gui_switch_task(GUI_SET_AUDIO);
 	eeprom_busy_wait();
 	uint8_t tmp = val;
+	tmp = tmp;
 	eeprom_update_byte(&config_ee.gui.vario_volume, tmp);
 	config.gui.vario_volume = tmp;
 }
@@ -61,16 +62,21 @@ void gui_set_audio_action(uint8_t index)
 		break;
 
 		case(1):
+			config.gui.vario_mute = !config.gui.vario_mute;
+			eeprom_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
+		break;
+
+		case(2):
 			gui_value_conf_P(PSTR("Alert volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.alert_volume, 0, 100, 25, gui_set_audio_alert_vol_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(2):
+		case(3):
 			gui_value_conf_P(PSTR("Menu volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.menu_volume, 0, 100, 25, gui_set_audio_menu_vol_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(3):
+		case(4):
 			gui_switch_task(GUI_SET_AUDIO_MENU);
 		break;
 	}
@@ -87,18 +93,26 @@ void gui_set_audio_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (1):
+			sprintf_P(text, PSTR("Vario mute"));
+			if (config.gui.vario_mute)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (2):
 			sprintf_P(text, PSTR("Alert volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.alert_volume);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (2):
+		case (3):
 			sprintf_P(text, PSTR("Menu volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.menu_volume);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (3):
+		case (4):
 			sprintf_P(text, PSTR("Menu sounds"));
 			*flags |= GUI_LIST_FOLDER;
 		break;

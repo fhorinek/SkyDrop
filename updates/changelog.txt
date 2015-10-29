@@ -1,16 +1,42 @@
+Build 1714beta - 29. 10. 2015
+========================================================
+FIX:
+ * Wrong min/max label in flight summary
+ * Lockup Alt2 with Alt3 vice versa #98
+ * GPS records are imperfect in IGC log #97 
+ * Minor bug in FC init
+ 
+ADDED:
+ * sanity check for min date
+ * Debug messages can be now logged on sd card (settings->debug->Debug log) 
+ * Pre-Watchdog interrupt will try to catch program counter for debug
+ * Holding middle button will go back until you release the button #13
+ * 2 widgets audio on/off & week lift on/off
+ * Settings will eventually timeout back to main screen
+ * Configurable automatic power-off
+ * Restore default setting using same SKYDROP.FW file
+  
+REMOVED:
+ * DEBUG1 macro (not really used), unexpected inputs will be handled by asserts
+ 
+CHANGED:
+ * Minor config structure reorganisation, some settings will not able to update 
+   to newest version
+ * Avg Vario is now used for statistic
+
 Build 1449beta - 14. 10. 2015
 ========================================================
 FIX:
  * Removed Reset Factory test from debug menu #93
  * pan1026 detection in Factory test #92
  
-ADDED
+ADDED:
  * IGC file logging #22
  * LED feedback during factory test #93
  * Autolanding / End flight #71 #52
  * Flight statistic #71 #73
  
-NOTE
+NOTE:
  * IGC will NOT be valid for XContest for now!
  
 

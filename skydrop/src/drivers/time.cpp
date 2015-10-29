@@ -114,6 +114,8 @@ ISR(rtc_overflow_interrupt)
 	unix_time += 1;
 }
 
+#define TIME_MIN_DATE	(1420113600) //1.1.2015 12:00.00
+
 void time_init()
 {
 	RTC_PWR_ON;
@@ -123,6 +125,9 @@ void time_init()
 	RtcSetPeriod(3);
 	RtcInit(rtc_1024Hz_tosc, rtc_div256); //f == 32Hz
 	RtcEnableInterrupts(rtc_overflow); //ovf every sec
+
+	if (time_get_actual() < TIME_MIN_DATE)
+		unix_time = TIME_MIN_DATE;
 }
 
 

@@ -9,7 +9,7 @@
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
 
-uint8_t hw_revision = HW_REW_1506;
+uint8_t hw_revision = HW_REW_UNKNOWN;
 
 void print_fw_info()
 {
@@ -184,7 +184,7 @@ void GetID() //11 b
 }
 
 
-void GetID_str(char * id) //22 b
+void GetID_str(char * id) //23 b
 {
 	uint8_t * b = device_id;
 
@@ -268,7 +268,7 @@ bool LoadEEPROM()
 
 bool StoreEEPROM()
 {
-	wdt_reset();
+	ewdt_reset();
 	DEBUG("Storing settings\n");
 
 	if (!storage_selftest())

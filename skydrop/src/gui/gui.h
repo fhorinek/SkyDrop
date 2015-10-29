@@ -9,14 +9,14 @@
 #define GUI_H_
 
 #include "../common.h"
-#include "../drivers/n5110_disp.h"
+#include "../drivers/lcd_disp.h"
 #include "../drivers/led.h"
 
-extern n5110display disp;
+extern lcd_display disp;
 extern FILE * lcd_out;
 
-#define GUI_DISP_WIDTH	n5110_width
-#define GUI_DISP_HEIGHT	n5110_height
+#define GUI_DISP_WIDTH	lcd_width
+#define GUI_DISP_HEIGHT	lcd_height
 
 #define GUI_BLINK_TGL(PER) (task_get_ms_tick() % PER > (PER / 2))
 

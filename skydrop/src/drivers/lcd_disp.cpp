@@ -1,8 +1,8 @@
-#include "n5110_disp.h"
+#include "lcd_disp.h"
 #include "uart.h"
 
 
-void n5110display::SetDrawLayer(uint8_t layer)
+void lcd_display::SetDrawLayer(uint8_t layer)
 {
 	this->active_buffer = this->layers[layer];
 }
@@ -11,7 +11,7 @@ void n5110display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void n5110display::GotoXY(uint8_t x, uint8_t y)
+void lcd_display::GotoXY(uint8_t x, uint8_t y)
 {
 	text_x = x;
 	text_y = y;
@@ -21,7 +21,7 @@ void n5110display::GotoXY(uint8_t x, uint8_t y)
  * Write ASCII character on screen
  *
  */
-void n5110display::Write(uint8_t ascii=0)
+void lcd_display::Write(uint8_t ascii=0)
 {
 	if (ascii < font_begin || ascii > font_end)
 	{
@@ -51,7 +51,7 @@ void n5110display::Write(uint8_t ascii=0)
 			}
 
 			text_x++;
-			if (text_x >= n5110_width)
+			if (text_x >= lcd_width)
 			{
 				text_x = 0;
 				text_y += this->font_height;
@@ -60,14 +60,14 @@ void n5110display::Write(uint8_t ascii=0)
 	}
 
 	text_x += font_spacing;
-	if (text_x >= n5110_width)
+	if (text_x >= lcd_width)
 	{
 		text_x = 0;
 		text_y += this->font_height;
 	}
 }
 
-uint8_t n5110display::GetTextWidth(char * text)
+uint8_t lcd_display::GetTextWidth(char * text)
 {
 	uint8_t ret = 0;
 
@@ -92,18 +92,18 @@ uint8_t n5110display::GetTextWidth(char * text)
 	return ret;
 }
 
-uint8_t n5110display::GetTextHeight()
+uint8_t lcd_display::GetTextHeight()
 {
 	return this->font_height;
 }
 
-uint8_t n5110display::GetAHeight()
+uint8_t lcd_display::GetAHeight()
 {
 	return this->font_A_height;
 }
 
 
-void n5110display::LoadFont(const uint8_t * font)
+void lcd_display::LoadFont(const uint8_t * font)
 {
 	this->font_data = font;
 	this->font_height = pgm_read_byte(&font[0]);
@@ -118,7 +118,7 @@ void n5110display::LoadFont(const uint8_t * font)
 }
 
 
-void n5110display::sendcommand(unsigned char cmd)
+void lcd_display::sendcommand(unsigned char cmd)
 {
 	GpioWrite(LCD_DC, LOW);
 
@@ -132,7 +132,7 @@ void n5110display::sendcommand(unsigned char cmd)
  *
  * \param i2c Pointer to i2c object
  */
-void n5110display::Init()
+void lcd_display::Init()
 {
 	LCD_SPI_PWR_ON;
 
@@ -156,12 +156,19 @@ void n5110display::Init()
 	_delay_ms(10);
 	GpioWrite(LCD_RST, HIGH);
 
+	#define START_LINE	64
 
-	this->SetBias(0x13);
+	sendcommand(0x21); //Extended commands
+
+	sendcommand(0x04 | (0b01000000 & START_LINE) >> 6);
+	sendcommand(0x40 | (0b00111111 & START_LINE));
+
+//	sendcommand(0x04); //Set Temp coefficent
+	sendcommand(0x13); //LCD bias mode 1:48: Try 0x13 or 0x14
 
 	this->SetContrast(72);
 
-	sendcommand(0x20); //Basic
+	sendcommand(0x20); //Horizontal addressing mode.
 	this->SetInvert(false);
 
 	for (uint8_t i = 0; i < DISP_LAYERS; i++)
@@ -175,14 +182,14 @@ void n5110display::Init()
 	Draw();
 }
 
-void n5110display::SetContrast(uint8_t val) //0-127
+void lcd_display::SetContrast(uint8_t val) //0-127
 {
 	sendcommand(0x21); //Extended
 	sendcommand(0x80 | val);
 	sendcommand(0x20); //Basic
 }
 
-void n5110display::SetInvert(uint8_t invert)
+void lcd_display::SetInvert(uint8_t invert)
 {
 	 //Set display control, normal mode. 0x0D for inverse
 	if (invert)
@@ -191,19 +198,13 @@ void n5110display::SetInvert(uint8_t invert)
 		sendcommand(0x0C);
 }
 
-void n5110display::SetFlip(bool flip)
+void lcd_display::SetFlip(bool flip)
 {
 	this->flip = flip;
 }
 
-void n5110display::SetBias(uint8_t bias) // 0x13 / 0x14
-{
-	sendcommand(0x21); //Extended
-	sendcommand(0x04); //Set Temp coefficent
-	sendcommand(bias); //LCD bias mode 1:48: Try 0x13 or 0x14
-}
 
-void n5110display::Stop()
+void lcd_display::Stop()
 {
 	this->spi->Stop();
 	delete this->spi;
@@ -220,7 +221,7 @@ void n5110display::Stop()
  * Draw line (works in any direction)
  *
  */
-void n5110display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t color=1){
+void lcd_display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t color=1){
 	uint8_t deltax,deltay,x,y,xinc1,xinc2,yinc1,yinc2,den,num,numadd,numpixels,curpixel;
 	deltax = abs(x2 - x1);		// The difference between the x's
 	deltay = abs(y2 - y1);		// The difference between the y's
@@ -280,12 +281,12 @@ void n5110display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t 
  *
  * /param val -
  */
-void n5110display::PutPixel(uint8_t x ,uint8_t  y ,uint8_t color)
+void lcd_display::PutPixel(uint8_t x ,uint8_t  y ,uint8_t color)
 {
-	if (x >= n5110_width || y >= n5110_height)
+	if (x >= lcd_width || y >= lcd_height)
 		return;
 
-	uint16_t index = ((y / 8) * n5110_width) + (x % n5110_width);
+	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);
 	if (color == DISP_COLOR_WHITE)
 		active_buffer[index] |= (1 << (y % 8));
 	else {
@@ -293,23 +294,23 @@ void n5110display::PutPixel(uint8_t x ,uint8_t  y ,uint8_t color)
 	}
 }
 
-void n5110display::InvertPixel(uint8_t x ,uint8_t  y)
+void lcd_display::InvertPixel(uint8_t x ,uint8_t  y)
 {
-	if (x >= n5110_width || y >= n5110_height)
+	if (x >= lcd_width || y >= lcd_height)
 		return;
 
-	uint16_t index = ((y / 8) * n5110_width) + (x % n5110_width);
+	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);
 	active_buffer[index] ^= (1 << (y % 8));
 }
 
-void n5110display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
+void lcd_display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
 {
 	uint8_t cbuf;
 
 	cbuf = pgm_read_byte(&data[0]);
 
-	uint8_t imgwidth = (cbuf+x < n5110_width)?cbuf:n5110_width-x;
-	int16_t xCutOff  = (cbuf+x < n5110_width)?0:(cbuf+x-n5110_width);
+	uint8_t imgwidth = (cbuf+x < lcd_width)?cbuf:lcd_width-x;
+	int16_t xCutOff  = (cbuf+x < lcd_width)?0:(cbuf+x-lcd_width);
 	uint8_t yOffset  = (y/8 < 1)?0:y/8;
 
 	cbuf = pgm_read_byte(&data[1]);
@@ -319,7 +320,7 @@ void n5110display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
 	uint8_t _y = 0;
 	uint16_t index = 2;
 
-	if (y >= n5110_height || x >= n5110_width) return;
+	if (y >= lcd_height || x >= lcd_width) return;
 
 	for (_y=0;_y < imgheight; _y++){
 		for(_x=0;_x < imgwidth; _x++){
@@ -332,19 +333,19 @@ void n5110display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
 				uint8_t  tmpdat = cbuf;
 				tmp = (tmpdat << (y%8));
 
-				active_buffer[((_y+yOffset)*n5110_width)+_x+x] |= (tmp & 255);
-				if (_y+yOffset+1 < n5110_height)
-				active_buffer[((_y+yOffset+1)*n5110_width)+_x+x] |= ((tmp >> 8) & 255);
+				active_buffer[((_y+yOffset)*lcd_width)+_x+x] |= (tmp & 255);
+				if (_y+yOffset+1 < lcd_height)
+				active_buffer[((_y+yOffset+1)*lcd_width)+_x+x] |= ((tmp >> 8) & 255);
 			}
 			else
-				active_buffer[((_y+yOffset)*n5110_width)+_x+x] |= cbuf;
+				active_buffer[((_y+yOffset)*lcd_width)+_x+x] |= cbuf;
 			index++;
 		}
 		index += xCutOff;
 	}
 }
 
-void n5110display::DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color=1,uint8_t fill=0){
+void lcd_display::DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color=1,uint8_t fill=0){
 	int8_t xdir;
 	int8_t xref = (x1 <= x2) ? x2:x1;
 	int8_t ydir = (y1 <= y2) ? y2:y1;
@@ -360,7 +361,7 @@ void n5110display::DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t
 	}
 }
 
-void n5110display::Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2){
+void lcd_display::Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2){
 	int8_t xdir;
 	int8_t xref = (x1 <= x2) ? x2:x1;
 	int8_t ydir = (y1 <= y2) ? y2:y1;
@@ -375,7 +376,7 @@ void n5110display::Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2){
 	}
 }
 
-void n5110display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
+void lcd_display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
 {
 	uint8_t y, x;
 
@@ -383,12 +384,12 @@ void n5110display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
   {
 	  for (x = x1; x < x2; x++)
 	  {
-		  active_buffer[n5110_width * y + x] ^= 0xFF;
+		  active_buffer[lcd_width * y + x] ^= 0xFF;
 	  }
   }
 }
 
-void n5110display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end)
+void lcd_display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end)
 {
 	int16_t angle = 0;
 	int8_t x,y;
@@ -401,13 +402,13 @@ void n5110display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,in
 	}
 }
 
-void n5110display::DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color){
+void lcd_display::DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color){
 	 DrawLine(x1, y1, x2,y2,color);
 	 DrawLine(x1,y1,x3,y3,color);
 	 DrawLine(x2,y2,x3,y3,color);
 }
 
-void n5110display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,uint8_t color=1)
+void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,uint8_t color=1)
 {
 	int8_t error = -radius;
 	uint8_t x = radius;
@@ -430,13 +431,13 @@ void n5110display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,uint8_t col
   }
 }
 
-void n5110display::plot8points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
+void lcd_display::plot8points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
 {
   plot4points(cx, cy, x, y, color);
   if (x != y) plot4points(cx, cy, y, x, color);
 }
 
-void n5110display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
+void lcd_display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
 {
   PutPixel(cx + x, cy + y,color);
   if (x != 0) PutPixel(cx - x, cy + y,color);
@@ -444,14 +445,14 @@ void n5110display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint
   if (x != 0 && y != 0) PutPixel(cx - x, cy - y,color);
 }
 
-void n5110display::SetRowCol(unsigned char row,unsigned char col)
+void lcd_display::SetRowCol(unsigned char row, unsigned char col)
 {
 	this->sendcommand(0x80 | col);
 	this->sendcommand(0x40 | row);
 }
 
 
-void n5110display::Draw()
+void lcd_display::Draw()
 {
 	if (this->flip)
 	{
@@ -461,70 +462,70 @@ void n5110display::Draw()
 
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0; a < n5110_width; a++)
+			for (uint8_t a=0; a < lcd_width; a++)
 			{
-				this->spi->SendRaw(fast_flip(active_buffer[n5110_width - 1 - a + (j * n5110_width)]));
+				this->spi->SendRaw(fast_flip(active_buffer[lcd_width - 1 - a + (j * lcd_width)]));
 			}
 			this->spi->UnsetSlave();
 		}
 	}
 	else
 	{
-		SetRowCol(0, 0);
-
 		for (uint8_t j=0;j<6;j++)
 		{
+			SetRowCol(j, 0);
+
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0; a < n5110_width; a++)
+			for (uint8_t a=0; a < lcd_width; a++)
 			{
-				this->spi->SendRaw(active_buffer[a+(j * n5110_width)]);
+				this->spi->SendRaw(active_buffer[a+(j * lcd_width)]);
 			}
 			this->spi->UnsetSlave();
 		}
 	}
 }
 
-void n5110display::CopyToLayerX(uint8_t dst, int8_t x)
+void lcd_display::CopyToLayerX(uint8_t dst, int8_t x)
 {
 	uint8_t start_x, end_x, col_x;
 
 	if (x < 0)
 	{
 		start_x = abs(x);
-		end_x = n5110_width;
+		end_x = lcd_width;
 		col_x = 0;
 	}
 	else
 	{
 		start_x = 0;
-		end_x = n5110_width - x;
+		end_x = lcd_width - x;
 		col_x = x;
 	}
 
 	for (uint8_t j=0;j<6;j++)
 	{
-		uint16_t index = j * n5110_width + col_x;
+		uint16_t index = j * lcd_width + col_x;
 		uint8_t cnt = 0;
 
 		for (uint8_t a = start_x; a < end_x; a++)
 		{
-			this->layers[dst][index + cnt] = this->active_buffer[a + (j * n5110_width)];
+			this->layers[dst][index + cnt] = this->active_buffer[a + (j * lcd_width)];
 			cnt++;
 		}
 	}
 }
 
-void n5110display::CopyToLayer(uint8_t dst)
+void lcd_display::CopyToLayer(uint8_t dst)
 {
-	memcpy(this->layers[dst], this->active_buffer, (n5110_height / 8) * n5110_width);
+	memcpy(this->layers[dst], this->active_buffer, (lcd_height / 8) * lcd_width);
 }
 
-void n5110display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
+void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
 {
 	for (uint8_t j=row1;j<row2;j++)
 	{
-		uint16_t start_i = j * n5110_width;
+		uint16_t start_i = j * lcd_width;
 
 		for (uint8_t a = col1; a < col2; a++)
 		{
@@ -534,22 +535,22 @@ void n5110display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint
 	}
 }
 
-void n5110display::ClearBuffer(void){
+void lcd_display::ClearBuffer(void){
   unsigned char i,k;
   for(k=0;k<6;k++)
   {
-	  for(i=0;i<n5110_width;i++)     //clear all COL
+	  for(i=0;i<lcd_width;i++)     //clear all COL
 	  {
-		active_buffer[i+(k*n5110_width)] = 0;
+		active_buffer[i+(k*lcd_width)] = 0;
 	  }
   }
 }
 
-void n5110display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
+void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
 {
 	for (uint8_t j = row1; j < row2; j++)
 	{
-		uint16_t index = j * n5110_width;
+		uint16_t index = j * lcd_width;
 		uint8_t cnt = 0;
 
 		for (uint8_t a = col1; a < col2; a++)
@@ -560,12 +561,12 @@ void n5110display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t c
 	}
 }
 
-void  n5110display::CreateSinTable(){
+void  lcd_display::CreateSinTable(){
 	  for (int16_t i=0; i < 91; i++)
 		  sin_table[i] = sin(((float)i/180.0)*3.142);
 }
 
-float n5110display::get_sin(uint16_t angle)
+float lcd_display::get_sin(uint16_t angle)
 {
 	angle = angle % 360;
 

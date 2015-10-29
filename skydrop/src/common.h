@@ -20,6 +20,7 @@
 
 #include "build_defs.h"
 #include "build_number.h"
+#include "debug.h"
 
 union byte8
 {
@@ -185,6 +186,10 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BT_UART_PWR_OFF			PR.PRPD |= 0b00010000;
 
 //XXX: timerd0 should left unused so user can generate pwm.
+#define DEBUG_TIMER				timerd0
+#define DEBUG_TIMER_PWR_ON		PR.PRPD	&= 0b11111110;
+#define DEBUG_TIMER_PWR_OFF		PR.PRPD	|= 0b00000001;
+#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 
 #define LED_TIMER1				timerd1
 #define LED_TIMER1_PWR_ON		PR.PRPD	&= 0b11111101;
@@ -268,13 +273,6 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BAT_EN_ADC	(1 << 0)
 #define BAT_EN_LED	(1 << 1)
 #define BAT_EN_LCD	(1 << 2)
-
-//assert
-#define assert(cond) \
-	do{ \
-	if (!cond) \
-		DEBUG("Assertion failed %S@%d!\n", PSTR(__FILE__), __LINE__); \
-	} while(0); \
 
 class DataBuffer
 {

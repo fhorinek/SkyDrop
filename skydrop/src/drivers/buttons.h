@@ -30,9 +30,15 @@
 #define BE_DBL_CLICK	3	//button was released after second click
 #define BE_LONG			4	//button is held a long time
 
+//times in ms
+#define BUTTON_DEBOUNCE		10
+#define BUTTON_WAIT			100
+#define BUTTON_LONG			1000
+
 void buttons_init();
 void buttons_step();
 bool buttons_read(uint8_t index);
+bool button_in_reset(uint8_t index);
 void buttons_reset();
 
 bool button_hold(uint8_t index);

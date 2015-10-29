@@ -3,9 +3,13 @@
 echo " *** PRE BUILD ***"
 
 #refresh any files containing BUILD_NUMBER
+rm src/common.o
+rm src/debug.o
+
 rm src/fc/conf.o
 rm src/fc/logger/igc.o
-rm src/common.o
+rm src/fc/logger/kml.o
+
 rm src/gui/usb.o
 rm src/gui/splash.o
 rm src/gui/update.o

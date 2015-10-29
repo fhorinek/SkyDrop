@@ -132,23 +132,23 @@ void gui_pages_loop()
 
 		int8_t split;
 		if (page_change_dir)
-			split = (n5110_width / PAGE_SWITCH_STEPS) * page_state_step;
+			split = (GUI_DISP_WIDTH / PAGE_SWITCH_STEPS) * page_state_step;
 		else
-			split = n5110_width - ((n5110_width / PAGE_SWITCH_STEPS) * page_state_step);
+			split = GUI_DISP_WIDTH - ((GUI_DISP_WIDTH / PAGE_SWITCH_STEPS) * page_state_step);
 
 		disp.SetDrawLayer(1);
 
 		disp.ClearBuffer();
 		widgets_draw((!page_change_dir) ? active_page : old_page);
 		gui_statusbar();
-		disp.CopyToLayerX(0, split - n5110_width);
+		disp.CopyToLayerX(0, split - GUI_DISP_WIDTH);
 
 		disp.ClearBuffer();
 		widgets_draw((!page_change_dir) ? old_page : active_page);
 		gui_statusbar();
 		disp.CopyToLayerX(0, split);
 
-		start_x = (- config.gui.number_of_pages * (8 + 4) + 4 + n5110_width) / 2;
+		start_x = (- config.gui.number_of_pages * (8 + 4) + 4 + GUI_DISP_WIDTH) / 2;
 
 		for (uint8_t i = 0; i < config.gui.number_of_pages; i++)
 		{
@@ -180,7 +180,7 @@ void gui_pages_loop()
 		gui_statusbar();
 
 		disp.SetDrawLayer(1);
-		start_x = ( - config.gui.number_of_pages * (8 + 4) + 4 + n5110_width) / 2;
+		start_x = ( - config.gui.number_of_pages * (8 + 4) + 4 + GUI_DISP_WIDTH) / 2;
 
 		for (uint8_t i = 0; i <  config.gui.number_of_pages; i++)
 		{

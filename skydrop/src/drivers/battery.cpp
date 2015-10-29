@@ -66,9 +66,7 @@ bool battery_step()
 		if (battery_per < 0)
 			battery_per = 0;
 
-//		task_irqh(TASK_IRQ_BAT, (uint8_t *)&battery_per);
-
-		DEBUG("adc %u (%3d%%)\n", battery_adc_raw, battery_per);
+//		DEBUG("adc %u (%3d%%)\n", battery_adc_raw, battery_per);
 
 		battery_meas_state = BATTERY_STATE_PREPARE;
 		battery_next_meas = task_get_ms_tick() + BATTERY_MEAS_PERIOD;

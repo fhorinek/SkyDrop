@@ -96,9 +96,9 @@ void gui_dialog_loop()
 
 		disp.LoadFont(F_TEXT_S);
 		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 1 + 2);
-		fprintf_P(lcd_out, PSTR("min"));
-		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2 + 2);
 		fprintf_P(lcd_out, PSTR("max"));
+		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2 + 2);
+		fprintf_P(lcd_out, PSTR("min"));
 	}
 	else
 	{

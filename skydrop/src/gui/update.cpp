@@ -18,6 +18,8 @@ update_header update_head;
 uint32_t update_file_pos;
 uint8_t update_file_crc;
 
+volatile uint8_t update_eeprom_only = false;
+
 #define UPDATE_CHUNK	(1024*5)
 #define UPDATE_CRC 		0x9B
 
@@ -36,7 +38,7 @@ void gui_update_cb(uint8_t ret)
 
 void gui_update_fail_cb(uint8_t ret)
 {
-	task_set(TASK_ACTIVE);
+	SystemReset();
 }
 
 void gui_update_done_cb(uint8_t ret)
@@ -48,23 +50,41 @@ void gui_update_done_cb(uint8_t ret)
 	SystemReset();
 }
 
+void gui_update_eeprom_cb(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_OK)
+	{
+		update_eeprom_only = true;
+		gui_switch_task(GUI_UPDATE);
+		update_state = UPDATE_CHECK_EE;
+	}
+	else
+		SystemReset();
+}
+
 void gui_update_fail(uint16_t line)
 {
 	update_state = UPDATE_FAIL;
 
 	char tmp1[6], tmp2[32];
 
-	strcpy_P(tmp1, PSTR("Error"));
 	if (line != 0)
+	{
+		strcpy_P(tmp1, PSTR("Error"));
 		sprintf_P(tmp2, PSTR("Update failed!\n#%d"), line);
+		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OK, gui_update_fail_cb);
+
+		f_unlink("SKYDROP.FW");
+		f_unlink("UPDATE.FW");
+	}
 	else
-		sprintf_P(tmp2, PSTR("Update failed!\nSame version"), line);
+	{
+		strcpy_P(tmp1, PSTR("Update"));
+		sprintf_P(tmp2, PSTR("Same version\nRestore default\nconfiguration?"), line);
+		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OKCANCEL, gui_update_eeprom_cb);
+	}
 
-	gui_dialog_set(tmp1, tmp2, GUI_STYLE_OK, gui_update_fail_cb);
 	gui_switch_task(GUI_DIALOG);
-
-	f_unlink("SKYDROP.FW");
-	f_unlink("UPDATE.FW");
 }
 
 void gui_update_init() {}
@@ -117,14 +137,18 @@ void gui_update_loop()
 
 	gui_update_bar();
 
-//	DEBUG("update_state %d\n", update_state);
-//	DEBUG("update_file_pos %d\n", update_file_pos);
+	DEBUG("update_state %d\n", update_state);
+	DEBUG("update_file_pos %d\n", update_file_pos);
 
 	switch (update_state)
 	{
 		case(UPDATE_IDLE):
 			update_file = new FIL;
 			update_file_out = new FIL;
+
+			update_state = UPDATE_CHECK_EE;
+			update_file_pos = 0;
+			update_file_crc = 0;
 
 			//able to open
 			if (f_open(update_file, "SKYDROP.FW", FA_READ) != FR_OK)
@@ -147,13 +171,6 @@ void gui_update_loop()
 				break;
 			}
 
-			//check build number
-			if (update_head.build_number == BUILD_NUMBER)
-			{
-				gui_update_fail(0);
-				break;
-			}
-
 			//check file size
 			if (update_head.file_size != update_file->fsize)
 			{
@@ -161,10 +178,12 @@ void gui_update_loop()
 				break;
 			}
 
-			update_state = UPDATE_CHECK_EE;
-			update_file_pos = 0;
-			update_file_crc = 0;
-
+			//check build number
+			if (update_head.build_number == BUILD_NUMBER)
+			{
+				gui_update_fail(0);
+				break;
+			}
 		break;
 
 		case(UPDATE_CHECK_EE):
@@ -193,14 +212,29 @@ void gui_update_loop()
 			{
 				if (update_file_crc == update_head.eeprom_crc)
 				{
-					update_state = UPDATE_UNPACK;
-					update_file_pos = 0;
-
-					if (f_open(update_file_out, "UPDATE.FW", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
+					if (update_eeprom_only == false)
 					{
-						gui_update_fail(__LINE__);
-						break;
+						update_state = UPDATE_UNPACK;
+						update_file_pos = 0;
+
+						if (f_open(update_file_out, "UPDATE.FW", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
+						{
+							gui_update_fail(__LINE__);
+							break;
+						}
 					}
+					else
+					{
+						update_state = UPDATE_EE;
+						update_file_pos = 0;
+
+						if (f_lseek(update_file, sizeof(update_head)) != FR_OK)
+						{
+							gui_update_fail(__LINE__);
+							break;
+						}
+					}
+
 				}
 				else
 				{

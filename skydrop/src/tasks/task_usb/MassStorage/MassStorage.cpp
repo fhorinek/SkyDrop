@@ -228,7 +228,7 @@ static bool ReadInCommandBlock(void)
 	while (Endpoint_Read_Stream_LE(&CommandBlock, (sizeof(CommandBlock) - sizeof(CommandBlock.SCSICommandData)),
 	                               &BytesTransferred) == ENDPOINT_RWSTREAM_IncompleteTransfer)
 	{
-		wdt_reset();
+		ewdt_reset();
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset || !USB_CONNECTED)
 		  return false;
@@ -255,7 +255,7 @@ static bool ReadInCommandBlock(void)
 	while (Endpoint_Read_Stream_LE(&CommandBlock.SCSICommandData, CommandBlock.SCSICommandLength,
 	                               &BytesTransferred) == ENDPOINT_RWSTREAM_IncompleteTransfer)
 	{
-		wdt_reset();
+		ewdt_reset();
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset || !USB_CONNECTED)
 		  return false;
@@ -280,7 +280,7 @@ static void ReturnCommandStatus(void)
 	/* While data pipe is stalled, wait until the host issues a control request to clear the stall */
 	while (Endpoint_IsStalled())
 	{
-		wdt_reset();
+		ewdt_reset();
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset || !USB_CONNECTED)
 		  return;
@@ -292,7 +292,7 @@ static void ReturnCommandStatus(void)
 	/* While data pipe is stalled, wait until the host issues a control request to clear the stall */
 	while (Endpoint_IsStalled())
 	{
-		wdt_reset();
+		ewdt_reset();
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset || !USB_CONNECTED)
 		  return;
@@ -303,7 +303,7 @@ static void ReturnCommandStatus(void)
 	while (Endpoint_Write_Stream_LE(&CommandStatus, sizeof(CommandStatus),
 	                                &BytesTransferred) == ENDPOINT_RWSTREAM_IncompleteTransfer)
 	{
-		wdt_reset();
+		ewdt_reset();
 		/* Check if the current command is being aborted by the host */
 		if (IsMassStoreReset || !USB_CONNECTED)
 		  return;

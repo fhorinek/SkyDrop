@@ -17,7 +17,7 @@
 #define GUI_VAL_BRIGTHNES		4
 #define GUI_VAL_VARIO_TEST		5
 #define GUI_VAL_VOLUME			6
-
+#define GUI_VAL_NUMBER_DISABLE	7
 
 typedef void float_cb(float val);
 

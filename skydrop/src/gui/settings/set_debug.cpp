@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 4, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 7, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -30,6 +30,16 @@ void gui_set_debug_reset_fc(uint8_t ret)
 		gui_switch_task(GUI_SET_DEBUG);
 }
 
+void gui_set_debug_delete_fc(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_YES)
+	{
+		assert(f_unlink(DEBUG_FILE) == FR_OK);
+	}
+
+	gui_switch_task(GUI_SET_DEBUG);
+}
+
 void gui_set_debug_action(uint8_t index)
 {
 	switch(index)
@@ -38,6 +48,20 @@ void gui_set_debug_action(uint8_t index)
 //			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Do you want to\nreset Factory\ntest?"), GUI_STYLE_YESNO, gui_set_debug_reset_fc);
 //			gui_switch_task(GUI_DIALOG);
 //		break;
+
+		case(4):
+			if (config.system.debug_log == DEBUG_MAGIC_ON)
+				config.system.debug_log = 0;
+			else
+				config.system.debug_log = DEBUG_MAGIC_ON;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.system.debug_log, config.system.debug_log);
+		break;
+
+		case(5):
+			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Clear\ndebug.log?"), GUI_STYLE_YESNO, gui_set_debug_delete_fc);
+			gui_switch_task(GUI_DIALOG);
+		break;
 	}
 }
 
@@ -94,6 +118,27 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 			else sprintf_P(sub_text, PSTR("???"));
 
 		break;
+
+		case (4):
+			sprintf_P(text, PSTR("Debug log"));
+			if (config.system.debug_log == DEBUG_MAGIC_ON)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (5):
+			sprintf_P(text, PSTR("Clear log"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (6):
+			sprintf_P(text, PSTR("WDT last PC"));
+			*flags |= GUI_LIST_SUB_TEXT;
+
+			sprintf_P(sub_text, PSTR("0x%lX"), debug_last_pc);
+		break;
+
 	}
 }
 

@@ -1,7 +1,9 @@
 #include "logger.h"
 
 #include "../fc.h"
+
 #include "igc.h"
+#include "kml.h"
 
 FIL * log_fil;
 uint32_t logger_next = 0;
@@ -39,7 +41,6 @@ void logger_init()
 	print_datetime(today);
 	DEBUG("flight number is: %d\n", logger_flight_number);
 
-	f_mkdir(LOG_DIR);
 }
 
 void logger_next_flight()
@@ -82,12 +83,19 @@ void logger_step()
 	if (logger_next > task_get_ms_tick())
 		return;
 
-	logger_next = task_get_ms_tick() + 2000;
+	logger_next = task_get_ms_tick() + 1000;
 
 	if (fc.flight_state == FLIGHT_FLIGHT)
 	{
-		//XXX: only igc so far
-		igc_step();
+		switch (config.logger.format)
+		{
+			case(LOGGER_IGC):
+				igc_step();
+			break;
+			case(LOGGER_KML):
+				kml_step();
+			break;
+		}
 	}
 }
 
@@ -95,13 +103,65 @@ void logger_start()
 {
 	logger_next_flight();
 
-	if (igc_start())
+	if (!storage_selftest())
+		gui_showmessage_P(PSTR("SD card error!"));
+
+	uint8_t sec;
+	uint8_t min;
+	uint8_t hour;
+	uint8_t day;
+	uint8_t wday;
+	uint8_t month;
+	uint16_t year;
+
+	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+
+	char path[128];
+
+	//base dir
+	sprintf_P(path, PSTR("%S"), LOG_DIR);
+	f_mkdir(path);
+	//year
+	sprintf_P(path, PSTR("%S/%04d"), LOG_DIR, year);
+	f_mkdir(path);
+	//month
+	sprintf_P(path, PSTR("%S/%04d/%02d"), LOG_DIR, year, month);
+	f_mkdir(path);
+	//day
+	sprintf_P(path, PSTR("%S/%04d/%02d/%02d"), LOG_DIR, year, month, day);
+	f_mkdir(path);
+
+	bool ret = false;
+
+	switch (config.logger.format)
+	{
+		case(LOGGER_IGC):
+			ret = igc_start(path);
+		break;
+		case(LOGGER_KML):
+			ret = kml_start(path);
+		break;
+	}
+
+	if (ret)
 		fc.logger_state = LOGGER_ACTIVE;
 
 }
 
 void logger_stop()
 {
+	if (fc.logger_state != LOGGER_ACTIVE)
+		return;
+
 	fc.logger_state = LOGGER_IDLE;
-	igc_stop();
+
+	switch (config.logger.format)
+	{
+		case(LOGGER_IGC):
+			igc_stop();
+		break;
+		case(LOGGER_KML):
+			kml_stop();
+		break;
+	}
 }

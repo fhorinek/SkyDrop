@@ -154,6 +154,12 @@ void audio_vario_apply()
 
 void audio_vario_step(float vario)
 {
+	if (config.gui.vario_mute)
+	{
+		audio_off();
+		return;
+	}
+
 	//climb is float in m/s
 	int16_t ivario = vario * 100;
 

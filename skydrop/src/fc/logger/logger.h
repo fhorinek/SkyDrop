@@ -8,7 +8,7 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
-#define LOG_DIR		"logs"
+#define LOG_DIR		PSTR("logs")
 #define LOG_MID		"XSB"
 #define LOG_MID_P	PSTR(LOG_MID)
 

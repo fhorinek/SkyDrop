@@ -27,7 +27,7 @@ volatile uint8_t gps_checksum;
 volatile uint8_t gps_rx_checksum;
 bool gps_detail_enabled = false;
 
-bool gps_init_ok = false;
+volatile bool gps_init_ok = false;
 
 #define L80_SAT_CNT	12
 
@@ -199,7 +199,7 @@ void gps_parse_rmc()
 	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 
 //	DEBUG("%02d.%02d.%04d\n", day, month, year);
-	if (config.system.forward_gps)
+	if (config.connectivity.forward_gps)
 	{
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);
@@ -246,7 +246,7 @@ void gps_parse_gga()
 //	DEBUG("fix %d (%d), hdop: %0.2f\n", fc.gps_data.sat_used, fc.gps_data.sat_total, fc.gps_data.hdop);
 //	DEBUG("alt %0.1fm geo: %0.1fm\n", fc.gps_data.altitude, 0);
 
-	if (config.system.forward_gps)
+	if (config.connectivity.forward_gps)
 	{
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);

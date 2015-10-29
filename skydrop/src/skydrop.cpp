@@ -1,15 +1,23 @@
 #include "skydrop.h"
 
+int free_ram_at_start;
+uint8_t system_rst;
+
 void Setup()
 {
-	debug_level = 2;
-
 	//set clock to max for init 32MHz
 	ClockSetSource(x32MHz);
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
 
-	//save power
+	//get RAM info
+	free_ram_at_start = freeRam();
+
+	//get reset reason
+	system_rst = RST.STATUS;
+	RST.STATUS = 0b00111111;
+
+	//save power - peripherals are turned on on demand by drivers
 	turnoff_subsystems();
 
 	EnableInterrupts();
@@ -31,14 +39,11 @@ void Setup()
 	io_init();
 	SD_EN_INIT;
 
-	//load configuration
+	//load configuration from EE
 	cfg_load();
 
 	_delay_ms(100);
 }
-
-int free_ram_at_start;
-uint8_t system_rst;
 
 void Post()
 {
@@ -46,8 +51,6 @@ void Post()
 
 	//Print reset reason
 	DEBUG("Reset reason ... ");
-
-	system_rst = RST.STATUS;
 
 	if (RST.STATUS & 0b00100000)
 		DEBUG("Software ");
@@ -69,7 +72,6 @@ void Post()
 	else
 		DEBUG("Unknown: %02X", RST.STATUS);
 
-	RST.STATUS = 0b00111111;
 	DEBUG("\n");
 
 	//App name
@@ -86,15 +88,15 @@ void Post()
 	GetID_str(id);
 	DEBUG("Device serial number ... %s\n", id);
 
-	DEBUG("\n");
+	DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
+
+	//debug info
+	debug_last_dump();
 }
 
-extern uint8_t actual_task;
-extern uint8_t task_sleep_lock;
 
 int main()
 {
-	free_ram_at_start = freeRam();
 	Setup();
 
 	Post();

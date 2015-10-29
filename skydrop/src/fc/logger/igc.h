@@ -10,7 +10,7 @@
 
 #include "../../common.h"
 
-bool igc_start();
+bool igc_start(char * path);
 void igc_step();
 void igc_stop();
 

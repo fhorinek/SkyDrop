@@ -10,7 +10,7 @@ void task_active_init()
 	//init gui
 	gui_init();
 	gui_trigger_backlight();
-	wdt_reset();
+	ewdt_reset();
 
 
 	if (cfg_factory_passed())
@@ -24,7 +24,7 @@ void task_active_init()
 		gui_switch_task(GUI_FTEST);
 	}
 
-	wdt_reset();
+	ewdt_reset();
 	if (storage_init())
 	{
 		//Handle update files
@@ -62,7 +62,7 @@ void task_active_init()
 	}
 
 	//init flight computer
-	wdt_reset();
+	ewdt_reset();
 	fc_init();
 }
 
@@ -89,7 +89,7 @@ void task_active_irqh(uint8_t type, uint8_t * buff)
 	switch (type)
 	{
 	case(TASK_IRQ_USB):
-		if (*buff && config.system.usb_mode == USB_MODE_MASSSTORAGE)
+		if (*buff && config.connectivity.usb_mode == USB_MODE_MASSSTORAGE)
 			task_set(TASK_USB);
 		break;
 

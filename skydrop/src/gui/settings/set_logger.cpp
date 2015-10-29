@@ -71,13 +71,13 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				break;
 
 				case(LOGGER_KML):
-					sprintf_P(sub_text, PSTR("KML (not yet)"));
+					sprintf_P(sub_text, PSTR("KML (for Ash Ha)"));
 				break;
 			}
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Autostart"));
+			sprintf_P(text, PSTR("Auto start/stop"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.autostart.start_sensititvity > 0 && config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("S +/-%dm L +/-%dm"), config.autostart.start_sensititvity, config.autostart.land_sensititvity);

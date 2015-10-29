@@ -2,14 +2,23 @@
 
 Usart uart;
 
-uint8_t debug_level;
-
 CreateStdIn(uart_in, uart.Read);
 CreateStdOut(uart_out, uart.Write);
 
 void uart_init_buffers()
 {
 	uart.InitBuffers(0, BUFFER_SIZE);
+}
+
+void uart_send(char * msg)
+{
+	char * ptr = msg;
+
+	while (*ptr != 0)
+	{
+		uart.Write(*ptr);
+		ptr++;
+	}
 }
 
 void uart_init()

@@ -28,26 +28,26 @@ void gui_set_bluetooth_action(uint8_t index)
 	switch (index)
 	{
 		case(1):
-			config.system.use_bt = !config.system.use_bt;
+			config.connectivity.use_bt = !config.connectivity.use_bt;
 			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.use_bt, config.system.use_bt);
+			eeprom_update_byte(&config_ee.connectivity.use_bt, config.connectivity.use_bt);
 
-			if (config.system.use_bt)
+			if (config.connectivity.use_bt)
 				bt_module_init();
 			else
 				bt_module_deinit();
 		break;
 
 		case(2):
-			config.system.protocol = (config.system.protocol + 1) % NUMBER_OF_PROTOCOLS;
+			config.connectivity.protocol = (config.connectivity.protocol + 1) % NUMBER_OF_PROTOCOLS;
 			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.protocol, config.system.protocol);
+			eeprom_update_byte(&config_ee.connectivity.protocol, config.connectivity.protocol);
 		break;
 
 		case(3):
-			config.system.forward_gps = !config.system.forward_gps;
+			config.connectivity.forward_gps = !config.connectivity.forward_gps;
 			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.forward_gps, config.system.forward_gps);
+			eeprom_update_byte(&config_ee.connectivity.forward_gps, config.connectivity.forward_gps);
 		break;
 	}
 }
@@ -76,7 +76,7 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		case (1):
 			sprintf_P(text, PSTR("Enabled"));
-			if (config.system.use_bt)
+			if (config.connectivity.use_bt)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
@@ -85,7 +85,7 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 		case (2):
 			sprintf_P(text, PSTR("Protocol"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			switch(config.system.protocol)
+			switch(config.connectivity.protocol)
 			{
 				case(PROTOCOL_DIGIFLY):
 					sprintf_P(sub_text, PSTR("DigiFly"));
@@ -105,7 +105,7 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		case (3):
 			sprintf_P(text, PSTR("Forward GPS"));
-			if (config.system.forward_gps)
+			if (config.connectivity.forward_gps)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
