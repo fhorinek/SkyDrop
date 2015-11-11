@@ -7,6 +7,7 @@ void Setup()
 {
 	//set clock to max for init 32MHz
 	ClockSetSource(x32MHz);
+
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
 
@@ -33,6 +34,9 @@ void Setup()
 	buzzer_init();
 	battery_init();
 	buttons_init();
+
+	//XTAL and TOSC enabled now
+	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_EXT_RC32KHZ, 32000000ul);
 
 	//basic power control
 	mems_power_init();

@@ -29,11 +29,14 @@ public:
 	void Step();
 
 	uint8_t next_cmd;
+	uint8_t last_cmd;
 	uint8_t state;
 	uint8_t parser_status;
 	uint16_t parser_packet_length;
 	uint8_t parser_buffer_index;
 	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
+
+	bool repat_last_cmd;
 
 	void SetNextStep(uint8_t cmd);
 
@@ -42,6 +45,7 @@ public:
 	void ParseMNG();
 	void ParseSPP();
 
+	void WaitForAnswer();
 	void StreamWrite(uint8_t data);
 	void RawSendStatic(const uint8_t * data, uint8_t len);
 
@@ -53,6 +57,8 @@ public:
 
 	char label[32];
 	char client_name[32];
+
+	uint32_t timer;
 
 	uint8_t link_key[16];
 };

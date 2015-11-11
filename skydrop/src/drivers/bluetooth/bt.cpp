@@ -13,11 +13,10 @@ pan1322 bt_pan1322;
 
 Usart bt_uart;
 
-volatile bool bt_device_connected = false;
+uint32_t bt_reset_counter = 0;
+uint8_t bt_reset_counter_step = 0;
 
-#define BT_MOD_STATE_OFF	0
-#define BT_MOD_STATE_INIT	1
-#define BT_MOD_STATE_OK		2
+volatile bool bt_device_connected = false;
 
 volatile uint8_t bt_module_state = BT_MOD_STATE_OFF;
 
@@ -60,18 +59,15 @@ void bt_module_reset()
 	GpioWrite(BT_EN, LOW);
 	GpioWrite(BT_RESET, LOW);
 
-	_delay_ms(200);
-	GpioWrite(BT_EN, HIGH);
-	_delay_ms(200);
-	GpioWrite(BT_RESET, HIGH);
-	_delay_ms(300);
+	bt_uart.Stop();
+	BT_UART_PWR_OFF;
+
+	bt_reset_counter = task_get_ms_tick() + 2000;
+	bt_reset_counter_step = 0;
 }
 
 void bt_module_init()
 {
-	//enable bt uart
-	BT_UART_PWR_ON;
-
 	//module specific code
 	switch (bt_module_type)
 	{
@@ -137,6 +133,46 @@ void bt_step()
 {
 	if (bt_module_state == BT_MOD_STATE_OFF)
 		return;
+
+	if (bt_reset_counter)
+	{
+		if (bt_reset_counter > task_get_ms_tick())
+			return;
+
+		switch(bt_reset_counter_step)
+		{
+			case(0):
+				GpioWrite(BT_EN, HIGH);
+				bt_reset_counter = task_get_ms_tick() + 500;
+				bt_reset_counter_step = 1;
+			break;
+			case(1):
+				//enable bt uart
+				BT_UART_PWR_ON;
+				bt_uart.Init(BT_UART, 115200);
+				bt_uart.SetInterruptPriority(MEDIUM);
+
+//				while(1)
+//				{
+//					_delay_ms(100);
+//					bt_uart.Write(0x00);
+//					_delay_ms(1);
+//					bt_uart.Write(0xAA);
+//					ewdt_reset();
+//				}
+
+				bt_reset_counter = task_get_ms_tick() + 10;
+				bt_reset_counter_step = 2;
+			break;
+			case(2):
+				GpioWrite(BT_RESET, HIGH);
+				bt_reset_counter_step = 0;
+				bt_reset_counter = 0;
+			break;
+		}
+
+		return;
+	}
 
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.Step();

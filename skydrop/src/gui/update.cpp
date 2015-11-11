@@ -74,8 +74,8 @@ void gui_update_fail(uint16_t line)
 		sprintf_P(tmp2, PSTR("Update failed!\n#%d"), line);
 		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OK, gui_update_fail_cb);
 
-		f_unlink("SKYDROP.FW");
-		f_unlink("UPDATE.FW");
+		assert(f_unlink("SKYDROP.FW") == FR_OK);
+		assert(f_unlink("UPDATE.FW") == FR_OK);
 	}
 	else
 	{

@@ -130,7 +130,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BT_CTS_PIN_INT			portb_interrupt1
 
 //suppress and allow uart communication from bt module
-#define BT_SUPRESS_TX			GpioWrite(BT_RTS, HIGH);
+#define BT_SUPRESS_TX			GpioWrite(BT_RTS, bt_module_state != BT_MOD_STATE_OFF);
 #define BT_ALLOW_TX				GpioWrite(BT_RTS, LOW);
 
 #define DAC_PWR_ON				PR.PRPB &= 0b11111011;

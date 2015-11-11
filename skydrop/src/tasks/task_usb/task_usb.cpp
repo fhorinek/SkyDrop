@@ -18,9 +18,11 @@ void task_usb_init()
 
 	usb_lock.Lock();
 
-	XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC2MHZ);
-	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_INT_RC32KHZ, 2000000ul);
-	XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000ul, F_USB);
+	cli();
+	assert(XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC2MHZ));
+	assert(XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_EXT_RC32KHZ, 2000000ul));
+	assert(XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000ul, F_USB));
+	sei();
 
 	DEBUG("SD card init in RAW mode ... ");
 	if (SDCardManager_Init())
@@ -40,6 +42,12 @@ void task_usb_init()
 
 void task_usb_stop()
 {
+
+	cli();
+	XMEGACLK_StopDFLL(CLOCK_SRC_INT_RC2MHZ);
+	XMEGACLK_StopInternalOscillator(CLOCK_SRC_INT_RC2MHZ);
+	sei();
+
 	usb_lock.Unlock();
 
 	led_set(0, 0, 0);

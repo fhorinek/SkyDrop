@@ -99,8 +99,6 @@ void Usart::Init(uint32_t baud)
  * \param tx Number of tx pin
  * \param n Object index for ISR handling
  * \param baud Baudrate
- * \param rx_buffer_size Size of Rx buffer
- * \param tx_buffer_size Size of Tx buffer
  *
  * \note There are predefined usart modules like usart0, usart1 which contains usart and port structure, tx pin number and module index
  */

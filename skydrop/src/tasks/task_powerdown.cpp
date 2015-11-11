@@ -83,7 +83,7 @@ void task_powerdown_loop()
 	//do not go to the Power down when there is another lock pending (button, buzzer)
 	if ((task_sleep_lock == 1 && powerdown_lock.Active()) && powerdown_loop_break == false)
 	{
-		DEBUG("PD sleep\n");
+//		DEBUG("PD sleep\n");
 		uart_stop();
 
 		powerdown_sleep();

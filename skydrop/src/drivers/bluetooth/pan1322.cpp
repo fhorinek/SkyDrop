@@ -30,7 +30,7 @@ enum pan1322_emd_e
 #define BT_STATE_ROK		5
 #define BT_STATE_FIND_RN	6
 
-#define BT_TIMEOUT			1000
+#define BT_TIMEOUT			3000
 #define BT_NO_TIMEOUT		0
 
 void pan1322::TxResume()
@@ -41,9 +41,6 @@ void pan1322::TxResume()
 void pan1322::Init(Usart * uart)
 {
 	this->usart = uart;
-
-	this->usart->Init(BT_UART, 115200);
-	this->usart->SetInterruptPriority(MEDIUM);
 
 	bt_irgh(BT_IRQ_INIT, 0);
 
@@ -79,8 +76,6 @@ void pan1322::Restart()
 	this->connected = false;
 	this->p_state = BT_STATE_START;
 	this->p_cmd = pan_cmd_reset;
-
-	bt_irgh(BT_IRQ_RESET, 0);
 
 	bt_module_reset();
 	this->WaitForOK();

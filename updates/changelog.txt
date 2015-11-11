@@ -1,3 +1,11 @@
+Build 1773beta - 29. 10. 2015
+========================================================
+FIX:
+ * Bluetooth uart timing problem
+
+ADDED:
+ * 32MHz oscillator used as main clock calibration using ext 32KHz TOSC
+
 Build 1714beta - 29. 10. 2015
 ========================================================
 FIX:
@@ -5,6 +13,7 @@ FIX:
  * Lockup Alt2 with Alt3 vice versa #98
  * GPS records are imperfect in IGC log #97 
  * Minor bug in FC init
+ * IGC date H-record
  
 ADDED:
  * sanity check for min date

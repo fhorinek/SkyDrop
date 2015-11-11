@@ -279,7 +279,7 @@ void gui_loop()
 	if (actual_task == TASK_ACTIVE)
 	{
 		//return to main gui task, except for GPS detail page, dialog or splash
-		if (gui_task != GUI_PAGES && gui_task != GUI_SET_GPS_DETAIL && gui_task != GUI_DIALOG && gui_task != GUI_SPLASH)
+		if (gui_task != GUI_PAGES && gui_task != GUI_SET_GPS_DETAIL && gui_task != GUI_DIALOG && gui_task != GUI_SPLASH && gui_task != GUI_FTEST)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)
 				gui_switch_task(GUI_PAGES);

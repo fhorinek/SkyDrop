@@ -4,6 +4,9 @@
 extern pan1026 bt_pan1026;
 CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 
+#define BT_TIMEOUT			1000
+#define BT_NO_TIMEOUT		0
+
 //#define DEBUG_BT
 
 enum pan1026_state_e
@@ -43,7 +46,7 @@ enum pan1026_parser_e
 
 #define PAN1026_ERROR \
 	do { \
-	DEBUG("PAN1026 HARD ERROR, Restart"); \
+	DEBUG("PAN1026 HARD ERROR, Restart\n"); \
 	this->Restart(); } while(0); \
 
 void pan1026::TxResume()
@@ -60,11 +63,7 @@ void pan1026::StreamWrite(uint8_t data)
 void pan1026::Init(Usart * uart)
 {
 	this->usart = uart;
-
-	this->usart->Init(BT_UART, 115200);
-	this->usart->SetInterruptPriority(MEDIUM);
-//	this->usart->SetCtsPin(BT_CTS);
-//	this->usart->SetRtsPin(BT_CTS);
+	this->repat_last_cmd = false;
 
 	bt_irgh(BT_IRQ_INIT, 0);
 
@@ -75,7 +74,6 @@ void pan1026::Init(Usart * uart)
 
 void pan1026::Restart()
 {
-	DEBUG("reset_start\n");
 	this->connected = false;
 	this->parser_buffer_index = 0;
 	this->parser_status = pan_parser_idle;
@@ -140,6 +138,29 @@ void pan1026::ParseHCI()
 				break;
 			}
 
+		break;
+
+		case(0x10): //Hardware error
+#ifdef DEBUG_BT
+			DEBUG("Hardware Error event\n");
+#endif
+			switch (this->parser_buffer[3])
+			{
+				case(0x20):
+					DEBUG("Short of receiving packet\n");
+				break;
+				case(0x21):
+					DEBUG("Stop bit error\n");
+				break;
+				case(0x22):
+					DEBUG("Over write error\n");
+				break;
+			}
+
+			this->repat_last_cmd = true;
+			this->timer = task_get_ms_tick() + 10; //wait 10ms or more
+
+			// PAN1026_ERROR;
 		break;
 
 		case(0xff): //HCI extension
@@ -315,8 +336,10 @@ void pan1026::ParseMNG()
 			hci_status = this->parser_buffer[6];
 			hci_op_code = this->parser_buffer[7];
 
+#ifdef DEBUG_BT
 			DEBUG("HCI status %02X\n", hci_status);
 			DEBUG("HCI op_code %02X\n", hci_op_code);
+#endif
 
 			switch(hci_op_code)
 			{
@@ -570,6 +593,10 @@ void pan1026::RawSendStatic(const uint8_t * data, uint8_t len)
 		this->StreamWrite(pgm_read_byte(&data[i]));
 }
 
+void pan1026::WaitForAnswer()
+{
+	this->timer = task_get_ms_tick() + BT_TIMEOUT;
+}
 
 void pan1026::Step()
 {
@@ -581,107 +608,123 @@ void pan1026::Step()
 	}
 
 	if (this->next_cmd != pan_cmd_none)
+	{
 		DEBUG("\n\n< CMD %d\n", this->next_cmd);
 
-	switch(this->next_cmd)
-	{
-		case(pan_cmd_reset):
-			RAW(TCU_HCI_RESET_REQ);
-		break;
+		switch(this->next_cmd)
+		{
+			case(pan_cmd_reset):
+				RAW(TCU_HCI_RESET_REQ);
+			break;
 
-		case(pan_cmd_fw):
-			RAW(TCU_HCI_GET_FIRMWARE_VERSION_REQ);
-		break;
+			case(pan_cmd_fw):
+				RAW(TCU_HCI_GET_FIRMWARE_VERSION_REQ);
+			break;
 
-		case(pan_cmd_en_i2c):
-			RAW(TCU_HCI_M2_BTL_SET_I2C_ENABLE_REQ);
-		break;
+			case(pan_cmd_en_i2c):
+				RAW(TCU_HCI_M2_BTL_SET_I2C_ENABLE_REQ);
+			break;
 
-		case(pan_cmd_eeprom_write_en):
-			RAW(TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_REQ);
-		break;
+			case(pan_cmd_eeprom_write_en):
+				RAW(TCU_HCI_M2_BTL_EEPROM_WRITE_ENABLE_REQ);
+			break;
 
-		case(pan_cmd_eeprom_read):
-			RAW(TCU_HCI_M2_GENERAL_READ_EEPROM_REQ);
-		break;
+			case(pan_cmd_eeprom_read):
+				RAW(TCU_HCI_M2_GENERAL_READ_EEPROM_REQ);
+			break;
 
-		case(pan_cmd_write_mac):
-			RAW(TCU_HCI_WRITE_BD_ADDR_REQ);
-			//add mac
-			for (uint8_t i = 6; i > 0; i--)
-				this->StreamWrite(this->pan_mac_address[i-1]);
-		break;
+			case(pan_cmd_write_mac):
+				RAW(TCU_HCI_WRITE_BD_ADDR_REQ);
+				//add mac
+				for (uint8_t i = 6; i > 0; i--)
+					this->StreamWrite(this->pan_mac_address[i-1]);
+			break;
 
-		case(pan_cmd_set_mode):
-			_delay_ms(100);
-			RAW(TCU_HCI_SET_MODE_REQ);
-		break;
+			case(pan_cmd_set_mode):
+				_delay_ms(100);
+				RAW(TCU_HCI_SET_MODE_REQ);
+			break;
 
-		case(pan_cmd_mng_init):
-			t_len = 3 + sizeof(TCU_MNG_INIT_REQ) + 5 + strlen(this->label);
-			TCU_LEN(t_len);
+			case(pan_cmd_mng_init):
+				t_len = 3 + sizeof(TCU_MNG_INIT_REQ) + 5 + strlen(this->label);
+				TCU_LEN(t_len);
 
-			RAW(TCU_MNG_INIT_REQ);
+				RAW(TCU_MNG_INIT_REQ);
 
-			t_len = 3 + strlen(this->label);
-			PARAM_LEN(t_len);
-			this->StreamWrite(0x04); //SPP
-			this->StreamWrite(0x02); //sniff settings
-			this->StreamWrite(strlen(this->label)); //label name len
-			fprintf_P(bt_pan1026_out, PSTR("%s"), this->label); //label name
-		break;
+				t_len = 3 + strlen(this->label);
+				PARAM_LEN(t_len);
+				this->StreamWrite(0x04); //SPP
+				this->StreamWrite(0x02); //sniff settings
+				this->StreamWrite(strlen(this->label)); //label name len
+				fprintf_P(bt_pan1026_out, PSTR("%s"), this->label); //label name
+			break;
 
-		case(pan_cmd_write_cod):
-			RAW(TCU_MNG_STANDARD_HCI_SET_REQ_Write_Class_of_Device);
-		break;
+			case(pan_cmd_write_cod):
+				RAW(TCU_MNG_STANDARD_HCI_SET_REQ_Write_Class_of_Device);
+			break;
 
-		case(pan_cmd_spp_setup):
-			RAW(TCU_SPP_SETUP_REQ);
-		break;
+			case(pan_cmd_spp_setup):
+				RAW(TCU_SPP_SETUP_REQ);
+			break;
 
-		case(pan_cmd_listen):
-			RAW(TCU_MNG_SET_SCAN_REQ);
-		break;
+			case(pan_cmd_listen):
+				RAW(TCU_MNG_SET_SCAN_REQ);
+			break;
 
-		case(pan_cmd_accept_connection):
-			t_len = 3 + sizeof(TCU_MNG_CONNECTION_ACCEPT_REQ) + 2 + 8;// +16;
-			TCU_LEN(t_len);
+			case(pan_cmd_accept_connection):
+				t_len = 3 + sizeof(TCU_MNG_CONNECTION_ACCEPT_REQ) + 2 + 8;// +16;
+				TCU_LEN(t_len);
 
-			RAW(TCU_MNG_CONNECTION_ACCEPT_REQ);
+				RAW(TCU_MNG_CONNECTION_ACCEPT_REQ);
 
-			t_len = 1 + 6 + 1;// + 16;
-			PARAM_LEN(t_len);
-			this->StreamWrite(0x00); //Accept
-			//add client mac
-			for (uint8_t i = 0; i < 6; i++)
-				this->StreamWrite(this->client_mac_address[i]);
-			this->StreamWrite(0x00); //do not use link key
-//			for (uint8_t i = 0; i < 16; i++)
-//				this->StreamWrite(this->link_key[i]);
-		break;
+				t_len = 1 + 6 + 1;// + 16;
+				PARAM_LEN(t_len);
+				this->StreamWrite(0x00); //Accept
+				//add client mac
+				for (uint8_t i = 0; i < 6; i++)
+					this->StreamWrite(this->client_mac_address[i]);
+				this->StreamWrite(0x00); //do not use link key
+	//			for (uint8_t i = 0; i < 16; i++)
+	//				this->StreamWrite(this->link_key[i]);
+			break;
 
-		case(pan_cmd_io_cap_respose):
-			RAW(TCU_MNG_SSP_SET_REQ_HCI_IO_Capability_Request_Reply);
-			//add client mac
-			for (uint8_t i = 0; i < 6; i++)
-				this->StreamWrite(this->client_mac_address[i]);
-			this->StreamWrite(0x03); //NoInputNoOutput
-			this->StreamWrite(0x00); //OOB authentication data not present XXX tuto dat 1 ak to bude mat
-			this->StreamWrite(0x03); //MITM Protection Not Required – No Bonding. Numeric comparison with automatic accept allowed.
-		break;
+			case(pan_cmd_io_cap_respose):
+				RAW(TCU_MNG_SSP_SET_REQ_HCI_IO_Capability_Request_Reply);
+				//add client mac
+				for (uint8_t i = 0; i < 6; i++)
+					this->StreamWrite(this->client_mac_address[i]);
+				this->StreamWrite(0x03); //NoInputNoOutput
+				this->StreamWrite(0x00); //OOB authentication data not present XXX tuto dat 1 ak to bude mat
+				this->StreamWrite(0x03); //MITM Protection Not Required – No Bonding. Numeric comparison with automatic accept allowed.
+			break;
 
-		case(pan_cmd_confirmation_reply):
-			RAW(TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Request_Reply);
-//			RAW(TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Negative_Reply);
-			//add client mac
-			for (uint8_t i = 0; i < 6; i++)
-				this->StreamWrite(this->client_mac_address[i]);
-			this->StreamWrite(0x00); //???
+			case(pan_cmd_confirmation_reply):
+				RAW(TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Request_Reply);
+	//			RAW(TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Negative_Reply);
+				//add client mac
+				for (uint8_t i = 0; i < 6; i++)
+					this->StreamWrite(this->client_mac_address[i]);
+				this->StreamWrite(0x00); //???
 
-		default:
-		break;
+			default:
+			break;
+		}
+
+		this->last_cmd = this->next_cmd;
+		this->next_cmd = pan_cmd_none;
 	}
-	this->next_cmd = pan_cmd_none;
+
+	if (this->repat_last_cmd && this->timer < task_get_ms_tick())
+	{
+		this->repat_last_cmd = false;
+		this->next_cmd = this->last_cmd;
+	}
+
+//	if (this->timer != BT_NO_TIMEOUT && this->timer < task_get_ms_tick())
+//		{
+//			DEBUG("PAN1026 timeout, last cmd %d\n", this->last_cmd);
+//			this->timer = BT_NO_TIMEOUT;
+//		}
 
 }
 

@@ -115,6 +115,7 @@ void fc_init()
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
 
+	//SHT21
 	sht21_settings sht_cfg;
 	sht_cfg.rh_enabled = true;
 	sht_cfg.temp_enabled = true;
@@ -312,19 +313,17 @@ void fc_takeoff()
 	logger_start();
 }
 
-uint8_t fc_landing_old_gui;
+uint8_t fc_landing_old_gui_task;
 
 void fc_landing_cb(uint8_t ret)
 {
-	gui_switch_task(fc_landing_old_gui);
+	gui_switch_task(fc_landing_old_gui_task);
 }
 
 void fc_landing()
 {
-//	gui_showmessage_P(PSTR("Landing"));
-
 	gui_dialog_set_P(PSTR("Landing"), PSTR(""), GUI_STYLE_STATS, fc_landing_cb);
-	fc_landing_old_gui = gui_task;
+	fc_landing_old_gui_task = gui_task;
 	gui_switch_task(GUI_DIALOG);
 
 	fc.flight_state = FLIGHT_LAND;

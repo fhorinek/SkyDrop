@@ -40,4 +40,10 @@ void bt_irgh(uint8_t type, uint8_t * buf);
 bool bt_selftest();
 uint8_t bt_get_module_type();
 
+#define BT_MOD_STATE_OFF	0
+#define BT_MOD_STATE_INIT	1
+#define BT_MOD_STATE_OK		2
+
+extern volatile uint8_t bt_module_state;
+
 #endif /* BT_H_ */
