@@ -72,6 +72,7 @@ void task_active_stop()
 
 	fc_deinit();
 	gui_stop();
+
 	storage_deinit();
 }
 

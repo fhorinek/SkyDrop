@@ -63,50 +63,51 @@ extern uint8_t widget_menu_state;
 extern uint8_t widget_menu_param1;
 extern float widget_menu_fvalue1;
 
-#define WIDGET_OFF			0xFF
-#define WIDGET_EMPTY		0
-#define WIDGET_DEBUG_ETC	1
-#define WIDGET_DEBUG_IMU	2
+#define WIDGET_OFF				0xFF
+#define WIDGET_EMPTY			0
+#define WIDGET_DEBUG_ETC		1
+#define WIDGET_DEBUG_IMU		2
 #include "dummy.h"
 
-#define WIDGET_VARIO		3
-#define WIDGET_AVG_VARIO	4
-#define WIDGET_VARIO_BAR	5
+#define WIDGET_VARIO			3
+#define WIDGET_AVG_VARIO		4
+#define WIDGET_VARIO_BAR		5
 #include "vario.h"
 
-#define WIDGET_ALT1			6
-#define WIDGET_ALT2			7
-#define WIDGET_ALT3			8
-#define WIDGET_ALT4			9
-#define WIDGET_ALT5			10
+#define WIDGET_ALT1				6
+#define WIDGET_ALT2				7
+#define WIDGET_ALT3				8
+#define WIDGET_ALT4				9
+#define WIDGET_ALT5				10
 #include "altitude.h"
 
-#define WIDGET_ACCX			11
+#define WIDGET_ACCX				11
 #include "acc.h"
 
-#define WIDGET_TIME			12
-#define WIDGET_FTIME		13
+#define WIDGET_TIME				12
+#define WIDGET_FTIME			13
 #include "time.h"
 
-#define WIDGET_TEMPERATURE	14
+#define WIDGET_TEMPERATURE		14
 #include "temperature.h"
 
-#define WIDGET_GHEADING		15
-#define WIDGET_GROUND_SPD	16
-#define WIDGET_POSITION		17
+#define WIDGET_GHEADING			15
+#define WIDGET_GROUND_SPD		16
+#define WIDGET_POSITION			17
+#define WIDGET_GHEADING_ARROW	18
 #include "gps.h"
 
-#define WIDGET_BATTERY		18
+#define WIDGET_BATTERY			19
 #include "battery.h"
 
-#define WIDGET_GLIDE_RATIO	19
+#define WIDGET_GLIDE_RATIO		20
 #include "flight.h"
 
-#define WIDGET_CTRL_AUDIO	20
-#define WIDGET_CTRL_WLIFT	21
+#define WIDGET_CTRL_AUDIO		21
+#define WIDGET_CTRL_WLIFT		22
 #include "ctrl.h"
 
-#define NUMBER_OF_WIDGETS	22
+#define NUMBER_OF_WIDGETS		23
 
 
 void widgets_draw(uint8_t page);

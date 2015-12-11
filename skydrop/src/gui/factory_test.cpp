@@ -149,6 +149,7 @@ void gui_factory_test_loop()
 		{
 			disp.GotoXY(4, f_h * 3.5 + 3);
 			fprintf_P(lcd_out, PSTR("I2C ERROR"));
+			assert(0);
 		}
 		err = true;
 	}
@@ -160,6 +161,7 @@ void gui_factory_test_loop()
 		{
 			disp.GotoXY(4, f_h * 2 + 3);
 			fprintf_P(lcd_out, PSTR("MS5611:%s"), (res) ? "OK" : "ERR");
+			assert(res);
 		}
 
 		res = lsm303d.SelfTest();
@@ -168,6 +170,7 @@ void gui_factory_test_loop()
 		{
 			disp.GotoXY(4, f_h * 3 + 3);
 			fprintf_P(lcd_out, PSTR("LSM303:%s"), (res) ? "OK" : "ERR");
+			assert(res);
 		}
 
 		res = l3gd20.SelfTest();
@@ -176,6 +179,7 @@ void gui_factory_test_loop()
 		{
 			disp.GotoXY(4, f_h * 4 + 3);
 			fprintf_P(lcd_out, PSTR("L3GD20:%s"), (res) ? "OK" : "ERR");
+			assert(res);
 		}
 
 		res = sht21.SelfTest();
@@ -184,6 +188,7 @@ void gui_factory_test_loop()
 		{
 			disp.GotoXY(4, f_h * 5 + 3);
 			fprintf_P(lcd_out, PSTR("SHT21:%s"), (res) ? "OK" : "ERR");
+			assert(res);
 		}
 	}
 
@@ -191,6 +196,7 @@ void gui_factory_test_loop()
 	if (!res) err = true;
 	if (res || blik)
 	{
+		assert(res);
 		disp.GotoXY(4, f_h * 6 + 3);
 		if (!res)
 		{
@@ -211,6 +217,7 @@ void gui_factory_test_loop()
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 2 + 3);
 		fprintf_P(lcd_out, PSTR("SD:%s"), (res) ? "OK" : "ERR");
+		assert(res);
 	}
 
 	res = gps_selftest();
@@ -219,6 +226,7 @@ void gui_factory_test_loop()
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 3 + 3);
 		fprintf_P(lcd_out, PSTR("GPS:%s"), (res) ? "OK" : "ERR");
+		assert(res);
 	}
 
 	res = f_test_button_test == 0b00000111;
@@ -227,6 +235,7 @@ void gui_factory_test_loop()
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 4 + 3);
 		fprintf_P(lcd_out, PSTR("BUT:%d %d %d"), f_test_button_test & (1 << 0), (f_test_button_test & (1 << 1)) >> 1, (f_test_button_test & (1 << 2)) >> 2);
+		assert(res);
 	}
 
 
@@ -236,14 +245,16 @@ void gui_factory_test_loop()
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 5 + 3);
 		fprintf_P(lcd_out, PSTR("ADC:%d"), battery_adc_raw);
+		assert(res);
 	}
 
 	res = battery_per > 0;
-//	if (!res) err = true;
+
 	if (res || blik)
 	{
 		disp.GotoXY(GUI_DISP_WIDTH / 2, f_h * 6 + 3);
 		fprintf_P(lcd_out, PSTR("BAT:%d%%"), battery_per);
+		assert(res);
 	}
 
 

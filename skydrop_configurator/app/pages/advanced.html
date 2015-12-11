@@ -1,42 +1,72 @@
 <div ng-controller="advanced">
     <h1>Advanced configuration</h1>
     <form name="adv_list" novalidate>
-	    <div ng-repeat="item in list | filter:global_search">
-	        <div class="panel panel-default" ng-switch="item.mode" ng-if="item.mode != 'readonly'">
-	            <div class="panel-heading">{{item.name}} ({{item.pname}}, {{item.mode}}, {{item.value}}) <a ng-if="item.link" ng-href="#/{{item.link}}">Editor</a></div>
+	    <div ng-repeat="item in list">
+	        <div class="panel panel-default" ng-switch="item.mode">
+	            <div class="panel-heading">{{item.name}}<span ng-if="item.desc">, {{item.desc}}</span> ({{item.pname}}, {{item.mode}}, {{item.value}}) <a ng-if="item.link" ng-href="#/{{item.link}}">Editor</a></div>
 	            
 	            <div ng-switch-when="number" class="panel-body">
-	                <input ng-model="item.value" 
-	                    class="form-control" 
-	                    type="number" 
-	                    name="{{item.pname}}" 
-	                    min="{{item.min}}" 
-	                    max="{{item.max}}" 
-	                    ng-change="" required>
+	                <ctrl-number ng-model="item.value" 
+	                    min="item.min" 
+	                    max="item.max"
+	                    step="item.step"></ctrl-number>
 	            </div>
 	            
-	            <div ng-switch-when="flags" class="panel-body">
-	                <div ng-repeat="macro in item.flags" class="checkbox">
-	                    <label>
-	                        <input type="checkbox" 
-	                            ng-false-value="0" 
-	                            ng-true-value="{{get_macro_value(macro[0])}}" 
-	                            ng-checked="{{flags_checked(item.value, macro[0])}}"
-	                            ng-model="item.models[macro[0]]"
-	                            ng-change="flags_change(item, macro[0])"
-	                        >{{macro[1]}}</label>
-	                </div>
-	            </div>
-	            
+	            <div ng-switch-when="slider" class="panel-body">
+	                <ctrl-slider ng-model="item.value" 
+	                    min="item.min" 
+	                    max="item.max" 
+	                    step="item.step"></ctrl-slider>
+	            </div>	       
+
+	            <div ng-switch-when="bool" class="panel-body">
+	                <ctrl-bool ng-model="item.value"></ctrl-bool>	                
+	            </div>		                 
+
 	            <div ng-switch-when="select" class="panel-body">
-	                <select ng-model="item.value" ng-options="get_macro_value(opt[0]) as opt[1] for opt in item.options">
-	                </select>
-	            </div>               
+                    <ctrl-select ng-model="item.value" 
+                        options="item.options"></ctrl-select>
+	            </div>  
+
+	            <div ng-switch-when="flags" class="panel-body">
+                    <ctrl-flags ng-model="item.value" 
+                        flags="item.flags"></ctrl-flags>	 	                
+	            </div>
 	            
-	            <div ng-switch-when="readonly"></div>            
+	            <div ng-switch-when="altimeter" class="panel-body">
+                    <ctrl-altimeter ng-model="item.value" 
+                        flags="item.flags"
+                        options="item.options"
+                        altimeters="item.altimeters"></ctrl-altimeter>	 	                
+	            </div>	            
+	            
+	            <div ng-switch-when="doubleselect" class="panel-body">
+                    <ctrl-doubleselect ng-model="item.value" 
+                        options1="item.options1"
+                        mask1="item.mask1"
+                        label1="item.label1"
+                        options2="item.options2"
+                        mask2="item.mask2"
+                        label2="item.label2"></ctrl-doubleselect>	 	                
+	            </div>	 	            
+
+	            <div ng-switch-when="dampening" class="panel-body">
+	                <ctrl-dampening ng-model="item.value" 
+	                    min="item.min" 
+	                    max="item.max"
+	                    step="item.step"></ctrl-dampening>
+	            </div>
+	            
+	            <div ng-switch-when="timezone" class="panel-body">
+	                <ctrl-timezone ng-model="item.value" ></ctrl-timezone>
+	            </div>
+	            
+	            <div ng-switch-when="readonly" class="panel-body">
+                    Read-only value: {{item.value}}
+	            </div>            
 	            
 	            <div ng-switch-default class="panel-body">
-	                N/A - not (yet!) avalible
+	                N/A - Type not (yet!) defined
 	            </div>
 	            
 	        </div>

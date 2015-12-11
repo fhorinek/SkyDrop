@@ -271,7 +271,8 @@ void gui_loop()
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
 
-	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
+//	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
+	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)33; //30 fps
 
 	gui_update_disp_cfg();
 
@@ -279,7 +280,13 @@ void gui_loop()
 	if (actual_task == TASK_ACTIVE)
 	{
 		//return to main gui task, except for GPS detail page, dialog or splash
-		if (gui_task != GUI_PAGES && gui_task != GUI_SET_GPS_DETAIL && gui_task != GUI_DIALOG && gui_task != GUI_SPLASH && gui_task != GUI_FTEST)
+		if (gui_task != GUI_PAGES
+				&& gui_task != GUI_SET_GPS_DETAIL
+				&& gui_task != GUI_DIALOG
+				&& gui_task != GUI_SPLASH
+				&& gui_task != GUI_FTEST
+				&& gui_task != GUI_SET_VAL
+				&& gui_task != GUI_UPDATE)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)
 				gui_switch_task(GUI_PAGES);

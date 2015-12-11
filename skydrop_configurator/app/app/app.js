@@ -5,17 +5,36 @@ function err(msg)
     alert(msg);
 }
 
-var app = angular.module('app', [
-    'ngRoute', "chart.js"]);
+function uint8_invert(data)
+{
+    var val = 0;
+    for (var i = 0; i<8; i++)
+    {
+        if (data & 1 << i)
+            val += 0;
+        else
+            val += (1 << i);
+    }
+    
+    return val;
+}
+
+var app = angular.module('app', ["ngRoute", "chart.js", "ui.bootstrap-slider", 'ngAnimate', 'ui.bootstrap', 'uiSwitch']);
     
 //var memory = new MemoryHandler();
 
 app.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
-        when('/audio_profile', {
-            templateUrl: 'pages/audio_profile.html',
-        }).      
+	    when('/audio_profile', {
+	        templateUrl: 'pages/audio_profile.html',
+	    }).      
+	    when('/display', {
+	        templateUrl: 'pages/display.html',
+	    }).      
+	    when('/system', {
+	        templateUrl: 'pages/system.html',
+	    }).      
         when('/advanced', {
             templateUrl: 'pages/advanced.html',
          }).      
@@ -31,18 +50,17 @@ app.controller("menuList", ["$scope", function ($scope) {
     $scope.menus = 
     [
         [
-            {"title": "Audio Profile editor", "ref": "audio_profile"},
-            {"title": "Advanced", "ref": "advanced"},
-            {"title": "All Values", "ref": "var_list"}
+         	{"title": "Audio Profile editor", "ref": "audio_profile"},
+         	{"title": "Display", "ref": "display"},
+         	{"title": "System", "ref": "system"}
+        ],
+        [
+         	{"title": "Advanced", "ref": "advanced"},
+         	{"title": "All Values", "ref": "var_list"}
         ]
-//      ,
-//        [
-//            {"title": "Test", "ref": "test"},
-//            {"title": "Test", "ref": "test"}
-//        ]
     ];
     
-    $scope.activeMenu = "advanced";
+    $scope.activeMenu = "audio_profile";
     
     $scope.select = function(ref){
         $scope.activeMenu = ref;
@@ -55,6 +73,8 @@ app.controller("menuList", ["$scope", function ($scope) {
 }]);
 
 app.controller("controls", ["$scope", "memory", "$timeout", function ($scope, memory, $timeout) {
+	
+	$scope.hide_nav = true;
 	
     $scope.save = function(){
         var blob = new Blob([memory.getBlob()], {type: "application/octet-stream"});

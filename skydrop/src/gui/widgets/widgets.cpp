@@ -12,7 +12,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_accx,
 		w_time, w_ftime,
 		w_temperature,
-		w_ghdg, w_gspd, w_gpos,
+		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow,
 		w_battery,
 		w_glide_ratio,
 		w_ctrl_audio, w_ctrl_wlift

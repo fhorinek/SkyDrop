@@ -80,9 +80,9 @@ bool igc_start(char * path)
 	//H F DTE
 	sprintf_P(line, PSTR("HFDTE%02u%02u%02u"), day, month, year % 100);
 	igc_writeline(line);
-	//H F DTE
-	sprintf_P(line, PSTR("HFDTEDATE:%02u%02u%02u,%02u"), day, month, year  % 100, logger_flight_number);
-	igc_writeline(line);
+//	//H F DTE
+//	sprintf_P(line, PSTR("HFDTEDATE:%02u%02u%02u,%02u"), day, month, year  % 100, logger_flight_number);
+//	igc_writeline(line);
 	//H F PLT PILOT IN CHARGE XXX
 	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE:"));
 	igc_writeline(line);

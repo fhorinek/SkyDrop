@@ -7,7 +7,7 @@
 
 void gui_set_system_init()
 {
-	gui_list_set(gui_set_system_item, gui_set_system_action, 5, GUI_SETTINGS);
+	gui_list_set(gui_set_system_item, gui_set_system_action, 6, GUI_SETTINGS);
 }
 
 void gui_set_system_stop() {}
@@ -59,6 +59,14 @@ void gui_set_system_action(uint8_t index)
 		gui_value_conf_P(PSTR("Auto power-off"), GUI_VAL_NUMBER_DISABLE, PSTR("%0.0f min"), config.system.auto_power_off, 0, 120, 1, gui_set_system_auto_power_off_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
+
+	case(5):
+		config.connectivity.uart_function = (config.connectivity.uart_function + 1) % NUMBER_OF_UART_FORWARD;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ee.connectivity.uart_function, config.connectivity.uart_function);
+		uart_stop();
+		uart_init();
+	break;
 	}
 }
 
@@ -106,6 +114,35 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				sprintf_P(sub_text, PSTR("%u min"), config.system.auto_power_off);
 			else
 				sprintf_P(sub_text, PSTR("disabled"));
+		break;
+
+		case (5):
+			sprintf_P(text, PSTR("Uart function"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			switch (config.connectivity.uart_function)
+			{
+				case(UART_FORWARD_DEBUG):
+					sprintf_P(sub_text, PSTR("Debug msg"));
+				break;
+				case(UART_FORWARD_OFF):
+					sprintf_P(sub_text, PSTR("Uart off"));
+				break;
+				case(UART_FORWARD_9600):
+					sprintf_P(sub_text, PSTR("Telemetry 9600"));
+				break;
+				case(UART_FORWARD_19200):
+					sprintf_P(sub_text, PSTR("Telemetry 19200"));
+				break;
+				case(UART_FORWARD_38400):
+					sprintf_P(sub_text, PSTR("Telemetry 38400"));
+				break;
+				case(UART_FORWARD_57600):
+					sprintf_P(sub_text, PSTR("Telemetry 57600"));
+				break;
+				case(UART_FORWARD_115200):
+					sprintf_P(sub_text, PSTR("Telemetry 115200"));
+				break;
+			}
 		break;
 
 	}

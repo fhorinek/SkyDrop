@@ -110,6 +110,8 @@ void storage_deinit()
 
 	sd_avalible = false;
 
+	GpioSetPull(SD_IN, gpio_totem);
+
 	//power spi & sdcard
 	SD_EN_OFF;
 	SD_SPI_PWR_OFF;

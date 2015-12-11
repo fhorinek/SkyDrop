@@ -21,7 +21,7 @@ EEMEM cfg_t config_ee = {
 		//last_page
 		2,
 		//menu_audio_flags
-		CFG_AUDIO_MENU_SPLASH | CFG_AUDIO_MENU_PAGES | CFG_AUDIO_MENU_BUTTONS,
+		CFG_AUDIO_MENU_SPLASH | CFG_AUDIO_MENU_PAGES | CFG_AUDIO_MENU_BUTTONS | CFG_AUDIO_MENU_GPS,
 		//menu_volume
 		75,
 		//vario_volume
@@ -142,9 +142,9 @@ EEMEM cfg_t config_ee = {
 		//time flags
 		TIME_SYNC,
 		//timezone
-		+2 * 2,
+		+1 * 2,
 		//debug_log
-		DEBUG_MAGIC_ON,
+		false,//DEBUG_MAGIC_ON,
 		//auto_power_off
 		25,
 	},
@@ -180,6 +180,8 @@ EEMEM cfg_t config_ee = {
 		true,
 		//protocol
 		PROTOCOL_DIGIFLY,
+		//uart_function
+		UART_FORWARD_DEBUG,
 	}
 };
 
@@ -215,7 +217,6 @@ void cfg_reset_factory_test()
 
 void cfg_load()
 {
-	DEBUG("Loading data form EEPROM\n");
 	eeprom_busy_wait();
 
 	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));

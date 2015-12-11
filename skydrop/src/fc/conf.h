@@ -24,8 +24,7 @@ struct cfg_gui_layout
 #define CFG_AUDIO_MENU_SPLASH	0b10000000
 #define CFG_AUDIO_MENU_PAGES	0b01000000
 #define CFG_AUDIO_MENU_BUTTONS	0b00100000
-
-
+#define CFG_AUDIO_MENU_GPS		0b00010000
 
 struct cfg_gui
 {
@@ -100,6 +99,37 @@ struct cfg_audio_profile
 #define TIME_DST	0b00000001
 #define TIME_SYNC	0b00000010
 
+//prevent fake true (0xFF) on not loaded eeprom
+#define DEBUG_MAGIC_ON		0b10100101
+
+struct cfg_system
+{
+	uint8_t time_flags;
+	int8_t time_zone;
+
+	uint8_t debug_log;
+	uint8_t auto_power_off; //in minutes
+};
+
+struct cfg_autostart
+{
+	uint8_t start_sensititvity;
+	uint8_t land_sensititvity;
+	uint8_t timeout;
+	uint8_t supress_audio;
+};
+
+#define LOGGER_IGC	0
+#define LOGGER_KML	1
+
+#define NUMBER_OF_FORMATS	2
+
+struct cfg_logger
+{
+	uint8_t enabled;
+	uint8_t format;
+};
+
 #define GPS_FORMAT_MASK	0b00001100
 
 #define GPS_DDdddddd	0b00000000
@@ -121,36 +151,15 @@ struct cfg_audio_profile
 //FlyNet is disabled for now
 #define NUMBER_OF_PROTOCOLS	3
 
-#define LOGGER_IGC	0
-#define LOGGER_KML	1
+#define UART_FORWARD_DEBUG	0
+#define UART_FORWARD_OFF	1
+#define UART_FORWARD_9600	2
+#define UART_FORWARD_19200	3
+#define UART_FORWARD_38400	4
+#define UART_FORWARD_57600	5
+#define UART_FORWARD_115200	6
 
-#define NUMBER_OF_FORMATS	2
-
-//prevent fake true (0xFF) on not loaded eeprom
-#define DEBUG_MAGIC_ON		0b10100101
-
-struct cfg_system
-{
-	uint8_t time_flags;
-	int8_t time_zone;
-
-	uint8_t debug_log;
-	uint8_t auto_power_off; //in minutes
-};
-
-struct cfg_autostart
-{
-	uint8_t start_sensititvity;
-	uint8_t land_sensititvity;
-	uint8_t timeout;
-	uint8_t supress_audio;
-};
-
-struct cfg_logger
-{
-	uint8_t enabled;
-	uint8_t format;
-};
+#define NUMBER_OF_UART_FORWARD	7
 
 struct cfg_connectivity
 {
@@ -162,6 +171,8 @@ struct cfg_connectivity
 	uint8_t use_bt;
 	uint8_t forward_gps;
 	uint8_t protocol;
+
+	uint8_t uart_function;
 };
 
 //Main user configurations

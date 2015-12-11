@@ -3,6 +3,8 @@
 #include "../drivers/sensors/devices.h"
 #include "../drivers/uart.h"
 #include "../drivers/audio/audio.h"
+#include "../drivers/audio/sequencer.h"
+
 
 #include "kalman.h"
 #include "vario.h"
@@ -18,6 +20,8 @@ volatile flight_data_t fc;
 Timer fc_meas_timer;
 
 extern KalmanFilter * kalmanFilter;
+
+MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
 void fc_init()
 {
@@ -94,7 +98,6 @@ void fc_init()
 	//Barometer
 	ms5611.Init(&mems_i2c, MS5611_ADDRESS_CSB_LO);
 
-
 	//Magnetometer + Accelerometer
 	lsm303d_settings lsm_cfg;
 
@@ -132,17 +135,29 @@ void fc_init()
 	//Measurement timer
 	FC_MEAS_TIMER_PWR_ON;
 
-	fc_meas_timer.Init(FC_MEAS_TIMER, timer_div256); //125 == 1ms
+	fc_meas_timer.Init(FC_MEAS_TIMER, timer_div1024);
 	fc_meas_timer.SetInterruptPriority(MEDIUM);
 	fc_meas_timer.EnableInterrupts(timer_overflow | timer_compareA | timer_compareB | timer_compareC);
-	fc_meas_timer.SetTop(125 * 10); // == 10ms
-	fc_meas_timer.SetCompare(timer_A, 100); // == 0.64ms
-	fc_meas_timer.SetCompare(timer_B, 430); // == 2.7ms
-	fc_meas_timer.SetCompare(timer_C, 555); // == 3.7ms
+
+	//tight timing!	      1 tick 0.032 ms
+	//MS pressure conversion     9.040 ms
+	//   temperature conversion  0.600 ms
+	//MAG read 					 0.152 ms
+	//ACC read					 1.600 ms
+	//Gyro read					 1.000 ms
+
+	fc_meas_timer.SetTop(313); // == 10ms
+	fc_meas_timer.SetCompare(timer_A, 27); // == 0.78 ms
+	fc_meas_timer.SetCompare(timer_B, 70); // == 2 ms
+	fc_meas_timer.SetCompare(timer_C, 200); // == 6 ms
+
+	ms5611.StartTemperature();
+	lsm303d.StartReadMag(); //it takes 152us to transfer
+	_delay_ms(1);
+
 	fc_meas_timer.Start();
 
 	DEBUG(" *** FC init done ***\n");
-
 }
 
 void fc_deinit()
@@ -157,6 +172,11 @@ void fc_deinit()
 	eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
 	eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
 
+	if (config.connectivity.use_bt)
+		bt_stop();
+
+	if (config.connectivity.use_gps)
+		gps_stop();
 
 	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
 	{
@@ -176,6 +196,8 @@ void fc_continue()
 	fc_meas_timer.Start();
 }
 
+uint8_t calib_cnt;
+uint16_t calib_rtc_cnt;
 
 //First fc meas period
 // * Read pressure from ms5611
@@ -185,15 +207,43 @@ void fc_continue()
 ISR(FC_MEAS_TIMER_OVF)
 {
 	BT_SUPRESS_TX
-	io_write(1, HIGH);
 
+	io_write(1, HIGH);
 	ms5611.ReadPressure();
+	io_write(1, LOW);
+
 	ms5611.StartTemperature();
 	lsm303d.StartReadMag(); //it takes 152us to transfer
 
-	ms5611.CompensatePressure();
+	calib_cnt++;
+	if (calib_cnt == 10)
+	{
+		calib_cnt = 0;
 
-	io_write(1, LOW);
+		uint16_t rtc = RtcGetValue();
+		if (rtc > calib_rtc_cnt)
+		{
+			uint16_t delta = rtc - calib_rtc_cnt;
+			uint8_t cala = DFLLRC32M.CALA & 0b01111111;
+
+			if (delta < 3274)
+			{
+				if (cala > 0)
+					cala--;
+
+				DFLLRC32M.CALA = cala & 0b01111111;
+			}
+			else if (delta > 3281)
+			{
+				if (cala < 127)
+					cala++;
+				DFLLRC32M.CALA = cala & 0b01111111;
+			}
+		}
+		calib_rtc_cnt = rtc;
+	}
+
+
 	BT_ALLOW_TX
 }
 
@@ -208,21 +258,21 @@ ISR(FC_MEAS_TIMER_OVF)
 ISR(FC_MEAS_TIMER_CMPA)
 {
 	BT_SUPRESS_TX
-	io_write(1, HIGH);
 
 	lsm303d.ReadMag(&fc.mag_data.x, &fc.mag_data.y, &fc.mag_data.z);
 	ms5611.ReadTemperature();
+
 	ms5611.StartPressure();
 	lsm303d.StartReadAccStream(16); //it take 1600us to transfer
 
-	vario_calc(ms5611.pressure);
+	ms5611.CompensateTemperature();
+	ms5611.CompensatePressure();
 
+	//vario loop
+	vario_calc(ms5611.pressure);
 	//audio loop
 	audio_step();
 
-	ms5611.CompensateTemperature();
-
-	io_write(1, LOW);
 	BT_ALLOW_TX
 }
 
@@ -232,12 +282,10 @@ ISR(FC_MEAS_TIMER_CMPA)
 ISR(FC_MEAS_TIMER_CMPB)
 {
 	BT_SUPRESS_TX
-	io_write(1, HIGH);
 
 	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
 
-	io_write(1, LOW);
 	BT_ALLOW_TX
 }
 
@@ -247,7 +295,6 @@ ISR(FC_MEAS_TIMER_CMPB)
 ISR(FC_MEAS_TIMER_CMPC)
 {
 	BT_SUPRESS_TX
-	io_write(1, HIGH);
 
 	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
 
@@ -280,11 +327,10 @@ ISR(FC_MEAS_TIMER_CMPC)
 		fc.temp_step = (fc.temp_step + 1) % 6;
 	}
 
-	io_write(1, LOW);
-
-//	DEBUG("A;%d;%d;%d\n", fc.acc_data.x, fc.acc_data.y, fc.acc_data.z);
-//	DEBUG("M;%d;%d;%d\n", fc.mag_data.x, fc.mag_data.y, fc.mag_data.z);
-//	DEBUG("G;%d;%d;%d\n", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
+//	DEBUG("$;%d;%d;%d", fc.acc_data.x, fc.acc_data.y, fc.acc_data.z);
+//	DEBUG(";%d;%d;%d", fc.mag_data.x, fc.mag_data.y, fc.mag_data.z);
+//	DEBUG(";%d;%d;%d", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
+//	DEBUG(";%0.0f\n", ms5611.pressure);
 
 	BT_ALLOW_TX
 }
@@ -420,7 +466,10 @@ void fc_step()
 	//gps time sync
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
 	{
+		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_GPS)
+			seq_start(&gps_ready, config.gui.menu_volume);
 		fc_sync_gps_time();
+		fc.gps_data.fix_cnt++;
 	}
 
 	//glide ratio

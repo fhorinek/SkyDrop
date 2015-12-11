@@ -4,6 +4,8 @@
 SleepLock usb_lock;
 extern Usart sd_spi_usart;
 
+uint8_t task_usb_sd_ready = false;
+
 void task_usb_init()
 {
 	SD_EN_OFF;
@@ -19,20 +21,30 @@ void task_usb_init()
 	usb_lock.Lock();
 
 	cli();
+	assert(XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_INT_RC32KHZ, F_CPU));
+
 	assert(XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC2MHZ));
-	assert(XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_EXT_RC32KHZ, 2000000ul));
+	assert(XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC2MHZ, DFLL_REF_INT_RC32KHZ, 2000000ul));
 	assert(XMEGACLK_StartPLL(CLOCK_SRC_INT_RC2MHZ, 2000000ul, F_USB));
 	sei();
 
 	DEBUG("SD card init in RAW mode ... ");
-	if (SDCardManager_Init())
+	if ((task_usb_sd_ready = SDCardManager_Init()))
+	{
 		DEBUG("OK\n");
+
+		DEBUG("USB init\n");
+		USB_Init();
+	}
 	else
+	{
 		DEBUG("Error\n");
 
-	DEBUG("USB init\n");
-
-	USB_Init();
+		sd_spi_usart.Stop();
+		USB_PWR_OFF;
+		SD_SPI_PWR_OFF;
+		SD_EN_OFF;
+	}
 
 	//init gui
 	gui_init();
@@ -44,8 +56,9 @@ void task_usb_stop()
 {
 
 	cli();
-	XMEGACLK_StopDFLL(CLOCK_SRC_INT_RC2MHZ);
-	XMEGACLK_StopInternalOscillator(CLOCK_SRC_INT_RC2MHZ);
+	assert(XMEGACLK_StopDFLL(CLOCK_SRC_INT_RC2MHZ));
+	assert(XMEGACLK_StopDFLL(CLOCK_SRC_INT_RC32MHZ));
+	assert(XMEGACLK_StopInternalOscillator(CLOCK_SRC_INT_RC2MHZ));
 	sei();
 
 	usb_lock.Unlock();
@@ -54,24 +67,37 @@ void task_usb_stop()
 
 	gui_stop();
 
-	sd_spi_usart.Stop();
+	if (task_usb_sd_ready)
+	{
+		sd_spi_usart.Stop();
 
-	USB_PWR_OFF;
-	SD_SPI_PWR_OFF;
-	SD_EN_OFF;
+		USB_PWR_OFF;
+		SD_SPI_PWR_OFF;
+		SD_EN_OFF;
+	}
 
 }
 
 
+uint32_t task_usb_gui_timer = 0;
+#define TASK_USB_GUI_REFRESH	2000ul
+
 void task_usb_loop()
 {
-	gui_loop();
+	if (task_usb_gui_timer < task_get_ms_tick())
+	{
+		gui_loop();
+		task_usb_gui_timer = task_get_ms_tick() + TASK_USB_GUI_REFRESH;
+	}
 
 	for (uint8_t i=0; i < 128; i++)
 	{
-		MassStorage_Loop();
+		if (task_usb_sd_ready)
+			MassStorage_Loop();
+
 		ewdt_reset();
 	}
+
 }
 
 

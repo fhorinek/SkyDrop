@@ -62,8 +62,6 @@ void MassStorage_Loop(void)
 void EVENT_USB_Device_Connect(void)
 {
 	/* Indicate USB enumerating */
-//	LEDs_SetAllLEDs(LEDMASK_USB_ENUMERATING);
-//	DEBUG("Enumerating...\n");
 	led_set(0, 0, USB_LED_MAX);
 
 	/* Reset the MSReset flag upon connection */
@@ -76,8 +74,6 @@ void EVENT_USB_Device_Connect(void)
 void EVENT_USB_Device_Disconnect(void)
 {
 	/* Indicate USB not ready */
-//	LEDs_SetAllLEDs(LEDMASK_USB_NOTREADY);
-//	DEBUG("Disconnected...\n");
 	led_set(0x55, 0, 0);
 }
 
@@ -93,7 +89,6 @@ void EVENT_USB_Device_ConfigurationChanged(void)
 	ConfigSuccess &= Endpoint_ConfigureEndpoint(MASS_STORAGE_OUT_EPADDR, EP_TYPE_BULK, MASS_STORAGE_IO_EPSIZE, 1);
 
 	/* Indicate endpoint configuration success or failure */
-//	LEDs_SetAllLEDs(ConfigSuccess ? LEDMASK_USB_READY : LEDMASK_USB_ERROR);
 	DEBUG("USB Configuration %d\n", ConfigSuccess);
 }
 
@@ -146,8 +141,6 @@ void MassStorage_Task(void)
 	if (ReadInCommandBlock())
 	{
 		/* Indicate busy */
-//		LEDs_SetAllLEDs(LEDMASK_USB_BUSY);
-		//DEBUG("USB busy\n");
 		led_set(USB_LED_MAX, 0, 0);
 
 		/* Check direction of command, select Data IN endpoint if data is from the device */
@@ -157,17 +150,11 @@ void MassStorage_Task(void)
 		/* Decode the received SCSI command, set returned status code */
 		CommandStatus.Status = SCSI_DecodeSCSICommand() ? MS_SCSI_COMMAND_Pass : MS_SCSI_COMMAND_Fail;
 
-//		DEBUG("1");
-
 		/* Load in the CBW tag into the CSW to link them together */
 		CommandStatus.Tag = CommandBlock.Tag;
 
 		/* Load in the data residue counter into the CSW */
 		CommandStatus.DataTransferResidue = CommandBlock.DataTransferLength;
-
-//		DEBUG("2");
-
-//		DEBUG(" %lu ", CommandStatus.DataTransferResidue);
 
 		/* Stall the selected data pipe if command failed (if data is still to be transferred) */
 		if ((CommandStatus.Status == MS_SCSI_COMMAND_Fail) && (CommandStatus.DataTransferResidue))
@@ -175,15 +162,11 @@ void MassStorage_Task(void)
 		  Endpoint_StallTransaction();
 		}
 
-//		DEBUG("3");
-
 		/* Return command status block to the host */
 		ReturnCommandStatus();
 
 
 		/* Indicate ready */
-//		LEDs_SetAllLEDs(LEDMASK_USB_READY);
-//		DEBUG(".\n");
 		led_set(0, USB_LED_MAX, 0);
 	}
 

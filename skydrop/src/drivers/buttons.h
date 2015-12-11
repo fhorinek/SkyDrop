@@ -36,6 +36,8 @@
 #define BUTTON_LONG			1000
 
 void buttons_init();
+void buttons_deinit();
+
 void buttons_step();
 bool buttons_read(uint8_t index);
 bool button_in_reset(uint8_t index);

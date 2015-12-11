@@ -122,8 +122,8 @@ void time_init()
 
 	unix_time += 1;
 
-	RtcSetPeriod(3);
-	RtcInit(rtc_1024Hz_tosc, rtc_div256); //f == 32Hz
+	RtcSetPeriod(32767); //do not forget -1 , since 0 count!
+	RtcInit(rtc_32kHz_tosc, rtc_div1); //f == 1024Hz
 	RtcEnableInterrupts(rtc_overflow); //ovf every sec
 
 	if (time_get_actual() < TIME_MIN_DATE)

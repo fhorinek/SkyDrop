@@ -11,21 +11,20 @@ ISR(wake_interrupt)
 
 void SystemInit()
 {
-	//bt reset default HIGH (bt in reset)
-	//GpioSetInvert(bt_reset,  ON);
-	GpioWrite(bt_reset, HIGH);
-	GpioSetDirection(bt_reset, OUTPUT);
-
-	//bt shdn default HIGH (nrf off)
-	GpioSetInvert(bt_shdn,  ON);
-	GpioWrite(bt_shdn, HIGH);
-	GpioSetDirection(bt_shdn, OUTPUT);
-
-	//button setup (High if pressed)
-	GpioSetPull(user_button, gpio_pull_up);
-	GpioSetInvert(user_button, ON);
-	GpioSetDirection(user_button, INPUT);
-	//
+//  //bt reset default HIGH (bt in reset)
+//  GpioSetInvert(bt_reset,  ON);
+//	GpioWrite(bt_reset, HIGH);
+//	GpioSetDirection(bt_reset, OUTPUT);
+//
+//	//bt shdn default HIGH (nrf off)
+//	GpioSetInvert(bt_shdn,  ON);
+//	GpioWrite(bt_shdn, HIGH);
+//	GpioSetDirection(bt_shdn, OUTPUT);
+//
+//	//button setup (High if pressed)
+//	GpioSetPull(user_button, gpio_pull_up);
+//	GpioSetInvert(user_button, ON);
+//	GpioSetDirection(user_button, INPUT);
 }
 
 void SystemPowerIdle()

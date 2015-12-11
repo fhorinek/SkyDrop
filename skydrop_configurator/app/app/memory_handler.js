@@ -10,10 +10,12 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.fw_path = false;
     this.macros = false; 
     this.data_holder = false;
+    this.data_loading = false;
+    this.data_loading_notify = [];
     this.data_load = 0;
    
     //Methods
-    this.load_bin = function(url_path, cb, deferred, error_cb)
+    this.load_bin = function(url_path, cb, error_cb)
     {
         var callback = cb;
         var service = this;
@@ -27,15 +29,17 @@ app.service("memory", ["$http", "$q", function($http, $q){
             }
         )     
         .success(function(data) {
-            console.log("sucess");
-            //console.log(data);
-            callback(data, service, deferred);            
+            callback(data, service);            
         })
         .error(function(xhr, status, error) {
-            console.warn("error", xhr, status, error);
+            console.warn("XHR error", xhr, status, error);
             if (error_cb != undefined)
             	error_cb();
-            deferred.reject();
+            while (service.data_loading_notify.length)
+            {
+            	var deferred = service.data_loading_notify.pop();
+                deferred.reject();
+        	}            
         });
     };
     
@@ -43,12 +47,12 @@ app.service("memory", ["$http", "$q", function($http, $q){
     {
     	var deferred = $q.defer();
         
-    	this.init_step_1(data, this, deferred);     
+    	this.init_step_1(data, this);     
     	
     	return deferred.promise;
     };    
 
-    this.load_json = function(url_path, cb, deferred)
+    this.load_json = function(url_path, cb)
     {
         var callback = cb;
         var service = this;
@@ -59,13 +63,17 @@ app.service("memory", ["$http", "$q", function($http, $q){
         .success(function(data) {
             console.log("sucess");
             //console.log(data);
-            callback(data, service, deferred);            
+            callback(data, service);            
         })
         .error(function(xhr, status, error) {
             console.warn("error", xhr, status, error);
             if (error_cb != undefined)
             	error_cb();
-            deferred.reject();
+            while (service.data_loading_notify.length)
+            {
+            	var deferred = service.data_loading_notify.pop();
+                deferred.reject();
+        	}   
       });
     };
 
@@ -116,7 +124,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
         var mem_index = this.ee_map[key][0];
         var type = this.getType(key);
         
-        //console.log("set", value, "to", key, "type", type, "index", mem_index);
+        console.log("set", value, "to", key, "type", type, "index", mem_index);
         
         switch(type)
         {
@@ -200,7 +208,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.getAllValues_async = function()
     {
         var vars = this.listVariabiles();
-        var items = new Array();
+        var items = {};
     
         for (var i in vars)
         {
@@ -214,21 +222,42 @@ app.service("memory", ["$http", "$q", function($http, $q){
             
             arr = angular.extend(arr, this.getDesc(k));
             
-            //create shadow moddels for flags checkbox
+            //translate MACROS
             if (arr["mode"] == "flags")
             {
-                var t_models = new Array();
-                for (var key in arr["flags"])
-                {
-                    var m_value = this.getMacroValue(arr["flags"][key][0]);
-                
-                    t_models[arr["flags"][key][0]] = (arr["value"] & m_value) ? m_value : 0;
-                }
-                
-                arr["models"] = t_models;
+                for (var i=0; i < arr["flags"].length; i++)
+                    if (isNaN(arr["flags"][i][0])) 
+                        arr["flags"][i][0] = this.getMacroValue(arr["flags"][i][0]);
             }
+
+            if (arr["mode"] == "select")
+            {
+                for (var i=0; i < arr["options"].length; i++)
+                    if (isNaN(arr["options"][i][0])) 
+                        arr["options"][i][0] = this.getMacroValue(arr["options"][i][0]);
+            }
+
+            if (arr["mode"] == "altimeter")
+            {
+                for (var i=0; i < arr["options"].length; i++)
+                    if (isNaN(arr["options"][i][0])) 
+                        arr["options"][i][0] = this.getMacroValue(arr["options"][i][0]);
+                for (var i=0; i < arr["flags"].length; i++)
+                    if (isNaN(arr["flags"][i][0])) 
+                        arr["flags"][i][0] = this.getMacroValue(arr["flags"][i][0]);
+            }            
             
-            items.push(arr);
+            if (arr["mode"] == "doubleselect")
+            {
+                for (var i=0; i < arr["options1"].length; i++)
+                    if (isNaN(arr["options1"][i][0])) 
+                        arr["options1"][i][0] = this.getMacroValue(arr["options1"][i][0]);
+                for (var i=0; i < arr["options2"].length; i++)
+                    if (isNaN(arr["options2"][i][0])) 
+                        arr["options2"][i][0] = this.getMacroValue(arr["options2"][i][0]);
+            }              
+            
+            items[k] = (arr);
         }
         
         //notify watchers about the major change in structure -> need to rebind the data
@@ -244,7 +273,12 @@ app.service("memory", ["$http", "$q", function($http, $q){
         
         if (this.data_holder == false)
         {
-            this.load_bin("UPDATE.EE", this.init_step_1, deferred);
+        	if (this.data_loading == false)
+    		{
+        		this.data_loading = true;
+        		this.load_bin("UPDATE.EE", this.init_step_1);
+    		}
+        	this.data_loading_notify.push(deferred);
         }
         else
         {
@@ -255,35 +289,40 @@ app.service("memory", ["$http", "$q", function($http, $q){
     };    
     
     //Constructor & init
-    this.init_step_1 = function(data, service, deferred)    
+    this.init_step_1 = function(data, service)    
     {
         service.ee_buffer = new Uint8Array(data);
         service.build_number = get_uint32(service.ee_buffer, 0);
-        console.log("build_number =", service.build_number);        
+        console.log("actual build_number is", service.build_number);        
         if (service.newest_build === false)
         	service.newest_build = service.build_number;
         
         //load ee_map
         service.fw_path = "fw/" + zero_pad(8, service.build_number) + "/";
-        service.load_json(service.fw_path + "ee_map.json", service.init_step_2, deferred);
+        service.load_json(service.fw_path + "ee_map.json", service.init_step_2);
     };
 
-    this.init_step_2 = function(data, service, deferred)    
+    this.init_step_2 = function(data, service)    
     {
         service.ee_map = data.map;
         service.macros = service.solveMacros(data.macros);
         
         //load parameters description
-       service.load_json("res/desc.json", service.init_step_3, deferred);
+        service.load_json("res/desc.json", service.init_step_3);
     };
 
-    this.init_step_3 = function(data, service, deferred)    
+    this.init_step_3 = function(data, service)    
     {
         service.ee_desc = data;
         
         service.data_holder = service.getAllValues_async();
         
-        deferred.resolve(service.data_holder);
+        //console.log(">FRESH>", service.data_holder);
+        while (service.data_loading_notify.length)
+        {
+        	var deferred = service.data_loading_notify.pop();
+        	deferred.resolve(service.data_holder);
+    	}
     };
     
     
@@ -317,7 +356,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.getMacroValue = function(macro_name)
     {
         if (macro_name in this.macros)
+        {
             return this.macros[macro_name];
+        }
         else
         {
             console.log("Unknown macro name " + macro_name);

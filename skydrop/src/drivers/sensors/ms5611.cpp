@@ -16,11 +16,8 @@ void MS5611::Init(I2c * i2c, uint8_t address)
 	this->press_osr = MS5611_OSR_4096;
 	this->temp_osr = MS5611_OSR_256;
 
-	DEBUG("3.1\n");
 	this->Reset();
-	DEBUG("3.2\n");
 	_delay_ms(10);
-	DEBUG("3.3\n");
 	this->ReadPROM();
 }
 
@@ -109,17 +106,19 @@ void MS5611::StartTemperature()
 void MS5611::ReadPressure()
 {
     this->raw_pressure = this->Read24(MS5611_READ);
+    assert(this->raw_pressure != 0);
 }
 
 void MS5611::ReadTemperature()
 {
 	this->raw_temperature = this->Read24(MS5611_READ);
+    assert(this->raw_temperature != 0);
 }
 
 void MS5611::CompensateTemperature()
 {
 	this->dT = this->raw_temperature - (this->calibration_C5 * (int32_t)256);
-	this->temperature = (2000 + ((int64_t)this->dT * (int64_t)this->calibration_C6) / (int64_t)8388608) / 100.0;
+	this->temperature = (2000ul + ((int64_t)this->dT * (int64_t)this->calibration_C6) / (int64_t)8388608);
 }
 
 
@@ -127,6 +126,27 @@ void MS5611::CompensatePressure()
 {
 	int64_t off = (int64_t)this->calibration_C2 * (int64_t)65536 + ((int64_t)this->calibration_C4 * (int64_t)this->dT) / 128;
 	int64_t sens = (int64_t)this->calibration_C1 * (int64_t)32768 + ((int64_t)this->calibration_C3 * (int64_t)this->dT) / 256;
+
+	if (this->temperature < 2000)
+	{
+		//low temperature
+		uint64_t t2 = (uint64_t)this->dT * (uint64_t)this->dT / 2147483648ul;
+		uint64_t temp = (this->temperature - 2000) * (this->temperature - 2000);
+		uint64_t off2 = 5 * temp / 2;
+		uint64_t sens2 = off2 / 2;
+
+		if (this->temperature < -1500)
+		{
+			//very low temperature
+			temp = (this->temperature + 1500) * (this->temperature + 1500);
+			off2 = off2 + 7 * temp;
+			sens2 = sens2 + 11 * temp / 2;
+		}
+
+		this->temperature -= t2;
+		off -= off2;
+		sens -= sens2;
+	}
 
 	this->pressure = (float)((int32_t)this->raw_pressure * sens / (int32_t)2097152 - off) / 32768.0;
 }

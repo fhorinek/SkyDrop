@@ -578,3 +578,9 @@ float lcd_display::get_sin(uint16_t angle)
 		return -this->sin_table[angle - 180];
 	else return -this->sin_table[90 - (angle - 270)];
 }
+
+float lcd_display::get_cos(uint16_t angle)
+{
+	angle += 270;
+	return this->get_sin(angle);
+}

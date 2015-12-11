@@ -35,6 +35,13 @@ void buttons_init()
 	GpioSetInterrupt(SWITCH3, gpio_interrupt0, gpio_bothedges);
 }
 
+void buttons_deinit()
+{
+	GpioSetPull(SWITCH1, gpio_totem);
+//	Middle need to be active to wake up the device
+//	GpioSetPull(SWITCH2, gpio_totem);
+	GpioSetPull(SWITCH3, gpio_totem);
+}
 
 
 //#define task_irqh(a,b)

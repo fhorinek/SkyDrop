@@ -45,12 +45,28 @@ uint16_t vario_drop = 0;
 
 void vario_calc(float pressure)
 {
+	//if pressure is NaN do not compute!
+	if (isnan(pressure))
+	{
+		DEBUG("pressure is NaN\n");
+		return;
+	}
+
 	float rawAltitude = fc_press_to_alt(pressure, config.altitude.QNH1);
+
+	//if rawAltitude is NaN do not compute!
+	if (isnan(rawAltitude))
+	{
+		DEBUG("rawAltitude is NaN\n");
+		return;
+	}
 
 	kalmanFilter->update(rawAltitude);
 
 	float vario = kalmanFilter->getXVel();
 	float altitude = kalmanFilter->getXAbs();
+
+//	DEBUG("%lu;%lu;%0.2f;%ld\n", ms5611.raw_pressure, ms5611.raw_temperature, ms5611.pressure, ms5611.temperature);
 
 	fc.pressure = fc_alt_to_press(altitude, config.altitude.QNH1);
 

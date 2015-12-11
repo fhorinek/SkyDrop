@@ -115,6 +115,13 @@ void bt_init()
 	GpioSetInterrupt(BT_CTS, gpio_interrupt1, gpio_rising);
 }
 
+void bt_stop()
+{
+	bt_module_deinit();
+
+	GpioSetPull(BT_CTS, gpio_totem);
+}
+
 bool bt_device_active()
 {
 	return bt_device_connected;

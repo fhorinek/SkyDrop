@@ -58,7 +58,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			if (config.logger.enabled)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
 		case (1):
@@ -77,7 +77,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Auto start/stop"));
+			sprintf_P(text, PSTR("Auto start/land"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.autostart.start_sensititvity > 0 && config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("S +/-%dm L +/-%dm"), config.autostart.start_sensititvity, config.autostart.land_sensititvity);

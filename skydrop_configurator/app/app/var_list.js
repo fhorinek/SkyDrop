@@ -3,6 +3,8 @@
 app.controller("varList", ["memory", "$scope", function (memory, $scope) {
 	var promise = memory.getAllValues();
 	
+	$scope.list = {};
+	
 	promise.then(function (data){
 		$scope.list = data;
 	});

@@ -7,7 +7,6 @@ void Setup()
 {
 	//set clock to max for init 32MHz
 	ClockSetSource(x32MHz);
-
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
 
@@ -29,14 +28,10 @@ void Setup()
 	//init basic peripherals
 	led_init();
 	uart_init_buffers();
-	uart_init();
 	time_init();
 	buzzer_init();
 	battery_init();
 	buttons_init();
-
-	//XTAL and TOSC enabled now
-	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_EXT_RC32KHZ, 32000000ul);
 
 	//basic power control
 	mems_power_init();
@@ -45,6 +40,7 @@ void Setup()
 
 	//load configuration from EE
 	cfg_load();
+	uart_init();
 
 	_delay_ms(100);
 }
@@ -56,25 +52,25 @@ void Post()
 	//Print reset reason
 	DEBUG("Reset reason ... ");
 
-	if (RST.STATUS & 0b00100000)
+	if (system_rst & 0b00100000)
 		DEBUG("Software ");
 	else
-	if (RST.STATUS & 0b00010000)
+	if (system_rst & 0b00010000)
 		DEBUG("Programming ");
 	else
-	if (RST.STATUS & 0b00001000)
+	if (system_rst & 0b00001000)
 		DEBUG("Watchdog ");
 	else
-	if (RST.STATUS & 0b00000100)
+	if (system_rst & 0b00000100)
 		DEBUG("Brownout ");
 	else
-	if (RST.STATUS & 0b00000010)
+	if (system_rst & 0b00000010)
 		DEBUG("External ");
 	else
-	if (RST.STATUS & 0b00000001)
+	if (system_rst & 0b00000001)
 		DEBUG("Power On ");
 	else
-		DEBUG("Unknown: %02X", RST.STATUS);
+		DEBUG("Unknown: %02X", system_rst);
 
 	DEBUG("\n");
 
@@ -88,7 +84,7 @@ void Post()
 	DEBUG("Free RAM at start ... %d\n", free_ram_at_start);
 	test_memory();
 
-	char id[22];
+	char id[23];
 	GetID_str(id);
 	DEBUG("Device serial number ... %s\n", id);
 

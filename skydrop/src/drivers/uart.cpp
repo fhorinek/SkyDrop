@@ -1,4 +1,5 @@
 #include "uart.h"
+#include "../fc/conf.h"
 
 Usart uart;
 
@@ -27,9 +28,33 @@ void uart_init()
 	DEBUG_UART_PWR_ON;
 
 	//init uart
-	uart.Init(DEBUG_UART, 921600ul);
+	switch (config.connectivity.uart_function)
+	{
+		case(UART_FORWARD_DEBUG):
+			uart.Init(DEBUG_UART, 921600ul);
+		break;
+		case(UART_FORWARD_OFF):
+			DEBUG_UART_PWR_OFF;
+			return;
+		break;
+		case(UART_FORWARD_9600):
+			uart.Init(DEBUG_UART, 9600ul);
+		break;
+		case(UART_FORWARD_19200):
+			uart.Init(DEBUG_UART, 19200ul);
+		break;
+		case(UART_FORWARD_38400):
+			uart.Init(DEBUG_UART, 38400ul);
+		break;
+		case(UART_FORWARD_57600):
+			uart.Init(DEBUG_UART, 57600ul);
+		break;
+		case(UART_FORWARD_115200):
+			uart.Init(DEBUG_UART, 115200ul);
+		break;
+	}
 	uart.SetInterruptPriority(HIGH);
-	uart.dbg = true;
+//	uart.dbg = true;
 
 	SetStdIO(uart_in, uart_out);
 }

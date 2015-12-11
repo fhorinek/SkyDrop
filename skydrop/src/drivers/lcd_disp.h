@@ -10,8 +10,6 @@
 
 #define lcd_width		84
 #define lcd_height		48
-//#define lcd_width		102
-//#define lcd_height		68
 
 class lcd_display{
 private:
@@ -28,7 +26,6 @@ private:
 	void CreateSinTable();
 
 	float sin_table[91];
-	float get_sin(uint16_t angle);
 
 	uint8_t text_x;
 	uint8_t text_y;
@@ -45,6 +42,9 @@ private:
 
 	bool flip;
 public:
+	float get_cos(uint16_t angle);
+	float get_sin(uint16_t angle);
+
 	void Init();
 	void Stop();
 

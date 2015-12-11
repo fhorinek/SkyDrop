@@ -264,6 +264,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 //revision specific pins
 #define HW_REW_1504		0
 #define HW_REW_1506		1
+#define HW_REW_1511		2
 #define HW_REW_UNKNOWN	0xFF
 
 #define REV_1504_MEMS_EN_2		portb1

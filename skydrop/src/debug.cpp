@@ -14,6 +14,14 @@ volatile uint16_t debug_return_pointer;
 volatile uint16_t debug_min_stack_pointer = 0xFFFF;
 volatile uint16_t debug_max_heap_pointer = 0x0000;
 
+void debug_uart_send(char * msg)
+{
+	if (config.connectivity.uart_function != UART_FORWARD_DEBUG)
+		return;
+
+	uart_send(msg);
+}
+
 void debug_print_ram()
 {
 	DEBUG("\noffset ");
@@ -187,7 +195,7 @@ void debug_log(char * msg)
 
 		datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
 
-		sprintf_P(tmp, PSTR(" *** %02d.%02d.%04d %02d:%02d.%02d ***\n"), day, month, year, hour, min, sec);
+		sprintf_P(tmp, PSTR("\n\n *** %02d.%02d.%04d %02d:%02d.%02d ***\n"), day, month, year, hour, min, sec);
 
 		len = strlen(tmp);
 		res = f_write(&debug_file, tmp, len, &wt);
@@ -201,6 +209,12 @@ void debug_log(char * msg)
 		debug_file_open = true;
 
 		debug_last_dump();
+
+		char id[23];
+		GetID_str(id);
+		DEBUG("Device serial number ... %s\n", id);
+
+		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
 	}
 
 	//write content

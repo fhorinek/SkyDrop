@@ -57,7 +57,7 @@ void gui_set_audio_action(uint8_t index)
 	switch(index)
 	{
 		case(0):
-			gui_value_conf_P(PSTR("Vario volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.vario_volume, 0, 100, 25, gui_set_audio_vario_vol_cb);
+			gui_value_conf_P(PSTR("Vario volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.vario_volume, 0, 100, 10, gui_set_audio_vario_vol_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
@@ -67,12 +67,12 @@ void gui_set_audio_action(uint8_t index)
 		break;
 
 		case(2):
-			gui_value_conf_P(PSTR("Alert volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.alert_volume, 0, 100, 25, gui_set_audio_alert_vol_cb);
+			gui_value_conf_P(PSTR("Alert volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.alert_volume, 0, 100, 10, gui_set_audio_alert_vol_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(3):
-			gui_value_conf_P(PSTR("Menu volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.menu_volume, 0, 100, 25, gui_set_audio_menu_vol_cb);
+			gui_value_conf_P(PSTR("Menu volume"), GUI_VAL_VOLUME, PSTR(""), config.gui.menu_volume, 0, 100, 10, gui_set_audio_menu_vol_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 

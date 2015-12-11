@@ -27,6 +27,7 @@
 #define BT_UNKNOWN	0xFF
 
 void bt_init();
+void bt_stop();
 void bt_step();
 
 void bt_module_reset();

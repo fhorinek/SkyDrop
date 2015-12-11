@@ -1,8 +1,50 @@
 <div ng-controller="audioProfile">
     <h1>Audio profile editor</h1>
-    
-    <canvas id="line" class="chart chart-line" data="data" labels="labels" 
-    	legend="true" series="series" hover="onHover" mouseout="onUp"
-    	mousedown="onDown" mouseup="onUp"></canvas> 
+
+    <canvas id="line" class="chart chart-line" data="data" labels="labels" legend="true" series="series" hover="onHover" mouseout="onUp" mousedown="onDown" mouseup="onUp"></canvas>
+
+    <div class="row">
+        <h4>Demo</h4>
+        <div>
+            <div class="col-md-2 col-xm-4">
+                <button type="button" class="btn btn-default btn-sm" ng-click="demo_dec()">- 0.1 m/s</button>
+            </div>
+            <div class="col-md-2">
+                <b>State</b>
+                <br> {{c_state}}
+            </div>
+            <div class="col-md-2">
+                <b>Frequency</b>
+                <br> {{c_freq}}
+            </div>
+            <div class="col-md-2">
+                <b>Length</b>
+                <br> {{c_leng}}
+            </div>
+            <div class="col-md-2">
+                <b>Pause</b>
+                <br> {{c_paus}}
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-default btn-sm" ng-click="demo_inc()">+ 0.1 m/s</button>
+            </div>
+        </div>
+        <div class="col-md-12">
+            <slider ng-model="demo_val" min="-10.0" max="10.0" step="0.1" on-slide="onDemoSlide(value)" on-start-slide="onDemoSlide(value)" formatter="demoFormat(value)" />
+        </div>
+    </div>
+
+
+    <ctrl-tabs>
+        <ctrl-tab name="Treshold_settings">
+            <ctrl item="list['cfg_audio_profile_lift']"></ctrl>
+            <ctrl item="list['cfg_audio_profile_sink']"></ctrl>
+            <ctrl item="list['cfg_audio_profile_fluid']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Weaklift_settings">
+            <ctrl item="list['cfg_vario_weak_lift_enabled']"></ctrl>
+            <ctrl item="list['cfg_vario_weak_lift']"></ctrl>
+        </ctrl-tab>
+    </ctrl-tabs>
 
 </div>

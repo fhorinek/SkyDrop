@@ -1,10 +1,34 @@
-Build 1773beta - 29. 10. 2015
+Build 2052beta - 11. 12. 2015
+========================================================
+FIX:
+ * DFLL calibration was causing strange sound from buzzer (variabile PWM), replace with custom code
+ * 1773beta values stuck after take off detection #113
+ * Gps speed widget is not accurate #111
+ * Logger enable/disable bug
+
+ADDED:
+ * NaN checks for pressure and altitude (it won't mess up the kalman filter now)
+ * Pressure corrections for temperatures bellow 20°C and -15°C
+ * Bluetooth output to UART #79
+ * Acoustig feedback when GPS signal has been found #46
+ * Updated configurator
+ 
+CHANGED:
+ * 10% step in volume control #88
+ * Debug.log is disabled by default 
+ * GUI refresh only every 2 seconds in USB mode
+ 
+REMOVED:
+ * HFDTEDATE H-record (not supported by few online scoring servers) #117
+ * Unused source code cfg.h, cfg.cpp
+
+Build 1773beta - 11. 11. 2015
 ========================================================
 FIX:
  * Bluetooth uart timing problem
 
 ADDED:
- * 32MHz oscillator used as main clock calibration using ext 32KHz TOSC
+ * 32MHz oscillator used as main clock is now calibrated over time using ext 32KHz TOSC
 
 Build 1714beta - 29. 10. 2015
 ========================================================

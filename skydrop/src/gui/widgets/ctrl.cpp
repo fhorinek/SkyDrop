@@ -22,16 +22,16 @@ void widget_ctrl_audio_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 void widget_ctrl_audio_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
-	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD || *buff == BE_RELEASED || *buff == BE_DBL_CLICK))
-		return;
+	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD))
+	{
+		config.gui.vario_mute = !config.gui.vario_mute;
+		eeprom_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
 
-	config.gui.vario_mute = !config.gui.vario_mute;
-	eeprom_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
-
-	if (config.gui.vario_mute)
-		gui_showmessage_P(PSTR("Vario muted"));
-	else
-		gui_showmessage_P(PSTR("Vario unmuted"));
+		if (config.gui.vario_mute)
+			gui_showmessage_P(PSTR("Vario muted"));
+		else
+			gui_showmessage_P(PSTR("Vario unmuted"));
+	}
 }
 
 void widget_ctrl_wlift_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -49,16 +49,16 @@ void widget_ctrl_wlift_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 void widget_ctrl_wlift_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
-	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD || *buff == BE_RELEASED || *buff == BE_DBL_CLICK))
-		return;
+	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD))
+	{
+		config.vario.weak_lift_enabled = !config.vario.weak_lift_enabled;
+		eeprom_update_byte(&config_ee.vario.weak_lift_enabled, config.vario.weak_lift_enabled);
 
-	config.vario.weak_lift_enabled = !config.vario.weak_lift_enabled;
-	eeprom_update_byte(&config_ee.vario.weak_lift_enabled, config.vario.weak_lift_enabled);
-
-	if (config.vario.weak_lift_enabled)
-		gui_showmessage_P(PSTR("Weaklift enabled"));
-	else
-		gui_showmessage_P(PSTR("Weaklift disabled"));
+		if (config.vario.weak_lift_enabled)
+			gui_showmessage_P(PSTR("Weaklift enabled"));
+		else
+			gui_showmessage_P(PSTR("Weaklift disabled"));
+	}
 }
 
 register_widget2(w_ctrl_audio, "Audio ON/OFF", widget_ctrl_audio_draw, NULL, widget_ctrl_audio_irqh);

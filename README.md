@@ -13,6 +13,12 @@ I want to ...
 * [... see what features will be implemented in next release](https://github.com/fhorinek/SkyDrop/milestones)
 * [... browse issues](https://github.com/fhorinek/SkyDrop/issues)
 
+Bug reporting etiquette
+=====
+* Search issues before posting new bug report/feature request
+* Post Debug.log with the problem (in Debug first Enable debug.log, Clear the log and then recreate the issue)
+* Tell us what was the trigger of the bug (opening menu, landing, certain settings)
+
 Folder structure
 =====
 

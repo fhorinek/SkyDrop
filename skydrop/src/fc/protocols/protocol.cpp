@@ -51,6 +51,9 @@ void protocol_step()
 	}
 
 	//XXX:outputs
+	if (config.connectivity.uart_function > UART_FORWARD_OFF)
+		uart_send(buffer);
+
 	bt_send(buffer);
 //	DEBUG("%s", buffer);
 }

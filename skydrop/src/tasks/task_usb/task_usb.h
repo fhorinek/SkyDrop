@@ -16,4 +16,6 @@ void task_usb_stop();
 void task_usb_loop();
 void task_usb_irqh(uint8_t type, uint8_t * buff);
 
+extern uint8_t task_usb_sd_ready;
+
 #endif /* TASK_USB_H_ */

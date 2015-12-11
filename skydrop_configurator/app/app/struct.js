@@ -32,7 +32,7 @@ function get_uint8(data, index)
 
 function set_uint8(data, index, value)
 {
-    value = in_range(value, 0, 255)
+    value = in_range(Number(value), 0, 255)
 
     data[index] = value;
     

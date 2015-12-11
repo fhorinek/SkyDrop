@@ -415,6 +415,7 @@ void gps_parse(Usart * c_uart)
 
 			if (gps_parser_buffer_index >= NMEA_MAX_LEN)
 			{
+				assert(0);
 				gps_parser_buffer_index = 0;
 				gps_parser_state = GPS_IDLE;
 			}
@@ -471,6 +472,7 @@ void gps_parse(Usart * c_uart)
 			}
 			else
 			{
+				DEBUG(">>%s<<\n", gps_parser_buffer);
 				DEBUG("GPS CHECKSUM IS WRONG! %02X %02X\n", gps_rx_checksum, gps_checksum);
 			}
 		break;
@@ -533,6 +535,8 @@ void gps_stop()
 	fc.gps_data.valid = false;
 	fc.gps_data.fix = 0;
 	fc.gps_data.fix_cnt = 0;
+
+	GpioSetPull(GPS_TIMER, gpio_totem);
 
 	gps_init_ok = false;
 	gps_uart.Stop();

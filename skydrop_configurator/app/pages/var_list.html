@@ -5,16 +5,18 @@
             <th>Parameter name</th>
             <th>Name</th>
             <th>Value</th>
+            <th>Desc</th>
+            <th>Mode</th>
             <th>Type</th>
-            <th>Description</th>
         </tr>
 
-        <tr ng-repeat="item in list | filter:global_search">
+        <tr ng-repeat="item in list">
             <td>{{item.pname}}</td>
             <td>{{item.name}}</td>            
             <td>{{item.value}}</td>
-            <td>{{item.type}}</td>
             <td>{{item.desc}}</td>
+            <td>{{item.mode}}</td>
+            <td>{{item.type}}</td>
         </tr>
     </table>
 </div>

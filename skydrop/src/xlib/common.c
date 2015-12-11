@@ -62,7 +62,10 @@ void CCPIOWrite(volatile uint8_t * address, uint8_t value)
 
 void EnableInterrupts()
 {
+	//enable all levels
 	PMIC.CTRL |= PMIC_LOLVLEX_bm | PMIC_MEDLVLEX_bm | PMIC_HILVLEX_bm;
+	//round robin enabled for low level
+	PMIC.CTRL |= PMIC_RREN_bm;
 	sei();
 }
 

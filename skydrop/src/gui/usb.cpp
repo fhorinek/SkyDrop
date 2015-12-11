@@ -1,6 +1,7 @@
 #include "usb.h"
 
 #include "../fc/fc.h"
+#include "../task_usb/task_usb.h"
 
 void gui_usb_set_mode(uint8_t mode)
 {
@@ -16,7 +17,11 @@ void gui_usb_loop()
 
 	disp.LoadFont(F_TEXT_L);
 	uint8_t f_h = disp.GetTextHeight();
-	strcpy_P(tmp, PSTR("USB mode"));
+	if (task_usb_sd_ready)
+		strcpy_P(tmp, PSTR("USB mode"));
+	else
+		strcpy_P(tmp, PSTR("No SD card"));
+
 	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
 
 

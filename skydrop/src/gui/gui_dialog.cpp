@@ -71,7 +71,7 @@ void gui_dialog_loop()
 		min = diff / 60;
 		diff %= 60;
 
-		char tmp[10];
+		char tmp[32];
 
 		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 0);
 		if (hour > 0)

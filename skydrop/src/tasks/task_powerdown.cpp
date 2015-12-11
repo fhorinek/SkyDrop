@@ -12,6 +12,8 @@ void task_powerdown_init()
 	//disable other oscilators
 	OSC.CTRL = 0b00000001;
 
+	buttons_deinit();
+
 	uart_stop();
 	_delay_ms(10);
 
@@ -32,7 +34,6 @@ void task_powerdown_init()
 
 	SD_EN_OFF;
 
-
 	DEBUG("Using low speed uart\n");
 }
 
@@ -44,9 +45,9 @@ void task_powerdown_stop()
 
 	uart_stop();
 	Setup();
+
 	task_timer_setup();
 	DEBUG("Restoring full speed uart\n");
-//	Post();
 
 	powerdown_lock.Unlock();
 }
@@ -57,10 +58,9 @@ extern bool time_rtc_irq;
 void powerdown_sleep()
 {
 	_delay_ms(31);
+	task_timer_stop();
 	do
 	{
-		task_timer_stop();
-
 		//allow rtc irq handler but do not wake up
 		time_rtc_irq = false;
 
@@ -68,12 +68,13 @@ void powerdown_sleep()
 		SystemPowerSave();
 
 		if (time_rtc_irq)
-			ewdt_reset();
+			wdt_reset();
 
 
-		//start task timer in low speed mode
-		task_timer_setup(false);
 	} while (time_rtc_irq == true);
+
+	//start task timer in low speed mode
+	task_timer_setup(false);
 }
 
 extern uint8_t task_sleep_lock;
@@ -83,7 +84,6 @@ void task_powerdown_loop()
 	//do not go to the Power down when there is another lock pending (button, buzzer)
 	if ((task_sleep_lock == 1 && powerdown_lock.Active()) && powerdown_loop_break == false)
 	{
-//		DEBUG("PD sleep\n");
 		uart_stop();
 
 		powerdown_sleep();

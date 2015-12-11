@@ -2,25 +2,32 @@
     "absolute": {
         "cfg_build_number" : {
             "name": "Build number",
-            "mode": "readonly"
+            "mode": "readonly",
+            "desc": "Build comaptibile with this config"
         },
         "cfg_gui_contrast" : {
             "name": "LCD contrast",
-            "desc": ""
+            "desc": "",
+            "mode": "slider",
+            "min": 0,
+            "max": 10,
+            "step": 1
         },
         "cfg_gui_brightness" : {
             "name": "Backlight",
             "desc": "in %",
-            "mode": "number",
+            "mode": "slider",
             "min": 0,
-            "max": 100
+            "max": 100,
+            "step": 10
         },    
         "cfg_gui_brightness_timeout" : {
             "name": "Backlight timeout",
             "desc": "in seconds",
-            "mode": "number",
+            "mode": "slider",
             "min": 0,
-            "max": 30
+            "max": 30,
+            "step": 1
         }, 
         "cfg_gui_disp_flags" : {
             "name": "Display configuration",
@@ -31,11 +38,259 @@
                 ["CFG_DISP_ANIM", "Enable animations"]
             ]
         },
+        "cfg_gui_menu_audio_flags" : {
+            "name": "Menu sound configuration",
+            "mode": "flags",
+            "flags": [
+                ["CFG_AUDIO_MENU_SPLASH", "On/Off sound"],
+                ["CFG_AUDIO_MENU_PAGES", "Page sound"],
+                ["CFG_AUDIO_MENU_BUTTONS", "Button sound"]
+            ]
+        },        
         "cfg_gui_last_page" : {
         	"name": "Page active in last shutdown",
             "mode": "readonly"
-        }
+        },
+        "cfg_gui_menu_volume" : {
+            "name": "Menu sound volume",
+            "desc": "in %",
+            "mode": "slider",
+            "min": 0,
+            "max": 100,
+            "step": 10
+        },       
+        "cfg_gui_vario_volume" : {
+            "name": "Vario volume",
+            "desc": "in %",
+            "mode": "slider",
+            "min": 0,
+            "max": 100,
+            "step": 10
+        },   
+        "cfg_gui_alert_volume" : {
+            "name": "Alert volume",
+            "desc": "in %",
+            "mode": "slider",
+            "min": 0,
+            "max": 100,
+            "step": 10
+        },
+        "cfg_vario_weak_lift_enabled" : {
+            "name": "Weak lift",
+            "desc": "Enable week lift",
+            "mode": "bool"
+        },     
+        "cfg_gui_vario_mute" : {
+            "name": "Mute vario",
+            "desc": "Disable audio vario",
+            "mode": "bool"
+        },
+        "cfg_gui_number_of_pages" : {
+            "name": "Number of pages",
+            "desc": "",
+            "mode": "number",
+            "min": 1,
+            "max": 5
+        },
+        "cfg_vario_flags" : {
+            "name": "Vario Flags",
+            "mode": "flags",
+            "flags": [
+                ["VARIO_UNITS_I", "Use imperial units"]
+            ]
+        },    
+        "cfg_vario_weak_lift" : {
+            "name": "Weak lift treshold",
+            "desc": "in cm/s",
+            "mode": "number",
+            "min": 10,
+            "max": 200,
+            "step": 10
+        },              
+        "cfg_audio_profile_weak_lift_freq" : {
+            "name": "Weak lift buzzer frequency",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 2000,
+            "step": 10
+        },
+        "cfg_altitude_alt1_flags" :
+        {
+            "name": "Altimeter 1 flags",
+            "mode": "flags",
+            "flags": [
+                ["ALT_UNIT_I", "Use imperial units"]
+            ]
+        },
+        "cfg_audio_profile_fluid" : {
+            "name": "Fluid Audio",
+            "desc": "Enable fluent frequency change",
+            "mode": "bool"
+        },
+        "cfg_audio_profile_lift" : {
+            "name": "Lift treshold",
+            "desc": "in cm/s",
+            "mode": "number",
+            "min": -2000,
+            "max": 2000,
+            "step": 10
+        },
+        "cfg_audio_profile_sink" : {
+            "name": "Sink treshold",
+            "desc": "in cm/s",
+            "mode": "number",
+            "min": -2000,
+            "max": 2000,
+            "step": 10
+        },
+        "cfg_connectivity_use_gps" : {
+            "name": "Enable GPS",
+            "desc": "",
+            "mode": "bool"
+        },
+        "cfg_connectivity_use_bt" : {
+            "name": "Enable Bluetooth",
+            "desc": "",
+            "mode": "bool"
+        },
+        "cfg_connectivity_forward_gps" : {
+            "name": "Send GPS via Bluetooth",
+            "desc": "",
+            "mode": "bool"
+        },
+        "cfg_system_debug_log" : {
+            "name": "Enable system logging",
+            "desc": "",
+            "mode": "bool"
+        },
+        "cfg_connectivity_usb_mode" : {
+            "name": "Enable USB mode",
+            "desc": "Go to USB mode even when in active mode",
+            "mode": "bool"
+        },
+        "cfg_autostart_supress_audio" : {
+            "name": "Suppres audio vario",
+            "desc": "Supress vario before Take-off",
+            "mode": "bool"
+        },
+        "cfg_logger_format" : {
+            "name": "Log file format",
+            "mode": "select",
+            "options": [
+                ["LOGGER_IGC", "IGC"],
+                ["LOGGER_KML", "KML"]
+            ]
+        },
+        "cfg_connectivity_protocol" : {
+            "name": "Remote communication protocol",
+            "mode": "select",
+            "options": [
+                ["PROTOCOL_DIGIFLY", "DigiFly"],
+                ["PROTOCOL_LK8EX1", "LK8EX1"],
+                ["PROTOCOL_BLUEFLY", "BlueFly (pressure only)"]
+            ]
+        },
+        "cfg_connectivity_gps_format_flags" : {
+            "name": "GPS flags",
+            "mode": "doubleselect",
+            "label1" : "GPS coordinates format",
+            "mask1" : "GPS_FORMAT_MASK",
+            "options1": [
+                ["GPS_DDdddddd", "DD.dddddd"],
+                ["GPS_DDMMmmm", "DD°MM.mmm"],
+                ["GPS_DDMMSS", "DD°MM'SS"]
+            ],
+            "label2" : "GPS speed units",
+            "mask2" : "GPS_SPD_MASK",
+            "options2": [
+                ["GPS_SPD_MS", "m/s"],
+                ["GPS_SPD_KPH", "Km/h"],
+                ["GPS_SPD_MPH", "MPH"],
+                ["GPS_SPD_KNOT", "Knots"]
+            ]
+        },
+        "cfg_system_auto_power_off" : {
+            "name": "Auto power-off",
+            "desc": "in min",
+            "mode": "number",
+            "min": 0,
+            "max": 120,
+            "step": 1
+        },
+        "cfg_system_time_flags" : {
+            "name": "Time flags",
+            "mode": "flags",
+            "flags": [
+                ["TIME_DST", "Daylight saving time"],
+                ["TIME_SYNC", "Sync time with GPS"]
+            ]
+        },
+        "cfg_logger_enabled" : {
+            "name": "Enable GPS logger",
+            "desc": "",
+            "mode": "bool"
+        },      
+        "cfg_autostart_land_sensititvity" : {
+            "name": "Auto landing treshold",
+            "desc": "in m / timeout",
+            "mode": "number",
+            "min": 0,
+            "max": 100,
+            "step": 1
+        },            
+        "cfg_autostart_start_sensititvity" : {
+            "name": "Auto Take-off treshold",
+            "desc": "in m / timeout",
+            "mode": "number",
+            "min": 0,
+            "max": 100,
+            "step": 1
+        },            
+        "cfg_autostart_timeout" : {
+            "name": "Auto Take-off/Auto Land timeout",
+            "desc": "in s",
+            "mode": "number",
+            "min": 5,
+            "max": 240,
+            "step": 1
+        },
+        "cfg_vario_digital_vario_dampening" : {
+            "name": "Digital vario averaging",
+            "desc": "in s",
+            "mode": "dampening",
+            "min": 0,
+            "max": 30,
+            "step": 0.1
+        },
+        "cfg_vario_avg_vario_dampening" : {
+            "name": "Average vario averaging",
+            "desc": "in s",
+            "mode": "dampening",
+            "min": 0,
+            "max": 90,
+            "step": 0.1
+        },          
+        "cfg_system_time_zone" : {
+            "name": "Curent time zone",
+            "desc": "from GTM",
+            "mode": "timezone"
+        },
+        "cfg_connectivity_uart_function" : {
+            "name": "HW uart function",
+            "mode": "select",
+            "options": [
+                ["UART_FORWARD_DEBUG", "Debug messages @ 921600"],
+                ["UART_FORWARD_OFF", "Uart output off"],
+                ["UART_FORWARD_9600", "Telemetry @ 9600"],
+                ["UART_FORWARD_19200", "Telemetry @ 19200"],
+                ["UART_FORWARD_38400", "Telemetry @ 38400"],
+                ["UART_FORWARD_57600", "Telemetry @ 57600"],
+                ["UART_FORWARD_115200", "Telemetry @ 115200"]
+            ]
+        }        
     },
+    
     "regexp": {
         "cfg_gui_pages_[0-4]_type" : {
             "name": "Page layout type",
@@ -74,7 +329,9 @@
                 ["WIDGET_GHEADING", "GPS Heading"],
                 ["WIDGET_GROUND_SPD", "Ground speed"],
                 ["WIDGET_BATTERY", "Battery status"],
-                ["WIDGET_GLIDE_RATIO", "Glide Ratio"]
+                ["WIDGET_GLIDE_RATIO", "Glide Ratio"],
+                ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
+                ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -100,6 +357,45 @@
             "min": 0,
             "max": 2000,
             "link": "audio_profile"           
-        }
+        },
+        "cfg_altitude_altimeter_[0-3]_flags" :
+        {
+           "name": "Altimeter flags",
+            "mode": "altimeter",
+            "options": [
+                ["ALT_ABS_QNH1", "Absolute to QNH1"],
+                ["ALT_ABS_QNH2", "Absolute to QNH2"],
+                ["ALT_ABS_GPS", "Absolute to GPS"],
+                ["ALT_DIFF", "Relative"]
+            ],            
+            "flags": [
+                ["ALT_AUTO_ZERO", "Zero at Take-off"],
+                ["ALT_UNIT_I", "Use imperial units"]
+            ],
+            "altimeters": [
+                [0, "Altimeter 1"],
+                [1, "Altimeter 2"],
+                [2, "Altimeter 3"],
+                [3, "Altimeter 4"],
+                [4, "Altimeter 5"]
+            ]
+        },
+        "cfg_altitude_altimeter_[0-3]_delta" : {
+            "name": "Altimeter delta",
+            "desc": "in meters",
+            "mode": "number",
+            "min": -32000,
+            "max": 32000
+        },
+        "cfg_altitude_QNH[1-2]" :
+        {
+            "name": "Barometric pressure adjusted to sea level",
+            "desc": "in Pa",
+            "mode": "number",
+            "min" : 80000,
+            "max" : 1050000,
+            "step": 1
+        }    
+        
     }
 }

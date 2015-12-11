@@ -66,7 +66,7 @@ void gui_update_fail(uint16_t line)
 {
 	update_state = UPDATE_FAIL;
 
-	char tmp1[6], tmp2[32];
+	char tmp1[16], tmp2[64];
 
 	if (line != 0)
 	{
@@ -79,6 +79,7 @@ void gui_update_fail(uint16_t line)
 	}
 	else
 	{
+		DEBUG("Same version\n");
 		strcpy_P(tmp1, PSTR("Update"));
 		sprintf_P(tmp2, PSTR("Same version\nRestore default\nconfiguration?"), line);
 		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OKCANCEL, gui_update_eeprom_cb);
@@ -137,8 +138,8 @@ void gui_update_loop()
 
 	gui_update_bar();
 
-	DEBUG("update_state %d\n", update_state);
-	DEBUG("update_file_pos %d\n", update_file_pos);
+	DEBUG("update_state %u\n", update_state);
+	DEBUG("update_file_pos %lu\n", update_file_pos);
 
 	switch (update_state)
 	{
