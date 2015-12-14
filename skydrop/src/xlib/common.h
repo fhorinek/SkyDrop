@@ -53,6 +53,8 @@ void EnableInterrupts();
 void DisableInterrupts();
 void CCPIOWrite(volatile uint8_t * address, uint8_t value);
 uint8_t CalcCRC(uint8_t old_crc, uint8_t key, uint8_t data);
+uint8_t SP_ReadCalibrationByte(uint8_t index);
+
 
 #ifdef __cplusplus
 }
