@@ -22,7 +22,7 @@ void widget_ctrl_audio_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 void widget_ctrl_audio_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
-	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD))
+	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_LONG))
 	{
 		config.gui.vario_mute = !config.gui.vario_mute;
 		eeprom_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
@@ -49,7 +49,7 @@ void widget_ctrl_wlift_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 void widget_ctrl_wlift_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
-	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_HOLD))
+	if (type == TASK_IRQ_BUTTON_M && (*buff == BE_LONG))
 	{
 		config.vario.weak_lift_enabled = !config.vario.weak_lift_enabled;
 		eeprom_update_byte(&config_ee.vario.weak_lift_enabled, config.vario.weak_lift_enabled);

@@ -204,6 +204,8 @@ void gps_parse_rmc()
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);
 		bt_send(tmp);
+		if (config.connectivity.uart_function > UART_FORWARD_OFF)
+			uart_send(tmp);
 	}
 }
 
@@ -251,6 +253,8 @@ void gps_parse_gga()
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);
 		bt_send(tmp);
+		if (config.connectivity.uart_function > UART_FORWARD_OFF)
+			uart_send(tmp);
 	}
 }
 

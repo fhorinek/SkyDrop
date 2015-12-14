@@ -1,3 +1,9 @@
+Build 2054beta - 14. 12. 2015
+========================================================
+FIX:
+ * Weaklift / beep control
+ * Uart forward does not forward GPS data
+
 Build 2052beta - 11. 12. 2015
 ========================================================
 FIX:
