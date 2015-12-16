@@ -88,6 +88,10 @@ void gui_switch_task(uint8_t new_task)
 	gui_new_task = new_task;
 }
 
+void gui_reset_timeout()
+{
+	gui_idle_timer = task_get_ms_tick();
+}
 
 uint32_t lcd_brightness_end = 0;
 
@@ -377,7 +381,7 @@ void gui_loop()
 		if (buttons_read(B_LEFT) || buttons_read(B_RIGHT) || buttons_read(B_MIDDLE))
 		{
 			gui_trigger_backlight();
-			gui_idle_timer = task_get_ms_tick();
+			gui_reset_timeout();
 		}
 
 	if (lcd_brightness_end < task_get_ms_tick())

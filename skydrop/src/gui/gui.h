@@ -42,6 +42,8 @@ void gui_showmessage(char * msg);
 void gui_dialog_P(const char * title);
 void gui_dialog(char * title);
 
+void gui_reset_timeout();
+
 #define GUI_DIALOG_TOP 		13
 #define GUI_DIALOG_LEFT 	2
 #define GUI_DIALOG_RIGHT 	(GUI_DISP_WIDTH - 3)
