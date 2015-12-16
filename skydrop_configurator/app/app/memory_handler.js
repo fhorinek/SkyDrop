@@ -321,6 +321,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
         while (service.data_loading_notify.length)
         {
         	var deferred = service.data_loading_notify.pop();
+        	console.log("nofify", deferred);
         	deferred.resolve(service.data_holder);
     	}
     };
@@ -369,8 +370,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.restore_default = function()
     {
     	var deferred = $q.defer();
-    	
-    	this.load_bin(this.fw_path + "UPDATE.EE", this.init_step_1, deferred);
+    	this.data_loading_notify.push(deferred);
+    	this.load_bin(this.fw_path + "UPDATE.EE", this.init_step_1);
     	
     	return deferred.promise;
     };
@@ -399,7 +400,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
     	//load newest fw
         var deferred = $q.defer();
         
-        this.load_bin("UPDATE.EE", this.init_step_1, deferred);
+        this.data_loading_notify.push(deferred);
+        
+        this.load_bin("UPDATE.EE", this.init_step_1);
         
         var service = this;
         
