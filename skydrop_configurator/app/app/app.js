@@ -91,7 +91,7 @@ app.controller("controls", ["$scope", "memory", "$timeout", function ($scope, me
     	console.log(files[0]);
     	var file = files[0];
     	
-    	if (files.length != 1 || (file.name != "CFG.EE" && file.name != "OLD.EE"))
+    	if (files.length != 1 || (file.name.slice(-3) != ".EE"))
     	{
     		alert("Please select CFG.EE or OLD.EE file from SkyDrop root directory");
     		$scope.file_selector.val(null);
