@@ -1,3 +1,13 @@
+Build 2097beta - 16. 12. 2015
+========================================================
+FIX:
+ * Configurator upgrade function
+ * Configurator will now accept any *.EE file
+ * WDT reset when debug.log is on
+ 
+CHANGED:
+ * Debug.log is now using buffer
+
 Build 2078beta - 16. 12. 2015
 ========================================================
 FIX:

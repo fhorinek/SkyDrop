@@ -10,9 +10,15 @@ volatile uint8_t debug_file_open;
 Timer debug_timer;
 uint32_t debug_last_pc;
 
+#define DEBUG_LOG_BUFFER_CHUNK	512
+#define DEBUG_LOG_BUFFER_SIZE	2048
+
+DataBuffer debug_log_buffer(DEBUG_LOG_BUFFER_SIZE);
+
 volatile uint16_t debug_return_pointer;
 volatile uint16_t debug_min_stack_pointer = 0xFFFF;
 volatile uint16_t debug_max_heap_pointer = 0x0000;
+bool debug_done = false;
 
 void debug_uart_send(char * msg)
 {
@@ -162,15 +168,36 @@ void debug_timer_init()
 
 void debug_log(char * msg)
 {
-	if (config.system.debug_log != DEBUG_MAGIC_ON)
-		return;
+	if (config.system.debug_log == DEBUG_MAGIC_ON)
+		debug_log_buffer.Write(strlen(msg), (uint8_t *)msg);
+}
 
-	if (!storage_selftest())
+
+
+void debug_end()
+{
+	debug_done = true;
+	DEBUG("=== CLOSING FILE ===\n");
+	while(debug_log_buffer.Length())
+		debug_step();
+	debug_done = false;
+}
+
+
+void debug_step()
+{
+	if (config.system.debug_log != DEBUG_MAGIC_ON)
 		return;
 
 	uint8_t res;
 	uint16_t wt;
-	uint8_t len;
+	uint16_t len;
+
+	if (!storage_selftest())
+		return;
+
+	if (debug_log_buffer.Length() < DEBUG_LOG_BUFFER_CHUNK && !debug_done)
+		return;
 
 	//Append file if not opened
 	if (!debug_file_open)
@@ -195,7 +222,7 @@ void debug_log(char * msg)
 
 		datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
 
-		sprintf_P(tmp, PSTR("\n\n *** %02d.%02d.%04d %02d:%02d.%02d ***\n"), day, month, year, hour, min, sec);
+		sprintf_P(tmp, PSTR("\n\n === APPEND %02d.%02d.%04d %02d:%02d.%02d ===\n"), day, month, year, hour, min, sec);
 
 		len = strlen(tmp);
 		res = f_write(&debug_file, tmp, len, &wt);
@@ -217,9 +244,11 @@ void debug_log(char * msg)
 		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
 	}
 
+	uint8_t ** tmp = 0;
+
 	//write content
-	len = strlen(msg);
-	res = f_write(&debug_file, msg, len, &wt);
+	len = debug_log_buffer.Read(DEBUG_LOG_BUFFER_CHUNK, tmp);
+	res = f_write(&debug_file, *tmp, len, &wt);
 	if (res != FR_OK || wt != len)
 	{
 		f_close(&debug_file);

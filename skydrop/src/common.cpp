@@ -70,13 +70,7 @@ DataBuffer::DataBuffer(uint16_t size)
 
 DataBuffer::~DataBuffer()
 {
-	test_memory();
-	if (this->size)
-	{
-		DEBUG("Doing nothing!\n");
-		delete[] this->data;
-	}
-	test_memory();
+
 }
 
 uint16_t DataBuffer::Read(uint16_t len, uint8_t * * data)

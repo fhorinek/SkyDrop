@@ -71,7 +71,10 @@ void task_active_stop()
 	StoreEEPROM();
 
 	fc_deinit();
+
 	gui_stop();
+
+	debug_end();
 
 	storage_deinit();
 }
@@ -83,6 +86,8 @@ void task_active_loop()
 	gui_loop();
 
 	storage_step();
+
+	debug_step();
 }
 
 void task_active_irqh(uint8_t type, uint8_t * buff)

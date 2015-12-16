@@ -6,6 +6,9 @@ extern Usart sd_spi_usart;
 
 uint8_t task_usb_sd_ready = false;
 
+uint32_t task_usb_gui_timer = 0;
+#define TASK_USB_GUI_REFRESH	500ul
+
 void task_usb_init()
 {
 	SD_EN_OFF;
@@ -105,16 +108,11 @@ void task_usb_stop()
 
 }
 
-
-uint32_t task_usb_gui_timer = 0;
-#define TASK_USB_GUI_REFRESH	500ul
-
 void task_usb_loop()
 {
 	if (task_usb_gui_timer < task_get_ms_tick())
 	{
 		gui_loop();
-		task_usb_gui_timer = task_get_ms_tick() + TASK_USB_GUI_REFRESH;
 	}
 
 	for (uint8_t i=0; i < 128; i++)

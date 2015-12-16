@@ -18,11 +18,15 @@ void gui_usb_loop()
 	disp.LoadFont(F_TEXT_L);
 	uint8_t f_h = disp.GetTextHeight();
 	if (task_usb_sd_ready)
+	{
 		strcpy_P(tmp, PSTR("USB mode"));
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+	}
 	else
+	{
 		strcpy_P(tmp, PSTR("No SD card"));
-
-	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+	}
 
 
 	disp.LoadFont(F_TEXT_S);

@@ -34,6 +34,8 @@ void debug_uart_send(char * msg);
 void debug_log(char * msg);
 void debug_timer_init();
 void debug_last_dump();
+void debug_step();
+void debug_end();
 
 void ewdt_init();
 void ewdt_reset();

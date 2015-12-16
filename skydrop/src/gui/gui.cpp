@@ -485,6 +485,15 @@ void gui_statusbar()
 		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
 	}
 
+	//Debug.log indicator
+	if (config.system.debug_log == DEBUG_MAGIC_ON)
+	{
+		char tmp[3];
+		disp.LoadFont(F_TEXT_S);
+		sprintf_P(tmp, PSTR("D"));
+
+		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 25);
+	}
 	//battery indicator
 	uint8_t a = battery_per / 10;
 
