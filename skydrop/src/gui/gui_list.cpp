@@ -36,7 +36,6 @@ void gui_list_draw()
 			gui_switch_task(gui_list_back);
 			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS && gui_buttons_override == false)
 				seq_start(&snd_menu_exit, config.gui.menu_volume);
-
 		}
 	}
 	else

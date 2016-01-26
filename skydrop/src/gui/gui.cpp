@@ -2,6 +2,7 @@
 
 #include "../drivers/audio/sequencer.h"
 #include "../drivers/bluetooth/bt.h"
+#include "gui_storage.h"
 
 #include "widgets/widgets.h"
 
@@ -31,6 +32,7 @@
 #include "update.h"
 #include "settings/set_weaklift.h"
 #include "settings/set_menu_audio.h"
+#include "gui_text.h"
 
 
 lcd_display disp;
@@ -46,7 +48,7 @@ void (* gui_init_array[])() =
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
-	gui_set_menu_audio_init};
+	gui_set_menu_audio_init, gui_text_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -55,7 +57,7 @@ void (* gui_stop_array[])() =
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
-	gui_set_menu_audio_stop};
+	gui_set_menu_audio_stop, gui_text_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -64,7 +66,7 @@ void (* gui_loop_array[])() =
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
-	gui_set_menu_audio_loop};
+	gui_set_menu_audio_loop, gui_text_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -73,7 +75,7 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
-	gui_set_menu_audio_irqh};
+	gui_set_menu_audio_irqh, gui_text_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -156,7 +158,10 @@ void gui_raligh_text_P(const char * text, uint8_t x, uint8_t y)
 
 void gui_raligh_text(char * text, uint8_t x, uint8_t y)
 {
-	disp.GotoXY(x - disp.GetTextWidth(text), y);
+	if (x >= disp.GetTextWidth(text))
+		disp.GotoXY(x - disp.GetTextWidth(text), y);
+	else
+		disp.GotoXY(0, y);
 	fprintf_P(lcd_out, PSTR("%s"), text);
 }
 
@@ -173,6 +178,35 @@ void gui_caligh_text(char * text, uint8_t x, uint8_t y)
 	fprintf_P(lcd_out, PSTR("%s"), text);
 }
 
+void gui_fit_text(char * in, char * out, uint8_t size)
+{
+	uint8_t width = disp.GetTextWidth(in);
+
+	if (width <= size)
+	{
+		strcpy(out, in);
+		return;
+	}
+
+	char tmp[4];
+
+	tmp[0] = '.';
+	tmp[1] = '.';
+	tmp[2] = '.';
+	tmp[3] = 0;
+
+	uint8_t tmp_len = disp.GetTextWidth(tmp);
+	uint8_t len = strlen(in);
+	uint8_t i = len - 1;
+
+	while ((width + tmp_len) - disp.GetTextWidth(in + i) > size)
+	{
+		i--;
+	}
+
+	memcpy(out, in, i);
+	strcpy(out + i, tmp);
+}
 
 void gui_init()
 {
@@ -290,7 +324,9 @@ void gui_loop()
 				&& gui_task != GUI_SPLASH
 				&& gui_task != GUI_FTEST
 				&& gui_task != GUI_SET_VAL
-				&& gui_task != GUI_UPDATE)
+				&& gui_task != GUI_UPDATE
+				&& gui_task != GUI_TEXT
+				)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)
 				gui_switch_task(GUI_PAGES);
@@ -390,21 +426,8 @@ void gui_loop()
 
 void gui_force_loop()
 {
-	disp.ClearBuffer();
-
-	gui_update_disp_cfg();
-
-	if (gui_new_task != gui_task)
-	{
-		if (gui_task != GUI_NONE)
-			gui_stop_array[gui_task]();
-		gui_task = gui_new_task;
-		gui_init_array[gui_task]();
-	}
-
-	gui_loop_array[gui_task]();
-
-	disp.Draw();
+	gui_loop_timer = 0;
+	gui_loop();
 }
 
 void gui_irqh(uint8_t type, uint8_t * buff)
@@ -430,10 +453,13 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 
 	switch(type)
 	{
+		case(TASK_IRQ_MOUNT_ERROR):
+			gui_storage_mount_error();
+		break;
 
-	default:
-		if (gui_task != GUI_NONE)
-			gui_irqh_array[gui_task](type, buff);
+		default:
+			if (gui_task != GUI_NONE)
+				gui_irqh_array[gui_task](type, buff);
 	}
 }
 

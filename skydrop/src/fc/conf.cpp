@@ -3,6 +3,8 @@
 
 cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
+#define log_default_text	{'n', 'o', 't', ' ', 's', 'p', 'e', 'c', 'i', 'f', 'i', 'e', 'd', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
 volatile cfg_t config;
 
 EEMEM cfg_t config_ee = {
@@ -23,13 +25,13 @@ EEMEM cfg_t config_ee = {
 		//menu_audio_flags
 		CFG_AUDIO_MENU_SPLASH | CFG_AUDIO_MENU_PAGES | CFG_AUDIO_MENU_BUTTONS | CFG_AUDIO_MENU_GPS,
 		//menu_volume
-		75,
+		80,
 		//vario_volume
-		75,
+		80,
 		//vario_mute
 		false,
 		//alert_volume
-		75,
+		80,
 		//number_of_pages
 		MAX_NUMBER_OF_PAGES,
 		//pages
@@ -100,9 +102,9 @@ EEMEM cfg_t config_ee = {
 			//altimeter3
 			{
 				//flags
-				ALT_DIFF | 0,
+				ALT_ABS_GPS,
 				//diff
-				+200,
+				0,
 			},
 			//altimeter4
 			{
@@ -114,9 +116,9 @@ EEMEM cfg_t config_ee = {
 			//altimeter5
 			{
 				//flags
-				ALT_ABS_GPS,
+				ALT_DIFF | 2,
 				//diff
-				0,
+				+200,
 			},
 		},
 	},
@@ -165,6 +167,12 @@ EEMEM cfg_t config_ee = {
 		true,
 		//format
 		LOGGER_IGC,
+		//pilot
+		log_default_text,
+		//glider_type
+		log_default_text,
+		//glider_id
+		log_default_text
 	},
 	//Connectivity
 	{

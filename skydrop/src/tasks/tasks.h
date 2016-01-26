@@ -22,11 +22,12 @@
 
 #define NO_TASK			0xFF
 
-#define TASK_IRQ_BUTTON_L	0
-#define TASK_IRQ_BUTTON_M	1
-#define TASK_IRQ_BUTTON_R	2
-#define TASK_IRQ_BAT		3
-#define TASK_IRQ_USB		4
+#define TASK_IRQ_BUTTON_L			0
+#define TASK_IRQ_BUTTON_M			1
+#define TASK_IRQ_BUTTON_R			2
+#define TASK_IRQ_BAT				3
+#define TASK_IRQ_USB				4
+#define TASK_IRQ_MOUNT_ERROR		5
 
 
 class SleepLock

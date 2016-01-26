@@ -4,7 +4,7 @@ function zero_pad(padding, number)
 {
     var str;
     
-    str = number.toString()
+    str = number.toString();
     while (str.length < padding)
         str = "0" + str;
         
@@ -15,7 +15,7 @@ function in_range(value, vmin, vmax)
 {
     if (value > vmax || value < vmin)
     {
-        console.trace()
+        console.trace();
         console.warn("Value out of bounds!", value, vmin, vmax);
         
         return vmin;
@@ -23,6 +23,41 @@ function in_range(value, vmin, vmax)
     
     return Math.round(value);
 }
+
+function get_char(data, index)
+{
+	var text = "";
+	var c;
+	
+	do
+	{
+		c = data[index];
+		index++;
+		if (c != 0)
+			text += String.fromCharCode(c);
+	} while(c != 0)
+    return text;
+}
+
+function set_char(data, index, value, size)
+{
+	for (var i = 0; i < value.length; i++)
+	{
+		data[index + i] = value.charCodeAt(i);
+		if (i >= size - 2)
+			break;
+	}
+		
+	//end with \0
+	if (value.length < size - 1)
+		data[index + value.length] = 0;
+	else
+		data[index + size - 1] = 0;
+    
+    return data;
+}
+
+
 
 function get_uint8(data, index)
 {
@@ -32,7 +67,7 @@ function get_uint8(data, index)
 
 function set_uint8(data, index, value)
 {
-    value = in_range(Number(value), 0, 255)
+    value = in_range(Number(value), 0, 255);
 
     data[index] = value;
     

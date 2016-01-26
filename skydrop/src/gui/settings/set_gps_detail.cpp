@@ -19,9 +19,9 @@ void gui_set_gps_detail_loop()
 	uint8_t f_h = disp.GetAHeight();
 
 	disp.GotoXY(1, 0);
-	fprintf_P(lcd_out, PSTR("Lat: %2.7f"), fc.gps_data.latitude);
+	fprintf_P(lcd_out, PSTR("Lat: %s"), fc.gps_data.cache_gui_latitude);
 	disp.GotoXY(0, f_h);
-	fprintf_P(lcd_out, PSTR("Lon: %2.7f"), fc.gps_data.longtitude);
+	fprintf_P(lcd_out, PSTR("Lon: %s"), fc.gps_data.cache_gui_longtitude);
 	disp.GotoXY(0, f_h * 2);
 	fprintf_P(lcd_out, PSTR("HDOP: %0.4f"), fc.gps_data.hdop);
 

@@ -18,6 +18,8 @@
 
 bool storage_init();
 void storage_deinit();
+
+bool storage_card_in();
 bool storage_selftest();
 void storage_step();
 

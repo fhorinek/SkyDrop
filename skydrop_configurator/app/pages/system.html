@@ -1,4 +1,4 @@
-<div ng-controller="stupid">
+<div ng-controller="simple">
     <h1>System</h1>
 
     <ctrl-tabs>
@@ -6,6 +6,10 @@
             <ctrl item="list['cfg_system_time_zone']"></ctrl>
             <ctrl item="list['cfg_system_time_flags']"></ctrl>
             <ctrl item="list['cfg_system_auto_power_off']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Debug">
+            <ctrl item="list['cfg_build_number']"></ctrl>
+            <ctrl item="list['cfg_system_debug_log']"></ctrl>
         </ctrl-tab>
     </ctrl-tabs>
 

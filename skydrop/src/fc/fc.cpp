@@ -451,6 +451,9 @@ void fc_step()
 		{
 			if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
 			{
+				//reduce timeout from flight time
+				fc.flight_timer += config.autostart.timeout;
+
 				gui_reset_timeout();
 				fc_landing();
 			}

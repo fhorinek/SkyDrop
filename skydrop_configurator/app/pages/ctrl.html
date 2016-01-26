@@ -46,10 +46,12 @@
 		<ctrl-timezone ng-model="item.value"></ctrl-timezone>
 	</div>
 
-	<div ng-switch-when="readonly">Read-only
-		value: {{item.value}}</div>
+   <div ng-switch-when="text">
+       <ctrl-text ng-model="item.value" max="item.size"></ctrl-number>
+   </div>          
 
-	<div ng-switch-default>N/A - Type {{item.pname}} not (yet!)
-		defined</div>
+	<div ng-switch-when="readonly">{{item.value}}</div>
+
+	<div ng-switch-default>N/A - Type {{item.pname}} not (yet!) defined</div>
 
 </div>

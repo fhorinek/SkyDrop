@@ -23,6 +23,9 @@ void lcd_display::GotoXY(uint8_t x, uint8_t y)
  */
 void lcd_display::Write(uint8_t ascii=0)
 {
+	if (text_x >= lcd_width)
+		return;
+
 	if (ascii < font_begin || ascii > font_end)
 	{
 		text_x += font_spacing;
@@ -51,20 +54,20 @@ void lcd_display::Write(uint8_t ascii=0)
 			}
 
 			text_x++;
-			if (text_x >= lcd_width)
-			{
-				text_x = 0;
-				text_y += this->font_height;
-			}
+//			if (text_x >= lcd_width)
+//			{
+//				text_x = 0;
+//				text_y += this->font_height;
+//			}
 		}
 	}
 
 	text_x += font_spacing;
-	if (text_x >= lcd_width)
-	{
-		text_x = 0;
-		text_y += this->font_height;
-	}
+//	if (text_x >= lcd_width)
+//	{
+//		text_x = 0;
+//		text_y += this->font_height;
+//	}
 }
 
 uint8_t lcd_display::GetTextWidth(char * text)
@@ -75,7 +78,7 @@ uint8_t lcd_display::GetTextWidth(char * text)
 	{
 		if (*text < font_begin || *text > font_end)
 		{
-			ret += font_spacing;
+			ret += font_spacing * 2;
 		}
 		else
 		{
@@ -86,6 +89,33 @@ uint8_t lcd_display::GetTextWidth(char * text)
 
 			ret += font_spacing + width;
 		}
+
+		text++;
+	}
+
+	return ret;
+}
+
+uint8_t lcd_display::GetTextWidthN(char * text, uint8_t n)
+{
+	uint8_t ret = 0;
+
+	for (uint8_t i = 0; i < n && *text != 0; i++)
+	{
+		if (*text < font_begin || *text > font_end)
+		{
+			ret += font_spacing * 2;
+		}
+		else
+		{
+			uint16_t adr = 6 + (*text - font_begin) * 2;
+
+			uint16_t start = pgm_read_word(&this->font_data[adr]);
+			uint8_t width = pgm_read_word(&this->font_data[adr + 2]) - start;
+
+			ret += font_spacing + width;
+		}
+
 		text++;
 	}
 

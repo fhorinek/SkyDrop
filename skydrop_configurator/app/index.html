@@ -47,11 +47,9 @@
     <script src="app/memory_handler.js"></script>
     
     <!--PAGES--->
-    <script src="app/stupid.js"></script>
-
+    <script src="app/simple.js"></script>
     <script src="app/audio_profile.js"></script>
-    <script src="app/advanced.js"></script>
-    <script src="app/var_list.js"></script>
+
 
 </head>
 
@@ -67,15 +65,16 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="">SkyDrop Configurator</a>
+                <a class="navbar-brand" href="">SkyDrop Configurator</a><span ng-if="current_build()" class="navbar-brand" >(build {{current_build()}})</span>
             </div>
             <div id="navbar" class="navbar-collapse" ng-class="{'collapse': hide_nav}">
             	<div>
 	                <ul class="nav navbar-nav navbar-right">
-	                    <li><a href="" ng-click="load()">Load</a></li>
-	                    <li><a href="" ng-click="save()">Save</a></li>
-	                    <li><a href="" ng-click="restore_default()">Reset to default</a></li>
-	                    <li><a ng-if="is_old()" href="" ng-click="upgrade()">Upgrade to {{newest()}} (Experimental)</a></li>
+	                    <li><a href="" ng-click="load()" title="Load your configuration from SkyDrop">Load</a></li>
+	                    <li><a href="" ng-click="save()" title="Save your configuration to SkyDrop This will update only configuration.">Save</a></li>
+                        <li><a href="" ng-click="get_pack()" title="Save your configuration to skydrop bundled with firmware. This will update configuration and firmware.">Save with firmware</a></li>
+	                    <li><a href="" ng-click="restore_default()" title="Restore settings to default values.">Reset to default</a></li>
+	                    <li><a ng-if="is_old()" href="" ng-click="upgrade()" title="Update your old ({{current_build()}}) configuration to newest version.">Upgrade to {{newest()}} (Experimental)</a></li>
 	                </ul>
 					<div class="hidden">
 						<form name="file-form">

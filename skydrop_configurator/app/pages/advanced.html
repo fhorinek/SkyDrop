@@ -1,4 +1,4 @@
-<div ng-controller="advanced">
+<div ng-controller="simple">
     <h1>Advanced configuration</h1>
     <form name="adv_list" novalidate>
 	    <div ng-repeat="item in list">
@@ -65,6 +65,11 @@
                     Read-only value: {{item.value}}
 	            </div>            
 	            
+               <div ng-switch-when="text" class="panel-body">
+                   <ctrl-text ng-model="item.value" 
+                       max="item.size"></ctrl-number>
+               </div>               
+               
 	            <div ng-switch-default class="panel-body">
 	                N/A - Type not (yet!) defined
 	            </div>

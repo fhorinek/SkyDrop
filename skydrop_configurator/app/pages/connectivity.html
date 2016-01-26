@@ -1,0 +1,20 @@
+<div ng-controller="simple">
+    <h1>Connectivity</h1>
+
+    <ctrl-tabs>
+        <ctrl-tab name="GPS" open="1">
+            <ctrl item="list['cfg_connectivity_use_gps']"></ctrl>
+            <ctrl item="list['cfg_connectivity_gps_format_flags']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Bluetooth" open="1">
+            <ctrl item="list['cfg_connectivity_use_bt']"></ctrl>
+            <ctrl item="list['cfg_connectivity_protocol']"></ctrl>
+            <ctrl item="list['cfg_connectivity_forward_gps']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="UART">
+            For Hardware hacker only!
+            <ctrl item="list['cfg_connectivity_uart_function']"></ctrl>
+        </ctrl-tab>
+    </ctrl-tabs>
+
+</div>

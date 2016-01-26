@@ -83,17 +83,17 @@ bool igc_start(char * path)
 //	//H F DTE
 //	sprintf_P(line, PSTR("HFDTEDATE:%02u%02u%02u,%02u"), day, month, year  % 100, logger_flight_number);
 //	igc_writeline(line);
-	//H F PLT PILOT IN CHARGE XXX
-	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE:"));
+	//H F PLT PILOT IN CHARGE
+	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE: %s"), config.logger.pilot);
 	igc_writeline(line);
 	//H F CM2 CREW 2
-	sprintf_P(line, PSTR("HFCM2CREW2:"));
+//	sprintf_P(line, PSTR("HFCM2CREW2:"));
+//	igc_writeline(line);
+	//H F GTY GLIDER TYPE
+	sprintf_P(line, PSTR("HFGTYGLIDERTYPE: %s"), config.logger.glider_type);
 	igc_writeline(line);
-	//H F GTY GLIDER TYPE XXX
-	sprintf_P(line, PSTR("HFGTYFLIDERTYPE:"));
-	igc_writeline(line);
-	//H F GID GLIDER ID XXX
-	sprintf_P(line, PSTR("HFGIDGLIDERID:"));
+	//H F GID GLIDER ID
+	sprintf_P(line, PSTR("HFGIDGLIDERID: %s"), config.logger.glider_id);
 	igc_writeline(line);
 	//H F RFW FIRMWARE VERSION
 	sprintf_P(line, PSTR("HFRFWFIRMWAREVERSION:build %d"), BUILD_NUMBER);
@@ -121,7 +121,7 @@ bool igc_start(char * path)
 	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY
-	// Developer note: we cann't publish the private key for signing the IGC file
+	//Developer note: we can't publish the private key for signing the IGC file
 
 	//H F FRS
 	sprintf_P(line, PSTR("HFFRSSECSUSPECTUSEVALIPROG:This file is not valid. Private key not available!"));
@@ -141,32 +141,12 @@ void igc_step()
 
 	time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
 
-	float decimal;
-	float deg;
-	float fmin;
-	char c;
-	char tmp1[32];
-
-	c = (fc.gps_data.latitude < 0) ? 'S' : 'N';
-	decimal = abs(fc.gps_data.latitude);
-	deg = floor(decimal);
-	fmin = (decimal - deg) * 60 * 1000;
-	sprintf_P(tmp1, PSTR("%02.0f%05.0f%c"), deg, fmin, c);
-
-	char tmp2[32];
-
-	c = (fc.gps_data.longtitude < 0) ? 'W' : 'E';
-	decimal = abs(fc.gps_data.longtitude);
-	deg = floor(decimal);
-	fmin = (decimal - deg) * 60 * 1000;
-	sprintf_P(tmp2, PSTR("%03.0f%05.0f%c"), deg, fmin, c);
-
-	c = (fc.gps_data.valid) ? 'A' : 'V';
+	char c = (fc.gps_data.valid) ? 'A' : 'V';
 
 	uint16_t alt = fc_press_to_alt(fc.pressure, 101325);
 
 	//B record
-	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, tmp1, tmp2, c, alt, fc.gps_data.altitude);
+	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);
 	igc_writeline(line);
 }
 
@@ -174,6 +154,7 @@ void igc_stop()
 {
 	char line[79];
 
+#ifndef IGC_NO_PRIVATE_KEY
 	//G record
 	uint8_t * res = sha256.result();
 	strcpy(line, "G");
@@ -186,6 +167,7 @@ void igc_stop()
 	}
 
 	igc_writeline(line);
+#endif
 
 	assert(f_close(log_fil) == FR_OK);
 }

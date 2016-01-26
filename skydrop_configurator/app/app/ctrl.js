@@ -114,9 +114,12 @@ app.directive('ctrlAltimeter', ['memory', function(memory, $parse, $rootScope) {
         },
         link: function(scope, element, attrs)
         {
-            scope.mode = memory.getMacroValue("ALT_MODE_MASK") & scope.ngModel;
-            scope.relative = memory.getMacroValue("ALT_MODE_MASK") == scope.mode;
-            scope.rel = memory.getMacroValue("ALT_REL_MASK") & scope.ngModel;
+        	scope.$watch('ngModel', function(value)
+        	{
+	            scope.mode = memory.getMacroValue("ALT_MODE_MASK") & scope.ngModel;
+	            scope.relative = memory.getMacroValue("ALT_MODE_MASK") == scope.mode;
+	            scope.rel = memory.getMacroValue("ALT_REL_MASK") & scope.ngModel;
+        	});
             
             scope.$watch('mode', function(value)
             {
@@ -159,8 +162,11 @@ app.directive('ctrlDoubleselect', ['memory', function(memory, $parse, $rootScope
         },
         link: function(scope, element, attrs)
         {
-            scope.opt1 = memory.getMacroValue(scope.mask1) & scope.ngModel;
-            scope.opt2 = memory.getMacroValue(scope.mask2) & scope.ngModel;
+           	scope.$watch('ngModel', function(value)
+        	{
+                scope.opt1 = memory.getMacroValue(scope.mask1) & scope.ngModel;
+                scope.opt2 = memory.getMacroValue(scope.mask2) & scope.ngModel;
+        	});
             
             scope.$watch('opt1', function(value)
             {
@@ -207,12 +213,29 @@ app.directive('ctrlDampening', function() {
 	            else
 		            return (1.0 / (sec * 100.0) * 100);
             }        
-                    
-            scope.num = mul_to_sec(scope.ngModel);
+
+            var disable_update = false;
+            
+            scope.$watch('ngModel', function(value)
+          	{
+            	if (disable_update)
+            		disable_update = false;
+            	else
+        		{
+            		disable_update = true;
+            		scope.num = mul_to_sec(scope.ngModel);
+        		}
+          	});
             
             scope.$watch('num', function(val)
             {
-                scope.ngModel = sec_to_mul(val);
+            	if (disable_update)
+            		disable_update = false;
+            	else
+            	{
+            		disable_update = true;
+            		scope.ngModel = sec_to_mul(val);
+            	}
             });
         }
     };
@@ -280,6 +303,45 @@ app.directive('ctrlTab', function() {
         link: function(scope, element, attrs)
         {
         	scope.name = attrs.name.replace(/_/g, " ");
+        }	
+    };
+});
+
+app.directive('ctrlText', function() {
+    return {
+        restrict: 'E',
+        scope: {
+            max: "=",
+            ngModel: '='
+        },
+        template: function(element, attrs) {
+            var html = '<input ng-model="ngModel" class="form-control" type="text" />';
+            return html;
+        },
+        link: function(scope, element, attrs)
+        {
+        	scope.text = scope.ngModel;
+        	
+            scope.$watch('ngModel', function(val)
+            {
+            	if (typeof val === 'undefined')
+            		val = "";
+            			
+            	//Check max len (need to count \0 too!)
+            	if (val.length <= scope.max)
+            		val = val.substring(0, scope.max - 1);
+            	
+            	//Check if characters are printable on lcd (32-125)
+            	var new_text = "";
+            	for (var i in val)
+            	{
+            		var ord = val.charCodeAt(i);
+            		if (ord >= 32 && ord <= 125)
+            			new_text += val[i];
+            	}
+
+            	scope.ngModel = new_text;
+            });
         }	
     };
 });

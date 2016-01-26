@@ -276,6 +276,24 @@
             "desc": "from GTM",
             "mode": "timezone"
         },
+        "cfg_logger_pilot" : {
+            "name": "Pilot name",
+            "desc": "for IGC record",
+            "mode": "text",
+            "size": 50
+        },
+        "cfg_logger_glider_type" : {
+            "name": "Glider type",
+            "desc": "for IGC record",
+            "mode": "text",
+            "size": 50
+        },
+        "cfg_logger_glider_id" : {
+            "name": "Glider ID",
+            "desc": "for IGC record",
+            "mode": "text",
+            "size": 50
+        },
         "cfg_connectivity_uart_function" : {
             "name": "HW uart function",
             "mode": "select",

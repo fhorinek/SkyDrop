@@ -57,6 +57,8 @@ void gui_raligh_text(char * text, uint8_t x, uint8_t y);
 void gui_caligh_text_P(const char * text, uint8_t x, uint8_t y);
 void gui_caligh_text(char * text, uint8_t x, uint8_t y);
 
+void gui_fit_text(char * in, char * out, uint8_t size);
+
 void gui_statusbar();
 
 #define GUI_NONE			0xFF
@@ -86,8 +88,9 @@ void gui_statusbar();
 #define GUI_UPDATE			23
 #define GUI_SET_WEEKLIFT	24
 #define GUI_SET_AUDIO_MENU	25
+#define GUI_TEXT			26
 
-#define NUMBER_OF_GUI_TASKS	26
+#define NUMBER_OF_GUI_TASKS	27
 
 #define GUI_LAST_TASK		0xFF
 

@@ -24,6 +24,7 @@ sizes = {
     "uint32_t": 4,
     "int32_t": 4,
     "float": 4,
+    "char": 1,
      }
 
 # print sizes
@@ -43,13 +44,20 @@ def map_struct(parser, path, map_path):
         
         if struct_type in sizes:
             var_size = sizes[struct_type]
-            for i in range(struct_len):
-                if struct_len > 1: 
-                    map_name = map_path + "_" + struct_name + "_" + str(i)
-                else:
-                    map_name = map_path + "_" + struct_name
-                map[map_name] =  [mem_index, var_size, struct_type]
-                mem_index += var_size
+            
+            if struct_type == "char":
+                map_name = map_path + "_" + struct_name
+                map[map_name] =  [mem_index, struct_len, "char"]
+                mem_index += struct_len
+                
+            else:                
+                for i in range(struct_len):
+                    if struct_len > 1: 
+                        map_name = map_path + "_" + struct_name + "_" + str(i)
+                    else:
+                        map_name = map_path + "_" + struct_name
+                    map[map_name] =  [mem_index, var_size, struct_type]
+                    mem_index += var_size
         else:
             for i in range(struct_len):
                 next_struct = parser.defs["structs"][struct_type]["members"]
@@ -66,7 +74,7 @@ mem_index = 0
 map = OrderedDict()
 map_struct(p, p.defs["structs"]["cfg_t"]["members"], "cfg")
 
-print p.defs["macros"]
+# print p.defs["macros"]
 
 # for item in map:
 #     name, index, size, var_type = item
@@ -88,8 +96,6 @@ f = open(os.path.join(path, "ee_map.json"), "w")
 f.write(json.dumps({"map": map, "macros": p.defs["macros"]}))
 f.close()
 
-#update pack
-shutil.copyfile("SKYDROP.FW", os.path.join(path, "SKYDROP.FW"))
 #firmware image
 shutil.copyfile("UPDATE.FW", os.path.join(path, "UPDATE.FW"))
 #eeprom image

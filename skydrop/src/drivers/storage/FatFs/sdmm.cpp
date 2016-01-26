@@ -160,6 +160,7 @@ int wait_ready (void)	/* 1:OK, 0:Timeout */
 	UINT tmr;
 
 
+	ewdt_reset();
 	for (tmr = 5000; tmr; tmr--) {	/* Wait for ready in timeout of 500ms */
 		rcvr_mmc(&d, 1);
 		if (d == 0xFF) break;
@@ -347,40 +348,29 @@ DSTATUS disk_initialize (
 	UINT tmr;
 	DSTATUS s;
 
+	sd_spi_usart.Stop();
+
+	//power spi & sdcard
+	SD_EN_OFF;
+	SD_SPI_PWR_OFF;
 
 	if (drv) return RES_NOTRDY;
 
-	_delay_ms(10);			/* 10ms */
-//	CS_INIT(); CS_H();		/* Initialize port pin tied to CS */
-//	CK_INIT(); CK_L();		/* Initialize port pin tied to SCLK */
-//	DI_INIT();				/* Initialize port pin tied to DI */
-//	DO_INIT();				/* Initialize port pin tied to DO */
+	_delay_ms(5);			/* 10ms */
+
+	//power spi & sdcard
+	SD_EN_ON;
+	SD_SPI_PWR_ON;
+
+	_delay_ms(5);			/* 10ms */
 
 	//CS init
 	GpioSetDirection(SD_SS, OUTPUT);
 	CS_H();
 
-//	DEBUG("PRE init\n");
-//	DUMP_REG(USARTF0.BAUDCTRLA);
-//	DUMP_REG(USARTF0.BAUDCTRLB);
-//
-//	DUMP_REG(USARTF0.CTRLA);
-//	DUMP_REG(USARTF0.CTRLB);
-//	DUMP_REG(USARTF0.CTRLC);
-
-
 	sd_spi_usart.Init(SD_SPI, 250000);
 	sd_spi_usart.InitBuffers(0, 0);
 	sd_spi_usart.BecomeSPI(0, MSB, 250000);
-
-//	DEBUG("POST init\n");
-//	DUMP_REG(USARTF0.BAUDCTRLA);
-//	DUMP_REG(USARTF0.BAUDCTRLB);
-//
-//	DUMP_REG(USARTF0.CTRLA);
-//	DUMP_REG(USARTF0.CTRLB);
-//	DUMP_REG(USARTF0.CTRLC);
-
 
 	for (n = 10; n; n--) rcvr_mmc(buf, 1);	/* Apply 80 dummy clocks and the card gets ready to receive command */
 

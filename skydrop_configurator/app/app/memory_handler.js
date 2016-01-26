@@ -35,21 +35,13 @@ app.service("memory", ["$http", "$q", function($http, $q){
             console.warn("XHR error", xhr, status, error);
             if (error_cb != undefined)
             	error_cb();
-            while (service.data_loading_notify.length)
-            {
-            	var deferred = service.data_loading_notify.pop();
-                deferred.reject();
-        	}            
+            service.reject_all();
         });
     };
     
     this.load_data = function(data)
     {
-    	var deferred = $q.defer();
-        
-    	this.init_step_1(data, this);     
-    	
-    	return deferred.promise;
+     	this.init_step_1(data, this);     
     };    
 
     this.load_json = function(url_path, cb)
@@ -69,14 +61,33 @@ app.service("memory", ["$http", "$q", function($http, $q){
             console.warn("error", xhr, status, error);
             if (error_cb != undefined)
             	error_cb();
-            while (service.data_loading_notify.length)
-            {
-            	var deferred = service.data_loading_notify.pop();
-                deferred.reject();
-        	}   
+            service.reject_all();
       });
     };
 
+    this.reject_all = function(){
+    	for (var i = 0; i < this.data_loading_notify.length; i++)
+    		this.data_loading_notify[i].reject();
+    };
+
+    this.notify_all = function(data){
+    	for (var i = 0; i < this.data_loading_notify.length; i++)
+    		this.data_loading_notify[i].notify(data);
+		console.log(this.data_loading_notify);
+    };
+    
+    this.remove_notify = function(deferred)
+    {
+    	for (var i = 0; i < this.data_loading_notify.length; i++)
+    	{
+    		if (this.data_loading_notify[i] === deferred)
+			{
+    			this.data_loading_notify.splice(i);
+    			return;			
+			}
+    	}
+    };
+    
     this.getType = function(key)
     {
         return this.ee_map[key][2];
@@ -106,6 +117,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
 
             case('float'):
                 return get_float(this.ee_buffer, mem_index);
+            
+            case('char'):
+                return get_char(this.ee_buffer, mem_index);            
         }
     };
     
@@ -151,6 +165,11 @@ app.service("memory", ["$http", "$q", function($http, $q){
             case('float'):
                 this.ee_buffer = set_float(this.ee_buffer, mem_index, value);
             break;                
+            
+            case('char'):
+            	var size = this.data_holder[key].size;
+                this.ee_buffer = set_char(this.ee_buffer, mem_index, value, size);
+            break;               
         }
     };  
 
@@ -267,25 +286,26 @@ app.service("memory", ["$http", "$q", function($http, $q){
     };
 
 
-    this.getAllValues = function()
+    this.getAllValues = function(deferred)
     {
-        var deferred = $q.defer();
-        
-        if (this.data_holder == false)
+    	if (typeof deferred !== 'undefined')
+    		if (!(deferred in this.data_loading_notify))
+    		{
+    			this.data_loading_notify.push(deferred);
+    		}
+    	
+    	if (this.data_holder == false)
         {
         	if (this.data_loading == false)
     		{
         		this.data_loading = true;
         		this.load_bin("UPDATE.EE", this.init_step_1);
     		}
-        	this.data_loading_notify.push(deferred);
         }
         else
         {
-            deferred.resolve(this.data_holder);
+            deferred.notify(this.data_holder);
         }
-        
-        return deferred.promise;
     };    
     
     //Constructor & init
@@ -318,12 +338,10 @@ app.service("memory", ["$http", "$q", function($http, $q){
         service.data_holder = service.getAllValues_async();
         
         //console.log(">FRESH>", service.data_holder);
-        while (service.data_loading_notify.length)
-        {
-        	var deferred = service.data_loading_notify.pop();
-        	console.log("nofify", deferred);
-        	deferred.resolve(service.data_holder);
-    	}
+      	service.notify_all(service.data_holder);
+        
+    	//XXX: Yes it is a hack, do not know how to rebind data
+    	service.data_load++; 
     };
     
     
@@ -369,11 +387,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     
     this.restore_default = function()
     {
-    	var deferred = $q.defer();
-    	this.data_loading_notify.push(deferred);
     	this.load_bin(this.fw_path + "UPDATE.EE", this.init_step_1);
-    	
-    	return deferred.promise;
     };
     
     this.is_old_version = function()
@@ -413,7 +427,80 @@ app.service("memory", ["$http", "$q", function($http, $q){
         	{
         		service.setActualValue(key, old_values[key]);
         	}
+        	
+        	//XXX: Yes it is a hack, do not know how to rebind data
+        	service.data_load++; 
         });    	
+    };
+
+    this.get_crc = function(data)
+    {
+    	function calc_crc(sum, key, data)
+    	{
+    	    for (var i = 0; i < 8; i++)
+    	    {
+    	        if ((data & 0x01)^(sum & 0x01))
+    	        {
+    	            sum = (sum >> 1);
+    	            sum = (sum ^ key);
+    	        }
+    	        else
+    	        {
+    	            sum = (sum >> 1);
+    	        }
+    	        data = (data >> 1);
+    	    }
+    	        
+    	    return sum;
+    	}
+    	
+    	var key = 0x9B;
+    	var crc = 0;
+    	
+    	for (var i = 0; i < data.length; i++)
+    		crc = calc_crc(crc, key, data[i]);
+    	
+    	return crc;
+    };
+    
+    this.pack_fw = function(data, service)
+    {
+    	 var ee_bin = service.getBlob();
+    	 var fw_bin = new Uint8Array(data);
+    	 
+    	 var ee_size = ee_bin.length;
+    	 var fw_size = fw_bin.length;
+    	 var pack_size = 18 + ee_size + fw_size;
+    	 
+    	 var ee_crc = service.get_crc(ee_bin);
+    	 var fw_crc = service.get_crc(fw_bin);
+    	 
+    	 var pack = new Uint8Array(pack_size);
+    	 //header
+    	 pack = set_uint32(pack, 0, service.build_number);
+    	 pack = set_uint32(pack, 4, pack_size);
+    	 pack = set_uint32(pack, 8, ee_size);
+    	 pack = set_uint8(pack, 12, ee_crc);
+    	 pack = set_uint32(pack, 13, fw_size);
+    	 pack = set_uint8(pack, 17, fw_crc);
+    	 //eeprom
+    	 for (var i = 0; i < ee_size; i++)
+    		 pack[i + 18] = ee_bin[i];
+    	 //firmware
+    	 for (var i = 0; i < fw_size; i++)
+    		 pack[i + 18 + ee_size] = fw_bin[i];
+    	 
+    	 service.fw_package_defered.resolve(pack);
+    };
+    
+    this.get_fw_pack = function()
+    {
+        var deferred = $q.defer();
+        this.fw_package_defered = deferred;
+    	
+    	this.load_bin(this.fw_path + "UPDATE.FW", this.pack_fw);
+    	
+        return deferred.promise;	
     };
     
 }]);

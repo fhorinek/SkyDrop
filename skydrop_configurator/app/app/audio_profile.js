@@ -11,8 +11,22 @@ Chart.defaults.global.scaleOverride = true;
 
 Chart.defaults.Line.bezierCurve = false;
 
-app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", function ($scope, $http, memory, chartjs) {
-	var promise = memory.getAllValues();
+app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", function ($scope, $http, memory, chartjs, $q) {
+	var deferred = $q.defer();
+
+	deferred.promise.then(undefined, undefined, function (data){
+		$scope.list = data;
+		$scope.refresh();
+	});	
+	
+	memory.getAllValues(deferred);
+	
+	$scope.list = {};
+	
+	$scope.$on('$destroy', function() {
+		memory.remove_notify(deferred);
+	});
+	
 	var audio = false;
 
 	$scope.demo_val = 0.0;
@@ -25,23 +39,6 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", function
     {
         audio = false;
     }            
-
-	$scope.list = {};
-
-	promise.then(function (data){
-		$scope.list = data;
-		$scope.refresh();
-	});
-	
-	//rebind all data when they change (for load cfg)
-    $scope.$watch(
-    	function(){return memory.data_load;},
-    	function (new_val, old_val){
-    		$scope.list = memory.data_holder;
-
-    		$scope.refresh();
-    	}
-    );	
 
     $scope.refresh = function()
     {

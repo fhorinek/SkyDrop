@@ -100,7 +100,18 @@ void kml_step()
 	if (fc.gps_data.valid)
 	{
 		char line[79];
-		sprintf_P(line, PSTR("%0.6f,%0.6f,%0.0f"), fc.gps_data.longtitude, fc.gps_data.latitude, fc.altitude1);
+		char tmp1[16];
+		char tmp2[16];
+
+		sprintf_P((char *)fc.gps_data.cache_gui_latitude, PSTR(" %+010ld"), fc.gps_data.latitude);
+		memcpy((void *)fc.gps_data.cache_gui_latitude, (void *)(fc.gps_data.cache_gui_latitude + 1), 3);
+		fc.gps_data.cache_gui_latitude[3] = '.';
+
+		sprintf_P((char *)fc.gps_data.cache_gui_longtitude, PSTR(" %+011ld"), fc.gps_data.longtitude);
+		memcpy((void *)fc.gps_data.cache_gui_longtitude, (void *)(fc.gps_data.cache_gui_longtitude + 1), 4);
+		fc.gps_data.cache_gui_longtitude[4] = '.';
+
+		sprintf_P(line, PSTR("%s,%s,%0.0f"), tmp1, tmp2, fc.altitude1);
 		kml_writeline(line);
 	}
 }

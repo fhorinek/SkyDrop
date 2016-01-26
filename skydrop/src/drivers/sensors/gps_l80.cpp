@@ -42,22 +42,34 @@ uint8_t hex_to_num(uint8_t c)
 		return c - '0';
 }
 
+uint32_t pow_ten(uint8_t pow)
+{
+	uint32_t ret = 1;
+	uint8_t i;
+
+	for (i = 0; i < pow; i++)
+		ret *= 10;
+
+	return ret;
+}
+
+
 uint32_t atoi_n(char * str, uint8_t n)
 {
 	uint32_t tmp = 0;
+    uint8_t i;
 
-	for (uint8_t i = 0; i < n; i++)
+	for (i=0; i < n; i++)
 	{
 		if (str[i] == ',')
-			return 0;
+			return tmp;
 		if (str[i] == '.')
 		{
 			n++;
 			continue;
 		}
 
-		tmp *= 10;
-		tmp += str[i] - '0';
+		tmp += (uint32_t)(str[i] - '0') * pow_ten(n - i - 1);
 	}
 
 	return tmp;
@@ -125,6 +137,8 @@ void gps_parse_rmc()
 
 	gps_init_ok = true;
 
+//	strcpy(gps_parser_buffer, "$GPRMC,044434.000,A,3319.1312,S,14805.03,E,24.00,37.86,090116,,,A*71");
+
 	char * ptr = find_comma(gps_parser_buffer);
 
 	//UTC time
@@ -151,36 +165,50 @@ void gps_parse_rmc()
 
 	ptr = find_comma(ptr);
 
+	uint32_t loc_deg;
+	uint32_t loc_min;
+
 	//Latitude
-	float latitude = atoi_n(ptr + 2, 6);
-	latitude = atoi_n(ptr + 0, 2) + latitude / 600000;
+	loc_deg = atoi_n(ptr, 2);
+	loc_min = atoi_n(ptr + 2, 6);
+
+	int32_t latitude = (loc_min * 100ul) / 6;
+	latitude = loc_deg * 10000000ul + latitude;
 
 	ptr = find_comma(ptr);
 
-	//Sign
+	//Latitude sign
 	if ((*ptr) == 'S')
 		latitude *= -1;
 
 	fc.gps_data.latitude = latitude;
 
+	sprintf_P((char *)fc.gps_data.cache_igc_latitude, PSTR("%02lu%05lu%c"), loc_deg, loc_min / 10, (*ptr));
+
 	ptr = find_comma(ptr);
 
 	//Longitude
-	float longitude = atoi_n(ptr + 3, 6);
-	longitude = atoi_n(ptr + 0, 3) + longitude / 600000;
+	loc_deg = atoi_n(ptr, 3);
+	loc_min = atoi_n(ptr + 3, 6);
+
+	int32_t longitude = (loc_min * 100ul) / 6;
+	longitude = loc_deg * 10000000ul + longitude;
 
 	ptr = find_comma(ptr);
 
-	//Sign
+//	DEBUG("ptr = '%s'\n", ptr);
+
+	//Longitude sign
 	if ((*ptr) == 'W')
 		longitude *= -1;
 
-
 	fc.gps_data.longtitude = longitude;
+
+	sprintf_P((char *)fc.gps_data.cache_igc_longtitude, PSTR("%03lu%05lu%c"), loc_deg, loc_min / 10, (*ptr));
 
 	ptr = find_comma(ptr);
 
-//	DEBUG("lat+lon %0.7f %0.7f\n", latitude, longitude);
+//	DEBUG("lat+lon %07ld %08ld\n", latitude, longitude);
 
 	fc.gps_data.groud_speed = atoi_f(ptr); //in knots
 
@@ -196,9 +224,10 @@ void gps_parse_rmc()
 	uint8_t month = atoi_n(ptr + 2, 2);
 	uint16_t year = atoi_n(ptr + 4, 2) + 2000;
 
+//	DEBUG("%02d.%02d.%04d\n", day, month, year);
+
 	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 
-//	DEBUG("%02d.%02d.%04d\n", day, month, year);
 	if (config.connectivity.forward_gps)
 	{
 		char tmp[NMEA_MAX_LEN];
@@ -207,6 +236,69 @@ void gps_parse_rmc()
 		if (config.connectivity.uart_function > UART_FORWARD_OFF)
 			uart_send(tmp);
 	}
+
+	uint16_t tdeg, tmin, tsec;
+	int32_t tmp;
+
+	switch (config.connectivity.gps_format_flags & GPS_FORMAT_MASK)
+	{
+		case(GPS_DDdddddd):
+			sprintf_P((char *)fc.gps_data.cache_gui_latitude, PSTR(" %+010ld"), fc.gps_data.latitude);
+			memcpy((void *)fc.gps_data.cache_gui_latitude, (void *)(fc.gps_data.cache_gui_latitude + 1), 3);
+			fc.gps_data.cache_gui_latitude[3] = '.';
+			if (fc.gps_data.cache_gui_latitude[1] == '0')
+				memcpy((void *)(fc.gps_data.cache_gui_latitude + 1), (void *)(fc.gps_data.cache_gui_latitude + 2), 10);
+
+			sprintf_P((char *)fc.gps_data.cache_gui_longtitude, PSTR(" %+011ld"), fc.gps_data.longtitude);
+			memcpy((void *)fc.gps_data.cache_gui_longtitude, (void *)(fc.gps_data.cache_gui_longtitude + 1), 4);
+			fc.gps_data.cache_gui_longtitude[4] = '.';
+
+			if (fc.gps_data.cache_gui_longtitude[1] == '0')
+			{
+				if (fc.gps_data.cache_gui_longtitude[2] == '0')
+					memcpy((void *)(fc.gps_data.cache_gui_longtitude + 1), (void *)(fc.gps_data.cache_gui_longtitude + 3), 10);
+				else
+					memcpy((void *)(fc.gps_data.cache_gui_longtitude + 1), (void *)(fc.gps_data.cache_gui_longtitude + 2), 11);
+			}
+		break;
+
+		case(GPS_DDMMmmm):
+			memcpy((void *)fc.gps_data.cache_gui_latitude, (void *)fc.gps_data.cache_igc_latitude, 2);
+			fc.gps_data.cache_gui_latitude[2] = '*';
+			memcpy((void *)(fc.gps_data.cache_gui_latitude + 3), (void *)(fc.gps_data.cache_igc_latitude + 2), 2);
+			fc.gps_data.cache_gui_latitude[5] = '.';
+			memcpy((void *)(fc.gps_data.cache_gui_latitude + 6), (void *)(fc.gps_data.cache_igc_latitude + 4), 4);
+			fc.gps_data.cache_gui_latitude[10] = 0;
+
+			memcpy((void *)fc.gps_data.cache_gui_longtitude, (void *)fc.gps_data.cache_igc_longtitude, 3);
+			fc.gps_data.cache_gui_longtitude[3] = '*';
+			memcpy((void *)(fc.gps_data.cache_gui_longtitude + 4), (void *)(fc.gps_data.cache_igc_longtitude + 3), 2);
+			fc.gps_data.cache_gui_longtitude[6] = '.';
+			memcpy((void *)(fc.gps_data.cache_gui_longtitude + 7), (void *)(fc.gps_data.cache_igc_longtitude + 5), 4);
+			fc.gps_data.cache_gui_longtitude[11] = 0;
+		break;
+
+		case(GPS_DDMMSS):
+			tdeg = abs(fc.gps_data.latitude) / 10000000ul;
+			tmp = ((abs(fc.gps_data.latitude) % 10000000ul) * 60);
+			tmin = tmp / 10000000ul;
+			tsec = ((tmp % 10000000ul) * 60) / 10000000ul;
+
+			sprintf_P((char *)fc.gps_data.cache_gui_latitude,
+					PSTR("%02u*%02u'%02u\"%c"), tdeg, tmin, tsec, (*(fc.gps_data.cache_igc_latitude + 7)));
+
+			tdeg = abs(fc.gps_data.longtitude) / 10000000ul;
+			tmp = ((abs(fc.gps_data.longtitude) % 10000000ul) * 60);
+			tmin = tmp / 10000000ul;
+			tsec = ((tmp % 10000000ul) * 60) / 10000000ul;
+
+			sprintf_P((char *)fc.gps_data.cache_gui_longtitude,
+					PSTR("%03u*%02u'%02u\"%c"), tdeg, tmin, tsec, (*(fc.gps_data.cache_igc_longtitude + 8)));
+		break;
+	}
+
+//	DEBUG("clat = %s\n", fc.gps_data.cache_gui_latitude);
+//	DEBUG("clon = %s\n", fc.gps_data.cache_gui_longtitude);
 }
 
 //132405.000,4809.2356,N,01704.4263,E,1,6,1.95,160.3,M,42.7,M,,
@@ -239,7 +331,9 @@ void gps_parse_gga()
 	//altitude
 	fc.gps_data.altitude = atoi_f(ptr);
 	ptr = find_comma(ptr);
-	ptr = find_comma(ptr); //skip M
+
+	//skip M
+	ptr = find_comma(ptr);
 
 	//Geo id
 //	float geo_id = atoi_f(ptr);

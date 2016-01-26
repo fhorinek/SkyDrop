@@ -123,11 +123,16 @@ struct cfg_autostart
 #define LOGGER_KML	1
 
 #define NUMBER_OF_FORMATS	2
+#define LOG_TEXT_LEN		50
 
 struct cfg_logger
 {
 	uint8_t enabled;
 	uint8_t format;
+
+	char pilot[LOG_TEXT_LEN];
+	char glider_type[LOG_TEXT_LEN];
+	char glider_id[LOG_TEXT_LEN];
 };
 
 #define GPS_FORMAT_MASK	0b00001100

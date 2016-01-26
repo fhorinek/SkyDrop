@@ -2,12 +2,15 @@
 
 #include "../gui_list.h"
 #include "../gui_value.h"
+#include "../gui_dialog.h"
+#include "../gui_storage.h"
 
 #include "../../fc/conf.h"
+#include "../../drivers/storage/storage.h"
 
 void gui_set_system_init()
 {
-	gui_list_set(gui_set_system_item, gui_set_system_action, 6, GUI_SETTINGS);
+	gui_list_set(gui_set_system_item, gui_set_system_action, 7, GUI_SETTINGS);
 }
 
 void gui_set_system_stop() {}
@@ -30,6 +33,15 @@ void gui_set_system_auto_power_off_cb(float ret)
 	eeprom_busy_wait();
 	eeprom_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
 
+	gui_switch_task(GUI_SET_SYSTEM);
+}
+
+void gui_set_system_format_cb(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_OK)
+	{
+		gui_format_sd();
+	}
 	gui_switch_task(GUI_SET_SYSTEM);
 }
 
@@ -66,6 +78,17 @@ void gui_set_system_action(uint8_t index)
 		eeprom_update_byte(&config_ee.connectivity.uart_function, config.connectivity.uart_function);
 		uart_stop();
 		uart_init();
+	break;
+
+	case(6):
+		if (!storage_card_in())
+		{
+			gui_showmessage_P(PSTR("No SD card!"));
+
+			return;
+		}
+		gui_dialog_set_P(PSTR("Warning"), PSTR("This will erase\nall data from SD\ncard! Continue?"), GUI_STYLE_OKCANCEL, gui_set_system_format_cb);
+		gui_switch_task(GUI_DIALOG);
 	break;
 	}
 }
@@ -145,6 +168,10 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			}
 		break;
 
+		case (6):
+			sprintf_P(text, PSTR("Format SD"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
 	}
 }
 

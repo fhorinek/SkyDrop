@@ -59,9 +59,15 @@ struct gps_data_t
 {
 	bool valid;
 
-	float latitude;
-	float longtitude;
-	float groud_speed; //in knots
+	char cache_igc_latitude[9];
+	char cache_igc_longtitude[10];
+
+	char cache_gui_latitude[16];
+	char cache_gui_longtitude[16];
+
+	int32_t latitude;	//* 10^7
+	int32_t longtitude;	//* 10^7
+	float groud_speed; 	//in knots
 
 	float heading;
 	uint32_t utc_time;

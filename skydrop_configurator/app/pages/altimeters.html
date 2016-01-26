@@ -1,0 +1,29 @@
+<div ng-controller="simple">
+    <h1>Altimeters</h1>
+
+    <ctrl-tabs>
+        <ctrl-tab name="Altimeter_1" open="1">
+            Always in mode absolute to QNH1
+            <ctrl item="list['cfg_altitude_alt1_flags']"></ctrl>
+            <ctrl item="list['cfg_altitude_QNH1']"></ctrl>
+            <ctrl item="list['cfg_altitude_QNH2']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Altimeter_2" open="1">
+            <ctrl item="list['cfg_altitude_altimeter_0_flags']"></ctrl>
+            <ctrl item="list['cfg_altitude_altimeter_0_delta']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Altimeter_3" open="1">
+            <ctrl item="list['cfg_altitude_altimeter_1_flags']"></ctrl>
+            <ctrl item="list['cfg_altitude_altimeter_1_delta']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Altimeter_4" open="0">
+            <ctrl item="list['cfg_altitude_altimeter_2_flags']"></ctrl>
+            <ctrl item="list['cfg_altitude_altimeter_2_delta']"></ctrl>
+        </ctrl-tab>
+        <ctrl-tab name="Altimeter_5" open="0">
+            <ctrl item="list['cfg_altitude_altimeter_3_flags']"></ctrl>
+            <ctrl item="list['cfg_altitude_altimeter_3_delta']"></ctrl>
+        </ctrl-tab>
+    </ctrl-tabs>
+
+</div>

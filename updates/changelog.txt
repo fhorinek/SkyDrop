@@ -1,3 +1,20 @@
+Build 2222 - 26. 1. 2016
+========================================================
+FIX:
+ * GPS driver can parse unexpected parameters in RMC sentence
+
+ADDED:
+ * Autoland timeout is substracted form flight time in case of autoland
+ * Pilot name, glider type, glider ID to IGC log
+ * Text input screen (gui_text) for entering text
+ * SD card formatter
+ * Additional functionality to configurator
+ 
+CHANGED:
+ * Widget "GPS Heading Arrow" renamed to "GPS HDG Arrow"
+ * Default volume is now 80%
+ * GPS coordinates calculation optimisation
+
 Build 2097beta - 16. 12. 2015
 ========================================================
 FIX:
@@ -6,7 +23,7 @@ FIX:
  * WDT reset when debug.log is on
  
 CHANGED:
- * Debug.log is now using buffer
+ * Debug.log is now using RAM buffer
 
 Build 2078beta - 16. 12. 2015
 ========================================================
