@@ -33,7 +33,7 @@ Official firmware updates<br>
 External library and code
 =====
 
-We are using following libraries:
+We are standing on shoulders these giants:
 
 <b>SkyDrop</b>
 
@@ -43,19 +43,32 @@ We are using following libraries:
 /src/tasks/task_usb/LUFA<br>
 <b>Kalman filter</b> - (C)Alistair Dickie (https://github.com/alistairdickie/BlueFlyVario_Android)<br>
 /src/fc/kalman.cc<br>
+<b>Intel HEX file format reader and converter</b> - (C)Alexander Belchenko (bialix@ukr.net)<br>
+/utils/hex2bin/intelhex.py<br>
+<b>CParser.py</b> - (C)Luke Campagnola<br>
+/utils/ee_maper/CParser.py<br>
 
 <b>[Configurator](http://vps.skybean.eu:8080/configurator/)</b>
 
-<b>Angular.js</b> - (C)Google (https://angularjs.org/)<br>
-app/angular<br>
+<b>Angular.js (angular, angular-animate, angular-route)</b> - (C)Google (https://angularjs.org/)<br>
+app/bower_components/angular, app/bower_components/angular-animate, app/bower_components/angular-route, <br>
 <b>jQuery</b> - (C) The jQuery Foundation (https://jquery.com/)<br>
-app/jquery<br>
+app/bower_components/jquery<br>
 <b>UI Bootstrap</b> - (C) Angular-UI team (https://angular-ui.github.io/bootstrap/)<br>
-app/bootstrap<br>
-<b>Chart.js</b> - (C) Nick Downie (http://www.chartjs.org/)<br>
-app/app/chart.js<br>
+app/bower_components/angular-bootstrap<br>
+<b>Bootstrap</b> - (C) Mark Otto, Jacob Thornton, https://github.com/orgs/twbs/people (http://getbootstrap.com/)<br>
+app/bower_components/bootstrap<br>
 <b>Angular Chart</b> - (C) Jerome Touffe-Blin (http://jtblin.github.io/angular-chart.js/)<br>
-app/angular/angular-chart.js<br>
+app/bower_components/angular-chart.js<br>
+<b>Chart.js</b> - (C) Nick Downie (http://www.chartjs.org/)<br>
+app/bower_components/chart.js<br>
+<b>seiyria-bootstrap-slider, angular-bootstrap-slider</b> - (C) Kyle J. Kemp (https://github.com/seiyria)<br>
+app/bower_components/seiyria-bootstrap-slider, app/bower_components/angular-bootstrap-slider<br>
+<b>FileSaver.js</b> - (C) Teleborder, Inc (https://github.com/Teleborder)<br>
+app/bower_components/filesaver<br>
+<b>angular-ui-switch</b> - (C) Kristijan Sedlak (https://github.com/xpepermint)<br>
+app/bower_components/angular-ui-switch<br>
+
 
 
 Tools info
@@ -76,9 +89,11 @@ Build info
 =====
 
 <ul>
-<li>Run utils/build/pre_build.sh (use Release as working directory)</li>
-<li>Build project using make</li>
-<li>Run utils/build/post_build.sh (use Release as working directory)</li>
+<li>Open & build project in Eclipse IDE (a directory Release should appear)</li>
+<li>cd skydrop/Release</li>
+<li>Run ../utils/build/pre_build.sh</li>
+<li>make</li>
+<li>Run ../utils/build/post_build.sh and you can see message  *** POST BUILD DONE ***, if everything went good</li>
 <li>Copy UPDATE.FW and UPDATE.EE from Release dir to root directory on skydrop SD</li>
 <li><i> --- OR ---</i></li>
 <li>Copy SKYDROP.FW from Release dir to root directory on skydrop SD</li>
