@@ -4,6 +4,7 @@
 
 #include "igc.h"
 #include "kml.h"
+#include "raw.h"
 
 FIL * log_fil;
 uint32_t logger_next = 0;
@@ -83,7 +84,9 @@ void logger_step()
 	if (logger_next > task_get_ms_tick())
 		return;
 
-	logger_next = task_get_ms_tick() + 1000;
+	//RAW is running as fast as it can!
+	if (config.logger.format != LOGGER_RAW)
+		logger_next = task_get_ms_tick() + 1000;
 
 	if (fc.flight_state == FLIGHT_FLIGHT)
 	{
@@ -94,6 +97,9 @@ void logger_step()
 			break;
 			case(LOGGER_KML):
 				kml_step();
+			break;
+			case(LOGGER_RAW):
+				raw_step();
 			break;
 		}
 	}
@@ -141,6 +147,10 @@ void logger_start()
 		case(LOGGER_KML):
 			ret = kml_start(path);
 		break;
+		case(LOGGER_RAW):
+			ret = raw_start(path);
+		break;
+
 	}
 
 	if (ret)
@@ -162,6 +172,9 @@ void logger_stop()
 		break;
 		case(LOGGER_KML):
 			kml_stop();
+		break;
+		case(LOGGER_RAW):
+			raw_step();
 		break;
 	}
 }

@@ -339,9 +339,6 @@ app.service("memory", ["$http", "$q", function($http, $q){
         
         //console.log(">FRESH>", service.data_holder);
       	service.notify_all(service.data_holder);
-        
-    	//XXX: Yes it is a hack, do not know how to rebind data
-    	service.data_load++; 
     };
     
     
@@ -415,12 +412,13 @@ app.service("memory", ["$http", "$q", function($http, $q){
         var deferred = $q.defer();
         
         this.data_loading_notify.push(deferred);
+        this.data_loading_notify.push("kkt");
         
         this.load_bin("UPDATE.EE", this.init_step_1);
         
         var service = this;
         
-        deferred.promise.then(function (){
+        deferred.promise.then(undefined, undefined, function (){
         	console.log(old_values);
         	//restore values
         	for (var key in old_values)
@@ -428,8 +426,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
         		service.setActualValue(key, old_values[key]);
         	}
         	
-        	//XXX: Yes it is a hack, do not know how to rebind data
-        	service.data_load++; 
+        	service.remove_notify(deferred);
+        	service.notify_all(service.data_holder);
         });    	
     };
 

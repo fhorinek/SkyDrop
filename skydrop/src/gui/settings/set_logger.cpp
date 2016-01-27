@@ -120,7 +120,11 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				break;
 
 				case(LOGGER_KML):
-					sprintf_P(sub_text, PSTR("KML (for Ash Ha)"));
+					sprintf_P(sub_text, PSTR("KML"));
+				break;
+
+				case(LOGGER_RAW):
+					sprintf_P(sub_text, PSTR("RAW (IMU diag)"));
 				break;
 			}
 		break;
