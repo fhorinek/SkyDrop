@@ -18,6 +18,9 @@ volatile uint16_t audio_vario_pause;
 volatile uint16_t audio_vario_length;
 volatile float audio_vario_freq = 0;
 
+int16_t vario_ivario_old = 0;
+bool vario_force_change = false;
+
 extern Timer audio_timer;
 
 
@@ -132,6 +135,8 @@ void audio_vario_apply()
 		break;
 
 		case(VARIO_PAUSE):
+			if (vario_force_change)
+				audio_vario_mode = VARIO_OFF;
 		break;
 
 		case(VARIO_CONT):
@@ -152,6 +157,7 @@ void audio_vario_apply()
 	}
 }
 
+
 void audio_vario_step(float vario)
 {
 	if (config.gui.vario_mute)
@@ -162,6 +168,9 @@ void audio_vario_step(float vario)
 
 	//climb is float in m/s
 	int16_t ivario = vario * 100;
+
+	vario_force_change = (abs(ivario - vario_ivario_old) >= 10) ? true: false;
+	vario_ivario_old = ivario;
 
 	//buzzer
 	if (config.vario.weak_lift_enabled)

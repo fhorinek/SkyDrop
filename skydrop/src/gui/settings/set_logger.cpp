@@ -28,7 +28,7 @@ void gui_set_logger_pilot_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.pilot, buff);
-		eeprom_update_block((void *)config_ee.logger.pilot, (void *)config.logger.pilot, LOG_TEXT_LEN);
+		eeprom_update_block((void *)config.logger.pilot, (void *)config_ee.logger.pilot, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);
@@ -39,7 +39,7 @@ void gui_set_logger_glider_type_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.glider_type, buff);
-		eeprom_update_block((void *)config_ee.logger.glider_type, (void *)config.logger.glider_type, LOG_TEXT_LEN);
+		eeprom_update_block((void *)config.logger.glider_type, (void *)config_ee.logger.glider_type, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);
@@ -50,7 +50,7 @@ void gui_set_logger_glider_id_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.glider_id, buff);
-		eeprom_update_block((void *)config_ee.logger.glider_id, (void *)config.logger.glider_id, LOG_TEXT_LEN);
+		eeprom_update_block((void *)config.logger.glider_id, (void *)config_ee.logger.glider_id, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);

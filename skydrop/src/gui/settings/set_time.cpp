@@ -33,8 +33,8 @@ void gui_set_time_timezone_cb(float val)
 {
 	int8_t tmp = val * 2;
 	eeprom_busy_wait();
-	eeprom_update_block((void *)&config_ee.system.time_zone, (void *)&config.system.time_zone, sizeof(int8_t));
 	config.system.time_zone = tmp;
+	eeprom_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
 	gui_switch_task(GUI_SET_TIME);
 }
 
@@ -66,7 +66,7 @@ void gui_set_time_action(uint8_t index)
 			config.system.time_zone = config.system.time_zone - 2;
 
 		eeprom_busy_wait();
-		eeprom_update_block((void *)&config.system.time_zone, (void *)&config.system.time_zone, sizeof(int8_t));
+		eeprom_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
 		eeprom_update_byte(&config_ee.system.time_flags, config.system.time_flags);
 	break;
 

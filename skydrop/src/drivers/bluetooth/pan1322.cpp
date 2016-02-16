@@ -428,7 +428,7 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
-			assert(n > 9);
+			assert(n <= 9);
 			if (n > 9)
 			{
 				this->p_state = BT_STATE_START;
@@ -441,7 +441,7 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
-			assert(n > 9);
+			assert(n <= 9);
 			if (n > 9)
 			{
 				this->p_state = BT_STATE_START;
@@ -454,7 +454,7 @@ void pan1322::Parse(uint8_t c)
 			this->p_len++;
 
 			n = c - '0';
-			assert(n > 9);
+			assert(n <= 9);
 			if (n > 9)
 			{
 				this->p_state = BT_STATE_START;
@@ -466,7 +466,7 @@ void pan1322::Parse(uint8_t c)
 		case(3): // semicolon
 			this->p_len++;
 
-			assert(c != ',');
+			assert(c == ',');
 			if (c != ',')
 			{
 				this->p_state = BT_STATE_START;

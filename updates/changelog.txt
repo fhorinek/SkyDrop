@@ -1,3 +1,17 @@
+Build 2235 - 16. 2. 2016
+========================================================
+FIX:
+ * Configurator upgrade
+ * Changes made using SkyDrop 2222 not saved #137
+
+ADDED:
+ * RAW logging for IMU sensors
+ 
+CHANGED:
+ * Widget "GPS Heading Arrow" renamed to "GPS HDG Arrow"
+ * Default volume is now 80%
+ * GPS coordinates calculation optimisation
+
 Build 2222 - 26. 1. 2016
 ========================================================
 FIX:

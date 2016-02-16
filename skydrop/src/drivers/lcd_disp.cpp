@@ -215,6 +215,8 @@ void lcd_display::Init()
 void lcd_display::SetContrast(uint8_t val) //0-127
 {
 	sendcommand(0x21); //Extended
+	if (val < 81)
+		val == 81;
 	sendcommand(0x80 | val);
 	sendcommand(0x20); //Basic
 }

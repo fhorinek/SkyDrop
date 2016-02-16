@@ -22,7 +22,7 @@ void debug_log(char * msg);
 //assert
 #define assert(cond) \
 	do{ \
-	if (!cond) \
+	if (!(cond)) \
 		DEBUG("Assertion failed %S@%d!\n", PSTR(__FILE__), __LINE__); \
 	} while(0); \
 
