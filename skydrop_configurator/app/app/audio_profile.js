@@ -5,7 +5,7 @@ Chart.defaults.global.responsive = true;
 Chart.defaults.global.animation = false;
 
 Chart.defaults.global.scaleStartValue = 0;
-Chart.defaults.global.scaleStepWidth = 150;
+Chart.defaults.global.scaleStepWidth = 200;
 Chart.defaults.global.scaleSteps = 10;
 Chart.defaults.global.scaleOverride = true;
 

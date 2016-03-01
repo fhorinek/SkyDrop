@@ -59,7 +59,10 @@ void gui_update_eeprom_cb(uint8_t ret)
 		update_state = UPDATE_CHECK_EE;
 	}
 	else
+	{
+		assert(f_unlink("SKYDROP.FW") == FR_OK);
 		SystemReset();
+	}
 }
 
 void gui_update_fail(uint16_t line)
