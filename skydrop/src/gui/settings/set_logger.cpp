@@ -67,7 +67,7 @@ void gui_set_logger_action(uint8_t index)
 		break;
 
 		case(1):
-			if (fc.logger_state == FLIGHT_LAND)
+			if (fc.logger_state == LOGGER_ACTIVE)
 			{
 				gui_showmessage_P(PSTR("Cannot change\nin flight!"));
 				return;

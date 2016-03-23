@@ -62,6 +62,12 @@ void gui_dialog_loop()
 
 	if (gui_dialog_style == GUI_STYLE_STATS)
 	{
+		//if new flight has begin exit the stat screen
+		if (fc.flight_state != FLIGHT_LAND)
+		{
+			gui_dialog_cb(1);
+		}
+
 		uint32_t diff = fc.flight_timer;
 		uint8_t hour, min;
 

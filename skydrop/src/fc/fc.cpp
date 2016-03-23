@@ -426,7 +426,7 @@ void fc_step()
 
 	//auto start
 	// baro valid, waiting to take off, and enabled auto start
-	if (fc.baro_valid && fc.flight_state == FLIGHT_WAIT && config.autostart.start_sensititvity > 0)
+	if (fc.baro_valid && (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
 	{
 		if (abs(fc.altitude1 - fc.autostart_altitude) > config.autostart.start_sensititvity)
 		{
@@ -547,3 +547,11 @@ void fc_manual_alt0_change(float val)
     }
 }
 
+void fc_log_battery()
+{
+	char text[32];
+
+	sprintf_P(text, PSTR("bat: %u%% (%u)"), battery_per, battery_adc_raw);
+
+	logger_comment(text);
+}

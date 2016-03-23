@@ -5,7 +5,7 @@
 
 void gui_layouts_init()
 {
-	gui_list_set(gui_layouts_item, gui_layouts_action, 3, GUI_PAGES);
+	gui_list_set(gui_layouts_item, gui_layouts_action, 4, GUI_PAGES);
 }
 
 void gui_layouts_stop()
@@ -53,6 +53,12 @@ void gui_layouts_action(uint8_t index)
 		gui_value_conf_P(PSTR("Pages count"), GUI_VAL_NUMBER, PSTR("%1.0f"), config.gui.number_of_pages, 1, MAX_NUMBER_OF_PAGES, 1, gui_set_layouts_pages_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
+
+	case(3):
+		config.gui.silent ^= (1 << active_page);
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ee.gui.silent, config.gui.silent);
+	break;
 	}
 }
 
@@ -72,6 +78,14 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			sprintf_P(text, PSTR("Pages count"));
 			sprintf_P(sub_text, PSTR("%d"), config.gui.number_of_pages);
 			*flags |= GUI_LIST_SUB_TEXT;
+		break;
+		case (3):
+			sprintf_P(text, PSTR("Silent page"));
+			if (config.gui.silent & (1 << active_page))
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+
 		break;
 	}
 }

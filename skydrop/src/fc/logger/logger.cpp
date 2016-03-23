@@ -105,6 +105,28 @@ void logger_step()
 	}
 }
 
+void logger_comment(char * text)
+{
+	if (fc.logger_state != LOGGER_ACTIVE)
+		return;
+
+	if (fc.flight_state == FLIGHT_FLIGHT)
+	{
+		switch (config.logger.format)
+		{
+			case(LOGGER_IGC):
+				igc_comment(text);
+			break;
+			case(LOGGER_KML):
+				kml_comment(text);
+			break;
+			case(LOGGER_RAW):
+				DEBUG("%s\n", text);
+			break;
+		}
+	}
+}
+
 void logger_start()
 {
 	logger_next_flight();

@@ -122,6 +122,15 @@ void kml_step()
 	}
 }
 
+void kml_comment(char * text)
+{
+	char line[79];
+
+	sprintf_P(line, PSTR("<!-- %s -->"), text);
+	kml_writeline(line);
+}
+
+
 void kml_stop()
 {
 	char line[79];

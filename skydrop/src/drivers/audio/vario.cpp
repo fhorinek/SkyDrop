@@ -160,7 +160,7 @@ void audio_vario_apply()
 
 void audio_vario_step(float vario)
 {
-	if (config.gui.vario_mute)
+	if (config.gui.vario_mute || config.gui.silent & (1 << active_page))
 	{
 		audio_off();
 		return;
@@ -203,7 +203,6 @@ void audio_vario_step(float vario)
 	if ((ivario >= config.audio_profile.lift || ivario <= config.audio_profile.sink) && (config.gui.vario_volume > 0))
 	{
 		//get frequency from the table
-
 		uint16_t freq = get_near(vario, config.audio_profile.freq);
 		if (audio_vario_freq != 0)
 			audio_vario_freq += ((float)freq - audio_vario_freq) / AUDIO_LOW_PASS;

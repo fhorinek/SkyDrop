@@ -1,3 +1,17 @@
+Build 2256 - 23. 3. 2016
+========================================================
+FIX:
+ * Unable to add IGC log to XC League http://xcleague.com/ - Required record is missing: "H" record (DTM) #147
+ * Prevent format change in logger during flight
+ 
+ADD:
+ * Feature Request - add battery level to log file #134
+ * Quick and easy on/off of audio - no sound on one screen? #144
+ * GPS debugging
+ 
+CHANGED:
+ * Take-off will be detected after land automatically (no need to reset)
+
 Build 2239 - 1. 3. 2016
 ========================================================
 FIX:

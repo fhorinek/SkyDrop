@@ -164,6 +164,8 @@ void fc_takeoff();
 void fc_landing();
 void fc_reset();
 
+void fc_log_battery();
+
 extern volatile flight_data_t fc;
 
 #endif /* FC_H_ */

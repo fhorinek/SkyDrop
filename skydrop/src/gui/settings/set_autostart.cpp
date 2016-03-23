@@ -57,12 +57,12 @@ void gui_set_autostart_action(uint8_t index)
 	switch(index)
 	{
 		case(1):
-			gui_value_conf_P(PSTR("Start threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), config.autostart.start_sensititvity, 0, 100, 1, gui_set_autostart_start_threshold_cb);
+			gui_value_conf_P(PSTR("Start threshold"), GUI_VAL_NUMBER_DISABLE, PSTR("+/-%0.0fm"), config.autostart.start_sensititvity, 0, 100, 1, gui_set_autostart_start_threshold_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(2):
-			gui_value_conf_P(PSTR("Land threshold"), GUI_VAL_NUMBER, PSTR("+/-%0.0fm"), config.autostart.land_sensititvity, 0, 100, 1, gui_set_autostart_land_threshold_cb);
+			gui_value_conf_P(PSTR("Land threshold"), GUI_VAL_NUMBER_DISABLE, PSTR("+/-%0.0fm"), config.autostart.land_sensititvity, 0, 100, 1, gui_set_autostart_land_threshold_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 

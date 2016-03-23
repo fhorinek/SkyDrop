@@ -42,6 +42,7 @@ struct cfg_gui
 	uint8_t alert_volume;
 
 	uint8_t number_of_pages;
+	uint8_t silent;
 	cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };
 
@@ -108,6 +109,7 @@ struct cfg_system
 	int8_t time_zone;
 
 	uint8_t debug_log;
+	uint8_t debug_gps;
 	uint8_t auto_power_off; //in minutes
 };
 

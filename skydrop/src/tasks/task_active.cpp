@@ -99,6 +99,10 @@ void task_active_irqh(uint8_t type, uint8_t * buff)
 			task_set(TASK_USB);
 		break;
 
+	case(TASK_IRQ_BAT):
+			fc_log_battery();
+		break;
+
 	default:
 		gui_irqh(type, buff);
 	}

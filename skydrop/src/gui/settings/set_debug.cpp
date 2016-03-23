@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 7, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 8, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -62,6 +62,15 @@ void gui_set_debug_action(uint8_t index)
 			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Clear\ndebug.log?"), GUI_STYLE_YESNO, gui_set_debug_delete_fc);
 			gui_switch_task(GUI_DIALOG);
 		break;
+
+		case(6):
+			if (config.system.debug_gps == DEBUG_MAGIC_ON)
+				config.system.debug_gps = 0;
+			else
+				config.system.debug_gps = DEBUG_MAGIC_ON;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.system.debug_gps, config.system.debug_gps);
+		break;
 	}
 }
 
@@ -94,11 +103,11 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("FW name %s"), fw_info.app_name);
+			sprintf_P(text, PSTR("%s"), fw_info.app_name);
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("ADC raw value"));
+			sprintf_P(text, PSTR("ADC raw"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("%d"), battery_adc_raw);
 		break;
@@ -133,6 +142,14 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (6):
+			sprintf_P(text, PSTR("Debug GPS"));
+			if (config.system.debug_gps == DEBUG_MAGIC_ON)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (7):
 			sprintf_P(text, PSTR("WDT last PC"));
 			*flags |= GUI_LIST_SUB_TEXT;
 

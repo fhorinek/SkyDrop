@@ -34,6 +34,8 @@ EEMEM cfg_t config_ee = {
 		80,
 		//number_of_pages
 		MAX_NUMBER_OF_PAGES,
+		//silent
+		0b00000000,
 		//pages
 		{
 			//0
@@ -147,6 +149,8 @@ EEMEM cfg_t config_ee = {
 		+1 * 2,
 		//debug_log
 		false,//DEBUG_MAGIC_ON,
+		//debug_gps
+		false,
 		//auto_power_off
 		25,
 	},

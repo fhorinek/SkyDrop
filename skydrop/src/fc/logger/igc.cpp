@@ -16,7 +16,7 @@ char igc_i2c(uint8_t n)
 	return 'A' + n;
 }
 
-void igc_writeline(char * line)
+void igc_writeline(char * line, bool sign = true)
 {
 	uint8_t l = strlen(line);
 	uint16_t wl;
@@ -30,8 +30,9 @@ void igc_writeline(char * line)
 	assert(wl == l);
 	assert(f_sync(log_fil) == FR_OK);
 
-	for (uint8_t i = 0; i < l; i++)
-		sha256.write(line[i]);
+	if (sign)
+		for (uint8_t i = 0; i < l; i++)
+			sha256.write(line[i]);
 }
 
 IGC_PRIVATE_KEY_BODY
@@ -95,6 +96,9 @@ bool igc_start(char * path)
 	//H F GID GLIDER ID
 	sprintf_P(line, PSTR("HFGIDGLIDERID: %s"), config.logger.glider_id);
 	igc_writeline(line);
+	//H F DTM GPS DATUM
+	sprintf_P(line, PSTR("HFDTMGPSDATUM:WGS84"));
+	igc_writeline(line);
 	//H F RFW FIRMWARE VERSION
 	sprintf_P(line, PSTR("HFRFWFIRMWAREVERSION:build %d"), BUILD_NUMBER);
 	igc_writeline(line);
@@ -148,6 +152,14 @@ void igc_step()
 	//B record
 	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);
 	igc_writeline(line);
+}
+
+void igc_comment(char * text)
+{
+	char line[79];
+
+	sprintf_P(line, PSTR("L%S %s"), LOG_MID_P, text);
+	igc_writeline(line, false);
 }
 
 void igc_stop()

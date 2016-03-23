@@ -23,5 +23,6 @@ void logger_init();
 void logger_step();
 void logger_start();
 void logger_stop();
+void logger_comment(char * text);
 
 #endif /* LOGGER_H_ */

@@ -164,6 +164,11 @@
             "desc": "",
             "mode": "bool"
         },
+        "cfg_system_debug_gps" : {
+            "name": "Enable GPS debuging",
+            "desc": "Will output GPS data to the debug stream",
+            "mode": "bool"
+        },        
         "cfg_connectivity_usb_mode" : {
             "name": "Enable USB mode",
             "desc": "Go to USB mode even when in active mode",
@@ -306,7 +311,18 @@
                 ["UART_FORWARD_57600", "Telemetry @ 57600"],
                 ["UART_FORWARD_115200", "Telemetry @ 115200"]
             ]
-        }        
+        },
+        "cfg_gui_silent" : {
+            "name": "Disable vario sound on specific screens",
+            "mode": "flags",
+            "flags": [
+                ["1", "Screen 1"],
+                ["2", "Screen 2"],
+                ["4", "Screen 3"],
+                ["8", "Screen 4"],
+                ["16", "Screen 5"]
+            ]
+        }             
     },
     
     "regexp": {

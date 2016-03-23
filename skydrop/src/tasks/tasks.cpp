@@ -174,7 +174,8 @@ void task_system_loop()
 	buttons_step();
 	if (powerdown_lock.Active() == false)
 	{
-		battery_step();
+		if (battery_step())
+			task_irqh(TASK_IRQ_BAT, NULL);
 	}
 }
 
