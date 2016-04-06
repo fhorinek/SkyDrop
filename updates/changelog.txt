@@ -1,3 +1,9 @@
+Build 2266 - 6. 4. 2016
+========================================================
+FIX:
+ * Random GPS fix corruption - NMEA sentence GPRMC will be checked for length
+ * Sudden landing on GPS lock during flight - Autostart/autoland timer will be reset duriong gps time sync
+ 
 Build 2256 - 23. 3. 2016
 ========================================================
 FIX:

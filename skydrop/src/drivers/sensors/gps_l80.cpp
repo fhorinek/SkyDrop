@@ -155,6 +155,13 @@ void gps_parse_rmc()
 
 	if (fc.gps_data.valid)
 	{
+		//A,4809.1700,N,01704.4391,E,1.22,177.56,060416,,,A*6E
+		if (strlen(ptr) != 52)
+		{
+			DEBUG("Wrong length of GPRMC\n");
+			return;
+		}
+
 		if (fc.gps_data.fix_cnt < GPS_FIX_CNT_MAX)
 			fc.gps_data.fix_cnt++;
 	}
@@ -590,6 +597,8 @@ void gps_start()
 	GPS_UART_PWR_ON;
 	gps_uart.Init(GPS_UART, 9600);
 	gps_uart.SetInterruptPriority(MEDIUM);
+
+	gps_uart.SetupRxDMA(&DMA.CH0, GPS_UART_DMA_TRIG);
 
 	GpioSetDirection(GPS_EN, OUTPUT);	 //active high
 	GpioWrite(GPS_EN, LOW);

@@ -56,6 +56,8 @@ public:
 	volatile uint8_t * rx_buffer;
 	volatile uint8_t * tx_buffer;
 
+	volatile DMA_CH_t * dma_rx_ch;
+
 	PORT_t * cts_port;
 	uint8_t cts_pin;
 	uint8_t cts_active;
@@ -96,6 +98,8 @@ public:
 	void BecomeSPI(uint8_t mode, uint8_t dataorder, uint32_t speed);
 	uint8_t SendRaw(uint8_t data);
 	void SendRaw1(uint8_t data);
+
+	void SetupRxDMA(DMA_CH_t * ch, uint8_t trig);
 
 	void RxComplete();
 	void TxComplete();

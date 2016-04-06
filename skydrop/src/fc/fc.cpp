@@ -411,6 +411,9 @@ void fc_sync_gps_time()
 	if (fc.flight_state == FLIGHT_FLIGHT)
 		fc.flight_timer = time_get_actual() - diff;
 
+	//restart autostart/autoland timer
+	fc.autostart_timer = time_get_actual();
+
 	gui_showmessage_P(PSTR("GPS Time set"));
 }
 

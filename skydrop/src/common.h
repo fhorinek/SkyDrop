@@ -211,6 +211,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define MEMS_I2C_PWR_OFF		PR.PRPE |= 0b01000000
 
 #define GPS_UART				usarte0
+#define GPS_UART_DMA_TRIG		DMA_CH_TRIGSRC_USARTE0_RXC_gc
 #define GPS_UART_PWR_ON			PR.PRPE &= 0b11101111;
 #define GPS_UART_PWR_OFF		PR.PRPE |= 0b00010000;
 

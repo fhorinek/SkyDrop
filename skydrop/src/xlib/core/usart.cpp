@@ -207,6 +207,28 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 	this->rx_ovf = false;
 }
 
+void Usart::SetupRxDMA(DMA_CH_t * ch, uint8_t trig)
+{
+//	//disable rx IRQ
+//	this->usart->CTRLA &= 11001111;
+//
+//	//XXX:dma enable
+//	DMA_Enable();
+//
+//	this->dma_rx_ch = ch;
+//
+//	this->dma_rx_ch->SRCADDR = &this->usart->DATA;
+//	this->dma_rx_ch->DESTADDR = this->rx_buffer;
+//
+//	this->dma_rx_ch->ADDRCTRL = DMA_CH_SRCRELOAD_NONE_gc | DMA_CH_SRCDIR_FIXED_gc |
+//			DMA_CH_DESTRELOAD_BLOCK_gc | DMA_CH_DESTDIR_INC_gc;
+//
+//	this->dma_rx_ch->TRIGSRC = trig;
+//
+//	//dma channel enable
+//	this->dma_rx_ch->CTRLA |= DMA_CH_ENABLE_bm;
+}
+
 /**
  * Send all data remaning in tx buffer, stop usart module, disable Rx/Tx, free buffers
  */

@@ -60,13 +60,13 @@ bool battery_step()
 	{
 	case(BATTERY_STATE_IDLE):
 		battery_adc_raw = battery_meas_acc / BATTERY_MEAS_AVG;
-		battery_per = round(((float)battery_adc_raw * BATT_COEF_A) + BATT_COEF_B);
+		battery_adc_raw = 4095;
+
+		battery_per = (battery_adc_raw + (BATT_COEF_B / BATT_COEF_A)) * BATT_COEF_A;
 		if (battery_per > 100)
 			battery_per = 100;
 		if (battery_per < 0)
 			battery_per = 0;
-
-//		DEBUG("adc %u (%3d%%)\n", battery_adc_raw, battery_per);
 
 		battery_meas_state = BATTERY_STATE_PREPARE;
 		battery_next_meas = task_get_ms_tick() + BATTERY_MEAS_PERIOD;
@@ -97,8 +97,6 @@ bool battery_step()
 			DEBUG("adc not ready\n");
 			return false;
 		}
-
-
 
 		uint16_t tmp = AdcPipeValue(pipea0);
 		battery_meas_acc += tmp;
