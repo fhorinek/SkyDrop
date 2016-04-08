@@ -49,30 +49,8 @@ void Post()
 {
 	DEBUG("\n *** POST *** \n");
 
-	//Print reset reason
-	DEBUG("Reset reason ... ");
-
-	if (system_rst & 0b00100000)
-		DEBUG("Software ");
-	else
-	if (system_rst & 0b00010000)
-		DEBUG("Programming ");
-	else
-	if (system_rst & 0b00001000)
-		DEBUG("Watchdog ");
-	else
-	if (system_rst & 0b00000100)
-		DEBUG("Brownout ");
-	else
-	if (system_rst & 0b00000010)
-		DEBUG("External ");
-	else
-	if (system_rst & 0b00000001)
-		DEBUG("Power On ");
-	else
-		DEBUG("Unknown: %02X", system_rst);
-
-	DEBUG("\n");
+	//Reset reason
+	print_reset_reason();
 
 	//App name
 	print_fw_info();

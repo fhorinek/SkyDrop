@@ -69,7 +69,7 @@ void gui_list_draw()
 			break;
 		}
 
-		height += ((disp.GetTextWidth(tmp_text) + x_val) / GUI_DISP_WIDTH) * t_h;
+//		height += ((disp.GetTextWidth(tmp_text) + x_val) / GUI_DISP_WIDTH) * t_h;
 
 		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
 		{

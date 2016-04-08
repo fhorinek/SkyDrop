@@ -11,6 +11,37 @@ struct app_info fw_info;
 
 uint8_t hw_revision = HW_REW_UNKNOWN;
 
+extern uint8_t system_rst;
+
+void print_reset_reason()
+{
+	//Print reset reason
+	DEBUG("Reset reason ... ");
+
+	if (system_rst & 0b00100000)
+		DEBUG("Software ");
+	else
+	if (system_rst & 0b00010000)
+		DEBUG("Programming ");
+	else
+	if (system_rst & 0b00001000)
+		DEBUG("Watchdog ");
+	else
+	if (system_rst & 0b00000100)
+		DEBUG("Brownout ");
+	else
+	if (system_rst & 0b00000010)
+		DEBUG("External ");
+	else
+	if (system_rst & 0b00000001)
+		DEBUG("Power On ");
+	else
+		DEBUG("Unknown: %02X", system_rst);
+
+	DEBUG("\n");
+}
+
+
 void print_fw_info()
 {
 	eeprom_busy_wait();

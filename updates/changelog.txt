@@ -1,4 +1,4 @@
-Build 2266 - 6. 4. 2016
+Build 2288 - 8. 4. 2016
 ========================================================
 FIX:
  * Random GPS fix corruption - NMEA sentence GPRMC will be checked for length

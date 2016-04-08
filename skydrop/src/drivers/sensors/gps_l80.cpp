@@ -140,6 +140,8 @@ void gps_parse_rmc()
 //	strcpy(gps_parser_buffer, "$GPRMC,044434.000,A,3319.1312,S,14805.03,E,24.00,37.86,090116,,,A*71");
 
 	char * ptr = find_comma(gps_parser_buffer);
+	char * old_ptr;
+	uint8_t tlen;
 
 	//UTC time
 	uint8_t hour = atoi_n(ptr + 0, 2);
@@ -148,20 +150,21 @@ void gps_parse_rmc()
 
 //	DEBUG("%02d:%02d:%02d\n", hour, min, sec);
 
+	old_ptr = ptr;
 	ptr = find_comma(ptr);
+	tlen = ptr - old_ptr - 1;
+
+	if (tlen != 10)
+	{
+		DEBUG("GPRMC timestamp len = %u\n", tlen);
+		return;
+	}
 
 	//Valid (A = valid)
 	fc.gps_data.valid = (*ptr) == 'A';
 
 	if (fc.gps_data.valid)
 	{
-		//A,4809.1700,N,01704.4391,E,1.22,177.56,060416,,,A*6E
-		if (strlen(ptr) != 52)
-		{
-			DEBUG("Wrong length of GPRMC\n");
-			return;
-		}
-
 		if (fc.gps_data.fix_cnt < GPS_FIX_CNT_MAX)
 			fc.gps_data.fix_cnt++;
 	}
@@ -182,7 +185,15 @@ void gps_parse_rmc()
 	int32_t latitude = (loc_min * 100ul) / 6;
 	latitude = loc_deg * 10000000ul + latitude;
 
+	old_ptr = ptr;
 	ptr = find_comma(ptr);
+	tlen = ptr - old_ptr - 1;
+
+	if (tlen != 9)
+	{
+		DEBUG("GPRMC latitude len = %u\n", tlen);
+		return;
+	}
 
 	//Latitude sign
 	if ((*ptr) == 'S')
@@ -202,9 +213,15 @@ void gps_parse_rmc()
 	int32_t longitude = (loc_min * 100ul) / 6;
 	longitude = loc_deg * 10000000ul + longitude;
 
+	old_ptr = ptr;
 	ptr = find_comma(ptr);
+	tlen = ptr - old_ptr - 1;
 
-//	DEBUG("ptr = '%s'\n", ptr);
+	if (tlen != 10)
+	{
+		DEBUG("GPRMC longitude len = %u\n", tlen);
+		return;
+	}
 
 	//Longitude sign
 	if ((*ptr) == 'W')
@@ -233,7 +250,15 @@ void gps_parse_rmc()
 	uint8_t month = atoi_n(ptr + 2, 2);
 	uint16_t year = atoi_n(ptr + 4, 2) + 2000;
 
-//	DEBUG("%02d.%02d.%04d\n", day, month, year);
+	old_ptr = ptr;
+	ptr = find_comma(ptr);
+	tlen = ptr - old_ptr - 1;
+
+	if (tlen != 6)
+	{
+		DEBUG("GPRMC date len = %u\n", tlen);
+		return;
+	}
 
 	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 
@@ -462,12 +487,12 @@ void gps_change_uart_baudrate()
 
 void gps_parse_hello()
 {
-	DEBUG("HELLO\n");
+	DEBUG("GPS HELLO\n");
 }
 
 void gps_parse_sys()
 {
-	DEBUG("SYS");
+	DEBUG("GPS SYS RESP");
 //	gps_set_baudrate();
 //	gps_change_uart_baudrate();
 

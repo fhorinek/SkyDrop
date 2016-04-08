@@ -91,7 +91,7 @@ number = int(f.readline())
 f.close()
     
 if (label == "" or label == "auto"):
-    label = "skydrop-build-%04d" % number
+    label = "skydrop-%04d" % number
     
 a = Hex2BinConv(out)
 a.batch(hex, label)

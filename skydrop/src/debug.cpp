@@ -235,13 +235,18 @@ void debug_step()
 		//file is ready
 		debug_file_open = true;
 
-		debug_last_dump();
-
 		char id[23];
 		GetID_str(id);
 		DEBUG("Device serial number ... %s\n", id);
 
 		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
+		print_fw_info();
+
+		print_reset_reason();
+
+		debug_last_dump();
+
+		DEBUG("=========================================\n");
 	}
 
 	uint8_t ** tmp = 0;

@@ -92,6 +92,7 @@ void gui_pages_loop()
 	uint8_t start_x;
 	uint8_t wtype;
 
+
 	switch (page_state)
 	{
 	case(PAGE_IDLE):

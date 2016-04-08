@@ -145,7 +145,6 @@ void fc_init()
 	//MAG read 					 0.152 ms
 	//ACC read					 1.600 ms
 	//Gyro read					 1.000 ms
-
 	fc_meas_timer.SetTop(313); // == 10ms
 	fc_meas_timer.SetCompare(timer_A, 27); // == 0.78 ms
 	fc_meas_timer.SetCompare(timer_B, 70); // == 2 ms

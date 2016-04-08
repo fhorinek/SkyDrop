@@ -313,6 +313,7 @@ bool StoreEEPROM();
 
 //system info
 void print_fw_info();
+void print_reset_reason();
 extern uint8_t hw_revision;
 extern uint8_t device_id[11];
 void GetID(); //11 b

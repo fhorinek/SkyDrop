@@ -14,6 +14,7 @@
 
 extern int16_t battery_adc_raw;
 extern int8_t battery_per;
+extern uint32_t battery_next_meas;
 
 
 void battery_init();

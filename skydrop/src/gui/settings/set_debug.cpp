@@ -49,6 +49,10 @@ void gui_set_debug_action(uint8_t index)
 //			gui_switch_task(GUI_DIALOG);
 //		break;
 
+		case(2):
+			battery_next_meas = task_get_ms_tick();
+		break;
+
 		case(4):
 			if (config.system.debug_log == DEBUG_MAGIC_ON)
 				config.system.debug_log = 0;
@@ -81,29 +85,34 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	switch (index)
 	{
 		case (0):
+			sprintf_P(text, PSTR("Reset"));
+			*flags |= GUI_LIST_SUB_TEXT;
+
 			if (system_rst & 0b00100000)
-				sprintf_P(text, PSTR("RST:Software "));
+				sprintf_P(sub_text, PSTR("Software"));
 			else
 			if (system_rst & 0b00010000)
-				sprintf_P(text, PSTR("RST:Programming"));
+				sprintf_P(sub_text, PSTR("Programming"));
 			else
 			if (system_rst & 0b00001000)
-				sprintf_P(text, PSTR("RST:Watchdog"));
+				sprintf_P(sub_text, PSTR("Watchdog"));
 			else
 			if (system_rst & 0b00000100)
-				sprintf_P(text, PSTR("RST:Brownout"));
+				sprintf_P(sub_text, PSTR("Brownout"));
 			else
 			if (system_rst & 0b00000010)
-				sprintf_P(text, PSTR("RST:External"));
+				sprintf_P(sub_text, PSTR("External"));
 			else
 			if (system_rst & 0b00000001)
-				sprintf_P(text, PSTR("RST:Power On"));
+				sprintf_P(sub_text, PSTR("Power On"));
 			else
-				sprintf_P(text, PSTR("RST:Unknown: %02X"), system_rst);
+				sprintf_P(sub_text, PSTR("Unknown: %02X"), system_rst);
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("%s"), fw_info.app_name);
+			sprintf_P(text, PSTR("Firmware"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			sprintf_P(sub_text, PSTR("%s"), fw_info.app_name);
 		break;
 
 		case (2):

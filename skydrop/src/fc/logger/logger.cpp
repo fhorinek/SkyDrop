@@ -84,6 +84,9 @@ void logger_step()
 	if (logger_next > task_get_ms_tick())
 		return;
 
+	if (!fc.baro_valid)
+		return;
+
 	//RAW is running as fast as it can!
 	if (config.logger.format != LOGGER_RAW)
 		logger_next = task_get_ms_tick() + 1000;

@@ -60,7 +60,6 @@ bool battery_step()
 	{
 	case(BATTERY_STATE_IDLE):
 		battery_adc_raw = battery_meas_acc / BATTERY_MEAS_AVG;
-		battery_adc_raw = 4095;
 
 		battery_per = (battery_adc_raw + (BATT_COEF_B / BATT_COEF_A)) * BATT_COEF_A;
 		if (battery_per > 100)
