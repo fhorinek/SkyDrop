@@ -3,7 +3,7 @@
 
 cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
-#define log_default_text	{'n', 'o', 't', ' ', 's', 'p', 'e', 'c', 'i', 'f', 'i', 'e', 'd', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define log_default_text	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 volatile cfg_t config;
 
@@ -162,8 +162,8 @@ EEMEM cfg_t config_ee = {
 		1,
 		//timeout
 		60,
-		//supress_audio
-		true,
+		//flags
+		AUTOSTART_SUPRESS_AUDIO,
 	},
 	//Logger
 	{

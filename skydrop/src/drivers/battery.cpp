@@ -14,6 +14,8 @@ void battery_init()
 
 	GpioSetDirection(BAT_EN, OUTPUT);
 	bat_en_low(BAT_EN_ADC);
+
+	GpioSetPull(CHARGING, gpio_pull_up);
 }
 
 
@@ -26,9 +28,7 @@ void battery_init()
 
 #define BATTERY_MEAS_AVG 		16
 #define BATTERY_MEAS_PERIOD 	10000
-//#define BATTERY_MEAS_PERIOD 	1000
 #define BATTERY_STABILISE 		100
-
 
 uint32_t battery_next_meas = 0;
 uint8_t  battery_meas_state = BATTERY_STATE_PREPARE;
@@ -42,19 +42,28 @@ int8_t battery_per = 0;
 //#define BATT_COEF_A	(0.291950711)
 //#define BATT_COEF_B  (-672.1273455619)
 
-
 #define BATT_COEF_A	(0.2147782473)
 #define BATT_COEF_B  (-681.4132446547)
 
-uint8_t battery_get_per()
+void battery_update()
 {
-	return battery_per;
+	battery_next_meas = 0;
 }
 
 bool battery_step()
 {
 	if (battery_next_meas > task_get_ms_tick())
 		return false;
+
+	if (USB_CONNECTED)
+	{
+		if (BAT_CHARGING)
+			battery_per = BATTERY_CHARGING;
+		else
+			battery_per = BATTERY_FULL;
+
+		return true;
+	}
 
 	switch (battery_meas_state)
 	{

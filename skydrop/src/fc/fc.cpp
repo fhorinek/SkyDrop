@@ -23,6 +23,9 @@ extern KalmanFilter * kalmanFilter;
 
 MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
+#define FC_LOG_BATTERY_EVERY	(5 * 60 * 1000)
+uint32_t fc_log_battery_next = 0;
+
 void fc_init()
 {
 	DEBUG(" *** Flight computer init ***\n");
@@ -60,7 +63,6 @@ void fc_init()
 	if (!mems_i2c_init())
 	{
 		DEBUG("ERROR I2C, Wrong board rev? (%02X)\n", hw_revision);
-		led_set(0xFF, 0, 0);
 
 		hw_revision = HW_REW_1504;
 		eeprom_busy_wait();
@@ -348,6 +350,9 @@ void fc_takeoff()
 	fc.autostart_altitude = fc.altitude1;
 	fc.autostart_timer = time_get_actual();
 
+	//reset battery info timer
+	fc_log_battery_next = 0;
+
 	//zero altimeters at take off
 	for (uint8_t i = 0; i < NUMBER_OF_ALTIMETERS; i++)
 	{
@@ -426,46 +431,55 @@ void fc_step()
 
 	logger_step();
 
-	//auto start
-	// baro valid, waiting to take off, and enabled auto start
-	if (fc.baro_valid && (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
+	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 	{
-		if (abs(fc.altitude1 - fc.autostart_altitude) > config.autostart.start_sensititvity)
+		if (fc.baro_valid && fc.flight_state == FLIGHT_WAIT)
 		{
 			fc_takeoff();
 		}
-		else
-		{
-			//reset wait timer
-			if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
-			{
-				fc.autostart_timer = time_get_actual();
-				fc.autostart_altitude = fc.altitude1;
-			}
-		}
 	}
-
-	//auto land
-	// flying and auto land enabled
-	if (fc.flight_state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
+	else
 	{
-		if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
+	//auto start
+		// baro valid, waiting to take off, and enabled auto start
+		if (fc.baro_valid && (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
 		{
-			if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
+			if (abs(fc.altitude1 - fc.autostart_altitude) > config.autostart.start_sensititvity)
 			{
-				//reduce timeout from flight time
-				fc.flight_timer += config.autostart.timeout;
-
-				gui_reset_timeout();
-				fc_landing();
+				fc_takeoff();
+			}
+			else
+			{
+				//reset wait timer
+				if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
+				{
+					fc.autostart_timer = time_get_actual();
+					fc.autostart_altitude = fc.altitude1;
+				}
 			}
 		}
-		else
-		{
-			fc.autostart_altitude = fc.altitude1;
-			fc.autostart_timer = time_get_actual();
-		}
 
+		//auto land
+		// flying and auto land enabled
+		if (fc.flight_state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
+		{
+			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
+			{
+				if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
+				{
+					//reduce timeout from flight time
+					fc.flight_timer += config.autostart.timeout;
+
+					gui_reset_timeout();
+					fc_landing();
+				}
+			}
+			else
+			{
+				fc.autostart_altitude = fc.altitude1;
+				fc.autostart_timer = time_get_actual();
+			}
+		}
 	}
 
 
@@ -551,9 +565,19 @@ void fc_manual_alt0_change(float val)
 
 void fc_log_battery()
 {
+	if (fc_log_battery_next > task_get_ms_tick())
+		return;
+
+	fc_log_battery_next = task_get_ms_tick() + FC_LOG_BATTERY_EVERY;
+
 	char text[32];
 
-	sprintf_P(text, PSTR("bat: %u%% (%u)"), battery_per, battery_adc_raw);
+	if (battery_per == BATTERY_CHARGING)
+		sprintf_P(text, PSTR("bat: chrg"));
+	else if (battery_per == BATTERY_FULL)
+		sprintf_P(text, PSTR("bat: full"));
+	else
+		sprintf_P(text, PSTR("bat: %u%% (%u)"), battery_per, battery_adc_raw);
 
 	logger_comment(text);
 }

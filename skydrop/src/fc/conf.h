@@ -113,12 +113,15 @@ struct cfg_system
 	uint8_t auto_power_off; //in minutes
 };
 
+#define AUTOSTART_SUPRESS_AUDIO		0b00000001
+#define AUTOSTART_ALWAYS_ENABLED	0b00000010
+
 struct cfg_autostart
 {
 	uint8_t start_sensititvity;
 	uint8_t land_sensititvity;
 	uint8_t timeout;
-	uint8_t supress_audio;
+	uint8_t flags;
 };
 
 #define LOGGER_IGC	0

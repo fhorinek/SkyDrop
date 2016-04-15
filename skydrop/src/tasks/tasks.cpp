@@ -168,6 +168,8 @@ void task_system_loop()
 	if (usb_state != USB_CONNECTED)
 	{
 		usb_state = USB_CONNECTED;
+
+		battery_update();
 		task_irqh(TASK_IRQ_USB, &usb_state);
 	}
 

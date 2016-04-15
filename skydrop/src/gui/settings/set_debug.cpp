@@ -50,7 +50,7 @@ void gui_set_debug_action(uint8_t index)
 //		break;
 
 		case(2):
-			battery_next_meas = task_get_ms_tick();
+			battery_update();
 		break;
 
 		case(4):

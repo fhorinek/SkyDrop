@@ -153,6 +153,7 @@ void bt_step()
 				bt_reset_counter = task_get_ms_tick() + 500;
 				bt_reset_counter_step = 1;
 			break;
+
 			case(1):
 				//enable bt uart
 				BT_UART_PWR_ON;
@@ -171,6 +172,7 @@ void bt_step()
 				bt_reset_counter = task_get_ms_tick() + 10;
 				bt_reset_counter_step = 2;
 			break;
+
 			case(2):
 				GpioWrite(BT_RESET, HIGH);
 				bt_reset_counter_step = 0;

@@ -39,7 +39,7 @@ void audio_step()
 	if (fc.baro_valid)
 	{
 		//audio is suppressed due auto start
-		if (config.autostart.supress_audio)
+		if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
 		{
 			//vario in flight -> enable sound
 			if (fc.flight_state == FLIGHT_FLIGHT)

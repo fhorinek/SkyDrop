@@ -37,7 +37,7 @@
 #define  INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 
-#define USB_LED_MAX		0x10
+uint8_t usb_int_state = USB_IDLE;
 
 /** Structure to hold the latest Command Block Wrapper issued by the host, containing a SCSI command to execute. */
 MS_CommandBlockWrapper_t  CommandBlock;
@@ -62,7 +62,7 @@ void MassStorage_Loop(void)
 void EVENT_USB_Device_Connect(void)
 {
 	/* Indicate USB enumerating */
-	led_set(0, 0, USB_LED_MAX);
+	usb_int_state = USB_ENUM;
 
 	/* Reset the MSReset flag upon connection */
 	IsMassStoreReset = false;
@@ -74,7 +74,7 @@ void EVENT_USB_Device_Connect(void)
 void EVENT_USB_Device_Disconnect(void)
 {
 	/* Indicate USB not ready */
-	led_set(0x55, 0, 0);
+	usb_int_state = USB_NOT_RDY;
 }
 
 /** Event handler for the USB_ConfigurationChanged event. This is fired when the host set the current configuration
@@ -141,7 +141,7 @@ void MassStorage_Task(void)
 	if (ReadInCommandBlock())
 	{
 		/* Indicate busy */
-		led_set(USB_LED_MAX, 0, 0);
+		usb_int_state = USB_BUSY;
 
 		/* Check direction of command, select Data IN endpoint if data is from the device */
 		if (CommandBlock.Flags & MS_COMMAND_DIR_DATA_IN)
@@ -167,7 +167,7 @@ void MassStorage_Task(void)
 
 
 		/* Indicate ready */
-		led_set(0, USB_LED_MAX, 0);
+		usb_int_state = USB_READY;
 	}
 
 	/* Check if a Mass Storage Reset occurred */

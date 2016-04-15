@@ -520,8 +520,17 @@ void gui_statusbar()
 
 		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 25);
 	}
+
 	//battery indicator
 	uint8_t a = battery_per / 10;
+
+	if (battery_per == BATTERY_CHARGING)
+	{
+		a = 1 + (task_get_ms_tick() % 1000) / 100;
+	}
+
+	if (battery_per == BATTERY_FULL)
+		a = 10;
 
 	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
 	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);

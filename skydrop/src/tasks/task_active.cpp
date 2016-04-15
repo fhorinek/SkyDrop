@@ -64,11 +64,16 @@ void task_active_init()
 	//init flight computer
 	ewdt_reset();
 	fc_init();
+
+
+	led_notify_enable();
 }
 
 void task_active_stop()
 {
 	StoreEEPROM();
+
+	led_notify_disable();
 
 	fc_deinit();
 

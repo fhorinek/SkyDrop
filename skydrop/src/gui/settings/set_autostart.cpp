@@ -7,7 +7,7 @@
 
 void gui_set_autostart_init()
 {
-	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 5, GUI_SET_LOGGER);
+	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 6, GUI_SET_LOGGER);
 }
 
 void gui_set_autostart_stop() {}
@@ -72,9 +72,15 @@ void gui_set_autostart_action(uint8_t index)
 		break;
 
 		case(4):
-			config.autostart.supress_audio = !config.autostart.supress_audio;
+			config.autostart.flags ^= AUTOSTART_SUPRESS_AUDIO;
 			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.autostart.supress_audio, config.autostart.supress_audio);
+			eeprom_update_byte(&config_ee.autostart.flags, config.autostart.flags);
+		break;
+
+		case(5):
+			config.autostart.flags ^= AUTOSTART_ALWAYS_ENABLED;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.autostart.flags, config.autostart.flags);
 		break;
 	}
 }
@@ -98,7 +104,6 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 					sprintf_P(sub_text, PSTR("Landed"));
 				break;
 			}
-
 		break;
 
 		case (1):
@@ -107,6 +112,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.start_sensititvity);
 			else
 				sprintf_P(sub_text, PSTR("disabled"));
+
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
@@ -128,7 +134,15 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		case (4):
 			sprintf_P(text, PSTR("Suppress audio"));
-			if (config.autostart.supress_audio)
+			if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (5):
+			sprintf_P(text, PSTR("Record always"));
+			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;

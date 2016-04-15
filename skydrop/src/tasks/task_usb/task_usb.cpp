@@ -18,7 +18,6 @@ void task_usb_init()
 	SD_SPI_PWR_ON;
 	SD_EN_ON;
 
-
 	DEBUG("This is USB task\n");
 
 	usb_lock.Lock();

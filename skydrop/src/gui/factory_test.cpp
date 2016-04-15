@@ -22,6 +22,7 @@ void gui_factory_test_init()
 {
 	DEBUG(" *** Factory test ***\n");
 	fc_pause();
+	led_notify_disable();
 
 	//We need to test gps and bt module
 	if (!bt_selftest())

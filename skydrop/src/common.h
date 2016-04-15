@@ -146,6 +146,9 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define CHARGING				portc6
 #define LCD_CLK					portc7
 
+#define BAT_CHARGING			(GpioRead(CHARGING) == LOW)
+#define BAT_FULL				(GpioRead(CHARGING) == HIGH)
+
 #define DEBUG_UART				usartc0
 #define DEBUG_UART_PWR_ON		PR.PRPC &= 0b11101111;
 #define DEBUG_UART_PWR_OFF		PR.PRPC |= 0b00010000;

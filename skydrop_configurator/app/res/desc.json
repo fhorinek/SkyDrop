@@ -174,10 +174,13 @@
             "desc": "Go to USB mode even when in active mode",
             "mode": "bool"
         },
-        "cfg_autostart_supress_audio" : {
-            "name": "Suppres audio vario",
-            "desc": "Supress vario before Take-off",
-            "mode": "bool"
+        "cfg_autostart_flags" : {
+            "name": "Auto start settings",
+            "mode": "flags"
+            "flags": [
+                ["AUTOSTART_SUPRESS_AUDIO", "Supress audio before take-off"],
+                ["AUTOSTART_ALWAYS_ENABLED", "Always start recording after power on"]
+            ]            
         },
         "cfg_logger_format" : {
             "name": "Log file format",

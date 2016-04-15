@@ -11,15 +11,15 @@
 
 #include "../skydrop.h"
 
-
 extern int16_t battery_adc_raw;
 extern int8_t battery_per;
 extern uint32_t battery_next_meas;
 
+#define BATTERY_CHARGING	(101)
+#define BATTERY_FULL		(102)
 
 void battery_init();
 bool battery_step();
-
-uint8_t battery_get_per();
+void battery_update();
 
 #endif /* BATTERY_H_ */

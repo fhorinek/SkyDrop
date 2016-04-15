@@ -66,7 +66,7 @@ bool igc_start(char * path)
 
 	uint8_t res = f_open(log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
 	assert(res == FR_OK);
-	DEBUG("res == %02X\n", res);
+	DEBUG("f_open res = %02X\n", res);
 
 	//cannot create file
 	if (res != FR_OK)
@@ -88,8 +88,8 @@ bool igc_start(char * path)
 	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE: %s"), config.logger.pilot);
 	igc_writeline(line);
 	//H F CM2 CREW 2
-//	sprintf_P(line, PSTR("HFCM2CREW2:"));
-//	igc_writeline(line);
+	sprintf_P(line, PSTR("HFCM2CREW2:"));
+	igc_writeline(line);
 	//H F GTY GLIDER TYPE
 	sprintf_P(line, PSTR("HFGTYGLIDERTYPE: %s"), config.logger.glider_type);
 	igc_writeline(line);
@@ -114,14 +114,11 @@ bool igc_start(char * path)
 	//H F PRS PRESS ALT SENSOR
 	sprintf_P(line, PSTR("HFPRSPRESSALTSENSOR:Measurement specialties,MS5611,25907m"));
 	igc_writeline(line);
-	//H F FSP
-	sprintf_P(line, PSTR("HFFSP:AL4"));
-	igc_writeline(line);
-	//H F ALG GEO
-	sprintf_P(line, PSTR("HFALGGEO"));
+	//H F ALG ALT GPS
+	sprintf_P(line, PSTR("HFALGALTGPS:GEO"));
 	igc_writeline(line);
 	//H F ALP
-	sprintf_P(line, PSTR("HFALPISA"));
+	sprintf_P(line, PSTR("HFALPALTPRESSURE:ISA"));
 	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY

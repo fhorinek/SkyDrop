@@ -3,6 +3,8 @@
 #include "../fc/fc.h"
 #include "../task_usb/task_usb.h"
 
+#define USB_LED_MAX		0x10
+
 void gui_usb_set_mode(uint8_t mode)
 {
 }
@@ -32,14 +34,42 @@ void gui_usb_loop()
 	disp.LoadFont(F_TEXT_S);
 	f_h = disp.GetTextHeight();
 
+	switch (usb_int_state)
+	{
+		case(USB_IDLE):
+			strcpy_P(tmp, PSTR("idle"));
+		break;
+		case(USB_ENUM):
+			strcpy_P(tmp, PSTR("enumerating"));
+		break;
+		case(USB_NOT_RDY):
+			strcpy_P(tmp, PSTR("not ready"));
+		break;
+		case(USB_BUSY):
+			strcpy_P(tmp, PSTR("busy"));
+		break;
+		case(USB_READY):
+			strcpy_P(tmp, PSTR("ready"));
+		break;
+	}
+	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 + f_h);
+
 	strcpy_P(tmp, PSTR("PWR"));
 	gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT - f_h);
 
 //	strcpy_P(tmp, PSTR("RST"));
 //	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - f_h);
 
-
-	sprintf_P(tmp, PSTR("batt %d %%"), battery_per);
+	if (battery_per == BATTERY_FULL)
+	{
+		sprintf_P(tmp, PSTR("Full"), battery_per);
+		led_set(0, USB_LED_MAX, 0);
+	}
+	else
+	{
+		sprintf_P(tmp, PSTR("Charging"), battery_per);
+		led_set(USB_LED_MAX, 0, 0);
+	}
 	gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 0);
 
 	disp.GotoXY(0, 0);

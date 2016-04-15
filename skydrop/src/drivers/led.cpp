@@ -3,40 +3,89 @@
 Timer led_timer1;
 Timer led_timer2;
 
-
-volatile uint8_t led_anim_mode = LED_NO_ANIM;
-volatile uint32_t led_anim_progress = 0;
-volatile uint32_t led_anim_top = 0;
-
 volatile uint8_t lcd_bckl_actual = 0;
 volatile uint8_t lcd_bckl_wanted = 0;
 
-#define led_timer_top 0xFF
+#define led_timer_top 255
+
+#define MS_TO_TICKS(A)	(A / 8.192)
+
+#define LED_NOTIFY_DURATION		MS_TO_TICKS(50)
+#define LED_NOTIFY_PAUSE		MS_TO_TICKS(500)
+#define LED_NOTIFY_LOOP			MS_TO_TICKS(2000)
+
+//odd numbers are pause states
+#define LED_TASK_BAT_LOW	0
+#define LED_TASK_NO_GPS		2
+#define LED_TASK_BT_NC		4
+#define LED_TASK_BT_OK		6
+#define LED_TASK_IDLE		8
+
+uint16_t led_task_cnt = 0;
+uint8_t led_task_state = LED_TASK_IDLE;
 
 ISR(LED_TIMER1_OVF)
 {
-	uint16_t val = 0, r = 0, g = 0, b = 0;
 
-	if (led_anim_progress < led_anim_top / 10) //10 %
+	if (led_task_cnt > 0)
 	{
-		val = ((1000 * led_anim_progress) / led_anim_top) * led_timer_top / 100;
-		r = (led_anim_mode == LED_BREATHR) ? val:0;
-		g = (led_anim_mode == LED_BREATHG) ? val:0;
-	}
-	else if (led_anim_progress < led_anim_top / 5) //20%
-	{
-		val = ((1000 * (led_anim_progress - led_anim_top / 10)) / led_anim_top) * led_timer_top / 100;
-		r = (led_anim_mode == LED_BREATHR) ? (led_timer_top - val):0;
-		g = (led_anim_mode == LED_BREATHG) ? (led_timer_top - val):0;
+		led_task_cnt--;
+		return;
 	}
 
-	led_set(r, g, b);
+	switch (led_task_state)
+	{
+		case(LED_TASK_BAT_LOW):
+			if (battery_per < 20)
+			{
+				led_task_cnt = LED_NOTIFY_DURATION;
+				led_set(0xFF, 0, 0);
+				break;
+			}
+			led_task_state = LED_TASK_NO_GPS;
 
-	led_anim_progress++;
-	if (led_anim_progress > led_anim_top)
-		led_anim_progress = 0;
+		case(LED_TASK_NO_GPS):
+			if (config.connectivity.use_gps && !fc.gps_data.valid)
+			{
+				led_task_cnt = LED_NOTIFY_DURATION;
+				led_set(0xFF, 0xFF, 0);
+				break;
+			}
+			led_task_state = LED_TASK_BT_NC;
+
+		case(LED_TASK_BT_NC):
+			if (config.connectivity.use_bt && !bt_device_active())
+			{
+				led_task_cnt = LED_NOTIFY_DURATION;
+				led_set(0, 0xFF, 0xFF / 2);
+				break;
+			}
+			led_task_state = LED_TASK_BT_OK;
+
+		case(LED_TASK_BT_OK):
+			if (config.connectivity.use_bt && bt_device_active())
+			{
+				led_task_cnt = LED_NOTIFY_DURATION;
+				led_set(0, 0, 0xFF);
+				break;
+			}
+			led_task_state = LED_TASK_IDLE;
+
+		case(LED_TASK_IDLE):
+			led_task_cnt = LED_NOTIFY_LOOP;
+			led_task_state = 0;
+		return;
+
+		//pause between alarms
+		default:
+			led_set(0, 0, 0);
+			led_task_cnt = LED_NOTIFY_PAUSE;
+	}
+
+	led_task_state++;
 }
 
+//LCD bcklight control
 ISR(LED_TIMER2_OVF)
 {
 	if (lcd_bckl_actual != lcd_bckl_wanted)
@@ -93,7 +142,6 @@ void led_init()
 	led_timer2.SetTop(led_timer_top);
 	led_timer2.SetMode(timer_pwm);
 
-
 	//start timer
 	led_set(0, 0, 0);
 	led_timer1.Start();
@@ -112,31 +160,20 @@ void led_set(uint16_t red, uint16_t green, uint16_t blue)
 	led_timer2.SetCompare(timer_A, blue);
 }
 
-void led_anim(uint8_t mode)
-{
-	led_anim(mode, ANIM_DEFAULT_TOP);
-}
-
-void led_anim(uint8_t mode, uint16_t top)
-{
-	led_anim_mode = mode;
-
-	if (mode == LED_NO_ANIM)
-	{
-		led_set(0, 0, 0);
-		led_timer1.DisableInterrupts(timer_overflow);
-		return;
-	}
-
-	led_anim_top = top;
-	led_anim_progress = 0;
-	led_timer1.EnableInterrupts(timer_overflow);
-}
-
 void lcd_bckl(uint8_t val)
 {
 	lcd_bckl_wanted = val;
 
 	if (lcd_bckl_wanted != lcd_bckl_actual)
 		led_timer2.EnableInterrupts(timer_overflow);
+}
+
+void led_notify_enable()
+{
+	led_timer1.EnableInterrupts(timer_overflow);
+}
+
+void led_notify_disable()
+{
+	led_timer1.DisableInterrupts(timer_overflow);
 }
