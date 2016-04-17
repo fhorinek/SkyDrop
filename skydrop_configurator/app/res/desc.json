@@ -176,7 +176,7 @@
         },
         "cfg_autostart_flags" : {
             "name": "Auto start settings",
-            "mode": "flags"
+            "mode": "flags",
             "flags": [
                 ["AUTOSTART_SUPRESS_AUDIO", "Supress audio before take-off"],
                 ["AUTOSTART_ALWAYS_ENABLED", "Always start recording after power on"]
