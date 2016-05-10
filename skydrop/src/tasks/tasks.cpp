@@ -183,12 +183,10 @@ void task_system_loop()
 
 void task_sleep()
 {
-	io_write(0, HIGH);
 	if (task_sleep_lock == 0)
 	{
 		SystemPowerIdle();
 	}
-	io_write(0, LOW);
 }
 
 void task_irqh(uint8_t type, uint8_t * buff)

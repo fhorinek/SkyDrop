@@ -101,29 +101,29 @@ void gui_value_loop()
 
 
 		case(GUI_VAL_TIME):
-			time_from_epoch(time_get_actual(), &sec, &min, &hour);
+			time_from_epoch(time_get_local(), &sec, &min, &hour);
 
 			sprintf_P(tmp, PSTR("%02d : %02d . %02d"), hour, min, sec);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 			if (gui_value_index == 0)
-				disp.Invert(18, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 32, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(16, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 30, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 1)
-				disp.Invert(36, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 50, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(34, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 48, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 2)
-				disp.Invert(54, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 68, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(52, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 66, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 		break;
 
 		case(GUI_VAL_DATE):
-			datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+			datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 			sprintf_P(tmp, PSTR("%02d / %02d / %04d"), day, month, year);
 			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
 			if (gui_value_index == 0)
-				disp.Invert(10, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 24, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(8, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 22, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 1)
-				disp.Invert(30, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 44, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(28, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 42, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 2)
-				disp.Invert(50, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 76, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+				disp.Invert(48, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 74, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 		break;
 
 		case(GUI_VAL_CONTRAST):
@@ -221,13 +221,13 @@ void gui_value_time_irqh(uint8_t type, uint8_t * buff)
 	switch (gui_value_index)
 	{
 		case(0):
-			time_set_actual(time_get_actual() + (60 * 60) * inc);
+			time_set_local(time_get_local() + (60 * 60) * inc);
 		break;
 		case(1):
-			time_set_actual(time_get_actual() + (60) * inc);
+			time_set_local(time_get_local() + (60) * inc);
 		break;
 		case(2):
-			time_set_actual(time_get_actual() + inc);
+			time_set_local(time_get_local() + inc);
 		break;
 	}
 }
@@ -271,7 +271,7 @@ void gui_value_date_irqh(uint8_t type, uint8_t * buff)
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	switch (gui_value_index)
 	{
@@ -309,17 +309,7 @@ void gui_value_date_irqh(uint8_t type, uint8_t * buff)
 		break;
 	}
 
-	uint32_t diff = 0;
-
-	//do not change flight time during update
-	if (fc.flight_state == FLIGHT_FLIGHT)
-		diff = time_get_actual() - fc.flight_timer;
-
-	time_set_actual(datetime_to_epoch(sec, min, hour, day, month, year));
-
-	//do not change flight time during update
-	if (fc.flight_state == FLIGHT_FLIGHT)
-		fc.flight_timer = time_get_actual() - diff;
+	time_set_local(datetime_to_epoch(sec, min, hour, day, month, year));
 }
 
 void gui_value_irqh(uint8_t type, uint8_t * buff)

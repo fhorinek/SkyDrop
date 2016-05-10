@@ -438,3 +438,20 @@ void mems_power_off()
 		GpioWrite(REV_1504_I2C_EN, LOW);
 	}
 }
+
+float mul_to_sec(float mul)
+{
+	if (mul == 0)
+		return 1;
+	else
+		return 1.0 / (mul * 100.0);
+}
+
+float sec_to_mul(float sec)
+{
+	if (sec == 0.0)
+		return 1;
+	else
+		return 1.0 / (sec * 100.0);
+}
+

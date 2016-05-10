@@ -2,6 +2,10 @@
 #include "splash.h"
 #include "widgets/widgets.h"
 
+#include "gui_dialog.h"
+#include "gui_list.h"
+#include "gui_value.h"
+
 #include "../drivers/audio/sequencer.h"
 
 uint8_t active_page = 2;
@@ -53,11 +57,53 @@ MK_SEQ(snd_page_4, ARR({800, 1000, 1200, 1400, 1600}), ARR({100, 100, 100, 100, 
 
 const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4};
 
+void gui_pages_set_date_manual_cb(float ret)
+{
+	time_set_flags();
+	gui_switch_task(GUI_PAGES);
+}
+
+void gui_pages_set_time_manual_cb(float ret)
+{
+	gui_value_conf_P(PSTR("Date"), GUI_VAL_DATE, PSTR(""), 0, 0, 0, 1, gui_pages_set_date_manual_cb);
+	gui_switch_task(GUI_SET_VAL);
+}
+
+void gui_pages_set_time_cb(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_SET)
+	{
+		gui_value_conf_P(PSTR("Time"), GUI_VAL_TIME, PSTR(""), 0, 0, 0, 1, gui_pages_set_time_manual_cb);
+		gui_switch_task(GUI_SET_VAL);
+	}
+	else
+	{
+		gui_switch_task(GUI_PAGES);
+		config.system.time_flags |= TIME_SYNC;
+		time_wait_for_gps();
+
+		if (!config.connectivity.use_gps)
+		{
+			config.connectivity.use_gps = true;
+			gps_start();
+			gui_showmessage_P(PSTR("Enabling GPS"));
+		}
+	}
+}
+
 void gui_pages_init()
 {
 	page_state_step = PAGE_INFO_STEPS;
 	page_state = PAGE_IDLE;
 	active_widget = WIDGET_OFF;
+
+	if (time_need_set())
+	{
+		time_set_default();
+
+		gui_dialog_set_P(PSTR("Clock"), PSTR("Time/Date not set.\nSet manually\nor wait for GPS."), GUI_STYLE_TIMESET, gui_pages_set_time_cb);
+		gui_switch_task(GUI_DIALOG);
+	}
 }
 
 void gui_pages_stop() {}
@@ -290,7 +336,7 @@ void page_switch(bool right)
 
 	if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_PAGES)
 	{
-		seq_start(snd_pages[active_page], config.gui.menu_volume);
+		seq_start(snd_pages[active_page], config.gui.alert_volume);
 	}
 
 	if (config.gui.disp_flags & CFG_DISP_ANIM)

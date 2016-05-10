@@ -57,7 +57,7 @@ void Post()
 
 	//Print actual time
 	DEBUG("Time is ... \n");
-	print_datetime(time_get_actual());
+	print_datetime(time_get_local());
 
 	DEBUG("Free RAM at start ... %d\n", free_ram_at_start);
 	test_memory();

@@ -68,7 +68,7 @@ void gui_dialog_loop()
 			gui_dialog_cb(1);
 		}
 
-		uint32_t diff = fc.flight_timer;
+		uint32_t diff = fc.flight_timer / 1000;
 		uint8_t hour, min;
 
 		hour = diff / 3600;
@@ -136,6 +136,11 @@ void gui_dialog_loop()
 		case(GUI_STYLE_YESNO):
 			gui_caligh_text_P(PSTR("Yes"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
 			gui_raligh_text_P(PSTR("No"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
+		break;
+
+		case(GUI_STYLE_TIMESET):
+			gui_caligh_text_P(PSTR("Manual"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
+			gui_raligh_text_P(PSTR("GPS"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
 		break;
 	}
 }

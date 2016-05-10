@@ -21,7 +21,7 @@ void logger_init()
 	uint32_t today;
 
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 	today = datetime_to_epoch(0, 0, 0, day, month, year);
 
 	eeprom_busy_wait();
@@ -51,7 +51,7 @@ void logger_next_flight()
 	uint32_t today;
 
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 	today = datetime_to_epoch(0, 0, 0, day, month, year);
 	
 	if (today == logger_flight_day)
@@ -78,7 +78,7 @@ void logger_next_flight()
 
 void logger_step()
 {
-	if (fc.logger_state != LOGGER_ACTIVE)
+	if (!logger_active())
 		return;
 
 	if (logger_next > task_get_ms_tick())
@@ -89,53 +89,66 @@ void logger_step()
 
 	//RAW is running as fast as it can!
 	if (config.logger.format != LOGGER_RAW)
-		logger_next = task_get_ms_tick() + 1000;
-
-	if (fc.flight_state == FLIGHT_FLIGHT)
 	{
-		switch (config.logger.format)
+		if (fc.gps_data.new_sample)
 		{
-			case(LOGGER_IGC):
-				igc_step();
-			break;
-			case(LOGGER_KML):
-				kml_step();
-			break;
-			case(LOGGER_RAW):
-				raw_step();
-			break;
+			logger_next = task_get_ms_tick() + 1000;
+			fc.gps_data.new_sample = false;
 		}
+	}
+
+	switch (config.logger.format)
+	{
+		case(LOGGER_IGC):
+			igc_step();
+		break;
+
+		case(LOGGER_KML):
+			kml_step();
+		break;
+
+		case(LOGGER_RAW):
+			raw_step();
+		break;
 	}
 }
 
 void logger_comment(char * text)
 {
-	if (fc.logger_state != LOGGER_ACTIVE)
+	if (!logger_active())
 		return;
 
-	if (fc.flight_state == FLIGHT_FLIGHT)
+	switch (config.logger.format)
 	{
-		switch (config.logger.format)
-		{
-			case(LOGGER_IGC):
-				igc_comment(text);
-			break;
-			case(LOGGER_KML):
-				kml_comment(text);
-			break;
-			case(LOGGER_RAW):
-				DEBUG("%s\n", text);
-			break;
-		}
+		case(LOGGER_IGC):
+			igc_comment(text);
+		break;
+
+		case(LOGGER_KML):
+			kml_comment(text);
+		break;
+
+		case(LOGGER_RAW):
+			DEBUG("%s\n", text);
+		break;
 	}
 }
 
 void logger_start()
 {
+	if (!config.logger.enabled)
+		return;
+
 	logger_next_flight();
 
 	if (!storage_selftest())
+	{
 		gui_showmessage_P(PSTR("SD card error!"));
+
+		fc.logger_state = LOGGER_ERROR;
+
+		return;
+	}
 
 	uint8_t sec;
 	uint8_t min;
@@ -145,7 +158,7 @@ void logger_start()
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	char path[128];
 
@@ -162,31 +175,45 @@ void logger_start()
 	sprintf_P(path, PSTR("%S/%04d/%02d/%02d"), LOG_DIR, year, month, day);
 	f_mkdir(path);
 
-	bool ret = false;
-
 	switch (config.logger.format)
 	{
 		case(LOGGER_IGC):
-			ret = igc_start(path);
+			fc.logger_state = igc_start(path);
 		break;
+
 		case(LOGGER_KML):
-			ret = kml_start(path);
+			fc.logger_state = kml_start(path);
 		break;
+
 		case(LOGGER_RAW):
-			ret = raw_start(path);
+			fc.logger_state = raw_start(path);
 		break;
-
 	}
+}
 
-	if (ret)
-		fc.logger_state = LOGGER_ACTIVE;
+//logger is active or it is waiting for gps
+bool logger_active()
+{
+	return (fc.logger_state == LOGGER_ACTIVE || fc.logger_state == LOGGER_WAIT_FOR_GPS);
+}
 
+bool logger_error()
+{
+	return fc.logger_state == LOGGER_ERROR;
 }
 
 void logger_stop()
 {
-	if (fc.logger_state != LOGGER_ACTIVE)
+	if (!logger_active())
 		return;
+
+	if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
+	{
+		char text[32];
+		strcpy_P(text, PSTR("No GPS fix during flight!"));
+
+		logger_comment(text);
+	}
 
 	fc.logger_state = LOGGER_IDLE;
 
@@ -195,9 +222,11 @@ void logger_stop()
 		case(LOGGER_IGC):
 			igc_stop();
 		break;
+
 		case(LOGGER_KML):
 			kml_stop();
 		break;
+
 		case(LOGGER_RAW):
 			raw_step();
 		break;

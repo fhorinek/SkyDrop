@@ -36,6 +36,13 @@ public:
 	uint8_t parser_buffer_index;
 	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 
+	uint8_t cmd_iter;
+	uint16_t btle_service_handles[3];
+	uint16_t btle_characteristic_handles[6];
+	uint16_t btle_element_handles[7];
+
+	uint16_t btle_connection_handles[5];
+
 	bool repat_last_cmd;
 
 	void SetNextStep(uint8_t cmd);
@@ -44,6 +51,11 @@ public:
 	void ParseHCI();
 	void ParseMNG();
 	void ParseSPP();
+
+	void ParseMNG_LE();
+	void ParseGAT_cli();
+	void ParseGAT_ser();
+
 
 	void WaitForAnswer();
 	void StreamWrite(uint8_t data);
@@ -59,8 +71,6 @@ public:
 	char client_name[32];
 
 	uint32_t timer;
-
-	uint8_t link_key[16];
 };
 
 #endif /* PAN1026_H_ */

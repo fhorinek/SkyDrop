@@ -8,7 +8,7 @@ volatile uint8_t lcd_bckl_wanted = 0;
 
 #define led_timer_top 255
 
-#define MS_TO_TICKS(A)	(A / 8.192)
+#define MS_TO_TICKS(A)	(A / 2.048)
 
 #define LED_NOTIFY_DURATION		MS_TO_TICKS(50)
 #define LED_NOTIFY_PAUSE		MS_TO_TICKS(500)
@@ -130,13 +130,13 @@ void led_init()
 	GpioWrite(BCKL, LOW);
 
 	//init timer
-	led_timer1.Init(LED_TIMER1, timer_div1024);
+	led_timer1.Init(LED_TIMER1, timer_div256);
 			    		    // GREEN | RED
 	led_timer1.EnableOutputs(timer_A | timer_B);
 	led_timer1.SetTop(led_timer_top);
 	led_timer1.SetMode(timer_pwm);
 
-	led_timer2.Init(LED_TIMER2, timer_div1024);
+	led_timer2.Init(LED_TIMER2, timer_div256);
 			    	          //BLUE | BCKL
 	led_timer2.EnableOutputs(timer_A | timer_B);
 	led_timer2.SetTop(led_timer_top);

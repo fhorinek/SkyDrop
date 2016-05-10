@@ -7,10 +7,10 @@ float widget_menu_fvalue1;
 
 widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_dummy, w_debug_etc, w_debug_imu,
-		w_vario, w_avg_vario, w_vario_bar,
+		w_vario, w_avg_vario, w_vario_bar, w_vario_history,
 		w_alt1, w_alt2, w_alt3, w_alt4, w_alt5,
 		w_accx,
-		w_time, w_ftime,
+		w_time, w_date, w_ftime,
 		w_temperature,
 		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow,
 		w_battery,
@@ -20,6 +20,9 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 
 uint8_t widget_label_P(const char * label, uint8_t x, uint8_t y)
 {
+	if (config.gui.hide_label & (1 << active_page))
+		return 0;
+
 	disp.LoadFont(F_LABEL);
 	disp.GotoXY(x + 1, y);
 	fprintf_P(lcd_out, PSTR("%S"), label);
@@ -28,6 +31,9 @@ uint8_t widget_label_P(const char * label, uint8_t x, uint8_t y)
 
 uint8_t widget_label(char * label, uint8_t x, uint8_t y)
 {
+	if (config.gui.hide_label & (1 << active_page))
+		return 0;
+
 	disp.LoadFont(F_LABEL);
 	disp.GotoXY(x + 1, y);
 	fprintf_P(lcd_out, PSTR("%s"), label);

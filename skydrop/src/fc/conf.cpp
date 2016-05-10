@@ -5,6 +5,9 @@ cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
 #define log_default_text	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
+#define bt_link_key_blank	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define mac_invalid			{0, 0, 0, 0, 0, 0}
+
 volatile cfg_t config;
 
 EEMEM cfg_t config_ee = {
@@ -15,9 +18,9 @@ EEMEM cfg_t config_ee = {
 		//contrast
 		GUI_CONTRAST_STEPS / 2 + 1,
 		//brightness
-		100,
+		20,
 		//brightness_timeout
-		3,
+		10,
 		//display_flags
 		CFG_DISP_ANIM,
 		//last_page
@@ -25,48 +28,50 @@ EEMEM cfg_t config_ee = {
 		//menu_audio_flags
 		CFG_AUDIO_MENU_SPLASH | CFG_AUDIO_MENU_PAGES | CFG_AUDIO_MENU_BUTTONS | CFG_AUDIO_MENU_GPS,
 		//menu_volume
-		80,
+		40,
 		//vario_volume
-		80,
+		100,
 		//vario_mute
 		false,
 		//alert_volume
-		80,
+		100,
 		//number_of_pages
 		MAX_NUMBER_OF_PAGES,
 		//silent
+		0b00000000,
+		//hide_label
 		0b00000000,
 		//pages
 		{
 			//0
 			{
 				//type
-				LAYOUT_12,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_AVG_VARIO, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_222,
+				{WIDGET_TIME, WIDGET_FTIME, WIDGET_CTRL_AUDIO, WIDGET_CTRL_WLIFT, WIDGET_TEMPERATURE, WIDGET_BATTERY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//1
 			{
 				//type
-				LAYOUT_12,
-				{WIDGET_VARIO_BAR, WIDGET_TIME, WIDGET_FTIME, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_123,
+				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_GHEADING_ARROW, WIDGET_ALT1, WIDGET_GLIDE_RATIO, WIDGET_GROUND_SPD, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//2
 			{
 				//type
-				LAYOUT_122,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_AVG_VARIO, WIDGET_ALT1, WIDGET_ALT2, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_123,
+				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_AVG_VARIO, WIDGET_ALT1, WIDGET_FTIME, WIDGET_GROUND_SPD, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//3
 			{
 				//type
-				LAYOUT_123,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_ALT2, WIDGET_GHEADING, WIDGET_GROUND_SPD, WIDGET_GLIDE_RATIO, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_121,
+				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_VARIO_HISTORY, WIDGET_ALT2, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//4
 			{
 				//type
-				LAYOUT_22,
-				{WIDGET_CTRL_AUDIO, WIDGET_CTRL_WLIFT, WIDGET_BATTERY, WIDGET_TEMPERATURE, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_21,
+				{WIDGET_TIME, WIDGET_ALT3, WIDGET_POSITION, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 		},
 
@@ -74,7 +79,7 @@ EEMEM cfg_t config_ee = {
 	//vario
 	{
 		//digital_vario_dampening
-		1.0,
+		1.0 / 100.0 / 0.3, // << last 0.3 sec
 		//avg_vario_dampening
 		1.0 / 100.0 / 10.0, // << last 10 sec
 		//flags
@@ -97,9 +102,9 @@ EEMEM cfg_t config_ee = {
 			//altimeter2
 			{
 				//flags
-				ALT_DIFF | 0,
+				ALT_AUTO_ZERO | ALT_DIFF | 0,
 				//diff
-				+100,
+				0,
 			},
 			//altimeter3
 			{
@@ -111,16 +116,16 @@ EEMEM cfg_t config_ee = {
 			//altimeter4
 			{
 				//flags
-				ALT_ABS_QNH2,
+				ALT_DIFF | 1,
 				//diff
-				0,
+				200,
 			},
 			//altimeter5
 			{
 				//flags
-				ALT_DIFF | 2,
+				ALT_ABS_QNH2,
 				//diff
-				+200,
+				0,
 			},
 		},
 	},
@@ -137,7 +142,7 @@ EEMEM cfg_t config_ee = {
 		//lift
 		10,
 		//sink
-		-70,
+		-150,
 		//fluid
 		1,
 	},
@@ -151,13 +156,15 @@ EEMEM cfg_t config_ee = {
 		false,//DEBUG_MAGIC_ON,
 		//debug_gps
 		false,
+		//record_screen
+		false,
 		//auto_power_off
 		25,
 	},
 	//Autostart
 	{
 		//start_sensititvity
-		4,
+		6,
 		//land_sensitivity
 		1,
 		//timeout
@@ -181,19 +188,21 @@ EEMEM cfg_t config_ee = {
 	//Connectivity
 	{
 		//usb_mode
-		USB_MODE_MASSSTORAGE,
+		USB_MODE_NONE,
 		//use_gps
 		true,
 		//gps_format_flags
 		GPS_DDdddddd | GPS_SPD_KPH,
 		//use_bt
 		false,
+		//bt_link_key
+		bt_link_key_blank,
 		//forward_gps
-		true,
+		false,
 		//protocol
-		PROTOCOL_DIGIFLY,
+		PROTOCOL_LK8EX1,
 		//uart_function
-		UART_FORWARD_DEBUG,
+		UART_FORWARD_OFF,
 	}
 };
 

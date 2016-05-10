@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="sk" lang="sk">
+
+<head>
+<title>OLED Picture Maker</title>
+<link rel="stylesheet" href="OLEDpictureMaker.css" type="text/css">
+<script src="OLEDpictureMaker.js" type="text/javascript" language="JavaScript"></script>
+</head>
+<body onload="main();">
+<div id="OLEDpopup" class="OLEDpopup" style="margin:30px;">
+K�d:<br/>
+<textarea id="innerPopup" rows="7" cols="50"></textarea>
+
+<div><input type="button" value="Zatvorit" onmousedown="HidePopup();"/>
+</div>
+
+</div>
+
+<div id="load_array" style="margin:30px;">K�d na nac�tanie:<br/>
+<textarea id="load_them_up_area" rows="7" cols="50">
+
+</textarea>
+<input onclick="load_up()" type="submit" onclick="load_up()" value="Nac�tat"/>
+
+</div>
+
+
+<div unselectable='on' id="wrapper" onmouseup="isMouseDown=false;">
+<div id="userInterface" onmouseup="isMouseDown=false;">
+<div id="canvasSizeUI"><div class="canvasSizeLabels"><div><b>Width:</b></div><div style="padding-top:6px"><b>Height:</b></div></div><div class="canvasSizeInputs"><input id="width" type="text" size="5" value="84"/><br/><input id="height" type="text" size="5" value="48"/></div></div>
+<div id="newUI"><b>New</b><br/><img src="newdoc.png" height="22" width="20" onmousedown="NewDocument();"/></div>
+<div id="saveUI"><b>Save</b><br/><img src="save_icon.png" width="23" height="22" onmousedown="SaveDocument();"/></div>
+<div id="loadUI"><b>Load</b><br/><img src="load_icon.png" width="23" height="22" onmousedown="LoadDocument();"/></div>
+<div id="toolsUI"></div>
+<div id="sizeUI"></div></div>
+<div class='disableSelection' id="canvasWrapper"></div>
+<div id="statusBar">X: Y:</div>
+</div>
+
+</body>
+</html>

@@ -332,6 +332,7 @@ void gps_parse_rmc()
 						PSTR("%03u*%02u'%02u\"%c"), tdeg, tmin, tsec, (*(fc.gps_data.cache_igc_longtitude + 8)));
 			break;
 		}
+	fc.gps_data.new_sample = true;
 }
 
 //132405.000,4809.2356,N,01704.4263,E,1,6,1.95,160.3,M,42.7,M,,
@@ -643,6 +644,7 @@ void gps_start()
 
 	gps_parser_state = GPS_IDLE;
 	fc.gps_data.valid = false;
+	fc.gps_data.new_sample = false;
 	fc.gps_data.fix = 0;
 	fc.gps_data.fix_cnt = 0;
 

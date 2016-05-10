@@ -93,7 +93,7 @@ DWORD get_fattime (void)
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	/* Returns current time packed into a DWORD variable */
 	return	  ((DWORD)(year - 1980) << 25)	/* Year 2013 */

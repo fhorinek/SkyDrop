@@ -11,9 +11,18 @@ void datetime_from_epoch(uint32_t epoch, uint8_t * psec, uint8_t * pmin, uint8_t
 
 void print_datetime(uint32_t epoch);
 
-uint32_t time_get_actual();
-void time_set_actual(uint32_t t);
+uint32_t time_get_local();
+void time_set_local(uint32_t t);
+
+void time_set_utc(uint32_t t);
+uint32_t time_get_utc();
+
 void time_init();
+void time_set_flags();
+void time_set_default();
+bool time_is_set();
+bool time_need_set();
+void time_wait_for_gps();
 
 extern uint8_t monthDays[12];
 

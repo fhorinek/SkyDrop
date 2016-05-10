@@ -43,6 +43,7 @@ struct cfg_gui
 
 	uint8_t number_of_pages;
 	uint8_t silent;
+	uint8_t hide_label;
 	cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };
 
@@ -110,6 +111,8 @@ struct cfg_system
 
 	uint8_t debug_log;
 	uint8_t debug_gps;
+	uint8_t record_screen;
+
 	uint8_t auto_power_off; //in minutes
 };
 
@@ -180,6 +183,8 @@ struct cfg_connectivity
 	uint8_t gps_format_flags;
 
 	uint8_t use_bt;
+	uint8_t bt_link_key[16];
+
 	uint8_t forward_gps;
 	uint8_t protocol;
 

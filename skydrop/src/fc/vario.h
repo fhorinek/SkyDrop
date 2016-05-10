@@ -12,5 +12,6 @@
 
 void vario_init();
 void vario_calc(float pressure);
+void vario_update_history_delay();
 
 #endif /* FC_VARIO_H_ */

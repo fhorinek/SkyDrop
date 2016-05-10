@@ -43,8 +43,10 @@
 #define GPS_FIX_TIME_SYNC	10
 #define GPS_FIX_ALT_SYNC	50
 
-#define LOGGER_IDLE		0
-#define LOGGER_ACTIVE	1
+#define LOGGER_IDLE			0
+#define LOGGER_WAIT_FOR_GPS	1
+#define LOGGER_ACTIVE		2
+#define LOGGER_ERROR		3
 
 struct flight_stats_t
 {
@@ -58,6 +60,7 @@ struct flight_stats_t
 struct gps_data_t
 {
 	bool valid;
+	bool new_sample;
 
 	char cache_igc_latitude[9];
 	char cache_igc_longtitude[10];
@@ -94,6 +97,9 @@ struct gps_data_t
 #define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK	(-0.01)
 
+#define VARIO_HISTORY_SIZE 32
+#define VARIO_HISTORY_SCALE	24 // == 1m/s
+
 struct flight_data_t
 {
 	// --- RAW from sensors ---
@@ -114,7 +120,7 @@ struct flight_data_t
 	bool glide_ratio_valid;
 
 	//serve as wait timer, flight time and flight duration holder after land
-	uint32_t flight_timer;
+	uint32_t flight_timer; //in ms
 	uint8_t flight_state;
 
 	uint32_t autostart_timer;
@@ -128,6 +134,11 @@ struct flight_data_t
 	float pressure;
 
 	float vario;
+
+	uint16_t vario_history_delay;
+	int8_t vario_history[VARIO_HISTORY_SIZE];
+	uint8_t vario_history_pointer;
+	uint16_t vario_history_step;
 
 	float digital_vario;
 	float avg_vario;

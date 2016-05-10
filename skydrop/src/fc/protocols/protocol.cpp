@@ -29,7 +29,7 @@ void protocol_step()
 	if (protocol_next_step > task_get_ms_tick())
 		return;
 
-	char buffer[512];
+	char buffer[128];
 
 	switch (config.connectivity.protocol)
 	{

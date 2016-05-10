@@ -10,13 +10,14 @@
 
 #define lcd_width		84
 #define lcd_height		48
+#define lcb_layer_size	((lcd_height / 8) * lcd_width)
 
 class lcd_display{
 private:
 	Spi * spi;
 	uint8_t * active_buffer;
 
-	uint8_t layers[DISP_LAYERS][(lcd_height / 8) * lcd_width];
+	uint8_t layers[DISP_LAYERS][lcb_layer_size];
 
 	void sendcommand(unsigned char cmd);
 	void SendChar(unsigned char data);
@@ -81,6 +82,8 @@ public:
 	void CopyToLayer(uint8_t dst);
 
 	void SetDrawLayer(uint8_t layer);
+
+	uint8_t * GetActiveLayerPtr();
 };
 
 #endif /* OLEDDISPLAY_H_ */

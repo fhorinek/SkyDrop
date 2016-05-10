@@ -13,5 +13,6 @@
 extern widget w_vario;
 extern widget w_avg_vario;
 extern widget w_vario_bar;
+extern widget w_vario_history;
 
 #endif /* WVARIO_H_ */

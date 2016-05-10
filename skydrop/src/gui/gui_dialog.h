@@ -14,11 +14,14 @@
 #define GUI_STYLE_OKCANCEL		1
 #define GUI_STYLE_YESNO			2
 #define GUI_STYLE_STATS			3
+#define GUI_STYLE_TIMESET		4
 
 #define GUI_DIALOG_OK			1
 #define GUI_DIALOG_CANCEL		2
 #define GUI_DIALOG_YES			1
 #define GUI_DIALOG_NO			2
+#define GUI_DIALOG_SET			1
+#define GUI_DIALOG_WAIT			2
 
 typedef void uint8_cb(uint8_t val);
 

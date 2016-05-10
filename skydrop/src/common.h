@@ -268,7 +268,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 //revision specific pins
 #define HW_REW_1504		0
 #define HW_REW_1506		1
-#define HW_REW_1511		2
+#define HW_REW_1512		2
 #define HW_REW_UNKNOWN	0xFF
 
 #define REV_1504_MEMS_EN_2		portb1
@@ -309,6 +309,9 @@ int freeRam();
 bool cmpn(char * s1, const char * s2, uint8_t n);
 bool cmpn_p(char * s1, const char * s2, uint8_t n);
 uint8_t fast_flip(uint8_t in);
+
+float mul_to_sec(float mul);
+float sec_to_mul(float sec);
 
 //settings
 bool LoadEEPROM();

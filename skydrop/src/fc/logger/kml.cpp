@@ -32,7 +32,7 @@ bool kml_start(char * path)
 	char line[79];
 	char id[32];
 
-	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.KML"), path, logger_flight_number, hour, min);
 	DEBUG("KML filename %s\n", filename);
@@ -64,7 +64,6 @@ bool kml_start(char * path)
 	kml_writeline(line);
 	sprintf_P(line, PSTR("<!--  SW: build %d -->"), BUILD_NUMBER);
 	kml_writeline(line);
-
 
 	//body
 	sprintf_P(line, PSTR("<kml xmlns=\"http://earth.google.com/kml/2.0\">"));
@@ -98,7 +97,7 @@ bool kml_start(char * path)
 	sprintf_P(line, PSTR("<coordinates>"));
 	kml_writeline(line);
 
-	return true;
+	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
 }
 
 void kml_step()
@@ -108,6 +107,8 @@ void kml_step()
 		char line[79];
 		char tmp1[16];
 		char tmp2[16];
+
+		fc.logger_state = LOGGER_ACTIVE;
 
 		sprintf_P(tmp1, PSTR(" %+010ld"), fc.gps_data.longtitude);
 		memcpy((void *)tmp1, (void *)(tmp1 + 1), 3);
@@ -120,6 +121,8 @@ void kml_step()
 		sprintf_P(line, PSTR("%s,%s,%0.0f"), tmp1, tmp2, fc.altitude1);
 		kml_writeline(line);
 	}
+	else
+		fc.logger_state = LOGGER_WAIT_FOR_GPS;
 }
 
 void kml_comment(char * text)

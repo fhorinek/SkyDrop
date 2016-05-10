@@ -14,10 +14,10 @@ bool raw_start(char * path)
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.RAW"), path, logger_flight_number, hour, min);
-	DEBUG("KML filename %s\n", filename);
+	DEBUG("RAW filename %s\n", filename);
 
 	uint8_t res = f_open(log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
 	assert(res == FR_OK);
@@ -26,9 +26,7 @@ bool raw_start(char * path)
 	if (res != FR_OK)
 		return false;
 
-
-
-	return true;
+	return LOGGER_ACTIVE;
 }
 
 void raw_step()

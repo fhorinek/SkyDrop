@@ -59,12 +59,6 @@ void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	vario = fc.vario;
 
-//	if (flight_data.baro_valid)
-//		vario = flight_data.vario;
-//	else
-//		vario = 0;
-
-
 	if (abs(vario) > 0.09)
 	{
 		uint8_t y_top = 0;
@@ -120,6 +114,54 @@ void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	}
 }
 
+int8_t clamp(float in, uint8_t limit)
+{
+	if (in > limit) return limit;
+	if (in < -limit) return -limit;
+	return in;
+}
+
+void widget_vario_history_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = 0;//widget_label_P(PSTR("VHist"), x, y);
+
+	uint8_t max = VARIO_HISTORY_SCALE / 2;
+	for (uint8_t i = 0; i < VARIO_HISTORY_SIZE; i++)
+	{
+		if (abs(fc.vario_history[i]) > max)
+			max = abs(fc.vario_history[i]);
+	}
+
+	max /= VARIO_HISTORY_SCALE / 2;
+	max++;
+	max *= VARIO_HISTORY_SCALE / 2;
+
+	uint8_t middle = y + lh + (h - lh) / 2;
+	uint8_t max_h = (h - lh) / 2 - 1;
+	uint8_t ptr = fc.vario_history_pointer;
+	float step_x = (w - 1) / (float)(VARIO_HISTORY_SIZE - 1);
+	float step_y = -max_h / (float)max;
+
+	uint8_t old_y = clamp(fc.vario_history[ptr] * step_y, max_h) + middle;
+	for (uint8_t i = 1; i < VARIO_HISTORY_SIZE - 1; i++)
+	{
+		ptr = (ptr + 1) % VARIO_HISTORY_SIZE;
+		uint8_t new_y = clamp(fc.vario_history[ptr] * step_y, max_h) + middle;
+
+		disp.DrawLine(x + (i - 1) * step_x, old_y, x + i * step_x, new_y, 1);
+		old_y = new_y;
+	}
+
+	//1m
+	for (uint8_t ix = x; ix < x + w - 1; ix++)
+		if (ix % 2)
+			disp.PutPixel(ix, middle + VARIO_HISTORY_SCALE * step_y, 1);
+
+	//middle line
+	disp.DrawLine(x, middle, x + w - 1, middle, 1);
+}
+
 register_widget1(w_vario, "Vario", widget_vario_draw);
 register_widget1(w_avg_vario, "AVG vario", widget_avg_vario_draw);
 register_widget1(w_vario_bar, "Vario bar", widget_vario_bar_draw);
+register_widget1(w_vario_history, "Vario history", widget_vario_history_draw);

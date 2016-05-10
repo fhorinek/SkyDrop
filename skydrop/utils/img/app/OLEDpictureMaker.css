@@ -1,0 +1,106 @@
+
+#wrapper {
+  width:        513px;
+  height:       328px;
+  margin-left:  auto;
+  margin-right: auto;
+  background-color: rgb(186,186,186);
+  border:  2px solid rgb(154,154,154);
+}
+
+#canvasWrapper {
+  margin-left: auto;
+  margin-right: auto;
+  width: 512px;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+ .popup {
+    width:200px;
+    height:100px;
+    position:absolute;
+    top:50%;
+    left:50%;
+    margin:-50px 0 0 -100px; /* [-(height/2)px 0 0 -(width/2)px] */
+    display:none;
+}
+
+#statusBar {
+  height: 13px;
+  width:  510px;
+  padding-left:2px;
+  background-color: rgb(207,207,207);
+  font-size: 8pt;
+}
+
+#userInterface {
+  height: 60px;
+  width:  512px;
+  background-color: rgb(220,230,244);
+  color: rgb(100,100,100);
+  font-size: 10pt;
+}      
+
+#newUI, #saveUI, #toolsUI, #sizeUI, #canvasSizeUI {
+  float: left;
+  text-align: center;
+  padding-top:5px;
+  margin-left:10px;
+}
+
+ #loadUI{
+  float: left;
+  text-align: center;
+  padding-top:5px;
+  margin-left:10px;
+}
+#load_array{
+  float: left;
+  text-align: center;
+  padding-top:5px;
+  margin-left:10px;
+
+}
+.canvasSizeLabels {
+  padding-top:5px;
+  margin-left:2px;
+  display:inline;
+  float: left;
+}
+
+.disableSelection{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+outline: 0;
+}
+.canvasSizeInputs {
+  font-size: 8pt;
+  display:inline;
+  float: left;
+  width: 48px;
+  height: 45px;
+  padding-left:2px;
+  padding-top:3px;
+}
+
+.canvasSizeInputs input {
+  height: 14px;
+  width:  40px;
+}
+
+.pixel {
+  /*border: 1px solid black;     */
+  background-color: white;
+  color: white;
+  /*font-size: 6px;*/
+  display: table-cell;
+  width:4px;
+  height:4px;
+  padding: 0px;
+  margin:0px 0px 0px 0px;
+}

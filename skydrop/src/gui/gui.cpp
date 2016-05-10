@@ -257,6 +257,8 @@ uint8_t fps_counter = 0;
 uint8_t fps_val = 0;
 uint32_t fps_timer = 0;
 
+uint16_t gui_record_cnt;
+
 uint32_t gui_loop_timer = 0;
 
 void gui_dialog_P(const char * title)
@@ -413,12 +415,35 @@ void gui_loop()
 	// FPS end
 	disp.Draw();
 
+	if (config.system.record_screen && storage_selftest())
+	{
+		FIL fimg;
+		uint16_t wb;
+		char fname[32];
+
+		sprintf_P(fname, PSTR("/REC/%08d"), gui_record_cnt);
+
+		uint8_t res = f_open(&fimg, fname, FA_WRITE | FA_CREATE_ALWAYS);
+		DEBUG("rec = %02X\n", res);
+
+		if (res == FR_OK)
+		{
+			f_write(&fimg, disp.GetActiveLayerPtr(), lcb_layer_size, &wb);
+			f_close(&fimg);
+
+			gui_record_cnt++;
+		}
+	}
+
+
 	if (gui_task != GUI_SPLASH)
+	{
 		if (buttons_read(B_LEFT) || buttons_read(B_RIGHT) || buttons_read(B_MIDDLE))
 		{
 			gui_trigger_backlight();
 			gui_reset_timeout();
 		}
+	}
 
 	if (lcd_brightness_end < task_get_ms_tick())
 		lcd_bckl(0);
@@ -490,7 +515,7 @@ void gui_statusbar()
 		disp.LoadFont(F_TEXT_S);
 		sprintf_P(tmp, PSTR("B"));
 
-		if(bt_device_active())
+		if (bt_device_active())
 		{
 			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 9);
 		}
@@ -502,13 +527,28 @@ void gui_statusbar()
 	}
 
 	//LOG indicator
-	if (fc.logger_state == LOGGER_ACTIVE)
+	if (fc.logger_state != LOGGER_IDLE)
 	{
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);
-		sprintf_P(tmp, PSTR("L"));
 
-		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+		if (fc.logger_state == LOGGER_ACTIVE)
+		{
+			sprintf_P(tmp, PSTR("L"));
+			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+		}
+		else if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
+		{
+			sprintf_P(tmp, PSTR("L"));
+			if (GUI_BLINK_TGL(1000))
+				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+		}
+		else if (fc.logger_state == LOGGER_ERROR)
+		{
+			sprintf_P(tmp, PSTR("E"));
+			if (GUI_BLINK_TGL(500))
+				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+		}
 	}
 
 	//Debug.log indicator

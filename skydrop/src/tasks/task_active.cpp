@@ -28,7 +28,6 @@ void task_active_init()
 	if (storage_init())
 	{
 		//Handle update files
-
 		FILINFO fno;
 
 		//new way to update FW if SKYDROP.FW file found

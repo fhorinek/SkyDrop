@@ -6,9 +6,15 @@ void widget_battery_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 {
 	uint8_t lh = widget_label_P(PSTR("Bat"), x, y);
 
-	char text[6];
-	sprintf_P(text, PSTR("%d"), battery_per);
-	widget_value_int(text, x, y + lh, w, h - lh);
+	char text[8];
+	if (battery_per == BATTERY_CHARGING)
+		sprintf_P(text, PSTR("Chrg"));
+	else if (battery_per == BATTERY_FULL)
+		sprintf_P(text, PSTR("Full"));
+	else
+		sprintf_P(text, PSTR("%d%%"), battery_per);
+
+	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
 register_widget1(w_battery, "Battery", widget_battery_draw);

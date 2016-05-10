@@ -82,7 +82,7 @@ void debug_timeout_handler()
 
 	//store this info
 	eeprom_busy_wait();
-	eeprom_update_dword(&config_ro.debug.time, time_get_actual());
+	eeprom_update_dword(&config_ro.debug.time, time_get_local());
 	eeprom_update_word(&config_ro.debug.build_number, BUILD_NUMBER);
 	eeprom_update_dword(&config_ro.debug.program_counter, ra);
 	eeprom_update_word(&config_ro.debug.min_stack, debug_min_stack_pointer);
@@ -220,7 +220,7 @@ void debug_step()
 		uint16_t year;
 		char tmp[64];
 
-		datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+		datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 		sprintf_P(tmp, PSTR("\n\n === APPEND %02d.%02d.%04d %02d:%02d.%02d ===\n"), day, month, year, hour, min, sec);
 

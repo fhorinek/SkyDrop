@@ -27,6 +27,7 @@ void gui_set_time_irqh(uint8_t type, uint8_t * buff)
 void gui_set_time_time_cb(float val)
 {
 	gui_switch_task(GUI_SET_TIME);
+	time_set_flags();
 }
 
 void gui_set_time_timezone_cb(float val)
@@ -61,9 +62,15 @@ void gui_set_time_action(uint8_t index)
 		config.system.time_flags ^= TIME_DST;
 
 		if (config.system.time_flags & TIME_DST)
+		{
 			config.system.time_zone = config.system.time_zone + 2;
+			time_set_local(time_get_local() + 3600);
+		}
 		else
+		{
 			config.system.time_zone = config.system.time_zone - 2;
+			time_set_local(time_get_local() - 3600);
+		}
 
 		eeprom_busy_wait();
 		eeprom_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
@@ -88,7 +95,7 @@ void gui_set_time_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(time_get_actual(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	switch (index)
 	{

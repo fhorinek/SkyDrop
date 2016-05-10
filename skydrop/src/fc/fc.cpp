@@ -23,7 +23,7 @@ extern KalmanFilter * kalmanFilter;
 
 MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
-#define FC_LOG_BATTERY_EVERY	(5 * 60 * 1000)
+#define FC_LOG_BATTERY_EVERY	(5 * 60 * 1000ul)
 uint32_t fc_log_battery_next = 0;
 
 void fc_init()
@@ -209,9 +209,7 @@ ISR(FC_MEAS_TIMER_OVF)
 {
 	BT_SUPRESS_TX
 
-	io_write(1, HIGH);
 	ms5611.ReadPressure();
-	io_write(1, LOW);
 
 	ms5611.StartTemperature();
 	lsm303d.StartReadMag(); //it takes 152us to transfer
@@ -344,11 +342,11 @@ void fc_takeoff()
 	gui_showmessage_P(PSTR("Take off"));
 
 	fc.flight_state = FLIGHT_FLIGHT;
-	fc.flight_timer = time_get_actual();
+	fc.flight_timer = task_get_ms_tick();
 
 	//reset timer and altitude for autoland
 	fc.autostart_altitude = fc.altitude1;
-	fc.autostart_timer = time_get_actual();
+	fc.autostart_timer = task_get_ms_tick();
 
 	//reset battery info timer
 	fc_log_battery_next = 0;
@@ -359,8 +357,6 @@ void fc_takeoff()
 		if (config.altitude.altimeter[i].flags & ALT_AUTO_ZERO)
 			fc_zero_alt(i + 1);
 	}
-
-	logger_start();
 }
 
 uint8_t fc_landing_old_gui_task;
@@ -377,7 +373,8 @@ void fc_landing()
 	gui_switch_task(GUI_DIALOG);
 
 	fc.flight_state = FLIGHT_LAND;
-	fc.flight_timer = time_get_actual() - fc.flight_timer;
+
+	fc.flight_timer = task_get_ms_tick() - fc.flight_timer;
 
 	audio_off();
 
@@ -387,7 +384,7 @@ void fc_landing()
 void fc_reset()
 {
 	//autostart timer
-	fc.autostart_timer = time_get_actual();
+	fc.autostart_timer = task_get_ms_tick();
 	fc.flight_state = FLIGHT_WAIT;
 
 	//statistic
@@ -400,25 +397,18 @@ void fc_reset()
 
 void fc_sync_gps_time()
 {
-	uint32_t diff = 0;
-
-	if (time_get_actual() == (fc.gps_data.utc_time + (config.system.time_zone * 3600ul) / 2))
+	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
 
-	//do not change flight time during update
-	if (fc.flight_state == FLIGHT_FLIGHT)
-		diff = time_get_actual() - fc.flight_timer;
+	DEBUG("Syncing time\n");
+	DEBUG(" local    %lu\n", time_get_local());
+	DEBUG(" gps + tz %lu\n", fc.gps_data.utc_time + config.system.time_zone * 1800ul);
 
-	time_set_actual(fc.gps_data.utc_time + (config.system.time_zone * 3600ul) / 2);
-
-	//do not change flight time during update
-	if (fc.flight_state == FLIGHT_FLIGHT)
-		fc.flight_timer = time_get_actual() - diff;
-
-	//restart autostart/autoland timer
-	fc.autostart_timer = time_get_actual();
+	time_set_utc(fc.gps_data.utc_time);
 
 	gui_showmessage_P(PSTR("GPS Time set"));
+
+	time_set_flags();
 }
 
 void fc_step()
@@ -440,8 +430,8 @@ void fc_step()
 	}
 	else
 	{
-	//auto start
-		// baro valid, waiting to take off, and enabled auto start
+		//auto start
+		// baro valid, waiting to take off or landed, and enabled auto start
 		if (fc.baro_valid && (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
 		{
 			if (abs(fc.altitude1 - fc.autostart_altitude) > config.autostart.start_sensititvity)
@@ -451,9 +441,9 @@ void fc_step()
 			else
 			{
 				//reset wait timer
-				if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
+				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000)
 				{
-					fc.autostart_timer = time_get_actual();
+					fc.autostart_timer = task_get_ms_tick();
 					fc.autostart_altitude = fc.altitude1;
 				}
 			}
@@ -465,10 +455,10 @@ void fc_step()
 		{
 			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
 			{
-				if (time_get_actual() - fc.autostart_timer > config.autostart.timeout)
+				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000)
 				{
 					//reduce timeout from flight time
-					fc.flight_timer += config.autostart.timeout;
+					fc.flight_timer += (config.autostart.timeout * 1000);
 
 					gui_reset_timeout();
 					fc_landing();
@@ -477,7 +467,7 @@ void fc_step()
 			else
 			{
 				fc.autostart_altitude = fc.altitude1;
-				fc.autostart_timer = time_get_actual();
+				fc.autostart_timer = task_get_ms_tick();
 			}
 		}
 	}
@@ -487,7 +477,8 @@ void fc_step()
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
 	{
 		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_GPS)
-			seq_start(&gps_ready, config.gui.menu_volume);
+			seq_start(&gps_ready, config.gui.alert_volume);
+
 		fc_sync_gps_time();
 		fc.gps_data.fix_cnt++;
 	}
@@ -504,6 +495,15 @@ void fc_step()
 	else
 	{
 		fc.glide_ratio_valid = false;
+	}
+
+	//flight logger
+	if (config.logger.enabled)
+	{
+		if (fc.flight_state == FLIGHT_FLIGHT && !logger_active() && time_is_set() && !logger_error())
+		{
+			logger_start();
+		}
 	}
 
 	//flight statistic
@@ -543,23 +543,24 @@ void fc_zero_alt(uint8_t index)
 	index -= 1;
 
 	if (config.altitude.altimeter[index].flags & ALT_DIFF)
-		{
-			uint8_t a_index = config.altitude.altimeter[index].flags & 0x0F;
+	{
+		uint8_t a_index = config.altitude.altimeter[index].flags & 0x0F;
 
-			if (a_index == 0)
-				config.altitude.altimeter[index].delta = -fc.altitude1;
-			else
-				config.altitude.altimeter[index].delta = -fc.altitudes[a_index];
+		if (a_index == 0)
+			config.altitude.altimeter[index].delta = -fc.altitude1;
+		else
+			config.altitude.altimeter[index].delta = -fc.altitudes[a_index];
 
-		}
+	}
 }
 
 void fc_manual_alt0_change(float val)
 {
     kalmanFilter->setXAbs(val);
-    if (fc.flight_state == FLIGHT_WAIT)
+    if (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND)
     {
     	fc.autostart_altitude = val;
+    	fc.altitude1 = val;
     }
 }
 

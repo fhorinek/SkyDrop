@@ -215,8 +215,9 @@ void lcd_display::Init()
 void lcd_display::SetContrast(uint8_t val) //0-127
 {
 	sendcommand(0x21); //Extended
-	if (val < 81)
-		val == 81;
+	if (val > 81)
+		val = 81;
+
 	sendcommand(0x80 | val);
 	sendcommand(0x20); //Basic
 }
@@ -551,6 +552,11 @@ void lcd_display::CopyToLayerX(uint8_t dst, int8_t x)
 void lcd_display::CopyToLayer(uint8_t dst)
 {
 	memcpy(this->layers[dst], this->active_buffer, (lcd_height / 8) * lcd_width);
+}
+
+uint8_t * lcd_display::GetActiveLayerPtr()
+{
+	return this->active_buffer;
 }
 
 void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)

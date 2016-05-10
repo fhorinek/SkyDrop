@@ -1,3 +1,27 @@
+Build 2491 - 10. 5. 2016
+========================================================
+
+FIX:
+ * IGC logging - bug at start-up #170
+ * Bluetooth module Pan1026 will no longer require to pair before every connection
+ * Logger problem when record always enabled
+
+ADDED:
+ * Vario history widget
+ * No labels option for pages
+ * 2 new layouts (21, 113)
+ * custom start-up logo support
+ * Set time/date promt
+ 
+CHANGED:
+ * Faster baro valid timer
+ * Increased PWM frequency for leds and backlight to remove flickering
+ * Default configuration
+ * % symbol in on battery widget
+ * IGC logger will wait for fix before it start the B-records recording
+ * Logger (L) symbol will blink when GPS fix is not acquired (KML, IGC)
+ * Error (E) symbol will blink when GPS log cannot be stored on sd card 
+
 Build 2320 - 15. 4. 2016
 ========================================================
 FIX:
@@ -8,7 +32,7 @@ ADDED:
  * led behaviour according to manual
  * battery charging indicator
  
-CHANGE:
+CHANGED:
  * Battery value logger will now use 5 min timer
  
 

@@ -107,6 +107,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 				fc_manual_alt0_change(new_alt);
 				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
+
 			case(ALT_ABS_QNH2):
 				if (index == 1)
 					new_alt = fc.altitude1 + inc;
@@ -115,6 +116,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 
 				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
 			break;
+
 			case(ALT_DIFF):
 				config.altitude.altimeter[index - 2].delta += inc;
 			break;

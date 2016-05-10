@@ -56,7 +56,7 @@ bool igc_start(char * path)
 
 	IGC_PRIVATE_KEY_ADD;
 
-	datetime_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	//XXX
 	#define device_uid "DRP"
@@ -129,7 +129,7 @@ bool igc_start(char * path)
 	igc_writeline(line);
 #endif
 
-	return true;
+	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
 }
 
 void igc_step()
@@ -140,9 +140,24 @@ void igc_step()
 	uint8_t min;
 	uint8_t hour;
 
-	time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
+	char c;
 
-	char c = (fc.gps_data.valid) ? 'A' : 'V';
+	if (fc.gps_data.valid)
+	{
+		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
+			fc.logger_state = LOGGER_ACTIVE;
+
+		time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
+		c = 'A';
+	}
+	else
+	{
+		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
+			return;
+
+		time_from_epoch(time_get_utc(), &sec, &min, &hour);
+		c = 'V';
+	}
 
 	uint16_t alt = fc_press_to_alt(fc.pressure, 101325);
 

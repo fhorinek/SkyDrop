@@ -147,19 +147,31 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		case (3):
 			sprintf_P(text, PSTR("Pilot name"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			gui_fit_text((char *)config.logger.pilot, sub_text, GUI_DISP_WIDTH - 2);
+
+			if (strlen((char *)config.logger.pilot) == 0)
+				sprintf_P(sub_text, PSTR("<empty>"));
+			else
+				gui_fit_text((char *)config.logger.pilot, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
 		case (4):
 			sprintf_P(text, PSTR("Glider type"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			gui_fit_text((char *)config.logger.glider_type, sub_text, GUI_DISP_WIDTH - 2);
+
+			if (strlen((char *)config.logger.glider_type) == 0)
+				sprintf_P(sub_text, PSTR("<empty>"));
+			else
+				gui_fit_text((char *)config.logger.glider_type, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
 		case (5):
 			sprintf_P(text, PSTR("Glider id"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			gui_fit_text((char *)config.logger.glider_id, sub_text, GUI_DISP_WIDTH - 2);
+
+			if (strlen((char *)config.logger.glider_id) == 0)
+				sprintf_P(sub_text, PSTR("<empty>"));
+			else
+				gui_fit_text((char *)config.logger.glider_id, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 	}
 }

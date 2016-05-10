@@ -24,5 +24,7 @@ void logger_step();
 void logger_start();
 void logger_stop();
 void logger_comment(char * text);
+bool logger_active();
+bool logger_error();
 
 #endif /* LOGGER_H_ */

@@ -4,22 +4,7 @@
 #include "../gui_value.h"
 
 #include "../../fc/conf.h"
-
-float mul_to_sec(float mul)
-{
-	if (mul == 0)
-		return 1;
-	else
-		return 1.0 / (mul * 100.0);
-}
-
-float sec_to_mul(float sec)
-{
-	if (sec == 0.0)
-		return 1;
-	else
-		return 1.0 / (sec * 100.0);
-}
+#include "../../fc/vario.h"
 
 
 void gui_set_vario_init()
@@ -54,6 +39,7 @@ void gui_set_vario_avg_int_cb(float val)
 	gui_switch_task(GUI_SET_VARIO);
 
 	config.vario.avg_vario_dampening = sec_to_mul(val);
+	vario_update_history_delay();
 	eeprom_busy_wait();
 	eeprom_write_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
 }
@@ -116,7 +102,7 @@ void gui_set_vario_action(uint8_t index)
 		break;
 
 		case(5):
-			gui_value_conf_P(PSTR("Average vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.avg_vario_dampening), 0, 90, 0.1, gui_set_vario_avg_int_cb);
+			gui_value_conf_P(PSTR("Average vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.avg_vario_dampening), 1, 90, 0.1, gui_set_vario_avg_int_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
