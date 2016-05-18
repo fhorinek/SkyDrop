@@ -14,6 +14,7 @@
 #define AUDIO_PROFILE_SIZE		41
 
 #include "conf.h"
+#include "fake_data.h"
 
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)

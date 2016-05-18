@@ -38,6 +38,11 @@ void fc_init()
 	//reset flight status
 	fc_reset();
 
+	//using fake data
+	#ifdef FAKE_ENABLE
+		return;
+	#endif
+
 	//temperature state machine
 	fc.temp_step = 0;
 
@@ -413,6 +418,12 @@ void fc_sync_gps_time()
 
 void fc_step()
 {
+	//using fake data
+	#ifdef FAKE_ENABLE
+		return;
+	#endif
+
+
 	gps_step();
 
 	bt_step();
@@ -441,7 +452,7 @@ void fc_step()
 			else
 			{
 				//reset wait timer
-				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000)
+				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000l)
 				{
 					fc.autostart_timer = task_get_ms_tick();
 					fc.autostart_altitude = fc.altitude1;
@@ -455,7 +466,7 @@ void fc_step()
 		{
 			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
 			{
-				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000)
+				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000l)
 				{
 					//reduce timeout from flight time
 					fc.flight_timer += (config.autostart.timeout * 1000);

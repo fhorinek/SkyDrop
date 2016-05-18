@@ -46,8 +46,8 @@ class FontChar:
         self.width = box[2] - box[0]
         print " width", self.width
         
-    def copy(self, x, im):
-        box = (x, 0)
+    def copy(self, x, y, im):
+        box = (x, y)
         self.x = x
         im.paste(self.im, box)
         return self.width
@@ -75,7 +75,7 @@ class FontConvertor:
         self.start = start
         self.end = end
         
-    def Generate(self, force_size = {}):
+    def Generate(self, force_size = {}, move_xy = {}):
         for i in range(self.start, self.end):
             print "generating %d %c" % (i, chr(i))
             c = chr(i)
@@ -84,7 +84,12 @@ class FontConvertor:
             else:
                 item = FontChar(self, c, self.height)
                 
-            self.width += item.copy(self.width, self.buffer)
+            if i in move_xy:
+                y = move_xy[i][1]
+            else:
+                y = 0
+                
+            self.width += item.copy(self.width, y, self.buffer)
             self.chars.append(item)
             
         #get char A height
@@ -240,29 +245,29 @@ tiny = FontConvertor("source/6px-Normal.ttf", 8, 1, 33, 127)
 tiny.Generate()
 tiny.Convert()
 tiny.Save()
-
+ 
 values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 42, 59)
 values_36.Generate({49: 17, 52: 17}) #number must have fixed width for values
 values_36.Convert()
 values_36.Save()
-
+ 
 values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 42, 59)
 values_16.Generate({49: 8}) #number must have fixed width for values
 values_16.Convert()
 values_16.Save()
- 
+  
 values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 42, 59)
 values_10.Generate({49: 5}) #number must have fixed width for values
 values_10.Convert()
 values_10.Save()
 
 text_L = FontConvertor("source/Arial.ttf", 12, 1, 33, 127)
-text_L.Generate({49: 5, 45:5})
+text_L.Generate({49: 5, 45:3}, {116: [0, 1]})
 text_L.Convert()
 text_L.Save()
 
 text_M = FontConvertor("source/Arial.ttf", 10, 1, 33, 127)
-text_M.Generate({49: 5, 45:5, 52: 5})
+text_M.Generate({49: 5, 45:2, 52: 5})
 text_M.Convert()
 text_M.Save()
 

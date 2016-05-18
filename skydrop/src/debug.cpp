@@ -125,9 +125,11 @@ ISR(DEBUG_TIMER_OVF, ISR_NAKED)
 		"push r30" "\n\t"
 		"push r31" "\n\t"
 		::);
+
 	debug_return_pointer = SP + 17; // 16x push (IRQ prologue) + 1 (SP is pointing to next available location)
 
 	sei(); //enable interrupts since handler is using uart and spi
+
 	debug_timeout_handler();
 
 	asm volatile(
@@ -172,8 +174,6 @@ void debug_log(char * msg)
 		debug_log_buffer.Write(strlen(msg), (uint8_t *)msg);
 }
 
-
-
 void debug_end()
 {
 	debug_done = true;
@@ -193,7 +193,7 @@ void debug_step()
 	uint16_t wt;
 	uint16_t len;
 
-	if (!storage_selftest())
+	if (!storage_ready())
 		return;
 
 	if (debug_log_buffer.Length() < DEBUG_LOG_BUFFER_CHUNK && !debug_done)

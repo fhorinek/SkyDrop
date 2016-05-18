@@ -212,7 +212,7 @@ void gui_factory_test_loop()
 		}
 	}
 
-	res = storage_selftest();
+	res = storage_ready();
 	if (!res) err = true;
 	if (res || blik)
 	{

@@ -52,6 +52,10 @@ void battery_update()
 
 bool battery_step()
 {
+	#ifdef FAKE_ENABLE
+		return false;
+	#endif
+
 	if (battery_next_meas > task_get_ms_tick())
 		return false;
 

@@ -57,13 +57,24 @@ bool SleepLock::Active()
 
 ISR(TASK_TIMER_OVF)
 {
-	if (SP<debug_min_stack_pointer)
+	if (SP < debug_min_stack_pointer)
 		debug_min_stack_pointer = SP;
 
 	if (debug_max_heap_pointer < freeRam())
 		debug_max_heap_pointer = freeRam();
 
 	task_timer_high += 512ul;
+
+	if (debug_min_stack_pointer < debug_max_heap_pointer)
+	{
+		DEBUG("stack / heap collision\n");
+		DEBUG(" max_heap  0x%04X\n", debug_max_heap_pointer);
+		DEBUG(" min_stack 0x%04X\n", debug_min_stack_pointer);
+
+		//reset
+		debug_min_stack_pointer = 0xFFFF;
+		debug_max_heap_pointer = 0x0000;
+	}
 }
 
 ISR(USB_CONNECTED_IRQ)

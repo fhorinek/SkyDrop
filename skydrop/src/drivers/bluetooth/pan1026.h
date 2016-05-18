@@ -64,6 +64,7 @@ public:
 	void SendString(char * str);
 
 	uint8_t pan_mac_address[6];
+	uint8_t random_address[6];
 
 	uint8_t client_mac_address[6];
 

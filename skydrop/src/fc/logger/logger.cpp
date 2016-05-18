@@ -141,7 +141,7 @@ void logger_start()
 
 	logger_next_flight();
 
-	if (!storage_selftest())
+	if (!storage_ready())
 	{
 		gui_showmessage_P(PSTR("SD card error!"));
 

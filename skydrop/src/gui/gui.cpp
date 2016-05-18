@@ -415,7 +415,7 @@ void gui_loop()
 	// FPS end
 	disp.Draw();
 
-	if (config.system.record_screen && storage_selftest())
+	if (config.system.record_screen && storage_ready())
 	{
 		FIL fimg;
 		uint16_t wb;

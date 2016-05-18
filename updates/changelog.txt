@@ -1,6 +1,13 @@
+Build 2579 - 18. 5. 2016
+========================================================
+FIX:
+ * G Record missing #181
+ * Landing detection #182
+ * Font misalignment 
+
+
 Build 2491 - 10. 5. 2016
 ========================================================
-
 FIX:
  * IGC logging - bug at start-up #170
  * Bluetooth module Pan1026 will no longer require to pair before every connection
@@ -21,6 +28,7 @@ CHANGED:
  * IGC logger will wait for fix before it start the B-records recording
  * Logger (L) symbol will blink when GPS fix is not acquired (KML, IGC)
  * Error (E) symbol will blink when GPS log cannot be stored on sd card 
+
 
 Build 2320 - 15. 4. 2016
 ========================================================

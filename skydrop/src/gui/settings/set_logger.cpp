@@ -5,6 +5,7 @@
 #include "../gui_text.h"
 
 #include "../../fc/conf.h"
+#include "../../fc/logger/logger.h"
 
 void gui_set_logger_init()
 {
@@ -67,7 +68,7 @@ void gui_set_logger_action(uint8_t index)
 		break;
 
 		case(1):
-			if (fc.logger_state == LOGGER_ACTIVE)
+			if (logger_active())
 			{
 				gui_showmessage_P(PSTR("Cannot change\nin flight!"));
 				return;

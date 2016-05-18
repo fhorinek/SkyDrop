@@ -22,7 +22,7 @@ volatile uint8_t bt_module_state = BT_MOD_STATE_OFF;
 
 ISR(BT_CTS_PIN_INT)
 {
-//	DEBUG("CTS\n");
+//	DEBUG("BT CTS\n");
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.TxResume();
 
@@ -62,7 +62,7 @@ void bt_module_reset()
 	bt_uart.Stop();
 	BT_UART_PWR_OFF;
 
-	bt_reset_counter = task_get_ms_tick() + 2000;
+	bt_reset_counter = task_get_ms_tick() + 4000;
 	bt_reset_counter_step = 0;
 }
 
@@ -146,6 +146,8 @@ void bt_step()
 		if (bt_reset_counter > task_get_ms_tick())
 			return;
 
+		DEBUG("BT RESET STEP: %d\n", bt_reset_counter_step);
+
 		switch(bt_reset_counter_step)
 		{
 			case(0):
@@ -223,6 +225,7 @@ void bt_irgh(uint8_t type, uint8_t * buf)
 		case(BT_IRQ_DEINIT):
 			DEBUG("BT_MOD_STATE_OFF\n");
 			bt_module_state = BT_MOD_STATE_OFF;
+			bt_device_connected = false;
 		break;
 		case(BT_IRQ_CONNECTED):
 			DEBUG("BT_IRQ_CONNECTED\n");

@@ -133,7 +133,7 @@ bool storage_card_in()
 	return sd_avalible;
 }
 
-bool storage_selftest()
+bool storage_ready()
 {
 	return sd_avalible && !sd_error;
 }

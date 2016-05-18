@@ -296,7 +296,7 @@ bool StoreEEPROM()
 	ewdt_reset();
 	DEBUG("Storing settings\n");
 
-	if (!storage_selftest())
+	if (!storage_ready())
 	{
 		DEBUG("Error: Storage not available\n");
 		return false;

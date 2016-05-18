@@ -37,7 +37,7 @@ void gui_splash_init()
 
 	splash_use_logo = false;
 
-	if (storage_init())
+	if (storage_ready())
 	{
 		FILINFO fno;
 

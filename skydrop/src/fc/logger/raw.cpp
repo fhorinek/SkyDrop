@@ -46,8 +46,15 @@ void raw_step()
 
 	memcpy(line + 23, (void *)&fc.altitude1, 4);
 
-	memcpy(line + 27, (void *)&fc.gps_data.latitude, 4);
-	memcpy(line + 31, (void *)&fc.gps_data.longtitude, 4);
+	if (fc.gps_data.valid)
+	{
+		memcpy(line + 27, (void *)&fc.gps_data.latitude, 4);
+		memcpy(line + 31, (void *)&fc.gps_data.longtitude, 4);
+	}
+	else
+	{
+		memset(line + 27, 0xFF, 8);
+	}
 
 	assert(f_write(log_fil, line, l, &wl) == FR_OK);
 	assert(wl == l);

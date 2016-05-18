@@ -142,6 +142,10 @@ void gui_pages_loop()
 	switch (page_state)
 	{
 	case(PAGE_IDLE):
+		#ifdef FAKE_ENABLE
+			FAKE_DATA
+		#endif
+
 		widgets_draw(active_page);
 		gui_statusbar();
 	break;
