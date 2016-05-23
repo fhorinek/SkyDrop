@@ -120,10 +120,11 @@ struct flight_data_t
 	bool baro_valid;
 	bool glide_ratio_valid;
 
-	//serve as wait timer, flight time and flight duration holder after land
+	//flight time and flight duration holder after land
 	uint32_t flight_timer; //in ms
 	uint8_t flight_state;
 
+	//wait timer
 	uint32_t autostart_timer;
 	float autostart_altitude;
 

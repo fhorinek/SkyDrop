@@ -373,6 +373,8 @@ void fc_landing_cb(uint8_t ret)
 
 void fc_landing()
 {
+	DEBUG("Landing\n");
+
 	gui_dialog_set_P(PSTR("Landing"), PSTR(""), GUI_STYLE_STATS, fc_landing_cb);
 	fc_landing_old_gui_task = gui_task;
 	gui_switch_task(GUI_DIALOG);
@@ -432,6 +434,7 @@ void fc_step()
 
 	logger_step();
 
+	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 	{
 		if (fc.baro_valid && fc.flight_state == FLIGHT_WAIT)
@@ -464,12 +467,15 @@ void fc_step()
 		// flying and auto land enabled
 		if (fc.flight_state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
 		{
+			DEBUG("AL1 %0.3f %lu\n", abs(fc.altitude1 - fc.autostart_altitude), task_get_ms_tick());
 			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
 			{
+				DEBUG("AL2 %lu %lu\n", task_get_ms_tick() - fc.autostart_timer, config.autostart.timeout * 1000l);
+
 				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000l)
 				{
 					//reduce timeout from flight time
-					fc.flight_timer += (config.autostart.timeout * 1000);
+					fc.flight_timer += (config.autostart.timeout * 1000l);
 
 					gui_reset_timeout();
 					fc_landing();

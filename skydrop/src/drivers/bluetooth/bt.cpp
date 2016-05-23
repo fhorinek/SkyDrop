@@ -49,7 +49,7 @@ void bt_module_deinit()
 	GpioWrite(BT_EN, LOW);
 	GpioWrite(BT_RESET, LOW);
 
-	bt_irgh(BT_IRQ_DEINIT, 0);
+	bt_irqh(BT_IRQ_DEINIT, 0);
 	bt_uart.Stop();
 	BT_UART_PWR_OFF;
 }
@@ -207,7 +207,7 @@ void bt_send(char * str)
 		bt_pan1026.SendString(str);
 }
 
-void bt_irgh(uint8_t type, uint8_t * buf)
+void bt_irqh(uint8_t type, uint8_t * buf)
 {
 	uint8_t old_type;
 

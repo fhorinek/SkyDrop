@@ -184,6 +184,7 @@ struct cfg_connectivity
 
 	uint8_t use_bt;
 	uint8_t bt_link_key[16];
+	uint8_t btle_mac[6];
 
 	uint8_t forward_gps;
 	uint8_t protocol;

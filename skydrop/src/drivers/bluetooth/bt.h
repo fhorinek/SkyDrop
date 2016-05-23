@@ -36,7 +36,7 @@ void bt_module_deinit();
 bool bt_device_active();
 
 void bt_send(char * str);
-void bt_irgh(uint8_t type, uint8_t * buf);
+void bt_irqh(uint8_t type, uint8_t * buf);
 
 bool bt_selftest();
 uint8_t bt_get_module_type();

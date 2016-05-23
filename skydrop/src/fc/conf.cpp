@@ -197,6 +197,8 @@ EEMEM cfg_t config_ee = {
 		false,
 		//bt_link_key
 		bt_link_key_blank,
+		//btle_mac
+		mac_invalid,
 		//forward_gps
 		false,
 		//protocol

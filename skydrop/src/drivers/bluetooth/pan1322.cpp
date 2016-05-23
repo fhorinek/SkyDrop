@@ -42,7 +42,7 @@ void pan1322::Init(Usart * uart)
 {
 	this->usart = uart;
 
-	bt_irgh(BT_IRQ_INIT, 0);
+	bt_irqh(BT_IRQ_INIT, 0);
 
 	this->Restart();
 
@@ -185,7 +185,7 @@ void pan1322::Step()
 		{
 			case(pan_cmd_reset):
 				//ROK not recieved
-				bt_irgh(BT_IRQ_INIT_FAIL, 0);
+				bt_irqh(BT_IRQ_INIT_FAIL, 0);
 			break;
 
 			case(pan_cmd_set_name):
@@ -330,7 +330,7 @@ void pan1322::Parse(uint8_t c)
 				case(pan_cmd_set_discoverable):
 					DEBUG("pan1322 init ok\n");
 
-					bt_irgh(BT_IRQ_INIT_OK, 0);
+					bt_irqh(BT_IRQ_INIT_OK, 0);
 				break;
 			}
 		}
@@ -357,7 +357,7 @@ void pan1322::Parse(uint8_t c)
 				param = c - '0';
 				this->error = true;
 				this->p_state = BT_STATE_FIND_RN;
-				bt_irgh(BT_IRQ_ERROR, &param);
+				bt_irqh(BT_IRQ_ERROR, &param);
 			}
 		}
 	break;
@@ -374,7 +374,7 @@ void pan1322::Parse(uint8_t c)
 			{
 				//pair sucesfull
 				this->p_state = BT_STATE_FIND_RN;
-				bt_irgh(BT_IRQ_PAIR, 0);
+				bt_irqh(BT_IRQ_PAIR, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RCOI", 4))
@@ -392,7 +392,7 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = true;
-				bt_irgh(BT_IRQ_CONNECTED, 0);
+				bt_irqh(BT_IRQ_CONNECTED, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RDII", 4))
@@ -401,7 +401,7 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = false;
-				bt_irgh(BT_IRQ_DISCONNECTED, 0);
+				bt_irqh(BT_IRQ_DISCONNECTED, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RDAI", 4))

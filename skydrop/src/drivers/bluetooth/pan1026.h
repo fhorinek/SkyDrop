@@ -13,6 +13,7 @@
 #include "../../xlib/core/usart.h"
 
 #define PARSER_BUFFER_SIZE 64
+#define BTLE_SPP_BUFFER_SIZE 85
 
 class pan1026
 {
@@ -37,13 +38,18 @@ public:
 	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
 
 	uint8_t cmd_iter;
-	uint16_t btle_service_handles[3];
-	uint16_t btle_characteristic_handles[6];
-	uint16_t btle_element_handles[7];
 
-	uint16_t btle_connection_handles[5];
+	bool btle_connection;
+
+	uint16_t btle_service_handles[3];
+	uint16_t btle_characteristic_handles[7];
+	uint16_t btle_characteristic_element_handles[7];
+	uint16_t btle_notifications;
+
+	uint16_t btle_connection_handle;
 
 	bool repat_last_cmd;
+	bool busy;
 
 	void SetNextStep(uint8_t cmd);
 
@@ -56,7 +62,7 @@ public:
 	void ParseGAT_cli();
 	void ParseGAT_ser();
 
-
+	bool Idle();
 	void WaitForAnswer();
 	void StreamWrite(uint8_t data);
 	void RawSendStatic(const uint8_t * data, uint8_t len);
@@ -64,7 +70,6 @@ public:
 	void SendString(char * str);
 
 	uint8_t pan_mac_address[6];
-	uint8_t random_address[6];
 
 	uint8_t client_mac_address[6];
 

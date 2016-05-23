@@ -99,8 +99,7 @@ void storage_deinit()
 	if (!sd_avalible)
 		return;
 
-	uint8_t res;
-	res = f_mount(NULL, "", 1); //unmount
+	assert(f_mount(NULL, "", 1) == FR_OK); //unmount
 
 	sd_spi_usart.Stop();
 
