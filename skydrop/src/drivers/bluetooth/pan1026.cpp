@@ -377,7 +377,7 @@ void pan1026::ParseMNG()
 
 			this->client_name[t_len] = 0;
 			memcpy(this->client_name, this->parser_buffer + 14, t_len);
-			DEBUG_BT("Device name ");
+			DEBUG_BT("Device name: %s \n",this->client_name);
 		break;
 
 		case(0x7d):
