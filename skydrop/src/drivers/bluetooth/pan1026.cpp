@@ -336,8 +336,7 @@ void pan1026::ParseMNG()
 			if (status == 0x87)
 			{
 				DEBUG_BT(" Link key failure\n");
-				for (uint8_t i = 0; i < 16; i++)
-					config.connectivity.bt_link_key[i] = 0;
+				memset((void *)config.connectivity.bt_link_key, 0, sizeof(config.connectivity.bt_link_key));
 
 				eeprom_busy_wait();
 				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
