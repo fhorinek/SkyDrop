@@ -86,7 +86,12 @@ ISR(USB_CONNECTED_IRQ)
 
 uint32_t task_get_ms_tick()
 {
-	uint32_t res = (task_timer_high) + (uint32_t)(task_timer.GetValue() / 125);
+	uint32_t res;
+
+	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	{
+		res = (task_timer_high) + (uint32_t)(task_timer.GetValue() / 125);
+	}
 
 	return res;
 }

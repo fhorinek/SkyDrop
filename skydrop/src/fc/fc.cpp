@@ -390,7 +390,7 @@ void fc_landing()
 
 void fc_reset()
 {
-	//autostart timer
+	//autostart timer reset
 	fc.autostart_timer = task_get_ms_tick();
 	fc.flight_state = FLIGHT_WAIT;
 
@@ -454,8 +454,9 @@ void fc_step()
 			}
 			else
 			{
+				assert(task_get_ms_tick() > fc.autostart_timer);
 				//reset wait timer
-				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000l)
+				if (task_get_ms_tick() - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
 				{
 					fc.autostart_timer = task_get_ms_tick();
 					fc.autostart_altitude = fc.altitude1;
@@ -467,15 +468,29 @@ void fc_step()
 		// flying and auto land enabled
 		if (fc.flight_state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
 		{
-			DEBUG("AL1 %0.3f %lu\n", abs(fc.altitude1 - fc.autostart_altitude), task_get_ms_tick());
 			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
 			{
-				DEBUG("AL2 %lu %lu\n", task_get_ms_tick() - fc.autostart_timer, config.autostart.timeout * 1000l);
+				uint32_t tick = task_get_ms_tick();
 
-				if (task_get_ms_tick() - fc.autostart_timer > config.autostart.timeout * 1000l)
+				if (tick < fc.autostart_timer)
 				{
+					DEBUG("assert failed\n");
+					DEBUG("TT %lu\n", tick);
+					DEBUG("AT %lu\n", fc.autostart_timer);
+				}
+				else
+				if (tick - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
+				{
+
+					DEBUG("A1 %0.2f\n", fc.altitude1);
+					DEBUG("AA %0.2f\n", fc.autostart_altitude);
+					DEBUG("DF %0.2f\n", abs(fc.altitude1 - fc.autostart_altitude));
+					DEBUG("AL %u\n", config.autostart.land_sensititvity);
+					DEBUG("TT %lu\n", tick);
+					DEBUG("AT %lu\n", fc.autostart_timer);
+
 					//reduce timeout from flight time
-					fc.flight_timer += (config.autostart.timeout * 1000l);
+					fc.flight_timer += (uint32_t)config.autostart.timeout * 1000ul;
 
 					gui_reset_timeout();
 					fc_landing();

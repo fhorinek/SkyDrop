@@ -14,7 +14,16 @@ void protocol_lk8ex1_step(char * buffer)
 {
 	char buff[256];
 
-	sprintf_P(buff, PSTR("$LK8EX1,%0.0f,99999,%0.0f,%d,%u,"), fc.pressure, (fc.vario * 100.0), fc.temperature, 1000 + (uint16_t)battery_per);
+	uint16_t bat;
+
+	if (battery_per == BATTERY_CHARGING)
+		bat = 999;
+	else if (battery_per == BATTERY_FULL)
+		bat = 1100;
+	else
+		bat = 1000 + (uint16_t)battery_per;
+
+	sprintf_P(buff, PSTR("$LK8EX1,%0.0f,99999,%0.0f,%d,%u,"), fc.pressure, (fc.vario * 100.0), fc.temperature / 10, bat);
 	sprintf_P(buffer, PSTR("%s*%02X\n"), buff, protocol_nmea_checksum(buff));
 
 	//10Hz refresh

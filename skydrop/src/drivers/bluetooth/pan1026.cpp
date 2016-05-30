@@ -8,7 +8,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-#define DEBUG_BT_ENABLED
+//#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -377,7 +377,7 @@ void pan1026::ParseMNG()
 
 			this->client_name[t_len] = 0;
 			memcpy(this->client_name, this->parser_buffer + 14, t_len);
-			DEBUG_BT("Device name: %s \n",this->client_name);
+			DEBUG_BT("Device name: %s\n", this->client_name);
 		break;
 
 		case(0x7d):
@@ -692,7 +692,7 @@ void pan1026::ParseMNG_LE()
 				bool store_mac = true;
 
 				for (uint8_t i = 0; i < 6; i++)
-					if (config.connectivity.btle_mac != 0)
+					if (config.connectivity.btle_mac[i] != 0)
 					{
 						store_mac = false;
 						break;

@@ -1,9 +1,19 @@
+Build 2650 - 30. 5. 2016
+========================================================
+FIX:
+ * IGC unwanted (and unjustified) IGC recorging start/stop during a single flight #185
+ * Font misalignment (letter Q)
+ * Digifly and LK8EX1 minor fixes
+ 
+ADDED:
+ * BTLE support for pan1026 (SPP over GAT)
+
 Build 2579 - 18. 5. 2016
 ========================================================
 FIX:
  * G Record missing #181
  * Landing detection #182
- * Font misalignment 
+ * Font misalignment (letter t)
 
 
 Build 2491 - 10. 5. 2016

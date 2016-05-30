@@ -267,7 +267,7 @@ text_L.Convert()
 text_L.Save()
 
 text_M = FontConvertor("source/Arial.ttf", 10, 1, 33, 127)
-text_M.Generate({49: 5, 45:2, 52: 5})
+text_M.Generate({49: 5, 45:2, 52: 5}, {81: [0, -1]})
 text_M.Convert()
 text_M.Save()
 
