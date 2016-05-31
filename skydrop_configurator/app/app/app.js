@@ -26,6 +26,9 @@ var app = angular.module('app', ["ngRoute", "chart.js", "ui.bootstrap-slider", '
 app.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
+	    when('/wizard', {
+	        templateUrl: 'pages/wizard.html',
+	    }).      
 	    when('/audio_profile', {
 	        templateUrl: 'pages/audio_profile.html',
 	    }).      
@@ -51,7 +54,7 @@ app.config(['$routeProvider',
             templateUrl: 'pages/var_list.html',
         }).      
         otherwise({
-            redirectTo: '/audio_profile'
+            redirectTo: '/wizard'
         });
   }]);
   
@@ -59,6 +62,7 @@ app.controller("menuList", ["$scope", function ($scope) {
     $scope.menus = 
     [
         [
+	      	{"title": "Update wizard", "ref": "wizard"},
 	      	{"title": "Audio Profile editor", "ref": "audio_profile"},
 	     	{"title": "Altimeters", "ref": "altimeters"},
          	{"title": "Display", "ref": "display"},
@@ -72,7 +76,7 @@ app.controller("menuList", ["$scope", function ($scope) {
         ]
     ];
     
-    $scope.activeMenu = "audio_profile";
+    $scope.activeMenu = "wizard";
     
     $scope.select = function(ref){
         $scope.activeMenu = ref;
@@ -84,9 +88,10 @@ app.controller("menuList", ["$scope", function ($scope) {
 
 }]);
 
-app.controller("controls", ["$scope", "memory", "$timeout", function ($scope, memory, $timeout) {
+app.controller("controls", ["$scope", "memory", "$timeout", "$q", function ($scope, memory, $timeout, $q) {
 	
 	$scope.hide_nav = true;
+	$scope.wizard_step = 0;
 	
     $scope.save = function(){
         var blob = new Blob([memory.getBlob()], {type: "application/octet-stream"});
@@ -96,6 +101,7 @@ app.controller("controls", ["$scope", "memory", "$timeout", function ($scope, me
     };
 
     $scope.load = function(){
+    	$scope.wizard_step = 0;
     	$scope.file_selector.click();
     };
     
@@ -160,7 +166,7 @@ app.controller("controls", ["$scope", "memory", "$timeout", function ($scope, me
     };    
     
     //init memory handler
-    memory.getAllValues();
+	memory.getAllValues();
     
     $scope.file_selector = angular.element("#file-selector");
 }]);

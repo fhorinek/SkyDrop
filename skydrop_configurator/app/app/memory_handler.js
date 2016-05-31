@@ -12,7 +12,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.data_holder = false;
     this.data_loading = false;
     this.data_loading_notify = [];
-    this.data_load = 0;
+    this.data_loaded = false;
    
     //Methods
     this.load_bin = function(url_path, cb, error_cb)
@@ -42,6 +42,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.load_data = function(data)
     {
      	this.init_step_1(data, this);     
+     	this.data_loaded = true;
     };    
 
     this.load_json = function(url_path, cb)
@@ -71,9 +72,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
     };
 
     this.notify_all = function(data){
+		console.log(this.data_loading_notify);
     	for (var i = 0; i < this.data_loading_notify.length; i++)
     		this.data_loading_notify[i].notify(data);
-		console.log(this.data_loading_notify);
     };
     
     this.remove_notify = function(deferred)
@@ -279,9 +280,6 @@ app.service("memory", ["$http", "$q", function($http, $q){
             items[k] = (arr);
         }
         
-        //notify watchers about the major change in structure -> need to rebind the data
-        this.data_load++;
-        
         return items;
     };
 
@@ -412,7 +410,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
         var deferred = $q.defer();
         
         this.data_loading_notify.push(deferred);
-        this.data_loading_notify.push("kkt");
+//        this.data_loading_notify.push("kkt");
         
         this.load_bin("UPDATE.EE", this.init_step_1);
         

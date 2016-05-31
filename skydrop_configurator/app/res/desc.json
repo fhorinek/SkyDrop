@@ -453,7 +453,10 @@
         "cfg_connectivity_bt_link_key_[0-9]" : {
             "name": "Bluetooth pair key",
             "mode": "readonly"
-        }           
-        
+        },           
+        "cfg_connectivity_btle_mac_[0-5]" : {
+            "name": "Bluetooth Low energy random mac",
+            "mode": "readonly"
+        }            
     }
 }

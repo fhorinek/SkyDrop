@@ -1,0 +1,31 @@
+<div ng-controller="wizard">
+   <div class="hidden">
+      <form name="file-form">
+         <input id="file-selector-wizard" onchange="angular.element(this).scope().read_file(this.files)" type="file" />
+      </form>
+   </div>    
+
+    <h1>Update wizard</h1>
+    <div class="panel panel-default">
+       <div class="panel-body">
+         You can upgrade your SkyDrop firmware without loosing your existing configuration. <br>
+         <button type="button" class="btn btn-default" ng-click="load()">Load your configuration from SkyDrop</button>
+       </div>
+    </div>
+
+   <div class="alert alert-success" role="alert" ng-if="wizard_step == -1">
+      Your SkyDrop is already up-to-date!
+   </div>
+
+   <div class="alert alert-info" role="alert" ng-if="wizard_step >= 2">
+      Upgrading configuration from build {{upgraded_from}} to build {{newest()}}...
+   </div>
+
+   <div class="alert alert-success" role="alert" ng-if="wizard_step >= 3">
+      <a href="" ng-click="get_pack()">Your update file build {{newest()}} is ready. Click here to get it!</a>
+   </div>
+
+    
+</div>
+
+
