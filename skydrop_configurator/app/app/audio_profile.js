@@ -267,6 +267,8 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
             }
         }
             
+        data[i - 1] = Math.random() * 256;
+        
         var wave = new RIFFWAVE(); // create the wave file
         
         wave.header.sampleRate = rate;

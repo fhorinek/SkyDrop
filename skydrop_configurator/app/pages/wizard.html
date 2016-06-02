@@ -7,9 +7,13 @@
 
     <h1>Update wizard</h1>
     <div class="panel panel-default">
+         <div class="panel-heading">
+            <h3 class="panel-title">
+               You can upgrade your SkyDrop firmware without loosing your existing configuration
+            </h3>
+         </div>    
        <div class="panel-body">
-         You can upgrade your SkyDrop firmware without loosing your existing configuration. <br>
-         <button type="button" class="btn btn-default" ng-click="load()">Load your configuration from SkyDrop</button>
+         <button type="button" class="btn btn-default" ng-click="load()">Upgrade your SkyDrop</button>
        </div>
     </div>
 
@@ -17,14 +21,36 @@
       Your SkyDrop is already up-to-date!
    </div>
 
+    <div class="panel panel-info" ng-if="wizard_step <= 0">
+         <div class="panel-heading">
+            <h3 class="panel-title">
+               Download current configuration files for your SkyDrop<br>
+            </h3>
+         </div>
+       <div class="panel-body">
+         <button type="button" class="btn btn-default" ng-click="save()">Download just configuration (UPDATE.EE)</button>
+         <button type="button" class="btn btn-default" ng-click="get_pack()">Download configuration with firmware (SKYDROP.FW)</button>
+       </div>
+    </div>
+
    <div class="alert alert-info" role="alert" ng-if="wizard_step >= 2">
-      Upgrading configuration from build {{upgraded_from}} to build {{newest()}}...
+      <i class="fa fa-cogs" aria-hidden="true"></i> Upgrading configuration from build {{upgraded_from}} to build {{newest()}}...
    </div>
 
    <div class="alert alert-success" role="alert" ng-if="wizard_step >= 3">
-      <a href="" ng-click="get_pack()">Your update file build {{newest()}} is ready. Click here to get it!</a>
+      <i class="fa fa-check-circle" aria-hidden="true"></i> Your update file build {{newest()}} is ready. You can download it now or tune it using the configurator.
    </div>
 
+   <div class="panel panel-info" ng-if="wizard_step >= 3">
+      <div class="panel-heading">
+         <h3 class="panel-title">
+            Download current firmware update with your configuration<br>
+         </h3>
+      </div>  
+      <div class="panel-body"> 
+         <button type="button" class="btn btn-default" ng-click="get_pack()">Download firmware update (SKYDROP.FW)</button>
+      </div>
+   </div>
     
 </div>
 
