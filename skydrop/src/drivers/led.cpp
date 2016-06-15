@@ -3,8 +3,8 @@
 Timer led_timer1;
 Timer led_timer2;
 
-volatile uint8_t lcd_bckl_actual = 0;
-volatile uint8_t lcd_bckl_wanted = 0;
+volatile uint16_t lcd_bckl_actual = 0;
+volatile uint16_t lcd_bckl_wanted = 0;
 
 #define led_timer_top 255
 
@@ -96,7 +96,7 @@ ISR(LED_TIMER2_OVF)
 			lcd_bckl_actual--;
 
 
-		led_timer2.SetCompare(timer_B, lcd_bckl_actual);
+		led_timer2.SetCompare(timer_B, lcd_bckl_actual / 8);
 		bat_en_high(BAT_EN_LCD);
 	}
 	else
@@ -162,7 +162,7 @@ void led_set(uint16_t red, uint16_t green, uint16_t blue)
 
 void lcd_bckl(uint8_t val)
 {
-	lcd_bckl_wanted = val;
+	lcd_bckl_wanted = val * 8;
 
 	if (lcd_bckl_wanted != lcd_bckl_actual)
 		led_timer2.EnableInterrupts(timer_overflow);

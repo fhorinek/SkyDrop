@@ -8,7 +8,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-//#define DEBUG_BT_ENABLED
+#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -107,8 +107,6 @@ void pan1026::Init(Usart * uart)
 	this->usart = uart;
 
 	bt_irqh(BT_IRQ_INIT, 0);
-
-	strcpy_P(this->label, PSTR("SkyDrop Pan1026"));
 
 	this->Restart();
 }
@@ -333,21 +331,36 @@ void pan1026::ParseMNG()
 			{
 				DEBUG_BT(" Link key        ");
 				for (uint8_t i = 0; i < 16; i++)
-				{
 					DEBUG_BT("%02X ", this->parser_buffer[15 + i]);
-					config.connectivity.bt_link_key[i] = this->parser_buffer[15 + i];
-				}
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
-
 				DEBUG_BT("\n");
 				DEBUG_BT(" Link key type   %02X\n", this->parser_buffer[33]);
 				DEBUG_BT(" Sniff interval  %02X\n", this->parser_buffer[34] | (this->parser_buffer[35] << 8));
+
+				DEBUG_BT("Storing link key\n");
+
+				for (uint8_t i = 0; i < 16; i++)
+					config.connectivity.bt_link_key[i] = this->parser_buffer[15 + i];
+
+				eeprom_busy_wait();
+				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
+
+				for (uint8_t i = 0; i < 6; i++)
+				{
+					config.connectivity.bt_link_partner[i] = this->parser_buffer[8 + i];
+					DEBUG_BT("%02X ", config.connectivity.bt_link_partner[i]);
+				}
+				DEBUG_BT("\n");
+
+				eeprom_busy_wait();
+				eeprom_update_block((void *)&config.connectivity.bt_link_partner, &config_ee.connectivity.bt_link_partner, 6);
+
+
 			}
 
 			if (status == 0x87)
 			{
 				DEBUG_BT(" Link key failure\n");
+				memset((void *)config.connectivity.bt_link_partner, 0, sizeof(config.connectivity.bt_link_partner));
 				memset((void *)config.connectivity.bt_link_key, 0, sizeof(config.connectivity.bt_link_key));
 
 				eeprom_busy_wait();
@@ -570,8 +583,13 @@ void pan1026::ParseSPP()
 		break;
 
 		case(0x44): //TCU_SPP_DISCONNECT_EVENT
+			DEBUG_BT("TCU_SPP_DISCONNECT_EVENT\n");
 			if (status == 0)
+			{
 				bt_irqh(BT_IRQ_DISCONNECTED, 0);
+				//this is done automatically by the module
+				//this->SetNextStep(pan_cmd_le_start_advertise);
+			}
 			else
 				PAN1026_ERROR;
 		break;
@@ -1124,6 +1142,9 @@ const uint8_t PROGMEM spp_over_ble_service_uuid[] = {0x1b, 0xc5, 0xd5, 0xa5, 0x0
 const uint8_t PROGMEM spp_over_ble_characteristic_uuid[] = {0x1b, 0xc5, 0xd5, 0xa5, 0x02, 0x00, 0xef, 0x9c, 0xe3, 0x11, 0x89, 0xaa, 0xc0, 0x12, 0x83, 0xb3};
 
 const uint8_t PROGMEM manufacturer_name[] = {'S', 'k', 'y', 'B', 'e', 'a', 'n'};
+const uint8_t PROGMEM device_name_spp[] = {'S', 'k', 'y', 'D', 'r', 'o', 'p', ' ', 'S', 'P', 'P'};
+const uint8_t PROGMEM device_name_ble[] = {'S', 'k', 'y', 'D', 'r', 'o', 'p', ' ', 'B', 'L', 'E'};
+
 const uint8_t PROGMEM TCU_MNG_LE_GEN_RESOLVABLE_BDADDR_REQ[] = {0x07, 0x00, 0x00, 0xD1, 0x17, 0x00, 0x00};
 const uint8_t PROGMEM TCU_MNG_LE_SET_RAND_ADDRESS_REQ[] = {0x0D, 0x00, 0x00, 0xD1, 0x04, 0x06, 0x00};
 
@@ -1212,17 +1233,17 @@ void pan1026::Step()
 			//classic
 			case(pan_cmd_mng_init):
 				DEBUG_BT("pan_cmd_mng_init\n");
-				t_len = 3 + sizeof(TCU_MNG_INIT_REQ) + 5 + strlen(this->label);
+				t_len = 3 + sizeof(TCU_MNG_INIT_REQ) + 5 + sizeof(device_name_spp);
 				TCU_LEN(t_len);
 
 				RAW(TCU_MNG_INIT_REQ);
 
-				t_len = 3 + strlen(this->label);
+				t_len = 3 + sizeof(device_name_spp);
 				WRITE_16B(t_len);
 				this->StreamWrite(0x04); //SPP
 				this->StreamWrite(0x02); //sniff settings
-				this->StreamWrite(strlen(this->label)); //label name len
-				fprintf_P(bt_pan1026_out, PSTR("%s"), this->label); //label name
+				this->StreamWrite(sizeof(device_name_spp)); //label name len
+				RAW(device_name_spp);
 			break;
 
 			case(pan_cmd_write_cod):
@@ -1242,13 +1263,26 @@ void pan1026::Step()
 
 			case(pan_cmd_accept_connection):
 				DEBUG_BT("pan_cmd_accept_connection\n");
-				use_link_key = 0;
-				for (uint8_t i = 0; i < 16; i++)
-					if (config.connectivity.bt_link_key[i] != 0)
+				use_link_key = 1;
+
+				DEBUG_BT("stored: ");
+				for (uint8_t i = 0; i < 6; i++)
+					DEBUG_BT("%02X ", config.connectivity.bt_link_partner[i]);
+
+				DEBUG_BT("\n");
+				DEBUG_BT("client: ");
+				for (uint8_t i = 0; i < 6; i++)
+					DEBUG_BT("%02X ", this->client_mac_address[i]);
+				DEBUG_BT("\n");
+
+				for (uint8_t i = 0; i < 6; i++)
+				{
+					if (config.connectivity.bt_link_partner[i] != this->client_mac_address[i])
 					{
-						use_link_key = 1;
+						use_link_key = 0;
 						break;
 					}
+				}
 
 				t_len = 3 + sizeof(TCU_MNG_CONNECTION_ACCEPT_REQ) + 2 + 8 + ((use_link_key) ? 16 : 0);
 				TCU_LEN(t_len);
@@ -1265,7 +1299,7 @@ void pan1026::Step()
 
 				if (use_link_key)
 				{
-					DEBUG_BT("Using link key: ");
+					DEBUG_BT("\nUsing link key: ");
 					this->StreamWrite(0x01); //use link key
 					for (uint8_t i = 0; i < 16; i++)
 					{
@@ -1277,7 +1311,7 @@ void pan1026::Step()
 				else
 				{
 					this->StreamWrite(0x00); //do not use link key
-					DEBUG_BT("Not using link key\n");
+					DEBUG_BT("\nNot using link key\n");
 				}
 			break;
 
@@ -1306,15 +1340,15 @@ void pan1026::Step()
 			//btle
 			case(pan_cmd_le_mng_init):
 				DEBUG_BT("pan_cmd_le_mng_init\n");
-				t_len = 3 + sizeof(TCU_MNG_LE_INIT_REQ) + 3 + strlen(this->label);
+				t_len = 3 + sizeof(TCU_MNG_LE_INIT_REQ) + 3 + sizeof(device_name_ble);
 				TCU_LEN(t_len);
 
 				RAW(TCU_MNG_LE_INIT_REQ);
 
-				t_len = 1 + strlen(this->label);
+				t_len = 1 + sizeof(device_name_ble);
 				WRITE_16B(t_len);
-				this->StreamWrite(strlen(this->label)); //label name len
-				fprintf_P(bt_pan1026_out, PSTR("%s"), this->label); //label name
+				this->StreamWrite(sizeof(device_name_ble)); //label name len
+				RAW(device_name_ble); //label name
 			break;
 
 			case(pan_cmd_le_gat_ser_init):
@@ -1448,7 +1482,7 @@ void pan1026::Step()
 				DEBUG_BT("pan_cmd_le_gat_sdb_add_characteristic_elements %d\n", this->cmd_iter);
 				t_len = 3 + 4 + 7;
 				if (this->cmd_iter == 0)
-					t_len += 2 + strlen(this->label);
+					t_len += 2 + sizeof(device_name_ble);
 				if (this->cmd_iter == 1)
 					t_len += 2 + 2;
 				if (this->cmd_iter == 2)
@@ -1481,10 +1515,9 @@ void pan1026::Step()
 					//Attribute Type
 					WRITE_16B(0x2A00);
 					//Attribute Value Length
-					WRITE_16B(strlen(this->label));
+					WRITE_16B(sizeof(device_name_ble));
 					//Attribute Value
-					for (uint8_t i = 0; i < strlen(this->label); i++)
-						this->StreamWrite(this->label[i]);
+					RAW(device_name_ble);
 					//Permissions
 					WRITE_16B(0);
 				}
@@ -1668,13 +1701,12 @@ void pan1026::Step()
 				//Scan_Resp_Data_Len
 				this->StreamWrite(0x1f); //31
 				//Scan_Resp_Data (31B)
-					this->StreamWrite(strlen(this->label) + 1); //Length sizeof(device_name) + 1
+					this->StreamWrite(sizeof(device_name_ble) + 1); //Length sizeof(device_name) + 1
 					this->StreamWrite(0x09); //Complete local name
-					for (uint8_t i = 0; i < strlen(this->label); i++)
-						this->StreamWrite(this->label[i]);
+					RAW(device_name_ble);
 
 					//padding
-					for (uint8_t i = strlen(this->label) + 2; i < 0x1f; i++)
+					for (uint8_t i = sizeof(device_name_ble) + 2; i < 0x1f; i++)
 						this->StreamWrite(0x00);
 			break;
 

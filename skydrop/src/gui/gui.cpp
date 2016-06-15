@@ -236,9 +236,9 @@ void gui_load_eeprom()
 	if (lcd_contrast_max == 0xFF)
 		lcd_contrast_max = 127;
 
-	DEBUG("lcd_contrast_min %d\n", lcd_contrast_min);
-	DEBUG("lcd_contrast_max %d\n", lcd_contrast_max);
-	DEBUG("lcd_contrast %d\n", config.gui.contrast);
+//	DEBUG("lcd_contrast_min %d\n", lcd_contrast_min);
+//	DEBUG("lcd_contrast_max %d\n", lcd_contrast_max);
+//	DEBUG("lcd_contrast %d\n", config.gui.contrast);
 
 	if (config.gui.disp_flags == 0xFF)
 		config.gui.disp_flags = CFG_DISP_ANIM;
@@ -290,13 +290,13 @@ void gui_update_disp_cfg()
 		//need to be outside of IRQ
 		lcd_new_cfg = false;
 
-		DEBUG(" ** gui_update_disp_cfg **\n");
-		DEBUG("lcd_contrast %d\n", config.gui.contrast);
+//		DEBUG(" ** gui_update_disp_cfg **\n");
+//		DEBUG("lcd_contrast %d\n", config.gui.contrast);
 
 
 		uint8_t new_contrast = lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * config.gui.contrast) / GUI_CONTRAST_STEPS;
 
-		DEBUG("new_contrast %d\n", new_contrast);
+//		DEBUG("new_contrast %d\n", new_contrast);
 
 		disp.SetContrast(new_contrast);
 		disp.SetInvert(config.gui.disp_flags & CFG_DISP_INVERT);

@@ -147,12 +147,12 @@ typedef enum xlib_core_timer_mode_e
 
 typedef enum xlib_core_timer_interrupt_e
 {
-	timer_compareA = 0b00000001,
-	timer_compareB = 0b00000010,
-	timer_compareC = 0b00000100,
-	timer_compareD = 0b00001000,
-	timer_overflow = 0b00010000,
-	timer_error	 = 0b00100000
+	timer_compareA = 0b00010000,
+	timer_compareB = 0b00100000,
+	timer_compareC = 0b01000000,
+	timer_compareD = 0b10000000,
+	timer_overflow = 0b00000001,
+	timer_error	   = 0b00000010
 } xlib_core_timer_interrupt;
 
 
@@ -194,6 +194,9 @@ public:
 	void SetPrescaler(xlib_core_timer_prescaler pres);
 
 	void SetInterruptPriority(uint8_t p);
+
+	bool IrqPending(uint8_t inter);
+	void ClearIrqFlag(uint8_t inter);
 
 	//TODO: not implemented
 	float MsPerFs();

@@ -76,8 +76,8 @@ void Lsm303d::WriteOr(uint8_t adr, uint8_t data)
 
 	this->Write(adr, tmp | data);
 
-	DUMP_REG(tmp | data);
-	DUMP_REG(this->Read(adr));
+//	DUMP_REG(tmp | data);
+//	DUMP_REG(this->Read(adr));
 }
 
 void Lsm303d::WriteAnd(uint8_t adr, uint8_t data)
@@ -119,8 +119,8 @@ void Lsm303d::EnableAcc(lsm303d_acc_odr odr, lsm303f_acc_scale scale)
 	//set scale
 	this->WriteOr(0x21, scale); //CTRL2
 
-	DEBUG("0x21: ");
-	DUMP_REG(this->Read(0x21));
+//	DEBUG("0x21: ");
+//	DUMP_REG(this->Read(0x21));
 
 }
 

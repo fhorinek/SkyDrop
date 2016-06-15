@@ -97,9 +97,12 @@
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1616035555" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.852200763" name="pan_yuht.cc" rcbsApplicability="disable" resourcePath="src/drivers/bluetooth/pan_yuht.cc" toolsToInvoke="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.2076163171">
+						<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.2076163171" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693"/>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

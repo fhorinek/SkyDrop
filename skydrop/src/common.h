@@ -169,6 +169,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 
 #define TASK_TIMER				timerc1
 #define TASK_TIMER_OVF			timerc1_overflow_interrupt
+#define TASK_TIMER_CMPA			timerc1_compareA_interrupt
 #define TASK_TIMER_PWR_OFF		PR.PRPC |= 0b00000010
 #define TASK_TIMER_PWR_ON		PR.PRPC &= 0b11111101
 

@@ -73,7 +73,6 @@ public:
 
 	uint8_t client_mac_address[6];
 
-	char label[32];
 	char client_name[32];
 
 	uint32_t timer;

@@ -195,6 +195,8 @@ EEMEM cfg_t config_ee = {
 		GPS_DDdddddd | GPS_SPD_KPH,
 		//use_bt
 		false,
+		//bt_link_partner
+		mac_invalid,
 		//bt_link_key
 		bt_link_key_blank,
 		//btle_mac

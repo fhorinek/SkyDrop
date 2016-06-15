@@ -104,7 +104,7 @@ void gui_value_loop()
 			time_from_epoch(time_get_local(), &sec, &min, &hour);
 
 			sprintf_P(tmp, PSTR("%02d : %02d . %02d"), hour, min, sec);
-			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
+			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2 + 1);
 			if (gui_value_index == 0)
 				disp.Invert(16, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 30, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 1)
@@ -117,7 +117,7 @@ void gui_value_loop()
 			datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 			sprintf_P(tmp, PSTR("%02d / %02d / %04d"), day, month, year);
-			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2);
+			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2 + 1);
 			if (gui_value_index == 0)
 				disp.Invert(8, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 22, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 			if (gui_value_index == 1)

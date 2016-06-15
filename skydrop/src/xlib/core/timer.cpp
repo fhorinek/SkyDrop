@@ -254,3 +254,20 @@ void Timer::SetInterruptPriority(uint8_t p)
 	break;
 	}
 }
+
+
+bool Timer::IrqPending(uint8_t inter)
+{
+	if (this->tc0)
+		return tc0->INTFLAGS & inter;
+	else
+		return tc1->INTFLAGS & inter;
+}
+
+void Timer::ClearIrqFlag(uint8_t inter)
+{
+	if (this->tc0)
+		tc0->INTFLAGS = inter;
+	else
+		tc1->INTFLAGS = inter;
+}

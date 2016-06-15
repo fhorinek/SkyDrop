@@ -89,7 +89,7 @@ struct gps_data_t
 	uint8_t fix_cnt;
 };
 
-#define FC_TEMP_PERIOD	1000
+#define FC_TEMP_PERIOD	100
 
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
@@ -114,7 +114,7 @@ struct flight_data_t
 	int16_t humidity;
 
 	uint8_t temp_step;
-	uint32_t temp_next;
+	uint8_t temp_cnt;
 
 	// --- STATE ---
 	bool baro_valid;

@@ -302,8 +302,10 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
 
-	if (fc.temp_next < task_get_ms_tick())
+	if (fc.temp_cnt >= FC_TEMP_PERIOD)
 	{
+		fc.temp_cnt = 0;
+
 		switch (fc.temp_step)
 		{
 			case(0):
@@ -327,8 +329,11 @@ ISR(FC_MEAS_TIMER_CMPC)
 				fc.temperature = sht21.temperature;
 			break;
 		}
-		fc.temp_next = task_get_ms_tick() + FC_TEMP_PERIOD;
 		fc.temp_step = (fc.temp_step + 1) % 6;
+	}
+	else
+	{
+		fc.temp_cnt++;
 	}
 
 //	DEBUG("$;%d;%d;%d", fc.acc_data.x, fc.acc_data.y, fc.acc_data.z);
@@ -380,6 +385,7 @@ void fc_landing()
 	gui_switch_task(GUI_DIALOG);
 
 	fc.flight_state = FLIGHT_LAND;
+	fc.autostart_timer = task_get_ms_tick();
 
 	fc.flight_timer = task_get_ms_tick() - fc.flight_timer;
 
@@ -454,11 +460,19 @@ void fc_step()
 			}
 			else
 			{
-				assert(task_get_ms_tick() > fc.autostart_timer);
-				//reset wait timer
-				if (task_get_ms_tick() - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
+				uint32_t t = task_get_ms_tick();
+
+				if(t < fc.autostart_timer)
 				{
-					fc.autostart_timer = task_get_ms_tick();
+					assert(0);
+					DEBUG("old %lu\n", fc.autostart_timer);
+					DEBUG("act %lu\n", t);
+				}
+
+				//reset wait timer
+				if (t - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
+				{
+					fc.autostart_timer = t;
 					fc.autostart_altitude = fc.altitude1;
 				}
 			}
@@ -474,21 +488,13 @@ void fc_step()
 
 				if (tick < fc.autostart_timer)
 				{
-					DEBUG("assert failed\n");
+					assert(0);
 					DEBUG("TT %lu\n", tick);
 					DEBUG("AT %lu\n", fc.autostart_timer);
 				}
 				else
 				if (tick - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
 				{
-
-					DEBUG("A1 %0.2f\n", fc.altitude1);
-					DEBUG("AA %0.2f\n", fc.autostart_altitude);
-					DEBUG("DF %0.2f\n", abs(fc.altitude1 - fc.autostart_altitude));
-					DEBUG("AL %u\n", config.autostart.land_sensititvity);
-					DEBUG("TT %lu\n", tick);
-					DEBUG("AT %lu\n", fc.autostart_timer);
-
 					//reduce timeout from flight time
 					fc.flight_timer += (uint32_t)config.autostart.timeout * 1000ul;
 

@@ -183,6 +183,7 @@ struct cfg_connectivity
 	uint8_t gps_format_flags;
 
 	uint8_t use_bt;
+	uint8_t bt_link_partner[6];
 	uint8_t bt_link_key[16];
 	uint8_t btle_mac[6];
 

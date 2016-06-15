@@ -55,7 +55,7 @@ bool SleepLock::Active()
 	return this->active;
 }
 
-ISR(TASK_TIMER_OVF)
+ISR(TASK_TIMER_CMPA)
 {
 	if (SP < debug_min_stack_pointer)
 		debug_min_stack_pointer = SP;
@@ -64,17 +64,19 @@ ISR(TASK_TIMER_OVF)
 		debug_max_heap_pointer = freeRam();
 
 	task_timer_high += 512ul;
+	uint16_t val = task_timer.GetValue();
+	task_timer.SetValue(val - 63999);
 
-	if (debug_min_stack_pointer < debug_max_heap_pointer)
-	{
-		DEBUG("stack / heap collision\n");
-		DEBUG(" max_heap  0x%04X\n", debug_max_heap_pointer);
-		DEBUG(" min_stack 0x%04X\n", debug_min_stack_pointer);
-
-		//reset
-		debug_min_stack_pointer = 0xFFFF;
-		debug_max_heap_pointer = 0x0000;
-	}
+//	if (debug_min_stack_pointer < debug_max_heap_pointer)
+//	{
+//		DEBUG("stack / heap collision\n");
+//		DEBUG(" max_heap  0x%04X\n", debug_max_heap_pointer);
+//		DEBUG(" min_stack 0x%04X\n", debug_min_stack_pointer);
+//
+//		//reset
+//		debug_min_stack_pointer = 0xFFFF;
+//		debug_max_heap_pointer = 0x0000;
+//	}
 }
 
 ISR(USB_CONNECTED_IRQ)
@@ -84,14 +86,24 @@ ISR(USB_CONNECTED_IRQ)
 	//usb_in is checked in main loop
 }
 
+uint32_t old_tick = 0;
+
 uint32_t task_get_ms_tick()
 {
 	uint32_t res;
 
-	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+	cli();
+	res = (task_timer_high) + (uint32_t)(task_timer.GetValue() / 125);
+	sei();
+
+	if (res < old_tick)
 	{
-		res = (task_timer_high) + (uint32_t)(task_timer.GetValue() / 125);
+		assert(0);
+		DEBUG(" res=%lu\n", res);
+		DEBUG(" old=%lu\n", old_tick);
 	}
+
+	old_tick = res;
 
 	return res;
 }
@@ -106,10 +118,12 @@ void task_timer_setup(bool full_speed)
 		task_timer.Init(TASK_TIMER, timer_div4);
 
 	task_timer.Stop();
-	task_timer.EnableInterrupts(timer_overflow);
+	task_timer.SetInterruptPriority(HIGH);
+	task_timer.EnableInterrupts(timer_compareA);
 	task_timer.SetValue(0);
-	task_timer.SetTop(63999); //125 == 1ms
+	task_timer.SetCompare(timer_A, 63999); //125 == 1ms
 	task_timer_high = 0;
+	old_tick = 0;
 
 	task_timer.Start();
 
