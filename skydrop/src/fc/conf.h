@@ -245,7 +245,9 @@ struct cfg_ro_t
 
 	debug_info debug;				//+34		14
 
-	uint8_t reserved[80];			//+48
+	uint16_t bat_adc_max;			//+48		2
+
+	uint8_t reserved[78];			//+50		78
 };
 
 //configuration in RAM

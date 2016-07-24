@@ -50,7 +50,7 @@ void gui_set_debug_action(uint8_t index)
 //		break;
 
 		case(2):
-			battery_update();
+			battery_force_update();
 		break;
 
 		case(4):
@@ -80,8 +80,6 @@ void gui_set_debug_action(uint8_t index)
 		break;
 	}
 }
-
-extern uint8_t system_rst;
 
 void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
@@ -119,9 +117,9 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("ADC raw"));
+			sprintf_P(text, PSTR("ADC raw (max)"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%d"), battery_adc_raw);
+			sprintf_P(sub_text, PSTR("%d (%u)"), battery_adc_raw, bat_adc_max);
 		break;
 
 //		case (3):

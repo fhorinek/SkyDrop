@@ -38,7 +38,7 @@ void gui_update_cb(uint8_t ret)
 
 void gui_update_fail_cb(uint8_t ret)
 {
-	SystemReset();
+	task_set(TASK_POWERDOWN);
 }
 
 void gui_update_done_cb(uint8_t ret)
@@ -47,7 +47,7 @@ void gui_update_done_cb(uint8_t ret)
 
 	gui_stop();
 
-	SystemReset();
+	task_set(TASK_POWERDOWN);
 }
 
 void gui_update_eeprom_cb(uint8_t ret)
@@ -61,7 +61,7 @@ void gui_update_eeprom_cb(uint8_t ret)
 	else
 	{
 		assert(f_unlink("SKYDROP.FW") == FR_OK);
-		SystemReset();
+		task_set(TASK_POWERDOWN);
 	}
 }
 

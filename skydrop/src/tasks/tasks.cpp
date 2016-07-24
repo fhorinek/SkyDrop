@@ -126,6 +126,7 @@ void task_timer_setup(bool full_speed)
 	old_tick = 0;
 
 	task_timer.Start();
+	DEBUG("task_timer start %lu\n", task_get_ms_tick());
 
 }
 
@@ -199,7 +200,7 @@ void task_system_loop()
 	{
 		usb_state = USB_CONNECTED;
 
-		battery_update();
+		battery_force_update();
 		task_irqh(TASK_IRQ_USB, &usb_state);
 	}
 

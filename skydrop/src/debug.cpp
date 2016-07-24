@@ -237,6 +237,8 @@ void debug_step()
 
 		char id[23];
 		GetID_str(id);
+		DEBUG("=========================================\n");
+
 		DEBUG("Device serial number ... %s\n", id);
 
 		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);

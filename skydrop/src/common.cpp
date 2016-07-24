@@ -11,8 +11,6 @@ struct app_info fw_info;
 
 uint8_t hw_revision = HW_REW_UNKNOWN;
 
-extern uint8_t system_rst;
-
 void print_reset_reason()
 {
 	//Print reset reason

@@ -271,7 +271,7 @@ void gui_factory_test_loop()
 		eeprom_update_byte(&config_ee.gui.contrast, f_test_lcd_cont);
 		eeprom_busy_wait();
 
-		SystemReset();
+		task_set(TASK_POWERDOWN);
 	}
 
 }

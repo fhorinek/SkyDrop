@@ -36,8 +36,11 @@ void gui_force_loop();
 void gui_trigger_backlight();
 void gui_change_disp_cfg();
 void gui_update_disp_cfg();
+
 void gui_showmessage_P(const char * msg);
 void gui_showmessage(char * msg);
+void gui_forcemessage();
+void gui_hidemessage();
 
 void gui_dialog_P(const char * title);
 void gui_dialog(char * title);
@@ -89,8 +92,9 @@ void gui_statusbar();
 #define GUI_SET_WEEKLIFT	24
 #define GUI_SET_AUDIO_MENU	25
 #define GUI_TEXT			26
+#define GUI_SET_ADVANCED	27
 
-#define NUMBER_OF_GUI_TASKS	27
+#define NUMBER_OF_GUI_TASKS	28
 
 #define GUI_LAST_TASK		0xFF
 

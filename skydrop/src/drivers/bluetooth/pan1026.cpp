@@ -8,7 +8,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-#define DEBUG_BT_ENABLED
+//#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -879,11 +879,25 @@ void pan1026::ParseGAT_ser()
 			//accept request
 			this->SetNextStep(pan_cmd_le_read_multiple_accept);
 		break;
+
 		case(0x82): //TCU_LE_GATT_SER_READ_CHAR_VAL_ACCEPT_RESP
 			DEBUG_BT("TCU_LE_GATT_SER_READ_CHAR_VAL_ACCEPT_RESP\n");
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+
+			//release
+			this->SetNextStep(pan_cmd_release_busy);
+		break;
+
+		case(0x84): //TCU_LE_GATT_SER_WRITE_CHAR_DESP_ACCEPT_RESP
+			DEBUG_BT("TCU_LE_GATT_SER_WRITE_CHAR_DESP_ACCEPT_RESP\n");
+			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
+			DEBUG_BT(" handle %04X\n", handle);
+			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+
+			//release
+			this->SetNextStep(pan_cmd_release_busy);
 		break;
 
 		case(0x8A): //TCU_LE_GATT_SER_READ_MULTIPLE_ACCEPT_RESP
@@ -891,6 +905,9 @@ void pan1026::ParseGAT_ser()
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+
+			//release
+			this->SetNextStep(pan_cmd_release_busy);
 		break;
 
 		case(0xC8)://TCU_LE_GATT_SER_READ_CHAR_DESP_EVENT
@@ -911,6 +928,9 @@ void pan1026::ParseGAT_ser()
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" conn handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+
+			//release
+			this->SetNextStep(pan_cmd_release_busy);
 		break;
 
 		case(0x88)://TCU_LE_GATT_SER_READ_CHAR_DESP_ACCEPT_RESP
@@ -919,6 +939,9 @@ void pan1026::ParseGAT_ser()
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" conn handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+
+			//release
+			this->SetNextStep(pan_cmd_release_busy);
 		break;
 
 		case(0x45)://TCU_LE_GATT_SER_CHAR_VAL_NOTIFICATION_EVENT

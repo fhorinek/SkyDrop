@@ -30,7 +30,7 @@ void Setup()
 	uart_init_buffers();
 	time_init();
 	buzzer_init();
-	battery_init();
+//	battery_init();
 	buttons_init();
 
 	//basic power control
@@ -41,6 +41,7 @@ void Setup()
 	//load configuration from EE
 	cfg_load();
 	uart_init();
+	battery_init();
 
 	_delay_ms(100);
 }

@@ -33,6 +33,7 @@
 #include "settings/set_weaklift.h"
 #include "settings/set_menu_audio.h"
 #include "gui_text.h"
+#include "settings/set_advanced.h"
 
 
 lcd_display disp;
@@ -48,7 +49,7 @@ void (* gui_init_array[])() =
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
-	gui_set_menu_audio_init, gui_text_init};
+	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -57,7 +58,7 @@ void (* gui_stop_array[])() =
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
-	gui_set_menu_audio_stop, gui_text_stop};
+	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -66,7 +67,7 @@ void (* gui_loop_array[])() =
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
-	gui_set_menu_audio_loop, gui_text_loop};
+	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -75,7 +76,7 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
-	gui_set_menu_audio_irqh, gui_text_irqh};
+	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -122,12 +123,14 @@ void gui_change_disp_cfg()
 
 char gui_message_line1[20];
 char gui_message_line2[20];
+char gui_message_line3[20];
 uint32_t gui_message_end = 0;
 #define MESSAGE_DURATION	5
+#define MESSAGE_FORCE_ON		0xFFFFFFFF
 
 void gui_showmessage_P(const char * msg)
 {
-	char tmp[40];
+	char tmp[63];
 	strcpy_P(tmp, msg);
 	gui_showmessage(tmp);
 }
@@ -139,14 +142,36 @@ void gui_showmessage(char * msg)
 	{
 		memcpy(gui_message_line1, msg, ptr - msg + 1);
 		gui_message_line1[ptr - msg] = 0;
-		strcpy(gui_message_line2, ptr + 1);
+		msg = ptr + 1;
+		if ((ptr = strchr(msg, '\n')) != NULL)
+		{
+			memcpy(gui_message_line2, msg, ptr - msg + 1);
+			gui_message_line2[ptr - msg] = 0;
+			strcpy(gui_message_line3, ptr + 1);
+		}
+		else
+		{
+			strcpy(gui_message_line2, msg);
+			gui_message_line3[0] = 0;
+		}
 	}
 	else
 	{
 		strcpy(gui_message_line1, msg);
 		gui_message_line2[0] = 0;
+		gui_message_line3[0] = 0;
 	}
 	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
+}
+
+void gui_forcemessage()
+{
+	gui_message_end = MESSAGE_FORCE_ON;
+}
+
+void gui_hidemessage()
+{
+	gui_message_end = 0;
 }
 
 void gui_raligh_text_P(const char * text, uint8_t x, uint8_t y)
@@ -361,6 +386,7 @@ void gui_loop()
 
 	gui_loop_array[gui_task]();
 
+	//display message pop-up
 	if (gui_message_end > task_get_ms_tick())
 	{
 		disp.LoadFont(F_TEXT_M);
@@ -375,6 +401,14 @@ void gui_loop()
 			h += disp.GetTextHeight();
 		}
 
+		if (gui_message_line3[0] != 0)
+		{
+			uint8_t tmp = disp.GetTextWidth(gui_message_line3);
+			if (tmp > w)
+				w = tmp;
+			h += disp.GetTextHeight();
+		}
+
 		uint8_t x = GUI_DISP_WIDTH / 2 - w / 2;
 		uint8_t y = GUI_DISP_HEIGHT / 2 - h / 2;
 
@@ -383,9 +417,9 @@ void gui_loop()
 
 		disp.DrawLine(x - pad,			y - 2 - pad, 		x + w + pad, 		y - 2 - pad, 		1);
 		disp.DrawLine(x - pad, 			y + h + 1 + pad, 	x + w + pad, 		y + h + 1 + pad, 	1);
-
 		disp.DrawLine(x - 1 - pad, 		y - 1 - pad, 		x - 1 - pad, 		y + h + pad, 	1);
 		disp.DrawLine(x + w + 1 + pad, 	y - 1 - pad, 		x + w + 1 + pad, 	y + h + pad, 	1);
+
 		disp.GotoXY(x, y);
 		fprintf_P(lcd_out, PSTR("%s"), gui_message_line1);
 
@@ -393,6 +427,12 @@ void gui_loop()
 		{
 			disp.GotoXY(x, y + disp.GetTextHeight());
 			fprintf_P(lcd_out, PSTR("%s"), gui_message_line2);
+		}
+
+		if (gui_message_line3[0] != 0)
+		{
+			disp.GotoXY(x, y + disp.GetTextHeight() * 2);
+			fprintf_P(lcd_out, PSTR("%s"), gui_message_line3);
 		}
 	}
 
@@ -470,7 +510,8 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 		if (gui_message_end > task_get_ms_tick())
 		{
 			if (type == B_MIDDLE && (*buff == BE_CLICK || *buff == BE_LONG))
-				gui_message_end = 0;
+				if (gui_message_end != MESSAGE_FORCE_ON)
+					gui_hidemessage();
 
 			return;
 		}
@@ -575,5 +616,4 @@ void gui_statusbar()
 	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
 	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
 	disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
-
 }

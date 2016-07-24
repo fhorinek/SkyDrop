@@ -237,7 +237,7 @@ void cfg_reset_factory_test()
 	eeprom_busy_wait();
 	eeprom_update_block(ff_buffer, &config_ro, sizeof(cfg_ro_t));
 	eeprom_busy_wait();
-	SystemReset();
+	task_set(TASK_POWERDOWN);
 }
 
 void cfg_load()

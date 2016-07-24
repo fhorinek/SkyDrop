@@ -156,7 +156,8 @@ void gps_parse_rmc()
 
 	if (tlen != 10)
 	{
-		DEBUG("GPRMC timestamp len = %u\n", tlen);
+		if (config.system.debug_gps)
+			DEBUG("GPRMC timestamp len = %u\n", tlen);
 		return;
 	}
 
@@ -191,7 +192,8 @@ void gps_parse_rmc()
 
 	if (tlen != 9)
 	{
-		DEBUG("GPRMC latitude len = %u\n", tlen);
+		if (config.system.debug_gps)
+			DEBUG("GPRMC latitude len = %u\n", tlen);
 		return;
 	}
 
@@ -219,7 +221,8 @@ void gps_parse_rmc()
 
 	if (tlen != 10)
 	{
-		DEBUG("GPRMC longitude len = %u\n", tlen);
+		if (config.system.debug_gps)
+			DEBUG("GPRMC longitude len = %u\n", tlen);
 		return;
 	}
 
@@ -256,7 +259,8 @@ void gps_parse_rmc()
 
 	if (tlen != 6)
 	{
-		DEBUG("GPRMC date len = %u\n", tlen);
+		if (config.system.debug_gps)
+			DEBUG("GPRMC date len = %u\n", tlen);
 		return;
 	}
 

@@ -92,7 +92,7 @@ void gui_usb_irqh(uint8_t type, uint8_t * buff)
 	case(TASK_IRQ_BUTTON_R):
 		if (*buff == BE_LONG)
 		{
-			SystemReset();
+			task_set(TASK_POWERDOWN);
 		}
 	break;
 

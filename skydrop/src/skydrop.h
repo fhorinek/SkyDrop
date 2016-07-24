@@ -30,6 +30,7 @@
 
 #include "tasks/tasks.h"
 
+extern uint8_t system_rst;
 
 void Setup();
 void Post();
