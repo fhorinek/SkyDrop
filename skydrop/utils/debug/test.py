@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import matplotlib.pyplot as plt
 
-f = open("/home/horinek/bat0.log", "r")
+f = open("bat.log", "r")
 
 size = 0
 offset = False
@@ -12,7 +12,7 @@ per2 = []
 
 ofs = 0
 
-max_adc = 3601
+max_adc = 3692
 min_adc = 3200
 adc_dif = max_adc - min_adc
 
@@ -31,7 +31,9 @@ for line in f.readlines():
     per.append(val)
     
     
-    val = ((adc - min_adc) * 110) / adc_dif;
+    val = ((adc - min_adc) * 105) / adc_dif;
+    if val > 100:
+        val = 100
     if val < 0:
         val = 0
     per2.append(val)
@@ -46,7 +48,7 @@ f.close()
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-ax.plot(x, y, '-')
+ax.plot(x, y, '-b')
 ax2 = ax.twinx()
 ax2.plot(x, per, '-r')
 ax2.plot(x, per2, '-g')

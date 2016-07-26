@@ -101,7 +101,7 @@ void gui_pages_init()
 	{
 		time_set_default();
 
-		gui_dialog_set_P(PSTR("Clock"), PSTR("Time/Date not set.\nSet manually\nor wait for GPS."), GUI_STYLE_TIMESET, gui_pages_set_time_cb);
+		gui_dialog_set_P(PSTR("Clock"), PSTR("Time/Date not set.\nSet time manually\nor wait for GPS."), GUI_STYLE_TIMESET, gui_pages_set_time_cb);
 		gui_switch_task(GUI_DIALOG);
 	}
 }

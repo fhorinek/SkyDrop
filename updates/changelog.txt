@@ -1,3 +1,12 @@
+Build 2784 - 26. 7. 2016
+========================================================
+FIX:
+ * SystemReset replaced with task_switch
+ 
+ADDED:
+ * Automatic battery calibration
+ * G-record will be stored after every G-record to maintain validity during power or software failure
+
 Build 2650 - 30. 5. 2016
 ========================================================
 FIX:

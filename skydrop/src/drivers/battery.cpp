@@ -93,7 +93,7 @@ bool battery_step()
 				bat_charge_discharge_ratio += 5;
 		}
 
-		DEBUG("BAT c/d %u\n", bat_charge_discharge_ratio);
+		//DEBUG("BAT c/d %u\n", bat_charge_discharge_ratio);
 
 		if (bat_charge_discharge_ratio > 500)
 		{
@@ -132,14 +132,14 @@ bool battery_step()
 			eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
 		}
 
-		//10% is planned overshoot
-		battery_per = (((int32_t)battery_adc_raw - (int32_t)BAT_ADC_MIN) * 100) / bat_adc_dif;
+		//5% is planned overshoot
+		battery_per = (((int32_t)battery_adc_raw - (int32_t)BAT_ADC_MIN) * 105) / bat_adc_dif;
 		if (battery_per > 100)
 			battery_per = 100;
 		if (battery_per < 0)
 			battery_per = 0;
 
-		DEBUG("BAT val %lu %u %u\n", task_get_ms_tick(), battery_per, battery_adc_raw);
+//		DEBUG("BAT val %lu %u %u\n", task_get_ms_tick(), battery_per, battery_adc_raw);
 
 		battery_meas_state = BATTERY_STATE_PREPARE;
 		battery_next_meas = task_get_ms_tick() + BATTERY_MEAS_PERIOD;

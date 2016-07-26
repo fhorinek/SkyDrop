@@ -607,7 +607,7 @@ void gui_statusbar()
 
 	if (battery_per == BATTERY_CHARGING)
 	{
-		a = 1 + (task_get_ms_tick() % 1000) / 100;
+		a = 1 + (task_get_ms_tick() % 2000) / 200;
 	}
 
 	if (battery_per == BATTERY_FULL)

@@ -30,9 +30,11 @@ void igc_writeline(char * line, bool sign = true)
 	assert(wl == l);
 	assert(f_sync(log_fil) == FR_OK);
 
+#ifndef IGC_NO_PRIVATE_KEY
 	if (sign)
 		for (uint8_t i = 0; i < l; i++)
 			sha256.write(line[i]);
+#endif
 }
 
 IGC_PRIVATE_KEY_BODY
@@ -132,6 +134,33 @@ bool igc_start(char * path)
 	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
 }
 
+void igc_write_grecord()
+{
+#ifndef IGC_NO_PRIVATE_KEY
+	char line[79];
+
+	Sha256Class tmp_sha;
+	memcpy(&tmp_sha, &sha256, sizeof(tmp_sha));
+
+	//G record
+	uint8_t * res = tmp_sha.result();
+	strcpy(line, "G");
+	for (uint8_t i = 0; i < 20; i++)
+	{
+		char tmp[3];
+
+		sprintf_P(tmp, PSTR("%02X"), res[i]);
+		strcat(line, tmp);
+	}
+
+	igc_writeline(line, false);
+
+	//rewind pointer
+	uint32_t pos = f_tell(log_fil);
+	assert(f_lseek(log_fil, pos - 43) == FR_OK);
+#endif
+}
+
 void igc_step()
 {
 	char line[79];
@@ -164,6 +193,7 @@ void igc_step()
 	//B record
 	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);
 	igc_writeline(line);
+	igc_write_grecord();
 }
 
 void igc_comment(char * text)
@@ -176,22 +206,5 @@ void igc_comment(char * text)
 
 void igc_stop()
 {
-	char line[79];
-
-#ifndef IGC_NO_PRIVATE_KEY
-	//G record
-	uint8_t * res = sha256.result();
-	strcpy(line, "G");
-	for (uint8_t i = 0; i < 20; i++)
-	{
-		char tmp[3];
-
-		sprintf_P(tmp, PSTR("%02X"), res[i]);
-		strcat(line, tmp);
-	}
-
-	igc_writeline(line);
-#endif
-
 	assert(f_close(log_fil) == FR_OK);
 }
