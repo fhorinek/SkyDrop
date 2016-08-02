@@ -10,7 +10,7 @@
 
 #include "../../common.h"
 
-void protocol_lk8ex1_step(char * buffer);
+void protocol_lk8ex1_step();
 
 
 #endif /* LK8EX1_H_ */

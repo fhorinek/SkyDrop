@@ -1,6 +1,8 @@
 #include "pan1026.h"
 #include "bt.h"
 
+#include "../../fc/protocols/protocol.h"
+
 extern pan1026 bt_pan1026;
 CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 
@@ -8,7 +10,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-//#define DEBUG_BT_ENABLED
+#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -290,6 +292,7 @@ void pan1026::ParseMNG()
 	{
 
 		case(0x47)://TCU_MNG_CONNECTION_STATUS_EVENT
+			DEBUG_BT("TCU_MNG_CONNECTION_STATUS_EVENT\n");
 			DEBUG_BT("Connection Status: \n");
 			DEBUG_BT(" Status          %02X\n", status);
 			DEBUG_BT(" MAC             ");
@@ -426,6 +429,7 @@ void pan1026::ParseMNG()
 
 
 		case(0x81): // TCU_MNG_INIT_RESPONSE
+		DEBUG_BT("TCU_MNG_INIT_RESPONSE\n");
 			if (status == 0)
 				this->SetNextStep(pan_cmd_write_cod);
 			else
@@ -560,12 +564,16 @@ void pan1026::ParseSPP()
 	op_code = this->parser_buffer[4];
 	status = this->parser_buffer[7];
 
+	byte2 tmp2;
+	uint16_t i;
+
 	DEBUG_BT("op_code: %02X\n", op_code);
 	DEBUG_BT("status: %02X\n", status);
 
 	switch(op_code)
 	{
 		case(0x81): //TCU_SPP_SETUP_RESP
+		DEBUG_BT("TCU_SPP_SETUP_RESP\n");
 			if (status == 0)
 				this->SetNextStep(pan_cmd_listen);
 			else
@@ -573,6 +581,7 @@ void pan1026::ParseSPP()
 		break;
 
 		case(0x43): //TCU_SPP_CONNECT_EVENT
+			DEBUG_BT("TCU_SPP_CONNECT_EVENT\n");
 			if (status == 0)
 			{
 				bt_irqh(BT_IRQ_CONNECTED, 0);
@@ -594,8 +603,17 @@ void pan1026::ParseSPP()
 				PAN1026_ERROR;
 		break;
 
+		case(0x48): // TCU_SPP_DATA_RECEIVE_EVENT
+			DEBUG_BT("TCU_SPP_DATA_RECEIVE_EVENT\n");
+			tmp2.uint8[0] = this->parser_buffer[7];
+			tmp2.uint8[1] = this->parser_buffer[8];
+
+			for (i = 0; i < tmp2.uint16; i++);
+				protocol_rx(this->parser_buffer[9 + i]);
+		break;
+
 		case(0xF1): // TCU_SPP_DATA_SEND_EVENT
-			DEBUG_BT("data send!\n");
+			DEBUG_BT("TCU_SPP_DATA_SEND_EVENT\n");
 
 			this->busy = false;
 		break;
@@ -859,13 +877,14 @@ void pan1026::ParseGAT_ser()
 			handle = this->parser_buffer[9] | (this->parser_buffer[10] << 8);
 			DEBUG_BT(" char handle %04X\n", handle);
 
-			//data! (droping...)
-			#ifdef DEBUG_BT_ENABLED
-				DEBUG_BT(" data: ");
-				for (uint16_t i = 0; i < len - 4; i++)
-					DEBUG_BT("%c", this->parser_buffer[11 + i]);
-				DEBUG_BT("\n");
-			#endif
+			//data!
+			DEBUG_BT(" data: ");
+			for (uint16_t i = 0; i < len - 4; i++)
+			{
+				DEBUG_BT("%c", this->parser_buffer[11 + i]);
+				protocol_rx(this->parser_buffer[11 + i]);
+			}
+			DEBUG_BT("\n");
 
 			//accept request
 			this->SetNextStep(pan_cmd_le_write_val_accept);
@@ -1080,6 +1099,8 @@ void pan1026::Parse(uint8_t c)
 
 						DEBUG_BT(" %02X %02X %02X\n", this->parser_buffer[0], this->parser_buffer[1], this->parser_buffer[2]);
 
+						//TODO:
+						//start timeout only if is the module fully initialized
 						PAN1026_ERROR;
 						//this->parser_status = pan_parser_head;
 					}

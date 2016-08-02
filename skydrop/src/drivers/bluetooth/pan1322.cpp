@@ -2,6 +2,8 @@
 #include "../../tasks/tasks.h"
 #include <string.h>
 
+#include "../../fc/protocols/protocol.h"
+
 extern pan1322 bt_pan1322;
 CreateStdOut(bt_pan1322_out, bt_pan1322.StreamWrite);
 
@@ -482,7 +484,7 @@ void pan1322::Parse(uint8_t c)
 			}
 
 			//HANDLE INCOMING DATA HERE
-			//...drop data here :)...
+			protocol_rx(c);
 			break;
 
 		}

@@ -3,6 +3,8 @@
 #include "digifly.h"
 #include "LK8EX1.h"
 #include "bluefly.h"
+#include "skybean.h"
+
 #include "flynet.h"
 
 #include "../fc.h"
@@ -29,31 +31,44 @@ void protocol_step()
 	if (protocol_next_step > task_get_ms_tick())
 		return;
 
-	char buffer[128];
-
 	switch (config.connectivity.protocol)
 	{
 		case(PROTOCOL_DIGIFLY):
-			protocol_digifly_step(buffer);
+			protocol_digifly_step();
 		break;
 
 		case(PROTOCOL_LK8EX1):
-			protocol_lk8ex1_step(buffer);
+			protocol_lk8ex1_step();
 		break;
 
 		case(PROTOCOL_BLUEFLY):
-			protocol_bluefly_step(buffer);
+			protocol_bluefly_step();
+		break;
+
+		case(PROTOCOL_SKYBEAN):
+			protocol_skybean_step();
 		break;
 
 		case(PROTOCOL_FLYNET):
-			protocol_flynet_step(buffer);
+			protocol_flynet_step();
 		break;
 	}
+}
 
-	//XXX:outputs
+void protocol_rx(char c)
+{
+	switch (config.connectivity.protocol)
+	{
+		case(PROTOCOL_SKYBEAN):
+			protocol_skybean_rx(c);
+		break;
+	}
+}
+
+void protocol_tx(char * buffer)
+{
 	if (config.connectivity.uart_function > UART_FORWARD_OFF)
 		uart_send(buffer);
 
 	bt_send(buffer);
-//	DEBUG("%s", buffer);
 }

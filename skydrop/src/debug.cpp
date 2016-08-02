@@ -22,10 +22,8 @@ bool debug_done = false;
 
 void debug_uart_send(char * msg)
 {
-	if (config.connectivity.uart_function != UART_FORWARD_DEBUG)
-		return;
-
-	uart_send(msg);
+	if (config.connectivity.uart_function == UART_FORWARD_DEBUG)
+		uart_send(msg);
 }
 
 void debug_print_ram()

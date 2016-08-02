@@ -3,7 +3,7 @@
 
 #include "../../common.h"
 
-void protocol_flynet_step(char * buffer);
+void protocol_flynet_step();
 
 
 #endif /* FLYNET_H_ */

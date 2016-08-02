@@ -160,10 +160,11 @@ struct cfg_logger
 #define PROTOCOL_DIGIFLY	0
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
-#define PROTOCOL_FLYNET		3
+#define PROTOCOL_SKYBEAN	3
+#define PROTOCOL_FLYNET		4
 
 //FlyNet is disabled for now
-#define NUMBER_OF_PROTOCOLS	3
+#define NUMBER_OF_PROTOCOLS	4
 
 #define UART_FORWARD_DEBUG	0
 #define UART_FORWARD_OFF	1

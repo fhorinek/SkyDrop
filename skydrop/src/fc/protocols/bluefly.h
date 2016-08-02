@@ -3,7 +3,7 @@
 
 #include "../../common.h"
 
-void protocol_bluefly_step(char * buffer);
+void protocol_bluefly_step();
 
 
 #endif /* BLUEFLY_H_ */

@@ -10,6 +10,6 @@
 
 #include "../../common.h"
 
-void protocol_digifly_step(char * buffer);
+void protocol_digifly_step();
 
 #endif /* DIGIFLY_H_ */
