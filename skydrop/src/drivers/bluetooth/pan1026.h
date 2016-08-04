@@ -36,6 +36,7 @@ public:
 	uint16_t parser_packet_length;
 	uint8_t parser_buffer_index;
 	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
+	uint32_t parser_timer;
 
 	uint8_t cmd_iter;
 

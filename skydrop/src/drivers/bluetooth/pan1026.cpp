@@ -85,6 +85,7 @@ enum pan1026_parser_e
 	pan_parser_head,
 	pan_hci_packet,
 	pan_tcu_packet,
+	pan_parser_wait,
 };
 
 
@@ -654,6 +655,10 @@ void pan1026::ParseMNG_LE()
 				this->btle_connection_handle = this->parser_buffer[8] | (this->parser_buffer[9] << 8);
 				DEBUG_BT("Handle 0x%04X\n", this->btle_connection_handle);
 
+				bt_irqh(BT_IRQ_CONNECTED, NULL);
+				this->btle_connection = true;
+				this->busy = false;
+
 				this->SetNextStep(pan_cmd_le_mtu_req);
 			}
 			else
@@ -1053,10 +1058,6 @@ void pan1026::ParseGAT_cli()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 			handle = this->parser_buffer[10] | (this->parser_buffer[11] << 8);
 			DEBUG_BT(" MTU size %u\n", handle);
-
-			bt_irqh(BT_IRQ_CONNECTED, NULL);
-			this->btle_connection = true;
-			this->SetNextStep(pan_cmd_release_busy);
 		break;
 	}
 }
@@ -1099,14 +1100,31 @@ void pan1026::Parse(uint8_t c)
 
 						DEBUG_BT(" %02X %02X %02X\n", this->parser_buffer[0], this->parser_buffer[1], this->parser_buffer[2]);
 
-						//TODO:
 						//start timeout only if is the module fully initialized
-						PAN1026_ERROR;
-						//this->parser_status = pan_parser_head;
+						if (bt_device_active())
+						{
+							DEBUG_BT("connection is active!\nDO NOT PANIC\njust drop it");
+							this->parser_status = pan_parser_wait;
+							this->parser_timer = task_get_ms_tick() + 100;
+							this->SetNextStep(pan_cmd_release_busy);
+							break;
+						}
+						else
+							PAN1026_ERROR;
+
 					}
 					this->parser_packet_length = tmp_len;
 					this->parser_status = pan_tcu_packet;
 				}
+			}
+		break;
+
+		case(pan_parser_wait):
+			if (this->parser_timer < task_get_ms_tick())
+			{
+				this->parser_buffer[0] = c;
+				this->parser_buffer_index = 1;
+				this->parser_status = pan_parser_head;
 			}
 		break;
 
@@ -1972,6 +1990,7 @@ void pan1026::SendString(char * str)
 
 			this->last_cmd = pan_cmd_le_val_indication;
 			this->busy = true;
+			this->SetNextStep(pan_cmd_release_busy);
 
 			return;
 		}
@@ -1999,6 +2018,8 @@ void pan1026::SendString(char * str)
 
 			this->last_cmd = pan_cmd_le_val_notification;
 			this->busy = true;
+			this->SetNextStep(pan_cmd_release_busy);
+
 
 			return;
 		}
@@ -2016,5 +2037,7 @@ void pan1026::SendString(char * str)
 
 		this->last_cmd = pan_cmd_spp_send;
 		this->busy = true;
+		this->SetNextStep(pan_cmd_release_busy);
+
 	}
 }

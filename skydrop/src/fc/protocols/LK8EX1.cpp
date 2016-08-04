@@ -24,8 +24,8 @@ void protocol_lk8ex1_step()
 	else
 		bat = 1000 + (uint16_t)battery_per;
 
-	sprintf_P(tmp, PSTR("$LK8EX1,%0.0f,99999,%0.0f,%d,%u,"), fc.pressure, (fc.vario * 100.0), fc.temperature / 10, bat);
-	sprintf_P(buffer, PSTR("%s*%02X\n"), tmp, protocol_nmea_checksum(tmp));
+	sprintf_P(tmp, PSTR("LK8EX1,%0.0f,99999,%0.0f,%d,%u,"), fc.pressure, (fc.vario * 100.0), fc.temperature / 10, bat);
+	sprintf_P(buffer, PSTR("$%s*%02X\n"), tmp, protocol_nmea_checksum(tmp));
 
 	//10Hz refresh
 	protocol_set_next_step(100);

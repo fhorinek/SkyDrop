@@ -200,6 +200,8 @@ void bt_send(char * str)
 	if (!bt_device_connected)
 		return;
 
+	DEBUG("BT send: '%s'\n", str);
+
 	if (bt_module_type == BT_PAN1322)
 		bt_pan1322.SendString(str);
 
