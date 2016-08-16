@@ -11,7 +11,15 @@ uint8_t bt_module_type = BT_PAN1322;
 pan1026 bt_pan1026;
 pan1322 bt_pan1322;
 
-Usart bt_uart;
+#define BT_OUTPUT_SIZE	512
+uint8_t bt_output_buffer[BT_OUTPUT_SIZE];
+RingBuffer bt_output(BT_OUTPUT_SIZE, bt_output_buffer);
+
+#define BT_UART_RX_SIZE	128
+#define BT_UART_TX_SIZE	64
+uint8_t bt_uart_rx_buffer[BT_UART_RX_SIZE];
+uint8_t bt_uart_tx_buffer[BT_UART_TX_SIZE];
+Usart bt_uart(BT_UART_RX_SIZE, bt_uart_rx_buffer, BT_UART_TX_SIZE, bt_uart_tx_buffer);
 
 uint32_t bt_reset_counter = 0;
 uint8_t bt_reset_counter_step = 0;
@@ -96,9 +104,6 @@ void bt_init()
 	eeprom_busy_wait();
 	bt_module_type = eeprom_read_byte(&config_ro.bt_module_type);
 
-	//init bt_uart
-	bt_uart.InitBuffers(BUFFER_SIZE * 2, BUFFER_SIZE);
-
 	//pin init
 	GpioSetDirection(BT_EN, OUTPUT);
 	GpioSetDirection(BT_RESET, OUTPUT);
@@ -161,15 +166,7 @@ void bt_step()
 				BT_UART_PWR_ON;
 				bt_uart.Init(BT_UART, 115200);
 				bt_uart.SetInterruptPriority(MEDIUM);
-
-//				while(1)
-//				{
-//					_delay_ms(100);
-//					bt_uart.Write(0x00);
-//					_delay_ms(1);
-//					bt_uart.Write(0xAA);
-//					ewdt_reset();
-//				}
+				bt_uart.SetupRxDMA(BT_UART_DMA_CH, BT_UART_DMA_TRIGGER);
 
 				bt_reset_counter = task_get_ms_tick() + 10;
 				bt_reset_counter_step = 2;
@@ -195,6 +192,16 @@ void bt_step()
 		bt_unknown_parser();
 }
 
+void bt_send(uint16_t len, uint8_t * data)
+{
+	if (!bt_device_connected)
+		return;
+
+	DEBUG("BT send: '%s'\n", data);
+
+	bt_output.Write(len, data);
+}
+
 void bt_send(char * str)
 {
 	if (!bt_device_connected)
@@ -202,11 +209,8 @@ void bt_send(char * str)
 
 	DEBUG("BT send: '%s'\n", str);
 
-	if (bt_module_type == BT_PAN1322)
-		bt_pan1322.SendString(str);
-
-	if (bt_module_type == BT_PAN1026)
-		bt_pan1026.SendString(str);
+	uint16_t len = strlen(str);
+	bt_output.Write(len, (uint8_t *)str);
 }
 
 void bt_irqh(uint8_t type, uint8_t * buf)

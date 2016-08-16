@@ -31,6 +31,8 @@ class pan1322
 
 	volatile uint32_t timer;
 
+	bool ready_to_xmit;
+
 public:
 
 	Usart * usart;
@@ -55,8 +57,6 @@ public:
 	void StreamHead(uint16_t len);
 	void StreamWrite(uint8_t data);
 	void StreamTail();
-
-	void SendString(char * str);
 
 	bool isIdle();
 };

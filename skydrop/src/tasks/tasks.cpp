@@ -20,6 +20,8 @@ Timer task_timer;
 volatile uint32_t task_timer_high;
 volatile uint8_t task_sleep_lock = 0;
 
+volatile uint32_t fine_timer_high;
+
 volatile uint8_t actual_task = NO_TASK;
 volatile uint8_t new_task = TASK_POWERDOWN;
 
@@ -64,19 +66,10 @@ ISR(TASK_TIMER_CMPA)
 		debug_max_heap_pointer = freeRam();
 
 	task_timer_high += 512ul;
+	fine_timer_high += 64000ul;
+
 	uint16_t val = task_timer.GetValue();
 	task_timer.SetValue(val - 63999);
-
-//	if (debug_min_stack_pointer < debug_max_heap_pointer)
-//	{
-//		DEBUG("stack / heap collision\n");
-//		DEBUG(" max_heap  0x%04X\n", debug_max_heap_pointer);
-//		DEBUG(" min_stack 0x%04X\n", debug_min_stack_pointer);
-//
-//		//reset
-//		debug_min_stack_pointer = 0xFFFF;
-//		debug_max_heap_pointer = 0x0000;
-//	}
 }
 
 ISR(USB_CONNECTED_IRQ)
@@ -88,7 +81,7 @@ ISR(USB_CONNECTED_IRQ)
 
 uint32_t old_tick = 0;
 
-uint32_t task_get_ms_tick()
+uint32_t task_get_ms_tick_once()
 {
 	uint32_t res;
 
@@ -104,6 +97,23 @@ uint32_t task_get_ms_tick()
 	}
 
 	old_tick = res;
+
+	return res;
+}
+
+uint32_t task_get_ms_tick()
+{
+	return old_tick;
+}
+
+
+uint32_t fine_timer_get()
+{
+	uint32_t res;
+
+	cli();
+	res = (fine_timer_high) + (uint32_t)(task_timer.GetValue());
+	sei();
 
 	return res;
 }
@@ -126,8 +136,6 @@ void task_timer_setup(bool full_speed)
 	old_tick = 0;
 
 	task_timer.Start();
-	DEBUG("task_timer start %lu\n", task_get_ms_tick());
-
 }
 
 void task_timer_stop()
@@ -212,11 +220,34 @@ void task_system_loop()
 	}
 }
 
+uint16_t wake_ups = 0;
+uint32_t wake_next = 0;
+
+uint32_t fine_last = 0;
+uint32_t fine_acc = 0;
+
 void task_sleep()
 {
+	fine_acc += fine_timer_get() - fine_last;
+
 	if (task_sleep_lock == 0)
 	{
 		SystemPowerIdle();
+	}
+
+	task_get_ms_tick_once();
+	fine_last = fine_timer_get();
+	wake_ups++;
+
+	if (wake_next < task_get_ms_tick())
+	{
+		uint8_t usage = fine_acc / 6250;
+		DEBUG("CPU: %3u%% (%u irq)\n", usage, wake_ups / 5);
+
+		wake_ups = 0;
+		fine_acc = 0;
+
+		wake_next = task_get_ms_tick() + 5000;
 	}
 }
 

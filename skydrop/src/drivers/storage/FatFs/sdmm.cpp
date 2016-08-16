@@ -39,7 +39,7 @@
 #define CS_H()	GpioWrite(SD_SS, HIGH);
 #define CS_L()	GpioWrite(SD_SS, LOW);
 
-Usart sd_spi_usart;
+Usart sd_spi_usart(0, NULL, 0, NULL);
 
 /*--------------------------------------------------------------------------
 
@@ -369,7 +369,6 @@ DSTATUS disk_initialize (
 	CS_H();
 
 	sd_spi_usart.Init(SD_SPI, 250000);
-	sd_spi_usart.InitBuffers(0, 0);
 	sd_spi_usart.BecomeSPI(0, MSB, 250000);
 
 	for (n = 10; n; n--) rcvr_mmc(buf, 1);	/* Apply 80 dummy clocks and the card gets ready to receive command */

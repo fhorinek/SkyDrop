@@ -2,7 +2,7 @@
 #define I2C_H_
 
 #include "../common.h"
-#include "../ring.h"
+#include "../ring_small.h"
 
 #define i2c0	&TWIE, 0
 #define i2c1	&TWIC, 1
@@ -55,19 +55,11 @@ class I2c
 private:
 	TWI_t * i2c;
 	bool mode;
-	bool slaveDIR;
 
 	volatile uint8_t address;
 	volatile uint8_t rx_length;
 	volatile uint8_t error;
 	volatile uint8_t isbusy;
-
-	void SlaveAddressMatchHandler();
-	void SlaveStopHandler();
-	void SlaveDataHandler();
-	void SlaveReadHandler();
-	void SlaveWriteHandler();
-	void SlaveTransactionFinished(xlib_core_i2c_slave_status event);
 
 	i2c_event_cb_t events[xlib_core_i2c_events_count];
 
@@ -75,10 +67,7 @@ public:
 	RingBufferSmall * rx_buffer;
 	RingBufferSmall * tx_buffer;
 
-	void InitMaster();
-	void InitMaster(TWI_t * twi, uint8_t n, uint32_t baud);
-	void InitMaster(TWI_t * twi, uint8_t n, uint32_t baud, uint8_t size);
-	void InitMaster(TWI_t * twi, uint8_t n, uint32_t baud, uint8_t rx_buffer, uint8_t tx_buffer);
+	void InitMaster(TWI_t * twi, uint8_t n, uint32_t baud, RingBufferSmall * rx_buffer, RingBufferSmall * tx_buffer);
 
 	void Write(uint8_t data);
 	uint8_t Read();
@@ -92,23 +81,6 @@ public:
 
 	void Scan();
 	void IrqRequest();
-
-	/*
-	void (*Process_Data) (void);
-	register8_t receivedData[TWIS_RECEIVE_BUFFER_SIZE];
-	register8_t sendData[TWIS_SEND_BUFFER_SIZE];
-	register8_t bytesReceived;
-	register8_t bytesSent;
-	register8_t status;
-	register8_t result;
-	uint8_t abort;
-	*/
-
-	void InitSlave();
-	void InitSlave(uint8_t slaveAddress);
-	void InitSlave(TWI_t * twi, uint8_t n, uint8_t slaveAddress, uint8_t rx_buffer, uint8_t tx_buffer);
-	//void SlaveProcessData();
-	void IrqSlaveRequest();
 
 	void RegisterEvent(xlib_core_i2c_events, i2c_event_cb_t cb);
 

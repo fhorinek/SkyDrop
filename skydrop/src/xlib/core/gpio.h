@@ -137,9 +137,6 @@
 #define portc_interrupt0	PORTC_INT0_vect
 #define portc_interrupt1	PORTC_INT1_vect
 
-#define button_interrupt	PORTE_INT0_vect
-#define wake_interrupt		PORTE_INT1_vect
-
 #define portd_interrupt0	PORTD_INT0_vect
 #define portd_interrupt1	PORTD_INT1_vect
 

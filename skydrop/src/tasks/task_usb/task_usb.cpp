@@ -122,6 +122,10 @@ void task_usb_loop()
 		ewdt_reset();
 	}
 
+	if (usb_int_state == USB_NOT_RDY)
+		usb_lock.Unlock();
+	else
+		usb_lock.Lock();
 }
 
 

@@ -93,7 +93,7 @@ bool battery_step()
 				bat_charge_discharge_ratio += 5;
 		}
 
-		//DEBUG("BAT c/d %u\n", bat_charge_discharge_ratio);
+//		DEBUG("BAT c/d %u\n", bat_charge_discharge_ratio);
 
 		if (bat_charge_discharge_ratio > 500)
 		{

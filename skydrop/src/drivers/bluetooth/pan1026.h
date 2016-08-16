@@ -12,8 +12,7 @@
 #include "../uart.h"
 #include "../../xlib/core/usart.h"
 
-#define PARSER_BUFFER_SIZE 64
-#define BTLE_SPP_BUFFER_SIZE 85
+#define PAN1026_BUFFER_SIZE 64
 
 class pan1026
 {
@@ -35,8 +34,10 @@ public:
 	uint8_t parser_status;
 	uint16_t parser_packet_length;
 	uint8_t parser_buffer_index;
-	uint8_t parser_buffer[PARSER_BUFFER_SIZE];
+	uint8_t parser_buffer[PAN1026_BUFFER_SIZE];
 	uint32_t parser_timer;
+
+	uint16_t mtu_size;
 
 	uint8_t cmd_iter;
 
@@ -68,7 +69,7 @@ public:
 	void StreamWrite(uint8_t data);
 	void RawSendStatic(const uint8_t * data, uint8_t len);
 
-	void SendString(char * str);
+	void SendString();
 
 	uint8_t pan_mac_address[6];
 

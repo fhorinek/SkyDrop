@@ -1,6 +1,8 @@
 #include "usart.h"
 #include "util/atomic.h"
 
+#include "../../skydrop.h"
+
 //pointers to handle IRQ
 Usart * usarts[7];
 
@@ -43,27 +45,18 @@ void Usart::RegisterEvent(xlib_core_usart_events event, usart_event_cb_t cb)
 	this->events[event] = cb;
 }
 
-Usart::Usart()
-{}
-
-void Usart::InitBuffers(XLIB_USE_CORE_USART_INIT_VAR rx_size, XLIB_USE_CORE_USART_INIT_VAR tx_size)
+Usart::Usart(uint16_t rx_size, uint8_t * rx_buffer, uint16_t tx_size, uint8_t * tx_buffer)
 {
 	//init buffers
-	if ((this->rx_buffer_size = rx_size) && this->rx_buffer == NULL)
-		this->rx_buffer = new uint8_t[this->rx_buffer_size];
-	if ((this->tx_buffer_size = tx_size) && this->tx_buffer == NULL)
-		this->tx_buffer = new uint8_t[this->tx_buffer_size];
+	this->rx_buffer_size = rx_size;
+	this->rx_buffer = rx_buffer;
+
+	this->tx_buffer_size = tx_size;
+	this->tx_buffer = tx_buffer;
+
+	this->dma = false;
 }
 
-
-Usart::~Usart()
-{
-	//free buffers
-	if (this->rx_buffer_size)
-		delete[] this->rx_buffer;
-	if (this->tx_buffer_size)
-		delete[] this->tx_buffer;
-}
 
 /**
  * Initialize usart (Quick init)
@@ -194,10 +187,6 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 		this->usart->CTRLB |= USART_TXEN_bm;
 	}
 
-	//disable RTS CTS
-	this->cts_port = NULL;
-	this->rts_port = NULL;
-
 	//this has to be before IRQ settings so the hander can find the objects
 	usarts[n] = this;
 
@@ -209,24 +198,78 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 
 void Usart::SetupRxDMA(DMA_CH_t * ch, uint8_t trig)
 {
-//	//disable rx IRQ
-//	this->usart->CTRLA &= 11001111;
-//
-//	//XXX:dma enable
-//	DMA_Enable();
-//
-//	this->dma_rx_ch = ch;
-//
-//	this->dma_rx_ch->SRCADDR = &this->usart->DATA;
-//	this->dma_rx_ch->DESTADDR = this->rx_buffer;
-//
-//	this->dma_rx_ch->ADDRCTRL = DMA_CH_SRCRELOAD_NONE_gc | DMA_CH_SRCDIR_FIXED_gc |
-//			DMA_CH_DESTRELOAD_BLOCK_gc | DMA_CH_DESTDIR_INC_gc;
-//
-//	this->dma_rx_ch->TRIGSRC = trig;
-//
-//	//dma channel enable
-//	this->dma_rx_ch->CTRLA |= DMA_CH_ENABLE_bm;
+	byte2 tmp_adr;
+
+	//disable rx IRQ
+	this->usart->CTRLA &= 11001111;
+
+	//assign DMA channel
+	this->dma_rx_ch = ch;
+
+	//source address is usart data
+	tmp_adr.uint16 = (uint16_t)(&this->usart->DATA);
+
+	this->dma_rx_ch->SRCADDR0 = tmp_adr.uint8[0];
+	this->dma_rx_ch->SRCADDR1 = tmp_adr.uint8[1];
+	this->dma_rx_ch->SRCADDR2 = 0;
+
+	//destination address is begining of the rx buffer
+	tmp_adr.uint16 = (uint16_t)this->rx_buffer;
+
+	this->dma_rx_ch->DESTADDR0 = tmp_adr.uint8[0];
+	this->dma_rx_ch->DESTADDR1 = tmp_adr.uint8[1];
+	this->dma_rx_ch->DESTADDR2 = 0;
+
+	//source address is fixed
+	this->dma_rx_ch->ADDRCTRL = DMA_CH_SRCRELOAD_NONE_gc | DMA_CH_SRCDIR_FIXED_gc |
+	//destination address is incremental and reload after whole block
+			DMA_CH_DESTRELOAD_BLOCK_gc | DMA_CH_DESTDIR_INC_gc;
+
+	//infinite repeat
+	this->dma_rx_ch->REPCNT = 0;
+
+	//block size is size of rx buffer
+	this->dma_rx_ch->TRFCNT = this->rx_buffer_size;
+
+	//trigger should be the rx complete on uart peripheral
+	this->dma_rx_ch->TRIGSRC = trig;
+
+	//dma channel enable
+	this->dma_rx_ch->CTRLA |= DMA_CH_ENABLE_bm | DMA_CH_REPEAT_bm | DMA_CH_SINGLE_bm;
+
+	this->dma = true;
+}
+
+uint16_t Usart::GetRxLen()
+{
+	if (this->dma)
+	{
+		uint16_t pos = this->rx_buffer_size - this->dma_rx_ch->TRFCNT;
+		if (pos >= this->read_index)
+			return pos - this->read_index;
+		else
+			return this->rx_buffer_size - (this->read_index - pos);
+	}
+	else
+	{
+		return this->rx_len;
+	}
+}
+
+void Usart::DumpDMA()
+{
+	DEBUG("CTRLA:    %02X\n", this->dma_rx_ch->CTRLA);
+	DEBUG("CTRLB:    %02X\n", this->dma_rx_ch->CTRLB);
+	DEBUG("REPCNT:   %02X\n", this->dma_rx_ch->REPCNT);
+	DEBUG("TRFCNT:   %04X\n", this->dma_rx_ch->TRFCNT);
+	DEBUG("ADDRCTRL: %02X\n", this->dma_rx_ch->ADDRCTRL);
+	DEBUG("rx_len: %u\n", this->GetRxLen());
+	DEBUG("DumpBuffer: \n");
+	for (uint16_t i = 0; i < this->rx_buffer_size; i++)
+	{
+		DEBUG("%c", this->rx_buffer[i]);
+	}
+	DEBUG("\n");
 }
 
 /**
@@ -234,6 +277,12 @@ void Usart::SetupRxDMA(DMA_CH_t * ch, uint8_t trig)
  */
 void Usart::Stop()
 {
+	if (this->dma)
+	{
+		this->dma_rx_ch->CTRLA = 0;
+		this->dma = false;
+	}
+
 	//wait to send all data
 	this->FlushTxBuffer();
 
@@ -258,14 +307,6 @@ void Usart::RxComplete()
 			this->rx_len = 0;
 			this->rx_ovf = true;
 		}
-
-		//handle CTS
-		if (this->cts_port)
-		{
-			//buffer pass threshold deactivate CTS
-			if (this->rx_len >= this->cts_threshold)
-				GpioWrite(this->cts_port, this->cts_pin, !this->cts_active);
-		}
 	}
 	else
 	{
@@ -283,12 +324,6 @@ void Usart::RxComplete()
  */
 void Usart::TxComplete()
 {
-	if (this->rts_port)
-	{
-		if (GpioRead(this->rts_port, this->rts_pin) == !this->rts_active)
-			return;
-	}
-
 	if (this->tx_len)
 	{
 		(this->tx_len)--;
@@ -322,7 +357,7 @@ bool Usart::isTxBufferEmpty()
  */
 bool Usart::isRxBufferEmpty()
 {
-	return (this->rx_len == 0);
+	return (this->GetRxLen() == 0);
 }
 
 /**
@@ -336,9 +371,9 @@ void Usart::FlushTxBuffer()
 
 void Usart::ClearRxBuffer()
 {
-	//wait to send all data
+	//drop all data
 	this->rx_len = 0;
-	this->rx_index = 0;
+	this->rx_index = this->GetRxLen();
 }
 
 
@@ -416,21 +451,14 @@ uint8_t Usart::Read()
 
 	ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
 	{
-
-		while (this->rx_len == 0);
+		while (this->GetRxLen() == 0);
 
 		c = this->rx_buffer[(this->read_index)++];
 		if (this->read_index == this->rx_buffer_size)
 			this->read_index = 0;
 
-		(this->rx_len)--;
-
-		//Buffer freed -> CTS active
-		if (this->cts_port != NULL)
-		{
-			if (this->rx_len < this->cts_threshold)
-				GpioWrite(this->cts_port, this->cts_pin, this->cts_active);
-		}
+		if (!this->dma)
+			this->rx_len--;
 	}
 
 	return c;
@@ -443,45 +471,10 @@ uint8_t Usart::Read()
  */
 uint8_t Usart::Peek()
 {
-	// Edit Tomas 26.7 - commented out next line and added new one
-	while (this->rx_len == 0);
+	while (this->GetRxLen() == 0);
 
 	return this->rx_buffer[this->read_index];
 }
-
-
-/**
- * Set RTS pin for this usart module
- *
- * \param port pin port
- * \param pin pin number
- * \param active level of active CTS signal
- * \param threshold if count of bytes in RX buffer is higher than threshold CTS pin will be set to non active level
- */
-//void Usart::SetRtsPin(PORT_t * port, uint8_t pin, uint8_t active, XLIB_USE_CORE_USART_INIT_VAR threshold)
-//{
-//	this->cts_port = port;
-//	this->cts_pin = pin;
-//	this->cts_active = active;
-//	this->cts_threshold = threshold;
-//
-//	GpioSetDirection(this->cts_port, this->cts_pin, OUTPUT);
-//
-//	if (this->rx_len >= this->cts_threshold)
-//		GpioWrite(this->cts_port, this->cts_pin, !this->cts_active);
-//	else
-//		GpioWrite(this->cts_port, this->cts_pin, this->cts_active);
-//}
-//
-///**
-// * TODO: not implemented
-// */
-//void Usart::SetCtsPin(PORT_t * port, uint8_t pin, uint8_t active)
-//{
-//	this->rts_port = port;
-//	this->rts_pin = pin;
-//	this->rts_active = active;
-//}
 
 void Usart::BecomeSPI(uint8_t mode, uint8_t dataorder, uint32_t speed)
 {
@@ -519,7 +512,6 @@ void Usart::BecomeSPI(uint8_t mode, uint8_t dataorder, uint32_t speed)
 	this->usart->CTRLB |= USART_TXEN_bm;
 
 	uint16_t bsel = freq_cpu / (2 * speed) - 1;
-
 
 	this->usart->BAUDCTRLA = bsel;
 	this->usart->BAUDCTRLB = 0x0F & (bsel >> 8);

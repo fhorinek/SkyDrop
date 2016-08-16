@@ -6,14 +6,13 @@
 #include "kml.h"
 #include "raw.h"
 
-FIL * log_fil;
+FIL log_fil;
 uint32_t logger_next = 0;
 uint8_t logger_flight_number;
 uint32_t logger_flight_day;
 
 void logger_init()
 {
-	log_fil = new FIL;
 	fc.logger_state = LOGGER_IDLE;
 
 	uint8_t sec, min, hour, day, wday, month;

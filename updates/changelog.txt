@@ -1,3 +1,14 @@
+Build ? - ?
+========================================================
+FIX:
+ * Problems with MTU
+ * Faster GPS altitude updates
+ 
+CHANGED:
+ * GPS detail screen
+ * Bluetooth and GPS are using DMA
+ * All memory is allocated staticaly now
+
 Build 2784 - 26. 7. 2016
 ========================================================
 FIX:

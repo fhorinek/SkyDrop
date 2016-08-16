@@ -4,6 +4,8 @@
 
 #include "../../fc/protocols/protocol.h"
 
+#define PAN1322_MTU	480
+
 extern pan1322 bt_pan1322;
 CreateStdOut(bt_pan1322_out, bt_pan1322.StreamWrite);
 
@@ -15,6 +17,7 @@ enum pan1322_emd_e
 	pan_cmd_set_discoverable	= 3,
 	pan_cmd_accept_connection	= 4,
 	pan_cmd_reset 				= 5,
+	pan_cmd_send_data			= 6,
 };
 
 //ERR=-
@@ -79,6 +82,8 @@ void pan1322::Restart()
 	this->p_state = BT_STATE_START;
 	this->p_cmd = pan_cmd_reset;
 
+	this->ready_to_xmit = false;
+
 	bt_module_reset();
 	this->WaitForOK();
 }
@@ -87,16 +92,6 @@ void pan1322::StreamWrite(uint8_t data)
 {
 //	DEBUG("%02X .. %c\n", data);
 	this->usart->Write(data);
-}
-
-void pan1322::SendString(char *str)
-{
-	uint16_t len = strlen(str);
-
-	this->StreamHead(len);
-	fprintf_P(bt_pan1322_out, PSTR("%s"), str);
-	this->StreamTail();
-	this->WaitForOK();
 }
 
 void pan1322::SetName(const char * name)
@@ -199,6 +194,26 @@ void pan1322::Step()
 			break;
 		}
 
+	}
+
+	if (this->ready_to_xmit)
+	{
+		uint16_t len = bt_output.Length();
+
+		if (len > 0)
+		{
+			if (len > PAN1322_MTU)
+				len = PAN1322_MTU;
+
+			this->StreamHead(len);
+			for (uint16_t i = 0; i < len; i++)
+				this->StreamWrite(bt_output.Read());
+			this->StreamTail();
+			this->WaitForOK();
+
+			this->ready_to_xmit = false;
+			this->p_cmd = pan_cmd_send_data;
+		}
 	}
 
 
@@ -334,6 +349,10 @@ void pan1322::Parse(uint8_t c)
 
 					bt_irqh(BT_IRQ_INIT_OK, 0);
 				break;
+
+				case(pan_cmd_send_data):
+					this->ready_to_xmit = true;
+				break;
 			}
 		}
 		this->p_state = BT_STATE_FIND_RN;
@@ -394,6 +413,8 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = true;
+				this->ready_to_xmit = true;
+
 				bt_irqh(BT_IRQ_CONNECTED, 0);
 				break;
 			}

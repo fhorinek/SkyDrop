@@ -147,6 +147,9 @@ void gui_update_loop()
 	switch (update_state)
 	{
 		case(UPDATE_IDLE):
+			//update task is special case
+			//update files are used only during update
+			//we can dynamically allocate the memory
 			update_file = new FIL;
 			update_file_out = new FIL;
 

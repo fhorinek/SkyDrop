@@ -3,11 +3,10 @@
 #include "fc.h"
 #include "kalman.h"
 
-KalmanFilter * kalmanFilter;
+KalmanFilter kalmanFilter(1.0);
 
 void vario_init()
 {
-	kalmanFilter = new KalmanFilter(1.0);
 	fc.baro_valid = false;
 	fc.avg_vario = 0;
 	fc.digital_vario = 0;
@@ -73,10 +72,10 @@ void vario_calc(float pressure)
 		return;
 	}
 
-	kalmanFilter->update(rawAltitude);
+	kalmanFilter.update(rawAltitude);
 
-	float vario = kalmanFilter->getXVel();
-	float altitude = kalmanFilter->getXAbs();
+	float vario = kalmanFilter.getXVel();
+	float altitude = kalmanFilter.getXAbs();
 
 //	DEBUG("%lu;%lu;%0.2f;%ld\n", ms5611.raw_pressure, ms5611.raw_temperature, ms5611.pressure, ms5611.temperature);
 

@@ -14,6 +14,15 @@ MS5611 ms5611;
 L3gd20 l3gd20;
 SHT21 sht21;
 
+#define MEMS_I2C_RX_SIZE	100
+#define MEMS_I2C_TX_SIZE	8
+
+uint8_t mems_i2c_rx_buffer[MEMS_I2C_RX_SIZE];
+uint8_t mems_i2c_tx_buffer[MEMS_I2C_TX_SIZE];
+
+RingBufferSmall mems_i2c_rx(MEMS_I2C_RX_SIZE, mems_i2c_rx_buffer);
+RingBufferSmall mems_i2c_tx(MEMS_I2C_TX_SIZE, mems_i2c_tx_buffer);
+
 bool mems_i2c_ok = false;
 
 bool mems_i2c_init()
@@ -24,7 +33,7 @@ bool mems_i2c_init()
 	//stabilize power
 	_delay_ms(10);
 
-	mems_i2c.InitMaster(MEMS_I2C, 800000ul, 100, 8);
+	mems_i2c.InitMaster(MEMS_I2C, 800000ul, &mems_i2c_rx, &mems_i2c_tx);
 	mems_i2c.StartTransmittion(0,0);
 	_delay_ms(1);
 	if (mems_i2c.Status() != i2c_idle)

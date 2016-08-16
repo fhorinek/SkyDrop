@@ -12,9 +12,9 @@ void kml_writeline(char * line)
 	strcpy_P(line + l, PSTR("\r\n"));
 	l += 2;
 
-	assert(f_write(log_fil, line, l, &wl) == FR_OK);
+	assert(f_write(&log_fil, line, l, &wl) == FR_OK);
 	assert(wl == l);
-	assert(f_sync(log_fil) == FR_OK);
+	assert(f_sync(&log_fil) == FR_OK);
 }
 
 bool kml_start(char * path)
@@ -37,7 +37,7 @@ bool kml_start(char * path)
 	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.KML"), path, logger_flight_number, hour, min);
 	DEBUG("KML filename %s\n", filename);
 
-	uint8_t res = f_open(log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
+	uint8_t res = f_open(&log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
 	assert(res == FR_OK);
 
 	//cannot create file
@@ -149,5 +149,5 @@ void kml_stop()
 	sprintf_P(line, PSTR("</kml>"));
 	kml_writeline(line);
 
-	assert(f_close(log_fil) == FR_OK);
+	assert(f_close(&log_fil) == FR_OK);
 }

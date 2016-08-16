@@ -3,7 +3,13 @@
 
 #include "../../fc/fc.h"
 
-Usart gps_uart;
+#define GPS_UART_RX_SIZE	250
+#define GPS_UART_TX_SIZE	40
+
+uint8_t gps_uart_rx_buffer[GPS_UART_RX_SIZE];
+uint8_t gps_uart_tx_buffer[GPS_UART_TX_SIZE];
+
+Usart gps_uart(GPS_UART_RX_SIZE, gps_uart_rx_buffer, GPS_UART_TX_SIZE, gps_uart_tx_buffer);
 
 CreateStdOut(gps_out, gps_uart.Write);
 
@@ -459,7 +465,7 @@ void gps_normal()
 	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
 	//enable RMC, GGA
-	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*78\r\n"));
 }
 
 void gps_detail()
@@ -467,7 +473,7 @@ void gps_detail()
 	gps_detail_enabled = true;
 	DEBUG("set_nmea_output - detail\n");
 	//enable RMC, GGA, GSA, GSV
-	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0*2D\r\n"));
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"));
 }
 
 void gps_set_baudrate()
@@ -478,10 +484,6 @@ void gps_set_baudrate()
 	_delay_ms(1);
 }
 
-
-//for 115200 @ 32M
-#define BSEL	2094
-#define BSCALE	-7
 
 void gps_change_uart_baudrate()
 {
@@ -498,8 +500,6 @@ void gps_parse_hello()
 void gps_parse_sys()
 {
 	DEBUG("GPS SYS RESP");
-//	gps_set_baudrate();
-//	gps_change_uart_baudrate();
 
 	if (gps_detail_enabled)
 		gps_detail();
@@ -628,7 +628,7 @@ void gps_start()
 	gps_uart.Init(GPS_UART, 9600);
 	gps_uart.SetInterruptPriority(MEDIUM);
 
-	gps_uart.SetupRxDMA(&DMA.CH0, GPS_UART_DMA_TRIG);
+	gps_uart.SetupRxDMA(GPS_UART_DMA_CH, GPS_UART_DMA_TRIGGER);
 
 	GpioSetDirection(GPS_EN, OUTPUT);	 //active high
 	GpioWrite(GPS_EN, LOW);
@@ -666,8 +666,6 @@ void gps_start()
 void gps_init()
 {
 	DEBUG("gps init\n");
-
-	gps_uart.InitBuffers(250, 40);
 }
 
 bool gps_selftest()
@@ -693,6 +691,8 @@ void gps_stop()
 
 void gps_step()
 {
+//	gps_uart.DumpDMA();
+
 	while (!gps_uart.isRxBufferEmpty())
 		gps_parse(&gps_uart);
 }

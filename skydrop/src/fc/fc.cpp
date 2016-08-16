@@ -46,10 +46,14 @@ void fc_init()
 	//temperature state machine
 	fc.temp_step = 0;
 
+	//init DMA
+	DMA_PWR_ON;
+
 	//init calculators
 	vario_init();
 	audio_init();
 	logger_init();
+	protocol_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)

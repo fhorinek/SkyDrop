@@ -159,18 +159,10 @@ void lcd_display::sendcommand(unsigned char cmd)
 
 /**
  * Set display to active mode
- *
- * \param i2c Pointer to i2c object
  */
-void lcd_display::Init()
+void lcd_display::Init(Spi * spi)
 {
-	LCD_SPI_PWR_ON;
-
-	this->spi = new Spi;
-
-	this->spi->InitMaster(LCD_SPI);
-	this->spi->SetDivider(spi_div_64);
-	this->spi->SetDataOrder(MSB);
+	this->spi = spi;
 
 	CreateSinTable();
 
@@ -239,15 +231,10 @@ void lcd_display::SetFlip(bool flip)
 
 void lcd_display::Stop()
 {
-	this->spi->Stop();
-	delete this->spi;
-
 	GpioSetDirection(LCD_RST, INPUT);
 	GpioSetDirection(LCD_DC, INPUT);
 	GpioSetDirection(LCD_CE, INPUT);
 	GpioSetDirection(LCD_VCC, INPUT);
-
-	LCD_SPI_PWR_OFF;
 }
 
 /**

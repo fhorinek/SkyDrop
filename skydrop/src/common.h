@@ -18,6 +18,9 @@
 #include <xlib/core/dac.h>
 #include <xlib/core/i2c.h>
 
+#include <xlib/ring.h>
+#include <xlib/stream.h>
+
 #include "build_defs.h"
 #include "build_number.h"
 #include "debug.h"
@@ -78,6 +81,12 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define USB_PWR_OFF				PR.PRGEN |= 0b01000000;
 #define RTC_PWR_ON				PR.PRGEN &= 0b11111011;
 #define RTC_PWR_OFF				PR.PRGEN |= 0b00000100;
+
+#define DMA_PWR_ON   			PR.PRGEN &= 0b11111110; \
+								DMA.CTRL |= DMA_ENABLE_bm;
+
+#define DMA_PWR_OFF   			DMA.CTRL &= ~DMA_ENABLE_bm; \
+								PR.PRGEN |= 0b00000001;
 
 //---------------- PORTA ---------------------
 #define GPS_EN					porta0
@@ -166,14 +175,11 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define FC_MEAS_TIMER_PWR_OFF	PR.PRPC |= 0b00000001
 #define FC_MEAS_TIMER_PWR_ON	PR.PRPC &= 0b11111110
 
-
 #define TASK_TIMER				timerc1
 #define TASK_TIMER_OVF			timerc1_overflow_interrupt
 #define TASK_TIMER_CMPA			timerc1_compareA_interrupt
 #define TASK_TIMER_PWR_OFF		PR.PRPC |= 0b00000010
 #define TASK_TIMER_PWR_ON		PR.PRPC &= 0b11111101
-
-
 
 //---------------- PORTD ---------------------
 #define LCD_VCC					portd0
@@ -188,6 +194,8 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BT_UART					usartd0
 #define BT_UART_PWR_ON			PR.PRPD &= 0b11101111;
 #define BT_UART_PWR_OFF			PR.PRPD |= 0b00010000;
+#define BT_UART_DMA_CH			&DMA.CH1
+#define BT_UART_DMA_TRIGGER		DMA_CH_TRIGSRC_USARTD0_RXC_gc
 
 //XXX: timerd0 should left unused so user can generate pwm.
 #define DEBUG_TIMER				timerd0
@@ -215,9 +223,10 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define MEMS_I2C_PWR_OFF		PR.PRPE |= 0b01000000
 
 #define GPS_UART				usarte0
-#define GPS_UART_DMA_TRIG		DMA_CH_TRIGSRC_USARTE0_RXC_gc
 #define GPS_UART_PWR_ON			PR.PRPE &= 0b11101111;
 #define GPS_UART_PWR_OFF		PR.PRPE |= 0b00010000;
+#define GPS_UART_DMA_CH			&DMA.CH0
+#define GPS_UART_DMA_TRIGGER	DMA_CH_TRIGSRC_USARTE0_RXC_gc
 
 #define AUDIO_TIMER				timere0
 #define AUDIO_TIMER_OVF			timere0_overflow_interrupt
@@ -290,7 +299,7 @@ public:
 	uint16_t write_index;
 	uint16_t read_index;
 
-	DataBuffer(uint16_t size);
+	DataBuffer(uint16_t size, uint8_t * buffer);
 	~DataBuffer();
 
 	uint16_t Read(uint16_t len, uint8_t * * data);

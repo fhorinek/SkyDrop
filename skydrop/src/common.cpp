@@ -83,14 +83,14 @@ void turnoff_subsystems()
 
 //----------------------------------------------------------
 
-DataBuffer::DataBuffer(uint16_t size)
+DataBuffer::DataBuffer(uint16_t size, uint8_t * buffer)
 {
 	this->size = size;
 	this->length = 0;
 	this->write_index = 0;
 	this->read_index = 0;
 
-	this->data = new uint8_t[size];
+	this->data = buffer;
 	if (this->data == NULL)
 	{
 		this->size = 0;
@@ -252,38 +252,35 @@ bool LoadEEPROM()
 	{
 		DEBUG("EE update found.\n");
 
-		FIL * ee_file;
-		ee_file = new FIL;
+		FIL ee_file;
 
-		f_open(ee_file, "UPDATE.EE", FA_READ);
+		f_open(&ee_file, "UPDATE.EE", FA_READ);
 		uint16_t rd = 0;
 
 		byte4 tmp;
 
-		f_read(ee_file, tmp.uint8, sizeof(tmp), &rd);
+		f_read(&ee_file, tmp.uint8, sizeof(tmp), &rd);
 		if (tmp.uint32 != BUILD_NUMBER)
 		{
 			gui_showmessage_P(PSTR("UPDATE.EE is not\ncompatibile!"));
 			DEBUG("Rejecting update file %lu != %lu\n", tmp.uint32, BUILD_NUMBER);
-			delete ee_file;
 			return false;
 		}
 
 		//rewind the file
-		f_lseek(ee_file, 0);
+		f_lseek(&ee_file, 0);
 
 		for (uint16_t i = 0; i < fno.fsize; i += rd)
 		{
 			uint8_t buf[256];
 
-			f_read(ee_file, buf, sizeof(buf), &rd);
+			f_read(&ee_file, buf, sizeof(buf), &rd);
 
 			eeprom_busy_wait();
 			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
 		}
 
 		gui_showmessage_P(PSTR("UPDATE.EE\napplied."));
-		delete ee_file;
 		return true;
 	}
 	return false;
@@ -300,13 +297,11 @@ bool StoreEEPROM()
 		return false;
 	}
 
-	FIL * ee_file;
-	ee_file = new FIL;
+	FIL ee_file;
 
-	if (f_open(ee_file, "CFG.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
+	if (f_open(&ee_file, "CFG.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
 	{
 		DEBUG("Unable to create file\n");
-		delete ee_file;
 
 		return false;
 	}
@@ -331,15 +326,14 @@ bool StoreEEPROM()
 		eeprom_read_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), wd);
 
 
-		assert(f_write(ee_file, buf, wd, &rwd) == FR_OK);
+		assert(f_write(&ee_file, buf, wd, &rwd) == FR_OK);
 
 		i += wd;
 	} while (i < sizeof(cfg_t));
 
-	f_close(ee_file);
+	f_close(&ee_file);
 	DEBUG("File closed\n");
 
-	delete ee_file;
 	return true;
 }
 

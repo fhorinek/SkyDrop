@@ -1,14 +1,18 @@
 #include "uart.h"
 #include "../fc/conf.h"
 
-Usart uart;
+#define HW_UART_TX_SIZE	64
+uint8_t hw_uart_tx_buffer[HW_UART_TX_SIZE];
+
+Usart uart(0, NULL, HW_UART_TX_SIZE, hw_uart_tx_buffer);
 
 CreateStdIn(uart_in, uart.Read);
 CreateStdOut(uart_out, uart.Write);
 
-void uart_init_buffers()
+void uart_send(uint16_t len, uint8_t * data)
 {
-	uart.InitBuffers(0, BUFFER_SIZE);
+	for (uint16_t i = 0; i < len; i++)
+		uart.Write(data[i]);
 }
 
 void uart_send(char * msg)
@@ -53,6 +57,7 @@ void uart_init()
 			uart.Init(DEBUG_UART, 115200ul);
 		break;
 	}
+
 	uart.SetInterruptPriority(HIGH);
 //	uart.dbg = true;
 

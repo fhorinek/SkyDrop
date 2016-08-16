@@ -37,7 +37,7 @@
 #define  INCLUDE_FROM_MASSSTORAGE_C
 #include "MassStorage.h"
 
-uint8_t usb_int_state = USB_IDLE;
+uint8_t usb_int_state = USB_NOT_RDY;
 
 /** Structure to hold the latest Command Block Wrapper issued by the host, containing a SCSI command to execute. */
 MS_CommandBlockWrapper_t  CommandBlock;

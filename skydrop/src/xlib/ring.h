@@ -7,29 +7,28 @@
  * FIFO circular buffer for uint8_t data
  * \note maximum length of buffer is 255
  */
-class RingBufferSmall
+class RingBuffer
 {
 private:
 public:
 
 	volatile uint8_t * buffer;		//!< pointer to buffer array
 
-	volatile uint8_t size;			//!< size of buffer
-	volatile uint8_t read_index;	//!< array index of next read
-	volatile uint8_t write_index;	//!< array index of next write
-	volatile uint8_t length;		//!< count of used bytes
+	volatile uint16_t size;			//!< size of buffer
+	volatile uint16_t read_index;	//!< array index of next read
+	volatile uint16_t write_index;	//!< array index of next write
+	volatile uint16_t length;		//!< count of used bytes
 
 //public:
-	RingBufferSmall(uint8_t size);
-	~RingBufferSmall();
+	RingBuffer(uint16_t size, uint8_t * buffer);
 
 	void Write(uint8_t byte);
-	void Write(uint8_t len, uint8_t * data);
+	void Write(uint16_t len, uint8_t * data);
 
 	uint8_t Read();
-	uint8_t Length();
+	uint16_t Length();
 
 	void Clear();
 };
 
-#endif /* RING_H_ */
+#endif

@@ -207,6 +207,8 @@ EEMEM cfg_t config_ee = {
 		PROTOCOL_LK8EX1,
 		//uart_function
 		UART_FORWARD_OFF,
+		//password
+		{'1', '2', '3', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	}
 };
 

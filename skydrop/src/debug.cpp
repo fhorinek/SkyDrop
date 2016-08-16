@@ -13,7 +13,9 @@ uint32_t debug_last_pc;
 #define DEBUG_LOG_BUFFER_CHUNK	512
 #define DEBUG_LOG_BUFFER_SIZE	2048
 
-DataBuffer debug_log_buffer(DEBUG_LOG_BUFFER_SIZE);
+uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
+
+DataBuffer debug_log_storage(DEBUG_LOG_BUFFER_SIZE, debug_log_buffer);
 
 volatile uint16_t debug_return_pointer;
 volatile uint16_t debug_min_stack_pointer = 0xFFFF;
@@ -169,14 +171,14 @@ void debug_timer_init()
 void debug_log(char * msg)
 {
 	if (config.system.debug_log == DEBUG_MAGIC_ON)
-		debug_log_buffer.Write(strlen(msg), (uint8_t *)msg);
+		debug_log_storage.Write(strlen(msg), (uint8_t *)msg);
 }
 
 void debug_end()
 {
 	debug_done = true;
 	DEBUG("=== CLOSING FILE ===\n");
-	while(debug_log_buffer.Length())
+	while(debug_log_storage.Length())
 		debug_step();
 	debug_done = false;
 }
@@ -194,7 +196,7 @@ void debug_step()
 	if (!storage_ready())
 		return;
 
-	if (debug_log_buffer.Length() < DEBUG_LOG_BUFFER_CHUNK && !debug_done)
+	if (debug_log_storage.Length() < DEBUG_LOG_BUFFER_CHUNK && !debug_done)
 		return;
 
 	//Append file if not opened
@@ -252,7 +254,7 @@ void debug_step()
 	uint8_t ** tmp = 0;
 
 	//write content
-	len = debug_log_buffer.Read(DEBUG_LOG_BUFFER_CHUNK, tmp);
+	len = debug_log_storage.Read(DEBUG_LOG_BUFFER_CHUNK, tmp);
 	res = f_write(&debug_file, *tmp, len, &wt);
 	if (res != FR_OK || wt != len)
 	{

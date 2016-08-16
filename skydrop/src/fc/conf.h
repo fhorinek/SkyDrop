@@ -161,9 +161,7 @@ struct cfg_logger
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
 #define PROTOCOL_SKYBEAN	3
-#define PROTOCOL_FLYNET		4
 
-//FlyNet is disabled for now
 #define NUMBER_OF_PROTOCOLS	4
 
 #define UART_FORWARD_DEBUG	0
@@ -175,6 +173,8 @@ struct cfg_logger
 #define UART_FORWARD_115200	6
 
 #define NUMBER_OF_UART_FORWARD	7
+
+#define LOGIN_PASSWORD_LEN 16
 
 struct cfg_connectivity
 {
@@ -192,6 +192,8 @@ struct cfg_connectivity
 	uint8_t protocol;
 
 	uint8_t uart_function;
+
+	uint8_t password[LOGIN_PASSWORD_LEN];
 };
 
 //Main user configurations

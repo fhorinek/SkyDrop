@@ -1,14 +1,16 @@
 #include "ring.h"
 
+#include "../drivers/uart.h"
+
 /**
  * Create FIFO object and allocate memory for buffer
  *
  * \param size Size of bufer
  */
-RingBufferSmall::RingBufferSmall(uint8_t size)
+RingBuffer::RingBuffer(uint16_t size, uint8_t * buffer)
 {
 	this->size = size;
-	this->buffer = new uint8_t[size];
+	this->buffer = buffer;
 
 	this->length = 0;
 	this->read_index = 0;
@@ -16,17 +18,9 @@ RingBufferSmall::RingBufferSmall(uint8_t size)
 }
 
 /**
- * Destroy FIFO object and free buffer memory
- */
-RingBufferSmall::~RingBufferSmall()
-{
-	delete[] this->buffer;
-}
-
-/**
  * Read one byte from buffer, return 0 if buffer is empty
  */
-uint8_t RingBufferSmall::Read()
+uint8_t RingBuffer::Read()
 {
 	uint8_t a;
 
@@ -45,7 +39,7 @@ uint8_t RingBufferSmall::Read()
  *
  * \param data Data to be written
  */
-void RingBufferSmall::Write(uint8_t data)
+void RingBuffer::Write(uint8_t data)
 {
 	if (this->length < this->size)
 		this->length++;
@@ -55,6 +49,8 @@ void RingBufferSmall::Write(uint8_t data)
 
 	if (this->write_index >= this->size)
 		this->write_index = 0;
+
+//	DEBUG(">> %02X %d %d %d\n", data, this->length, this->write_index, this->size);
 }
 
 /**
@@ -63,16 +59,16 @@ void RingBufferSmall::Write(uint8_t data)
  * \param len Length of input array
  * \param data Pointer to input array
  */
-void RingBufferSmall::Write(uint8_t len, uint8_t * data)
+void RingBuffer::Write(uint16_t len, uint8_t * data)
 {
-	while (len > 0)
-		this->Write(data[--len]);
+	for (uint16_t i = 0; i < len; i++)
+		this->Write(data[i]);
 }
 
 /**
  * Return buffer length
  */
-uint8_t RingBufferSmall::Length()
+uint16_t RingBuffer::Length()
 {
 	return this->length;
 }
@@ -80,7 +76,7 @@ uint8_t RingBufferSmall::Length()
 /**
  * Clear buffer
  */
-void RingBufferSmall::Clear()
+void RingBuffer::Clear()
 {
 	this->length = 0;
 	this->read_index = 0;

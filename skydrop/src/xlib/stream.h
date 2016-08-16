@@ -29,10 +29,11 @@
 typedef enum xlib_stream_next_e
 {
 	next_startbyte = 0,		//!< Waiting for startbyte
-	next_length = 1,		//!< Waiting for length
-	next_length_check = 2,	//!< Waiting for length confirmation
-	next_data = 3,			//!< Waiting for data
-	next_crc = 4			//!< Waiting for CRC
+	next_length_lo = 1,		//!< Waiting for length low
+	next_length_hi = 2,		//!< Waiting for length high
+	next_head_crc = 3,
+	next_data = 4,			//!< Waiting for data
+	next_crc = 5			//!< Waiting for CRC
 } xlib_stream_next;
 
 typedef void (*onPacket_cb_t)(void);
@@ -40,12 +41,12 @@ typedef void (*onPacket_cb_t)(void);
 class Stream //! Object for creating packet communication with error detection
 {
 private:
-	RingBufferSmall * buffer;		//!< buffer for incoming packet
+	RingBuffer * buffer;		//!< buffer for incoming packet
 
 	volatile uint8_t rx_next;		//!< state of incoming packet
 
-	volatile uint8_t rx_length;		//!< length of incoming packet
-	volatile uint8_t tx_length;		//!< length of outgoing packet
+	volatile uint16_t rx_length;		//!< length of incoming packet
+	volatile uint16_t tx_length;		//!< length of outgoing packet
 
 	volatile uint8_t rx_crc;		//!< crc byte for incoming packet
 	volatile uint8_t tx_crc;		//!< crc byte for outgoing packet
@@ -53,16 +54,18 @@ private:
 	FILE * output;					//!< output file for stream
 
 public:
-	void Init(FILE * output);
-	void Init(FILE * output, uint8_t buffer_length);
+	void Init(FILE * output, RingBuffer * buffer);
 
-	void StartPacket(uint8_t length);
+	void StartPacket(uint16_t length);
 	void Write(uint8_t data);
+	void Write(uint16_t len, uint8_t * data);
+
 	uint8_t Read();
 	void Decode(uint8_t data);
+	void Debug();
 
-	static void RegisterOnPacket(onPacket_cb_t cb);
-	static onPacket_cb_t onPacket;
+	void RegisterOnPacket(onPacket_cb_t cb);
+	onPacket_cb_t onPacket;
 };
 
 

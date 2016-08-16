@@ -42,6 +42,8 @@ CreateStdOut(lcd_out, disp.Write);
 volatile uint8_t gui_task = GUI_NONE;
 volatile uint8_t gui_new_task = GUI_SPLASH;
 
+Spi gui_disp_spi;
+
 void (* gui_init_array[])() =
 	{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init,
 	gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init,
@@ -235,7 +237,13 @@ void gui_fit_text(char * in, char * out, uint8_t size)
 
 void gui_init()
 {
-	disp.Init();
+	LCD_SPI_PWR_ON;
+
+	gui_disp_spi.InitMaster(LCD_SPI);
+	gui_disp_spi.SetDivider(spi_div_64);
+	gui_disp_spi.SetDataOrder(MSB);
+
+	disp.Init(&gui_disp_spi);
 	gui_load_eeprom();
 	gui_idle_timer = task_get_ms_tick();
 }
@@ -276,6 +284,10 @@ void gui_load_eeprom()
 void gui_stop()
 {
 	disp.Stop();
+
+	gui_disp_spi.Stop();
+
+	LCD_SPI_PWR_OFF;
 }
 
 uint8_t fps_counter = 0;

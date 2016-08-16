@@ -2,7 +2,7 @@
 #define SPI_H_
 
 #include "../common.h"
-#include "../ring.h"
+#include "../ring_small.h"
 #include "gpio.h"
 
 //debug
@@ -38,25 +38,11 @@ public:
 	SPI_t * spi;
 	PORT_t * port;
 
-	RingBufferSmall * rx_buffer;
-	RingBufferSmall * tx_buffer;
-
-	volatile bool isbusy;
 	PORT_t * ss_port;
 	uint8_t ss_pin;
 
-
-
-
 //public:
-	void InitMaster();
-	void InitMaster(SPI_t * spi, PORT_t * port, uint8_t n, uint8_t rx_size, uint8_t tx_size);
-	void InitMaster(SPI_t * spi, PORT_t * port, uint8_t n, uint8_t size);
 	void InitMaster(SPI_t * spi, PORT_t * port, uint8_t n);
-
-	void InitSlave(SPI_t * spi, PORT_t * port, uint8_t n, uint8_t rx_size, uint8_t tx_size);
-	void InitSlave(SPI_t * spi, PORT_t * port, uint8_t n, uint8_t size);
-	void InitSlave(SPI_t * spi, PORT_t * port, uint8_t n);
 
 	void Stop();
 
@@ -66,15 +52,7 @@ public:
 	void UnsetSlave();
 	void SetDivider(xlib_core_spi_prescaler div);
 
-	void IrqRequest();
-
-	void StartTransmittion(PORT_t * port, uint8_t pin);
 	uint8_t SendRaw(uint8_t data);
-
-	void Write(uint8_t data);
-	uint8_t Read();
-	void Clear();
-	void Wait();
 };
 
 #endif /* SPI_H_ */

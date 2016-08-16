@@ -46,9 +46,6 @@
 
 #define CLAMP(val, min, max)	((val < min) ? (min) : ((val > max) ? max : val))
 
-#define DMA_Enable()    ( DMA.CTRL |= DMA_ENABLE_bm )
-#define DMA_Disable()   ( DMA.CTRL &= ~DMA_ENABLE_bm )
-
 #ifdef __cplusplus
 extern "C" {
 #endif

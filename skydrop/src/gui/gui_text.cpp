@@ -54,6 +54,8 @@ char gui_text_gen_c(uint8_t i, uint8_t mode)
 		return ' ';
 	if (i == 27)
 		return '.';
+
+	return 0;
 }
 
 void gui_text_del()

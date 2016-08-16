@@ -27,10 +27,8 @@ void Setup()
 
 	//init basic peripherals
 	led_init();
-	uart_init_buffers();
 	time_init();
 	buzzer_init();
-//	battery_init();
 	buttons_init();
 
 	//basic power control
@@ -42,6 +40,7 @@ void Setup()
 	cfg_load();
 	uart_init();
 	battery_init();
+
 
 	_delay_ms(100);
 }

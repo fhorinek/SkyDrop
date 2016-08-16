@@ -49,15 +49,23 @@ void gui_set_gps_detail_loop()
 	disp.LoadFont(F_TEXT_S);
 	for (uint8_t i=0; i < GPS_SAT_CNT; i++)
 	{
-		uint8_t x = i < 6 ? (GUI_DISP_WIDTH  * 1 / 4) : (GUI_DISP_WIDTH  * 3 / 4);
-		uint8_t y = (3.5 + i % 6) * f_h;
+//		uint8_t x = i < 6 ? (GUI_DISP_WIDTH  * 1 / 4) : (GUI_DISP_WIDTH  * 3 / 4);
+//		uint8_t y = (3.5 + i % 6) * f_h;
+//
+//		x -= GUI_DISP_WIDTH / 8;
+//
+//		disp.GotoXY(x, y);
+//		if (fc.gps_data.sat_id[i] != 0)
+//			fprintf_P(lcd_out, PSTR("%03d: %d"), fc.gps_data.sat_id[i], fc.gps_data.sat_snr[i]);
 
-		x -= GUI_DISP_WIDTH / 8;
+		if (fc.gps_data.sat_id[i] == 0)
+			continue;
 
-		disp.GotoXY(x, y);
-		if (fc.gps_data.sat_id[i] != 0)
-			fprintf_P(lcd_out, PSTR("%03d: %d"), fc.gps_data.sat_id[i], fc.gps_data.sat_snr[i]);
+		uint8_t x = 7 * i;
+		uint8_t y = GUI_DISP_HEIGHT - 2 - fc.gps_data.sat_id[i] / 3;
+		disp.DrawRectangle(x, y, x + 5, GUI_DISP_HEIGHT - 1, 1, 1);
 	}
+
 }
 
 void gui_set_gps_detail_irqh(uint8_t type, uint8_t * buff)

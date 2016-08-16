@@ -27,14 +27,6 @@
 #define usarte1 usart1
 #define usartf0 usart2
 
-#define XLIB_USE_CORE_USART_LARGEBUFFER
-
-#ifndef XLIB_USE_CORE_USART_LARGEBUFFER
-	#define XLIB_USE_CORE_USART_INIT_VAR uint8_t
-#else
-	#define XLIB_USE_CORE_USART_INIT_VAR uint16_t
-#endif
-
 typedef enum xlib_core_usart_events_e //! usart events
 {
 	usart_event_rxcomplete, //!< execute after RX complete routine
@@ -56,16 +48,20 @@ public:
 	volatile uint8_t * rx_buffer;
 	volatile uint8_t * tx_buffer;
 
+	volatile uint16_t rx_len;
+	volatile uint16_t rx_index;
+	volatile uint16_t rx_buffer_size;
+
+	volatile uint16_t tx_len;
+	volatile uint16_t tx_index;
+	volatile uint16_t tx_buffer_size;
+
+	volatile uint16_t read_index;
+	volatile uint16_t write_index;
+
 	volatile DMA_CH_t * dma_rx_ch;
 
-	PORT_t * cts_port;
-	uint8_t cts_pin;
-	uint8_t cts_active;
-	XLIB_USE_CORE_USART_INIT_VAR cts_threshold;
-
-	PORT_t * rts_port;
-	uint8_t rts_pin;
-	uint8_t rts_active;
+	bool dma;
 
 	uint8_t irq_priority;
 
@@ -77,22 +73,15 @@ public:
 
 	volatile bool dbg;
 
-#ifndef XLIB_USE_CORE_USART_LARGEBUFFER
-	volatile uint8_t rx_index, read_index, rx_len, rx_buffer_size;
-	volatile uint8_t tx_index, write_index, tx_len, tx_buffer_size;
-#else
-	volatile uint16_t rx_index, read_index, rx_len, rx_buffer_size;
-	volatile uint16_t tx_index, write_index, tx_len, tx_buffer_size;
-#endif
-
 public:
 
 	volatile uint8_t rx_ovf;
 
+	Usart(uint16_t rx_size, uint8_t * rx_buffer, uint16_t tx_size, uint8_t * tx_buffer);
+
 	void Init();
 	void Init(uint32_t baud);
 	void Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t baud);
-	void InitBuffers(XLIB_USE_CORE_USART_INIT_VAR rx_size, XLIB_USE_CORE_USART_INIT_VAR tx_size);
 	void Stop();
 
 	void BecomeSPI(uint8_t mode, uint8_t dataorder, uint32_t speed);
@@ -100,6 +89,9 @@ public:
 	void SendRaw1(uint8_t data);
 
 	void SetupRxDMA(DMA_CH_t * ch, uint8_t trig);
+	void DumpDMA();
+
+	uint16_t GetRxLen();
 
 	void RxComplete();
 	void TxComplete();
@@ -115,14 +107,7 @@ public:
 	void SetInterruptPriority(uint8_t p);
 	void ClearRxBuffer();
 
-//	void SetCtsPin(PORT_t * port, uint8_t pin, uint8_t active, XLIB_USE_CORE_USART_INIT_VAR threshold);
-//	void SetRtsPin(PORT_t * port, uint8_t pin, uint8_t active);
-
 	void RegisterEvent(xlib_core_usart_events, usart_event_cb_t cb);
-
-	Usart();
-	~Usart();
-
 };
 
 #endif /* USART_H_ */
