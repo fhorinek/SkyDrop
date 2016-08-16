@@ -105,5 +105,28 @@ Datasheets
 
 All datasheets needed for development can be found in doc directory
 
+Bluetooth connection
+=====
 
+pan1026 clasic SPP
+-----
+```bash
+$ hcitool scan
+Scanning ...
+	00:13:43:0E:F5:1E	SkyDrop SPP
+	
+$ sdptool records 00:13:43:0E:F5:1E
+Service Name: Serial Port
+Service RecHandle: 0x10000
+Service Class ID List:
+  "Serial Port" (0x1101)
+Protocol Descriptor List:
+  "L2CAP" (0x0100)
+  "RFCOMM" (0x0003)
+    Channel: 5
 
+^C
+$ sudo rfcomm connect 0 00:13:43:0E:F5:1E 5
+Connected /dev/rfcomm0 to 00:13:43:0E:F5:1E on channel 5
+Press CTRL-C for hangup
+```
