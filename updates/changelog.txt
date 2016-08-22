@@ -3,6 +3,7 @@ Build ? - ?
 FIX:
  * Problems with MTU
  * Faster GPS altitude updates
+ * Badly formed IGC file - multiple records for one time #203
  
 CHANGED:
  * GPS detail screen

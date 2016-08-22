@@ -64,7 +64,13 @@ class SerialStream(threading.Thread):
             crc = calc_crc(crc, crc_key, byte)
         to_send += chr(crc)
         
-#         print "data len", len(to_send)
+        print "-------"
+        print "data len", len(to_send)
+        for c in to_send:
+            print "%02X" % ord(c),
+        print
+        print "-------"
+        
         self.handle.write(to_send)      
         
             

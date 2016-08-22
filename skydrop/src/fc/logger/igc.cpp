@@ -161,6 +161,8 @@ void igc_write_grecord()
 #endif
 }
 
+uint32_t igc_last_timestamp = 0;
+
 void igc_step()
 {
 	char line[79];
@@ -175,6 +177,11 @@ void igc_step()
 	{
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			fc.logger_state = LOGGER_ACTIVE;
+
+		if (igc_last_timestamp == fc.gps_data.utc_time)
+			return;
+
+		igc_last_timestamp = fc.gps_data.utc_time;
 
 		time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
 		c = 'A';

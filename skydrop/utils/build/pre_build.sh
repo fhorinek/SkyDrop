@@ -10,6 +10,8 @@ rm src/fc/conf.o
 rm src/fc/logger/igc.o
 rm src/fc/logger/kml.o
 
+rm src/fc/protocols/skybean/info.o
+
 rm src/gui/usb.o
 rm src/gui/splash.o
 rm src/gui/update.o
