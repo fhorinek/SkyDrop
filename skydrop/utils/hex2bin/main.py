@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import sys
-import serial
 from intelhex import IntelHex
 import time
 import datetime

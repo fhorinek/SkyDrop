@@ -22,16 +22,9 @@
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.app.release.774518815" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.app.release"/>
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release.1806408769" name="AVRDude" superClass="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release"/>
 							<targetPlatform id="de.innot.avreclipse.targetplatform.winavr.app.release.911544886" name="AVR Cross-Target" superClass="de.innot.avreclipse.targetplatform.winavr.app.release"/>
-							<builder buildPath="${workspace_loc:/psychosonda}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.643916985" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" parallelBuildOn="false" superClass="de.innot.avreclipse.target.builder.winavr.app.release">
-								<outputEntries>
-									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
-								</outputEntries>
-							</builder>
+							<builder buildPath="${workspace_loc:/skydrop}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.1901587856" keepEnvironmentInBuildfile="false" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.app.release"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.app.release.921484891" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.app.release">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.1546080208" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level" value="de.innot.avreclipse.assembler.option.debug.level.g2" valueType="enumerated"/>
-								<option id="de.innot.avreclipse.asm.option.include.paths.397644824" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/psychosonda_bt_ng/xlib}&quot;"/>
-								</option>
 								<inputType id="de.innot.avreclipse.tool.assembler.input.1998533130" superClass="de.innot.avreclipse.tool.assembler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.compiler.winavr.app.release.1196888181" name="AVR Compiler" superClass="de.innot.avreclipse.tool.compiler.winavr.app.release">
@@ -97,9 +90,6 @@
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1616035555" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.852200763" name="pan_yuht.cc" rcbsApplicability="disable" resourcePath="src/drivers/bluetooth/pan_yuht.cc" toolsToInvoke="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.2076163171">
-						<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.2076163171" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693"/>
-					</fileInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 						<entry excluding="drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
@@ -129,16 +119,9 @@
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.app.release.641623743" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.app.release"/>
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release.1249953692" name="AVRDude" superClass="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release"/>
 							<targetPlatform id="de.innot.avreclipse.targetplatform.winavr.app.release.1845634075" name="AVR Cross-Target" superClass="de.innot.avreclipse.targetplatform.winavr.app.release"/>
-							<builder buildPath="${workspace_loc:/psychosonda}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.934034873" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" parallelBuildOn="false" superClass="de.innot.avreclipse.target.builder.winavr.app.release">
-								<outputEntries>
-									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
-								</outputEntries>
-							</builder>
+							<builder buildPath="${workspace_loc:/skydrop}/Debug" id="de.innot.avreclipse.target.builder.winavr.app.release.676728401" keepEnvironmentInBuildfile="false" name="AVR GNU Make Builder" superClass="de.innot.avreclipse.target.builder.winavr.app.release"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.app.release.1827233302" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.app.release">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.543981313" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level" value="de.innot.avreclipse.assembler.option.debug.level.g2" valueType="enumerated"/>
-								<option id="de.innot.avreclipse.asm.option.include.paths.1155925870" name="#include paths for preprocessor(-I)" superClass="de.innot.avreclipse.asm.option.include.paths" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/psychosonda_bt_ng/xlib}&quot;"/>
-								</option>
 								<option id="de.innot.avreclipse.assembler.option.debug.type.237574168" name="Debug Info Format" superClass="de.innot.avreclipse.assembler.option.debug.type" value="de.innot.avreclipse.assembler.option.debug.level.gdb" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.tool.assembler.input.78231109" superClass="de.innot.avreclipse.tool.assembler.input"/>
 							</tool>
@@ -216,13 +199,9 @@
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
 	</storageModule>
-	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="psychosonda.de.innot.avreclipse.project.winavr.elf_2.1.0.2074758573" name="AVR Cross Target Application" projectType="de.innot.avreclipse.project.winavr.elf_2.1.0"/>
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/psychosonda_bt_ng"/>
 		</configuration>
 		<configuration configurationName="Debug"/>
 	</storageModule>
@@ -242,4 +221,7 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="skydrop.null.1162177594" name="skydrop"/>
+	</storageModule>
 </cproject>

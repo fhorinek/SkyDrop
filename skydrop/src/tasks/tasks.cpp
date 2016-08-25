@@ -191,11 +191,15 @@ void task_system_loop()
 
 			//XXX: this will guarantee that task switched from the powerdown task will be vanilla
 			if (new_task == TASK_POWERDOWN)
+			{
 				SystemReset();
+			}
 
 			//XXX: usb is bit unstable when it is switched from another task, this is hack
 			if (new_task == TASK_USB && actual_task != NO_TASK)
+			{
 				SystemReset();
+			}
 		}
 
 		actual_task = new_task;

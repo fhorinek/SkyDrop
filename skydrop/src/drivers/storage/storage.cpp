@@ -49,6 +49,9 @@ bool storage_init()
 
 		sd_spi_usart.Stop();
 
+		GpioSetDirection(SD_SS, INPUT);
+		GpioSetPull(SD_IN, gpio_totem);
+
 		//power spi & sdcard
 		SD_EN_OFF;
 		SD_SPI_PWR_OFF;
@@ -77,7 +80,7 @@ bool storage_init()
 
 	res = disk_ioctl(0, GET_SECTOR_SIZE, &sector_size);
 
-	storage_space = sector_count * sector_size;
+	storage_space = sector_count / 2;
 	storage_free_space = size * 4 * 1024;
 
 	DEBUG("Disk info\n");
@@ -106,10 +109,14 @@ void storage_deinit()
 	sd_avalible = false;
 
 	GpioSetPull(SD_IN, gpio_totem);
+	GpioSetDirection(SD_SS, INPUT);
 
 	//power spi & sdcard
 	SD_EN_OFF;
 	SD_SPI_PWR_OFF;
+
+	//let it cool down :)
+	_delay_ms(100);
 }
 
 void storage_step()

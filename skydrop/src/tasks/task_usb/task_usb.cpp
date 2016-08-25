@@ -58,6 +58,7 @@ void task_usb_init()
 		USB_PWR_OFF;
 		SD_SPI_PWR_OFF;
 		SD_EN_OFF;
+		GpioSetDirection(SD_SS, INPUT);
 	}
 
 	//init gui
@@ -103,6 +104,8 @@ void task_usb_stop()
 		USB_PWR_OFF;
 		SD_SPI_PWR_OFF;
 		SD_EN_OFF;
+		GpioSetDirection(SD_SS, INPUT);
+		_delay_ms(100);
 	}
 
 }
