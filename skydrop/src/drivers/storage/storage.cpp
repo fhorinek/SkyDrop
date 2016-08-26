@@ -84,9 +84,9 @@ bool storage_init()
 	storage_free_space = size * 4 * 1024;
 
 	DEBUG("Disk info\n");
-	DEBUG(" sector size  %12u\n", sector_size);
+	DEBUG(" sector size  %12u B\n", sector_size);
 	DEBUG(" sector count %12lu\n", sector_count);
-	DEBUG(" total space  %12lu\n", storage_space);
+	DEBUG(" total space  %12lu kB\n", storage_space);
 	DEBUG(" free space   %12lu\n", storage_free_space);
 
 	sd_avalible = true;

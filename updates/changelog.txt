@@ -1,14 +1,16 @@
-Build ? - ?
+Build 3067 - 26. 8. 2016
 ========================================================
 FIX:
+ * pan1026 random disconnect
  * Problems with MTU
- * Faster GPS altitude updates
+ * Faster GPS altitude updates #166
  * Badly formed IGC file - multiple records for one time #203
+ * Custom logo
  
 CHANGED:
  * GPS detail screen
  * Bluetooth and GPS are using DMA
- * All memory is allocated staticaly now
+ * All memory is allocated statically
 
 Build 2784 - 26. 7. 2016
 ========================================================

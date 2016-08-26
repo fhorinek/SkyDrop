@@ -17,7 +17,6 @@ void task_active_init()
 	{
 		gui_splash_set_mode(SPLASH_ON);
 		gui_switch_task(GUI_SPLASH);
-		gui_force_loop();
 	}
 	else
 	{
