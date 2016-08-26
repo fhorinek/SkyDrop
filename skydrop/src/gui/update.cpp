@@ -20,8 +20,8 @@ uint8_t update_file_crc;
 
 volatile uint8_t update_eeprom_only = false;
 
-#define UPDATE_CHUNK	(1024*5)
 #define UPDATE_CRC 		0x9B
+#define UPDATE_CHUNK	DEBUG_LOG_BUFFER_SIZE
 
 void gui_update_cb(uint8_t ret)
 {
@@ -134,7 +134,11 @@ void gui_update_loop()
 {
 	uint16_t rd, wr;
 	uint16_t to_read;
-	uint8_t buff[UPDATE_CHUNK];
+
+	//steal some buffer from debug
+	extern uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
+
+	uint8_t * buff = debug_log_buffer;
 	uint16_t i;
 
 //	DEBUG(" *** update loop start ***\n");
@@ -149,9 +153,14 @@ void gui_update_loop()
 		case(UPDATE_IDLE):
 			//update task is special case
 			//update files are used only during update
-			//we can dynamically allocate the memory
-			update_file = new FIL;
-			update_file_out = new FIL;
+			//we can "steal" them from other tasks
+			extern FIL log_file;
+			extern FIL skybean_file_handle;
+
+			assert(f_unlink("UPDATE.FW") == FR_OK);
+
+			update_file = &log_file;				//stolen from IGC/KML logger
+			update_file_out = &skybean_file_handle;	//stolen from Skybean protocol handler
 
 			update_state = UPDATE_CHECK_EE;
 			update_file_pos = 0;

@@ -17,13 +17,13 @@ void task_update_init()
 {
 	DEBUG(" *** THIS IS TASK UPDATE ***\n");
 
+	storage_init();
+
 	//init gui
 	gui_init();
 	gui_dialog_set_P(PSTR("Update"), PSTR("Update file found\nApply?"), GUI_STYLE_YESNO, gui_update_cb);
 	gui_switch_task(GUI_DIALOG);
 	gui_trigger_backlight();
-
-	storage_init();
 
 	update_state = UPDATE_IDLE;
 	update_lock.Lock();

@@ -26,9 +26,9 @@ void igc_writeline(char * line, bool sign = true)
 	strcpy_P(line + l, PSTR("\r\n"));
 	l += 2;
 
-	assert(f_write(&log_fil, line, l, &wl) == FR_OK);
+	assert(f_write(&log_file, line, l, &wl) == FR_OK);
 	assert(wl == l);
-	assert(f_sync(&log_fil) == FR_OK);
+	assert(f_sync(&log_file) == FR_OK);
 
 #ifndef IGC_NO_PRIVATE_KEY
 	if (sign)
@@ -66,7 +66,7 @@ bool igc_start(char * path)
 	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.IGC"), path, logger_flight_number, hour, min);
 	DEBUG("IGC filename %s\n", filename);
 
-	uint8_t res = f_open(&log_fil, filename, FA_WRITE | FA_CREATE_ALWAYS);
+	uint8_t res = f_open(&log_file, filename, FA_WRITE | FA_CREATE_ALWAYS);
 	assert(res == FR_OK);
 	DEBUG("f_open res = %02X\n", res);
 
@@ -156,8 +156,8 @@ void igc_write_grecord()
 	igc_writeline(line, false);
 
 	//rewind pointer
-	uint32_t pos = f_tell(&log_fil);
-	assert(f_lseek(&log_fil, pos - 43) == FR_OK);
+	uint32_t pos = f_tell(&log_file);
+	assert(f_lseek(&log_file, pos - 43) == FR_OK);
 #endif
 }
 
@@ -213,5 +213,5 @@ void igc_comment(char * text)
 
 void igc_stop()
 {
-	assert(f_close(&log_fil) == FR_OK);
+	assert(f_close(&log_file) == FR_OK);
 }

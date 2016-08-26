@@ -5,6 +5,9 @@
 
 #define DEBUG_FILE	"debug.log"
 
+#define DEBUG_LOG_BUFFER_CHUNK	512
+#define DEBUG_LOG_BUFFER_SIZE	2048
+
 void debug_log(char * msg);
 
 //DEBUG

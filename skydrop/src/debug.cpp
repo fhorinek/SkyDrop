@@ -10,9 +10,6 @@ volatile uint8_t debug_file_open;
 Timer debug_timer;
 uint32_t debug_last_pc;
 
-#define DEBUG_LOG_BUFFER_CHUNK	512
-#define DEBUG_LOG_BUFFER_SIZE	2048
-
 uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
 
 DataBuffer debug_log_storage(DEBUG_LOG_BUFFER_SIZE, debug_log_buffer);

@@ -6,7 +6,7 @@
 #include "kml.h"
 #include "raw.h"
 
-FIL log_fil;
+FIL log_file;
 uint32_t logger_next = 0;
 uint8_t logger_flight_number;
 uint32_t logger_flight_day;

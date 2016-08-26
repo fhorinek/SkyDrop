@@ -16,7 +16,7 @@
 #include "../../common.h"
 #include "../../drivers/storage/storage.h"
 
-extern FIL log_fil;
+extern FIL log_file;
 extern uint8_t logger_flight_number;
 
 void logger_init();
