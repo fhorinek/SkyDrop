@@ -1,7 +1,6 @@
 #include "storage.h"
 
 FATFS FatFs;		/* FatFs work area needed for each volume */
-//FIL Fil;			/* File object needed for each open file */
 
 extern Usart sd_spi_usart;
 
