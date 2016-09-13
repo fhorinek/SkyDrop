@@ -19,7 +19,7 @@ volatile flight_data_t fc;
 
 Timer fc_meas_timer;
 
-extern KalmanFilter * kalmanFilter;
+extern KalmanFilter kalmanFilter;
 
 MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
@@ -178,7 +178,7 @@ void fc_deinit()
 		fc_landing();
 
 	eeprom_busy_wait();
-	//store altimeter info
+	//store altimeter settings
 	eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
 	eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
 
@@ -598,7 +598,8 @@ void fc_zero_alt(uint8_t index)
 
 void fc_manual_alt0_change(float val)
 {
-    kalmanFilter->setXAbs(val);
+	kalmanFilter.reset(val);
+
     if (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND)
     {
     	fc.autostart_altitude = val;
