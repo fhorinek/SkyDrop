@@ -45,8 +45,6 @@ app.directive('ctrlBool', function() {
     };
 });
 
-//memory.getMacroValue(opt[0]) as opt[1] for opt in options"
-
 app.directive('ctrlSelect', function() {
     return {
         restrict: 'E',
@@ -55,7 +53,7 @@ app.directive('ctrlSelect', function() {
             options: '='
         },
         template: function(element, attrs) {
-            var html = '<select ng-model="ngModel" ng-options="item[0] as item[1] for item in options">';
+            var html = '<select ng-model="ngModel.option" ng-options="item[0] as item[1] for item in options">';
             html += '</select>';    
             return html;
         }
@@ -72,7 +70,7 @@ app.directive('ctrlFlags', function() {
         template: function(element, attrs) {
             var html = '<div ng-repeat="item in flags" class="checkbox">';
             html += '<label>';
-            html += '<input type="checkbox" ng-false-value="0" ng-true-value="item[0]" ng-checked="checked(item[0])" ng-click="click(item[0])"/>';
+            html += '<input type="checkbox" ng-checked="checked(item[0])" ng-click="click(item[0])"/>';
             html += '{{item[1]}}';    
             html += '</div>';    
             return html;
@@ -81,12 +79,12 @@ app.directive('ctrlFlags', function() {
         {
             scope.checked = function(flag)
             {
-                return scope.ngModel & flag;
+                return scope.ngModel.flags[flag];
             };
             
             scope.click = function(flag)
             {
-                scope.ngModel ^= flag;
+            	scope.ngModel.flags[flag] = !scope.ngModel.flags[flag];
             };
         }
     };
@@ -104,9 +102,9 @@ app.directive('ctrlAltimeter', ['memory', function(memory, $parse, $rootScope) {
         template: function(element, attrs) {
             var html = '<div>';
             html += '<b>Mode</b><br>';
-            html += '<ctrl-select ng-model="mode" options="options"></ctrl-select><br>';
+            html += '<ctrl-select ng-model="ngModel.mode" options="options"></ctrl-select><br>';
             html += '<span ng-show="relative"><b>Relative to</b><br>';
-            html += '<ctrl-select ng-model="rel" options="altimeters"></ctrl-select><br></span>';
+            html += '<ctrl-select ng-model="ngModel.altimeter" options="altimeters"></ctrl-select><br></span>';
             html += '<b>Flags</b><br>';
             html += '<ctrl-flags ng-model="ngModel" flags="flags"></ctrl-flags>';
             html += '</div>';
@@ -114,26 +112,11 @@ app.directive('ctrlAltimeter', ['memory', function(memory, $parse, $rootScope) {
         },
         link: function(scope, element, attrs)
         {
-        	scope.$watch('ngModel', function(value)
+        	scope.$watch('ngModel.mode.option', function(value)
         	{
-	            scope.mode = memory.getMacroValue("ALT_MODE_MASK") & scope.ngModel;
-	            scope.relative = memory.getMacroValue("ALT_MODE_MASK") == scope.mode;
-	            scope.rel = memory.getMacroValue("ALT_REL_MASK") & scope.ngModel;
+	            scope.relative = "ALT_DIFF" == scope.ngModel.mode.option;
         	});
-            
-            scope.$watch('mode', function(value)
-            {
-               scope.ngModel &= uint8_invert(memory.getMacroValue("ALT_MODE_MASK"));
-               scope.ngModel |= scope.mode & memory.getMacroValue("ALT_MODE_MASK");
-               
-               scope.relative = memory.getMacroValue("ALT_MODE_MASK") == scope.mode;
-            });
-            
-            scope.$watch('rel', function(value)
-            {
-               scope.ngModel &= uint8_invert(memory.getMacroValue("ALT_REL_MASK"));
-               scope.ngModel |= scope.rel & memory.getMacroValue("ALT_REL_MASK");
-            });            
+          
         }
     };
 }]);
@@ -154,32 +137,12 @@ app.directive('ctrlDoubleselect', ['memory', function(memory, $parse, $rootScope
         template: function(element, attrs) {
             var html = '<div>';
             html += '<b>{{label1}}</b><br>';
-            html += '<ctrl-select ng-model="opt1" options="options1"></ctrl-select><br>';
+            html += '<ctrl-select ng-model="ngModel.select1" options="options1"></ctrl-select><br>';
             html += '<b>{{label2}}</b><br>';
-            html += '<ctrl-select ng-model="opt2" options="options2"></ctrl-select><br>';
+            html += '<ctrl-select ng-model="ngModel.select2" options="options2"></ctrl-select><br>';
             html += '</div>';
             return html;
         },
-        link: function(scope, element, attrs)
-        {
-           	scope.$watch('ngModel', function(value)
-        	{
-                scope.opt1 = memory.getMacroValue(scope.mask1) & scope.ngModel;
-                scope.opt2 = memory.getMacroValue(scope.mask2) & scope.ngModel;
-        	});
-            
-            scope.$watch('opt1', function(value)
-            {
-               scope.ngModel &= uint8_invert(memory.getMacroValue(scope.mask1));
-               scope.ngModel |= scope.opt1 & memory.getMacroValue(scope.mask1);
-            });
-            
-            scope.$watch('opt2', function(value)
-            {
-               scope.ngModel &= uint8_invert(memory.getMacroValue(scope.mask2));
-               scope.ngModel |= scope.opt2 & memory.getMacroValue(scope.mask2);
-            });            
-        }
     };
 }]);
 
@@ -241,27 +204,6 @@ app.directive('ctrlDampening', function() {
     };
 });
 
-app.directive('ctrlTimezone', function() {
-    return {
-        restrict: 'E',
-        scope: {
-            ngModel: '='
-        },
-        template: function(element, attrs) {
-            var html = '<ctrl-select ng-model="ngModel" options="zones"></ctrl-select>';
-            return html;
-        },
-        link: function(scope, element, attrs)
-        {
-            scope.zones = [];
-            for (var i = -24; i <= 24; i++)
-            {
-                scope.zones[i + 24] = [i, "GTM + " + i/2];
-            }
-        }
-    };
-});
-
 app.directive('ctrl', function() {
     return {
         restrict: 'E',
@@ -282,6 +224,30 @@ app.directive('ctrlTabs', function() {
         template: function(){return '<uib-accordion close-others="{{single}}"><div ng-transclude></div></uib-accordion>'; }
     };
 });
+
+app.directive('ctrlPanel', function() {
+    return {
+        restrict: 'E',
+        transclude: true,
+        scope: {
+            name: '=',
+        },        
+        template: function(element, attrs) {
+            var html = '<div class="panel panel-default">';
+            html += '<div class="panel-heading"><h4 class="panel-title">';
+            html += '{{name}}';
+            html += '</h4></div>';
+            html += '<div class="panel-body" ng-transclude></div>';
+            html += '</div>';
+            return html;
+        },
+        link: function(scope, element, attrs)
+        {
+        	scope.name = attrs.name.replace(/_/g, " ");
+        }	
+    };
+});
+
 
 app.directive('ctrlTab', function() {
     return {

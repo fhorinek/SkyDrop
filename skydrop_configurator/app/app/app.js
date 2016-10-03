@@ -19,8 +19,8 @@ function uint8_invert(data)
     return val;
 }
 
-var app = angular.module('app', ["ngRoute", "chart.js", "ui.bootstrap-slider", 'ngAnimate', 'ui.bootstrap', 'uiSwitch']);
-    
+var app = angular.module('app', ["ngRoute", "chart.js", "ui.bootstrap-slider", 'ngAnimate', 'ui.bootstrap', 'uiSwitch', 'ngDraggable']);
+  
 //var memory = new MemoryHandler();
 
 app.config(['$routeProvider',
@@ -46,12 +46,15 @@ app.config(['$routeProvider',
 	    }).      
         when('/advanced', {
             templateUrl: 'pages/advanced.html',
-         }).      
-		 when('/altimeters', {
-			 templateUrl: 'pages/altimeters.html',
-		  }).      
+        }).      
+		when('/altimeters', {
+		    templateUrl: 'pages/altimeters.html',
+		}).      
         when('/var_list', {
             templateUrl: 'pages/var_list.html',
+		}).  
+		when('/screens', {
+            templateUrl: 'pages/screens.html',
         }).      
         otherwise({
             redirectTo: '/wizard'
@@ -64,6 +67,7 @@ app.controller("menuList", ["$scope", function ($scope) {
         [
 	      	{"title": "Update wizard", "ref": "wizard"},
 	      	{"title": "Audio Profile editor", "ref": "audio_profile"},
+         	{"title": "Screens", "ref": "screens"},
 	     	{"title": "Altimeters", "ref": "altimeters"},
          	{"title": "Display", "ref": "display"},
          	{"title": "Logger", "ref": "logger"},

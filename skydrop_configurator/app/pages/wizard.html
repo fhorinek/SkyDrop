@@ -13,7 +13,8 @@
             </h3>
          </div>    
        <div class="panel-body">
-         <button type="button" class="btn btn-default" ng-click="load()">Upgrade your SkyDrop</button>
+    	   <div class="alert alert-info" role="alert">Please select CFG.EE or OLD.EE configuration file from your SkyDrop</div>
+	       <button type="button" class="btn btn-default" ng-click="load()">Load your existing configuration</button>
        </div>
     </div>
 
@@ -21,7 +22,7 @@
       Your SkyDrop is already up-to-date!
    </div>
 
-    <div class="panel panel-info" ng-if="wizard_step <= 0">
+    <div class="panel panel-default" ng-if="wizard_step <= 0">
          <div class="panel-heading">
             <h3 class="panel-title">
                Download current configuration files for your SkyDrop<br>
@@ -41,7 +42,7 @@
       <i class="fa fa-check-circle" aria-hidden="true"></i> Your update file build {{newest()}} is ready. You can download it now or tune it using the configurator.
    </div>
 
-   <div class="panel panel-info" ng-if="wizard_step >= 3">
+   <div class="panel panel-default" ng-if="wizard_step >= 3">
       <div class="panel-heading">
          <h3 class="panel-title">
             Download current firmware update with your configuration<br>

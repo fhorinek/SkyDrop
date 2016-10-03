@@ -11,6 +11,14 @@
 #include "../gui/widgets/widgets.h"
 #include "fc.h"
 
+typedef uint8_t		uint8_t_arr;
+typedef uint16_t	uint16_t_arr;
+typedef uint32_t	uint32_t_arr;
+
+typedef int8_t		int8_t_arr;
+typedef int16_t		int16_t_arr;
+typedef int32_t		int32_t_arr;
+
 struct cfg_gui_layout
 {
 	uint8_t type;
@@ -184,16 +192,16 @@ struct cfg_connectivity
 	uint8_t gps_format_flags;
 
 	uint8_t use_bt;
-	uint8_t bt_link_partner[6];
-	uint8_t bt_link_key[16];
-	uint8_t btle_mac[6];
+	uint8_t_arr bt_link_partner[6];
+	uint8_t_arr bt_link_key[16];
+	uint8_t_arr btle_mac[6];
 
 	uint8_t forward_gps;
 	uint8_t protocol;
 
 	uint8_t uart_function;
 
-	uint8_t password[LOGIN_PASSWORD_LEN];
+	char password[LOGIN_PASSWORD_LEN];
 };
 
 //Main user configurations

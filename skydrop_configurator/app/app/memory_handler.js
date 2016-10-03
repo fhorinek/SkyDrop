@@ -9,12 +9,15 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.newest_build = false;
     this.fw_path = false;
     this.macros = false; 
+    this.layouts = false;
     this.data_holder = false;
     this.data_loading = false;
     this.data_loading_notify = [];
     this.data_loaded = false;
    
     //Methods
+    
+    //load binary (EE or FW) data from url and then call cb
     this.load_bin = function(url_path, cb, error_cb)
     {
         var callback = cb;
@@ -39,16 +42,22 @@ app.service("memory", ["$http", "$q", function($http, $q){
         });
     };
     
+    //load configuration data from stream
     this.load_data = function(data)
     {
      	this.init_step_1(data, this);     
      	this.data_loaded = true;
     };    
 
+    //load json data from url and then call cb
     this.load_json = function(url_path, cb)
     {
         var callback = cb;
         var service = this;
+        var error_cb = function() {
+        	alert("Unable to load description files for build " + service.build_number + "!\nAre you using unofficial build?\nIf you think that this is an error please contact us at info@skybean.eu.");
+        	service.load_bin("UPDATE.EE", service.init_step_1);
+        };
     
         console.log("loading bin resource %s", url_path);
 
@@ -72,7 +81,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     };
 
     this.notify_all = function(data){
-		console.log(this.data_loading_notify);
+		console.log("to notify", this.data_loading_notify);
     	for (var i = 0; i < this.data_loading_notify.length; i++)
     		this.data_loading_notify[i].notify(data);
     };
@@ -89,99 +98,146 @@ app.service("memory", ["$http", "$q", function($http, $q){
     	}
     };
     
+    this.getIndex = function(key)
+    {
+        return this.ee_map[key][0];
+    };       
+    
+    this.getLength = function(key)
+    {
+        return this.ee_map[key][1];
+    };    
+    
     this.getType = function(key)
     {
         return this.ee_map[key][2];
     };
     
+    this.getTypeSize = function(type)
+    {
+    	var sizes = {
+    			"int8_t": 1,
+    			"uint8_t": 1,
+    			"int16_t": 2,
+    			"uint16_t": 2,
+    			"int32_t": 4,
+    			"uint32_t": 4,
+    			"float": 4,
+    			"char": 1
+    		};
+    	
+    	return sizes[type];
+    }
+    
+    //get value form binary data (ee_bufer)
     this.getValue = function(key)
     {
-        var mem_index;
-        mem_index = this.ee_map[key][0];
+        var mem_index = this.getIndex(key);
+        var var_type = this.getType(key);
+        var var_len = this.getLength(key);
+        var var_size = this.getTypeSize(var_type);
+        var arr_len = var_len / var_size;
         
-        switch(this.getType(key))
+//        console.log("arr_len", arr_len);
+        
+        var val = []
+        for (var i = 0; i < arr_len; i++)
         {
-            case('uint8_t'):
-                return get_uint8(this.ee_buffer, mem_index);
-            
-            case('int8_t'):
-                return get_int8(this.ee_buffer, mem_index);
-
-            case('uint16_t'):
-                return get_uint16(this.ee_buffer, mem_index);
-                
-            case('int16_t'):
-                return get_int16(this.ee_buffer, mem_index);
-
-            case('uint32_t'):
-                return get_uint32(this.ee_buffer, mem_index);
-
-            case('float'):
-                return get_float(this.ee_buffer, mem_index);
-            
-            case('char'):
-                return get_char(this.ee_buffer, mem_index);            
-        }
+	        switch(var_type)
+	        {
+	            case('uint8_t'):
+	                val.push(get_uint8(this.ee_buffer, mem_index));
+	            break;
+	            
+	            case('int8_t'):
+	            	val.push(get_int8(this.ee_buffer, mem_index));
+	            break;
+	
+	            case('uint16_t'):
+	            	val.push(get_uint16(this.ee_buffer, mem_index));
+	            break;
+	                
+	            case('int16_t'):
+	            	val.push(get_int16(this.ee_buffer, mem_index));
+	            break;
+	
+	            case('uint32_t'):
+	            	val.push(get_uint32(this.ee_buffer, mem_index));
+	            break;
+	
+	            case('float'):
+	            	val.push(get_float(this.ee_buffer, mem_index));
+	            break;
+	            
+	            case('char'):
+	            	val.push(get_char(this.ee_buffer, mem_index));            
+	            break;
+	        }
+	        
+	        mem_index += var_size;
+	    }
+        
+        if (val.length == 1)
+        	return val[0];
+        else
+    	{
+    		if (var_type == "char")
+    			return val.join("")
+    		else
+    			return val;
+    	}
     };
-    
-    //get from dataholder not ee_buffer
-    this.getActualValue = function(key)
-    {
-    	for (var i in this.data_holder)
-    		if (this.data_holder[i].pname == key)
-    			return this.data_holder[i].value;
-    	
-    	return undefined;
-    };
-    
+
+    //set value to binary data (ee_buffer)
     this.setValue = function(key, value)
     {
-        var mem_index = this.ee_map[key][0];
-        var type = this.getType(key);
+        var mem_index = this.getIndex(key);
+        var var_type = this.getType(key);
+        var var_size = this.getTypeSize(var_type);        
         
-        console.log("set", value, "to", key, "type", type, "index", mem_index);
+        console.log("set", value, "to", key, "type", var_type, "index", mem_index);
+        console.log(this);
         
-        switch(type)
+        if (!Array.isArray(value))
+        	value = [value];
+        	
+        for (var v in value)
         {
-            case('uint8_t'):
-                this.ee_buffer = set_uint8(this.ee_buffer, mem_index, value);
-            break;
-            
-            case('int8_t'):
-                this.ee_buffer = set_int8(this.ee_buffer, mem_index, value);
-            break;
-            
-            case('uint16_t'):
-                this.ee_buffer = set_uint16(this.ee_buffer, mem_index, value);
-            break;
-                
-            case('int16_t'):
-                this.ee_buffer = set_int16(this.ee_buffer, mem_index, value);
-            break;
-            
-            case('uint32_t'):
-                this.ee_buffer = set_uint32(this.ee_buffer, mem_index, value);
-            break;
-
-            case('float'):
-                this.ee_buffer = set_float(this.ee_buffer, mem_index, value);
-            break;                
-            
-            case('char'):
-            	var size = this.data_holder[key].size;
-                this.ee_buffer = set_char(this.ee_buffer, mem_index, value, size);
-            break;               
+        	mem_index += var_size;
+        	
+	        switch(var_type)
+	        {
+	            case('uint8_t'):
+	                this.ee_buffer = set_uint8(this.ee_buffer, mem_index, v);
+	            break;
+	            
+	            case('int8_t'):
+	                this.ee_buffer = set_int8(this.ee_buffer, mem_index, v);
+	            break;
+	            
+	            case('uint16_t'):
+	                this.ee_buffer = set_uint16(this.ee_buffer, mem_index, v);
+	            break;
+	                
+	            case('int16_t'):
+	                this.ee_buffer = set_int16(this.ee_buffer, mem_index, v);
+	            break;
+	            
+	            case('uint32_t'):
+	                this.ee_buffer = set_uint32(this.ee_buffer, mem_index, v);
+	            break;
+	
+	            case('float'):
+	                this.ee_buffer = set_float(this.ee_buffer, mem_index, v);
+	            break;                
+	            
+	            case('char'):
+	            	var size = this.data_holder[key].size;
+	                this.ee_buffer = set_char(this.ee_buffer, mem_index, v, size);
+	            break;               
+	        }
         }
     };  
-
-    //set to data holder not to ee buffer
-    this.setActualValue = function(key, value)
-    {
-    	for (var i in this.data_holder)
-    		if (this.data_holder[i].pname == key)
-    			this.data_holder[i].value = value;
-    	
-    };
     
     this.listVariabiles = function() 
     {
@@ -218,8 +274,10 @@ app.service("memory", ["$http", "$q", function($http, $q){
     {
         for (var index in this.data_holder)
         {
-            var item = this.data_holder[index];
-            this.setValue(item.pname, item.value);
+        	var item = this.data_holder[index];
+            var value = this.logic_to_bin(item);
+            
+            this.setValue(item.pname, value);
         }
         
         return this.ee_buffer; 
@@ -241,41 +299,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
             };
             
             arr = angular.extend(arr, this.getDesc(k));
-            
-            //translate MACROS
-            if (arr["mode"] == "flags")
-            {
-                for (var i=0; i < arr["flags"].length; i++)
-                    if (isNaN(arr["flags"][i][0])) 
-                        arr["flags"][i][0] = this.getMacroValue(arr["flags"][i][0]);
-            }
-
-            if (arr["mode"] == "select")
-            {
-                for (var i=0; i < arr["options"].length; i++)
-                    if (isNaN(arr["options"][i][0])) 
-                        arr["options"][i][0] = this.getMacroValue(arr["options"][i][0]);
-            }
-
-            if (arr["mode"] == "altimeter")
-            {
-                for (var i=0; i < arr["options"].length; i++)
-                    if (isNaN(arr["options"][i][0])) 
-                        arr["options"][i][0] = this.getMacroValue(arr["options"][i][0]);
-                for (var i=0; i < arr["flags"].length; i++)
-                    if (isNaN(arr["flags"][i][0])) 
-                        arr["flags"][i][0] = this.getMacroValue(arr["flags"][i][0]);
-            }            
-            
-            if (arr["mode"] == "doubleselect")
-            {
-                for (var i=0; i < arr["options1"].length; i++)
-                    if (isNaN(arr["options1"][i][0])) 
-                        arr["options1"][i][0] = this.getMacroValue(arr["options1"][i][0]);
-                for (var i=0; i < arr["options2"].length; i++)
-                    if (isNaN(arr["options2"][i][0])) 
-                        arr["options2"][i][0] = this.getMacroValue(arr["options2"][i][0]);
-            }              
+          
+            arr["value"] = this.bin_to_logic(arr["value"], k, arr)
             
             items[k] = (arr);
         }
@@ -324,6 +349,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     {
         service.ee_map = data.map;
         service.macros = service.solveMacros(data.macros);
+        service.layouts = data.layouts;
         
         //load parameters description
         service.load_json("res/desc.json", service.init_step_3);
@@ -367,8 +393,11 @@ app.service("memory", ["$http", "$q", function($http, $q){
         return res;
     };
     
-    this.getMacroValue = function(macro_name)
+    this.value_from_macro = function(macro_name)
     {
+        if (Number.isInteger(macro_name))
+        	return macro_name;
+    	
         if (macro_name in this.macros)
         {
             return this.macros[macro_name];
@@ -376,9 +405,132 @@ app.service("memory", ["$http", "$q", function($http, $q){
         else
         {
             console.log("Unknown macro name " + macro_name);
-            return 0;
+          	return 0;
         }
     };
+    
+    this.bin_to_logic = function(value_in, key, arr = false)
+    {
+    	if (arr == false)
+    		arr = this.getDesc(key);
+
+		var value = {};  
+
+    	switch (arr["mode"])
+    	{
+    		case("flags"):
+    			value.flags = {};
+                for (var i=0; i < arr["flags"].length; i++)
+                   	value.flags[arr["flags"][i][0]] = (value_in & this.value_from_macro(arr["flags"][i][0])) ? true : false;
+			break;
+    		
+    		case("select"):
+                for (var i=0; i < arr["options"].length; i++)
+                    if (value_in == this.value_from_macro(arr["options"][i][0]))
+                    	value.option = arr["options"][i][0];
+			break;
+    		
+    		case("altimeter"):
+    			var opt_mask = this.value_from_macro(arr["options_mask"]);
+    			var alt_mask = this.value_from_macro(arr["altimeters_mask"]);
+    			
+    			var opt = opt_mask & value_in;
+    			value.mode = {};
+    			value.altimeter = {};
+    			
+	            for (var i=0; i < arr["options"].length; i++)
+	                if (opt == this.value_from_macro(arr["options"][i][0]))
+	                	value.mode.option = arr["options"][i][0]; 
+	            
+	            var alt = alt_mask & value_in;
+                for (var i=0; i < arr["altimeters"].length; i++)
+                    if (alt == this.value_from_macro(arr["altimeters"][i][0]))
+                    	value.altimeter.option = arr["altimeters"][i][0];	            
+	            
+                value.flags = {};
+                for (var i=0; i < arr["flags"].length; i++)
+                   	value.flags[arr["flags"][i][0]] = (value_in & this.value_from_macro(arr["flags"][i][0])) ? true : false;
+			break;
+    		
+    		case("doubleselect"):
+    			var mask1 = this.value_from_macro(arr["mask1"]);
+				var mask2 = this.value_from_macro(arr["mask2"]);
+    			
+                value.select1 = {};
+                value.select2 = {};
+                for (var i=0; i < arr["options1"].length; i++)
+                    if ((value_in & mask1) == this.value_from_macro(arr["options1"][i][0]))
+                    	value.select1.option = arr["options1"][i][0];
+    		
+ 	    		for (var i=0; i < arr["options2"].length; i++)
+	                if ((value_in & mask2) == this.value_from_macro(arr["options2"][i][0]))
+	                	value.select2.option = arr["options2"][i][0];
+    		
+    		break;
+    		
+    		default:
+    			value = value_in;
+    	}
+    	
+        return value;
+    };
+    
+    this.logic_to_bin = function(arr)
+    {
+
+		console.log(arr);
+		
+    	switch (arr["mode"])
+    	{
+    		case("flags"):
+    			var ret = 0;
+    			for (var key in arr.value.flags)
+    				if (arr.value.flags[key])
+    					ret |= this.value_from_macro(key);
+    			
+    			return ret;
+			break;
+    		
+    		case("select"):
+                return this.value_from_macro(arr.value.option);
+			break;
+    		
+    		case("altimeter"):
+    			var opt_mask = this.value_from_macro(arr["options_mask"]);
+    			var alt_mask = this.value_from_macro(arr["altimeters_mask"]);
+    			
+    			var ret = 0;;
+    			
+    			ret |= this.value_from_macro(arr.value.mode.option) & opt_mask;
+    			ret |= this.value_from_macro(arr.value.altimeter.option) & alt_mask;
+          
+    			for (var key in arr.value.flags)
+    				if (arr.value.flags[key])
+    					ret |= this.value_from_macro(key);
+	            
+    			return ret;
+			break;
+    		
+    		case("doubleselect"):
+    			var mask1 = this.value_from_macro(arr["mask1"]);
+				var mask2 = this.value_from_macro(arr["mask2"]);
+    			
+				var ret = 0;
+	   			ret |= this.value_from_macro(arr.value.select1.option) & mask1;
+    			ret |= this.value_from_macro(arr.value.select2.option) & mask2;
+				
+				return ret;
+    		break;
+    		
+    		default:
+    			return arr.value;
+    	}
+
+    	console.log("Unhandled", arr);
+    	1/0;
+    	
+    	return 0;
+    };    
     
     this.restore_default = function()
     {
@@ -421,7 +573,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
         	//restore values
         	for (var key in old_values)
         	{
-        		service.setActualValue(key, old_values[key]);
+        		if (key in service.data_holder)
+        			service.data_holder[key] = old_values[key];
         	}
         	
         	service.remove_notify(deferred);
@@ -498,6 +651,11 @@ app.service("memory", ["$http", "$q", function($http, $q){
     	
         return deferred.promise;	
     };
+    
+    this.get_widgets = function()
+    {
+    	return this.ee_desc.widgets;
+    }
     
 }]);
 

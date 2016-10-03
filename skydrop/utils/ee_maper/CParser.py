@@ -150,8 +150,8 @@ class CParser():
             
         
         results = []
-        if noCacheWarning or verbose:
-            print "Parsing C header files (no valid cache found). This could take several minutes..."
+#         if noCacheWarning or verbose:
+#             print "Parsing C header files (no valid cache found). This could take several minutes..."
         for f in self.fileOrder:
             #fn = os.path.basename(f)
             if self.files[f] is None:
@@ -910,8 +910,9 @@ class CParser():
         try:
             (name, decl) = self.processType(t.type, t.decl[0])
             if len(decl) == 0 or type(decl[-1]) != tuple:
-                print t
-                raise Exception("Incorrect declarator type for function definition.")
+                return
+#                 raise Exception("Incorrect declarator type for function definition.")
+
             if self.verbose:
                 print "  name:", name
                 print "  sig:", decl

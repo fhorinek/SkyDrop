@@ -1,0 +1,43 @@
+
+<div ng-switch="ngModel.type" class="widget_body">
+	<div ng-switch-when="value">
+		<div class="widget_value" ng-style="dstyle.value">{{ngModel.value}}</div>
+		<div class="widget_label" ng-style="dstyle.label">{{ngModel.label}}</div>
+	</div>
+	
+	<div ng-switch-when="text">
+		<div class="widget_text" ng-style="dstyle.text">{{ngModel.value}}</div>
+		<div class="widget_label" ng-style="dstyle.label">{{ngModel.label}}</div>
+	</div>
+
+	<div ng-switch-when="text2">
+		<div class="widget_text2" ng-style="dstyle.value">{{ngModel.value}}</div>
+		<div class="widget_label" ng-style="dstyle.label">{{ngModel.label}}</div>
+	</div>
+
+	<div ng-switch-when="arrow" class="widget_arrow crisp">
+		<div class="widget_label" ng-style="dstyle.label">{{ngModel.label}}</div>
+	</div>
+	
+	<div ng-switch-when="graph" class="widget_graph crisp">
+	</div>
+	
+	<div ng-switch-when="bar" class="widget_bar crisp">
+	</div>
+
+	<div ng-switch-when="temperature">
+		<div class="widget_value" ng-style="dstyle.value">{{ngModel.value1}}</div>
+		<div class="widget_value2" ng-style="dstyle.label">{{ngModel.value2}}</div>
+		<div class="widget_label" ng-style="dstyle.label">{{ngModel.label}}</div>
+	</div>
+
+
+	<div ng-switch-when="empty" class="widget_value empty">
+		Empty
+	</div>
+
+
+	<div ng-switch-default class="widget_value empty">Unknown</div>
+
+	<div ng-if="drag" class="drag_handle" ng-drag="true" ng-drag-data="key"></div>
+</div>

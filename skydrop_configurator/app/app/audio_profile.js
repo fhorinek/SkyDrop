@@ -48,9 +48,9 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
     	
     	for (var i=0; i < 41; i++)
     	{
-    		freq.push(memory.getActualValue("cfg_audio_profile_freq_" + i));
-    		length.push(memory.getActualValue("cfg_audio_profile_length_" + i));
-    		pause.push(memory.getActualValue("cfg_audio_profile_pause_" + i));
+    		freq.push($scope.list["cfg_audio_profile_freq_" + i].value);
+    		length.push($scope.list["cfg_audio_profile_length_" + i].value);
+    		pause.push($scope.list["cfg_audio_profile_pause_" + i].value);
     	}
     
     	$scope.data = [freq, length, pause];  
@@ -81,14 +81,14 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 			
 			var name = ["cfg_audio_profile_freq_", "cfg_audio_profile_length_", "cfg_audio_profile_pause_"][$scope.point_series] + $scope.point_index;
 			
-			var val = memory.getActualValue(name);
+			var val = $scope.list[name].value;
 			var y = evt.layerY;
 
 			
 			val = in_range(chart.scale.calculateVal(y), 0, 2000);
 			
 			//store to data holder
-			memory.setActualValue(name, val);
+			$scope.list[name].value = val;
 			//update graph
 			$scope.data[$scope.point_series][$scope.point_index] = val;    
 		}
@@ -176,12 +176,12 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
         };	
 	    var ivario = value * 100; //in cm now
 
-	    var lift = memory.getActualValue("cfg_audio_profile_lift");
-	    var sink = memory.getActualValue("cfg_audio_profile_sink");
-	    var weak_lift = memory.getActualValue("cfg_vario_weak_lift");
-	    var weak_lift_freq = memory.getActualValue("cfg_audio_profile_weak_lift_freq");
+	    var lift = $scope.list["cfg_audio_profile_lift"].value;
+	    var sink = $scope.list["cfg_audio_profile_sink"].value;
+	    var weak_lift = $scope.list["cfg_vario_weak_lift"].value;
+	    var weak_lift_freq = $scope.list["cfg_audio_profile_weak_lift_freq"].value;
 	    
-	    if (memory.getActualValue("cfg_vario_weak_lift_enabled"))
+	    if ($scope.list["cfg_vario_weak_lift_enabled"].value)
 	    {
 	        var buzz_thold = (lift - weak_lift);
 	        

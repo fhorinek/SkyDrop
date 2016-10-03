@@ -26,17 +26,7 @@ function in_range(value, vmin, vmax)
 
 function get_char(data, index)
 {
-	var text = "";
-	var c;
-	
-	do
-	{
-		c = data[index];
-		index++;
-		if (c != 0)
-			text += String.fromCharCode(c);
-	} while(c != 0)
-    return text;
+	return String.fromCharCode(data[index])
 }
 
 function set_char(data, index, value, size)

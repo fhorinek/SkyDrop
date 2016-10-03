@@ -187,7 +187,8 @@
             "mode": "select",
             "options": [
                 ["LOGGER_IGC", "IGC"],
-                ["LOGGER_KML", "KML"]
+                ["LOGGER_KML", "KML"],
+                ["LOGGER_RAW", "RAW"]
             ]
         },
         "cfg_connectivity_protocol" : {
@@ -282,7 +283,58 @@
         "cfg_system_time_zone" : {
             "name": "Curent time zone",
             "desc": "from GTM",
-            "mode": "timezone"
+            "mode": "select",
+            "options": [
+				[-24,"GTM - 12"],
+				[-23,"GTM - 11,5"],
+				[-22,"GTM - 11"],
+				[-21,"GTM - 10,5"],
+				[-20,"GTM - 10"],
+				[-19,"GTM - 9,5"],
+				[-18,"GTM - 9"],
+				[-17,"GTM - 8,5"],
+				[-16,"GTM - 8"],
+				[-15,"GTM - 7,5"],
+				[-14,"GTM - 7"],
+				[-13,"GTM - 6,5"],
+				[-12,"GTM - 6"],
+				[-11,"GTM - 5,5"],
+				[-10,"GTM - 5"],
+				[-9,"GTM - 4,5"],
+				[-8,"GTM - 4"],
+				[-7,"GTM - 3,5"],
+				[-6,"GTM - 3"],
+				[-5,"GTM - 2,5"],
+				[-4,"GTM - 2"],
+				[-3,"GTM - 1,5"],
+				[-2,"GTM - 1"],
+				[-1,"GTM - 0,5"],
+				[0,"GTM + 0"],
+				[1,"GTM + 0,5"],
+				[2,"GTM + 1"],
+				[3,"GTM + 1,5"],
+				[4,"GTM + 2"],
+				[5,"GTM + 2,5"],
+				[6,"GTM + 3"],
+				[7,"GTM + 3,5"],
+				[8,"GTM + 4"],
+				[9,"GTM + 4,5"],
+				[10,"GTM + 5"],
+				[11,"GTM + 5,5"],
+				[12,"GTM + 6"],
+				[13,"GTM + 6,5"],
+				[14,"GTM + 7"],
+				[15,"GTM + 7,5"],
+				[16,"GTM + 8"],
+				[17,"GTM + 8,5"],
+				[18,"GTM + 9"],
+				[19,"GTM + 9,5"],
+				[20,"GTM + 10"],
+				[21,"GTM + 10,5"],
+				[22,"GTM + 11"],
+				[23,"GTM + 11,5"],
+				[24,"GTM + 12"]
+            ]
         },
         "cfg_logger_pilot" : {
             "name": "Pilot name",
@@ -319,30 +371,50 @@
             "name": "Disable vario sound on specific screens",
             "mode": "flags",
             "flags": [
-                ["1", "Screen 1"],
-                ["2", "Screen 2"],
-                ["4", "Screen 3"],
-                ["8", "Screen 4"],
-                ["16", "Screen 5"]
+                [1, "Screen 1"],
+                [2, "Screen 2"],
+                [4, "Screen 3"],
+                [8, "Screen 4"],
+                [16, "Screen 5"]
             ]
         },         
         "cfg_gui_hide_label" : {
             "name": "Disable widgets labels on specific screens",
             "mode": "flags",
             "flags": [
-                ["1", "Screen 1"],
-                ["2", "Screen 2"],
-                ["4", "Screen 3"],
-                ["8", "Screen 4"],
-                ["16", "Screen 5"]
+                [1, "Screen 1"],
+                [2, "Screen 2"],
+                [4, "Screen 3"],
+                [8, "Screen 4"],
+                [16, "Screen 5"]
             ]
         },
          "cfg_system_record_screen" : {
             "name": "Record screen",
             "desc": "Do NOT enable, for debug and testing only!",
             "mode": "bool"
-        }
-    
+        },
+        "cfg_connectivity_password" : {
+            "name": "connectivity password",
+            "desc": "special case only, not used in drop",
+            "mode": "text",
+            "size": 16
+        },
+        "cfg_connectivity_bt_link_key" : {
+            "name": "Bluetooth partner pair key",
+            "mode": "readonly",
+            "size": 16
+        },    
+        "cfg_connectivity_bt_link_partner" : {
+            "name": "Bluetooth partner MAC address",
+            "mode": "readonly",
+            "size": 6
+        },               
+        "cfg_connectivity_btle_mac" : {
+            "name": "Bluetooth Low energy random MAC address",
+            "mode": "readonly",
+            "size": 6
+        }            
     },
     
     "regexp": {
@@ -350,13 +422,15 @@
             "name": "Page layout type",
             "mode": "select",
             "options": [
-                ["LAYOUT_OFF", "Page layout off"],
                 ["LAYOUT_1", "Layout 1"],
+                ["LAYOUT_113", "Layout 1 | 1 | 3"],
                 ["LAYOUT_12", "Layout 1 | 2"],
+                ["LAYOUT_121", "Layout 1 | 2 | 1"],
                 ["LAYOUT_122", "Layout 1 | 2 | 2"],
                 ["LAYOUT_123", "Layout 1 | 2 | 3"],
+                ["LAYOUT_21", "Layout 2 | 1"],
                 ["LAYOUT_22", "Layout 2 | 2"],
-                ["LAYOUT_222", "Layout 2 | 2"],
+                ["LAYOUT_222", "Layout 2 | 2 | 2"],
                 ["LAYOUT_333", "Layout 3 | 3 | 3"]
             ]
         },
@@ -364,13 +438,13 @@
             "name": "Widget type",
             "mode": "select",
             "options": [
-                ["WIDGET_OFF", "Widget off"],
                 ["WIDGET_EMPTY", "No widget"],
                 ["WIDGET_DEBUG_ETC", "Debug info"],
                 ["WIDGET_DEBUG_IMU", "Debug info IMU"],
                 ["WIDGET_VARIO", "Digital vario"],
                 ["WIDGET_AVG_VARIO", "Average vario"],
                 ["WIDGET_VARIO_BAR", "Analog vario bar"],
+                ["WIDGET_VARIO_HISTORY", "Vario history"],
                 ["WIDGET_ALT1", "Altitude 1"],
                 ["WIDGET_ALT2", "Altitude 2"],
                 ["WIDGET_ALT3", "Altitude 3"],
@@ -378,10 +452,13 @@
                 ["WIDGET_ALT5", "Altitude 5"],
                 ["WIDGET_ACCX", "Debug info Acc X"],
                 ["WIDGET_TIME", "Actual time"],
+                ["WIDGET_DATE", "Actual date"],
                 ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TEMPERATURE", "Temperature and humidity"],
                 ["WIDGET_GHEADING", "GPS Heading"],
                 ["WIDGET_GROUND_SPD", "Ground speed"],
+                ["WIDGET_POSITION", "GPS position"],
+                ["WIDGET_GHEADING_ARROW", "GPS Heading arrow"],
                 ["WIDGET_BATTERY", "Battery status"],
                 ["WIDGET_GLIDE_RATIO", "Glide Ratio"],
                 ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
@@ -416,6 +493,7 @@
         {
            "name": "Altimeter flags",
             "mode": "altimeter",
+            "options_mask": "ALT_MODE_MASK",
             "options": [
                 ["ALT_ABS_QNH1", "Absolute to QNH1"],
                 ["ALT_ABS_QNH2", "Absolute to QNH2"],
@@ -426,6 +504,7 @@
                 ["ALT_AUTO_ZERO", "Zero at Take-off"],
                 ["ALT_UNIT_I", "Use imperial units"]
             ],
+            "altimeters_mask": "ALT_REL_MASK",
             "altimeters": [
                 [0, "Altimeter 1"],
                 [1, "Altimeter 2"],
@@ -449,14 +528,179 @@
             "min" : 80000,
             "max" : 1050000,
             "step": 1
+        }
+    },
+    "widgets" :
+    {
+        "WIDGET_EMPTY": 
+        {
+        	"type": "empty",
+			"name": "No widget",
+			"desc": "Empty space"
         },
-        "cfg_connectivity_bt_link_key_[0-9]" : {
-            "name": "Bluetooth pair key",
-            "mode": "readonly"
-        },           
-        "cfg_connectivity_btle_mac_[0-5]" : {
-            "name": "Bluetooth Low energy random mac",
-            "mode": "readonly"
-        }            
+        "WIDGET_VARIO": 
+        {
+        	"type": "value",
+			"name": "Digital vario",
+			"desc": "Actual lift/sink value in m/s or ft/m", 
+			"label": "Vario", 
+			"value": "1.8"
+        },
+        "WIDGET_AVG_VARIO": 
+        {
+        	"type": "value",
+			"name": "Average vario",
+			"desc": "Average lift/sink in m/s or ft/m", 
+			"label": "Avg", 
+			"value": "1.2"
+        },
+        "WIDGET_VARIO_HISTORY": 
+        {
+        	"type": "graph",
+			"name": "Vario graph history",
+			"desc": "Vario value ploted over averaging interval"
+        },
+        "WIDGET_VARIO_BAR": 
+        {
+        	"type": "bar",
+			"name": "Vario bar",
+			"desc": "Graphical representation of actual Vario value"
+        },
+        "WIDGET_GHEADING_ARROW": 
+        {
+        	"type": "arrow",
+			"name": "GPS heading arrow",
+			"desc": "Arrow showing actual GPS heading", 
+			"label": "GHdgA" 
+        },
+        "WIDGET_GHEADING":
+        {
+         	"type": "value",
+			"name": "Ground heading",
+			"desc": "Actual ground heading based on GPS (0 = N, 90 = E, 180 = S, 270 = W)", 
+			"label": "GHdg", 
+			"value": "75"
+        },
+        "WIDGET_GROUND_SPD":
+        {
+         	"type": "value",
+			"name": "Ground speed",
+			"desc": "Actual ground speed based on GPS in Km/h, MPH, knots or m/s", 
+			"label": "GSpd", 
+			"value": "35"
+        },
+        "WIDGET_ALT1":
+        {
+         	"type": "value",
+			"name": "Altitude 1",
+			"desc": "Absolute altitude based on QNH1", 
+			"label": "Alt1", 
+			"value": "587"
+        },
+        "WIDGET_ALT2":
+        {
+         	"type": "value",
+			"name": "Altitude 2",
+			"desc": "User defined absolute, relative or GPS altitude", 
+			"label": "Alt2", 
+			"value": "251"
+        },
+        "WIDGET_ALT3":
+        {
+         	"type": "value",
+			"name": "Altitude 3",
+			"desc": "User defined absolute, relative or GPS altitude", 
+			"label": "Alt3", 
+			"value": "42"
+        },
+        "WIDGET_ALT4":
+        {
+         	"type": "value",
+			"name": "Altitude 4",
+			"desc": "User defined absolute, relative or GPS altitude", 
+			"label": "Alt4", 
+			"value": "125"
+        },
+        "WIDGET_ALT5":
+        {
+         	"type": "value",
+			"name": "Altitude 5",
+			"desc": "User defined absolute, relative or GPS altitude", 
+			"label": "Alt5", 
+			"value": "785"
+        },
+        "WIDGET_TIME":
+        {
+         	"type": "value",
+			"name": "Time",
+			"desc": "Actual time from real time clock", 
+			"label": "Time", 
+			"value": "13:24"
+        },
+        "WIDGET_DATE":
+        {
+         	"type": "value",
+			"name": "date",
+			"desc": "Actual date from real time clock", 
+			"label": "Date", 
+			"value": "13/11"
+        },
+        "WIDGET_FTIME":
+        {
+         	"type": "value",
+			"name": "Flight time",
+			"desc": "Showing flight duration time, can be used as flight start/stop", 
+			"label": "FTime", 
+			"value": "56.21"
+        },
+        "WIDGET_TEMPERATURE":
+        {
+         	"type": "temperature",
+			"name": "Temperature and humidity",
+			"desc": "Showing actual temperature in °C and relative humidity in %", 
+			"label": "Temp", 
+			"value1": "28.2",
+			"value2": "62%"
+        },        
+        "WIDGET_GLIDE_RATIO":
+        {
+         	"type": "value",
+			"name": "Glide ratio",
+			"desc": "Ratio between horizontal a vertical speed", 
+			"label": "Glide", 
+			"value": "10.1"
+        },
+        "WIDGET_BATTERY":
+        {
+         	"type": "text",
+			"name": "Battery level",
+			"desc": "Battery level and charging indicator", 
+			"label": "Bat", 
+			"value": "100%"
+        },    
+        "WIDGET_POSITION":
+        {
+         	"type": "text2",
+			"name": "GPS position",
+			"desc": "Actual GPS possition in DD.dddddd, DD°MM.mmm or DD°MM'SS", 
+			"label": "GPos", 
+			"value": "48.46357150 17.42317721"
+        },
+        "WIDGET_CTRL_AUDIO":
+        {
+         	"type": "text",
+			"name": "Vario mute control",
+			"desc": "Indication and control widget for audio vario", 
+			"label": "", 
+			"value": "beep"
+        },
+        "WIDGET_CTRL_WLIFT":
+        {
+         	"type": "text",
+			"name": "Weaklift control",
+			"desc": "Indication and control widget for weaklift detection", 
+			"label": "", 
+			"value": "weak"
+        }                
     }
-}
+}            
