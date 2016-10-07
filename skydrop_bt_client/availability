@@ -4,7 +4,7 @@ def info():
     return "File operations module"
 
 def hint():
-    print "00 - Check storage avalibility" 
+    print "00 - Check storage availability" 
     print "01 - List dir" 
     print "02 - Open file for writing" 
     print "03 - Open file for reading" 
@@ -52,9 +52,9 @@ def command(op):
 def parse(op, data):
     if op == 0x80:
         if data[0]:
-            print "Storage is avalible"
+            print "Storage is available"
         else:
-            print "Storage is not avalible"
+            print "Storage is not available"
         
     if op == 0x81:
         print "listing dir"
