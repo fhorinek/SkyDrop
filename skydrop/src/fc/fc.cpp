@@ -316,7 +316,8 @@ ISR(FC_MEAS_TIMER_CMPC)
 				sht21.StartHumidity();
 			break;
 			case(1):
-				sht21.Read();
+				if (!(sht21.Read()))
+					fc.temp_step = (fc.temp_step + 1) % 6; // do not try to read humidity value in case of error
 			break;
 			case(2):
 				sht21.CompensateHumidity();
@@ -326,7 +327,8 @@ ISR(FC_MEAS_TIMER_CMPC)
 				sht21.StartTemperature();
 			break;
 			case(4):
-				sht21.Read();
+				if (!(sht21.Read()))
+					fc.temp_step = (fc.temp_step + 1) % 6; // do not try to read temperature value in case of error
 			break;
 			case(5):
 				sht21.CompensateTemperature();
