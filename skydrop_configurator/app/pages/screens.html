@@ -1,62 +1,63 @@
 <div ng-controller="screens">
-	<h1>Screens and widgets configuration</h1>
-	  <div ng-drag-clone>
-	  		<div class="widget_shelf">
-	  			<widget ng-model="widgets[clonedData]"></widget>
-  			</div>
-	  </div>
-	
-	
-	<div class="row">
-		<div class="col-md-6">
-				<ctrl-panel name="Screen_layout">
-					<div class="row">
-						<div class="col-md-6">
-							<h4>Screen selection</h4>
-							<nav aria-label="Page navigation" class="auto">
-							  <ul class="pagination">
-							    <li ng-repeat="page in [0, 1, 2, 3, 4]" ng-class="{active: active_page_number == {{page}}}">
-							    	<a href ng-click="change_page(page)">{{page + 1}}</a>
-						    	</li>
-							  </ul>
-							</nav>
-						</div>
-						<div class="col-md-6">
-							<ctrl item="list[active_page_type]"></ctrl>
-						</div>
-					</div>
-					<div id="gui_screen" class="gui_screen crisp" ng-style="screen_style">
-						<widget-slot ng-repeat="slot in slots" ng-model="slot"></widget-slot>
-					</div>
-					
-					
-				</ctrl-panel>
-		</div>
+   <h1>Screens and widgets configuration</h1>
+   <div ng-drag-clone>
+      <div class="widget_shelf">
+         <widget ng-model="widgets[clonedData]"></widget>
+      </div>
+   </div>
 
-		<div class="col-md-6">
-			<ctrl-tabs>
-				<ctrl-tab name="Avalible_widgets" open="1">	
-					<div class="widget_menu">	
-						<ul class="list-group ">
-							<li class="list-group-item" ng-repeat="(key, widget) in widgets">
-								<div class="media">
-									<div class="media-left">
-										<div class="widget_shelf">
-											<widget drag="1" ng-model="widget" key="key"></widget>
-										</div>
-									</div>
-									<div class="media-body">
-										<h4 class="media-heading">{{widget.name}}</h4>
-										{{widget.desc}}
-									</div>	
-								</div>
-						    </li>
-					    </ul>
-				    </div>
-				</ctrl-tab>
-			</ctrl-tabs>		    
-	    </div>
-    </div>
+   <div ng-if="!avalible" class="alert alert-info" role="alert">Please update your firmware to use this section.</div>
+
+   <div ng-show="avalible">
+
+      <div class="row">
+         <div class="col-md-6">
+            <ctrl-panel name="Screen_layout">
+            <div class="row">
+               <div class="col-md-6">
+                  <h4>Screen selection</h4>
+                  <nav aria-label="Page navigation" class="auto">
+                     <ul class="pagination">
+                        <li ng-repeat="page in [0, 1, 2, 3, 4]" ng-class="{active: active_page_number == {{page}}}"><a href ng-click="change_page(page)">{{page + 1}}</a></li>
+                     </ul>
+                  </nav>
+               </div>
+               <div class="col-md-6">
+                  <ctrl item="list[active_page_type]"></ctrl>
+               </div>
+            </div>
+            <div id="gui_screen" class="gui_screen crisp" ng-style="screen_style">
+               <widget-slot ng-repeat="slot in slots" ng-model="slot"></widget-slot>
+            </div>
+
+
+            </ctrl-panel>
+         </div>
+
+         <div class="col-md-6">
+            <ctrl-tabs> <ctrl-tab name="Avalible_widgets" open="1">
+            <div class="widget_menu">
+               <ul class="list-group ">
+                  <li class="list-group-item" ng-repeat="(key, widget) in widgets">
+                     <div class="media">
+                        <div class="media-left">
+                           <div class="widget_shelf">
+                              <widget drag="1" ng-model="widget" key="key"></widget>
+                           </div>
+                        </div>
+                        <div class="media-body">
+                           <h4 class="media-heading">{{widget.name}}</h4>
+                           {{widget.desc}}
+                        </div>
+                     </div>
+                  </li>
+               </ul>
+            </div>
+            </ctrl-tab> </ctrl-tabs>
+         </div>
+      </div>
+   </div>
+
 </div>
 
 

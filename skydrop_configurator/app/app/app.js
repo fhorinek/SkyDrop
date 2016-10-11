@@ -67,7 +67,7 @@ app.controller("menuList", ["$scope", function ($scope) {
         [
 	      	{"title": "Update wizard", "ref": "wizard"},
 	      	{"title": "Audio Profile editor", "ref": "audio_profile"},
-         	{"title": "Screens", "ref": "screens"},
+         	{"title": "Widget configuration", "ref": "screens"},
 	     	{"title": "Altimeters", "ref": "altimeters"},
          	{"title": "Display", "ref": "display"},
          	{"title": "Logger", "ref": "logger"},
@@ -110,7 +110,7 @@ app.controller("controls", ["$scope", "memory", "$timeout", "$q", function ($sco
     };
     
     $scope.read_file = function(files){
-    	console.log(files[0]);
+//    	console.log(files[0]);
     	var file = files[0];
     	
     	if (files.length != 1 || (file.name.slice(-3) != ".EE"))

@@ -91,7 +91,11 @@ void gui_update_fail(uint16_t line)
 	gui_switch_task(GUI_DIALOG);
 }
 
-void gui_update_init() {}
+void gui_update_init()
+{
+	//Temporarily disable logging on SD card
+	config.system.debug_log = false;
+}
 
 void gui_update_stop() {}
 

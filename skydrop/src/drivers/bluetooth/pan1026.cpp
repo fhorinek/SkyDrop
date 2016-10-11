@@ -14,7 +14,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-//#define DEBUG_BT_ENABLED
+#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -1731,7 +1731,7 @@ void pan1026::Step()
 			break;
 
 			case(pan_cmd_le_gen_random_address):
-				DEBUG_BT("pan_cmd_le_gen_randvom_address\n");
+				DEBUG_BT("pan_cmd_le_gen_random_address\n");
 				RAW(TCU_MNG_LE_GEN_RESOLVABLE_BDADDR_REQ);
 			break;
 

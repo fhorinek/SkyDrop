@@ -1,7 +1,12 @@
+Build ?
+========================================================
+FIX:
+ * Coordinates value are wrong in KML File #209
+
 Build 3092 - 13. 9. 2016
 ========================================================
 FIX:
- * Altitude change caused unexpected behavior
+ * Altitude change caused unexpected behavior #205
 
 Build 3079 - 26. 8. 2016
 ========================================================

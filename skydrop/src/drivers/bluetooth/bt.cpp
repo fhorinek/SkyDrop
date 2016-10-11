@@ -197,7 +197,7 @@ void bt_send(uint16_t len, uint8_t * data)
 	if (!bt_device_connected)
 		return;
 
-	DEBUG("BT send: '%s'\n", data);
+	//DEBUG("BT send: '%s'\n", data);
 
 	bt_output.Write(len, data);
 }
