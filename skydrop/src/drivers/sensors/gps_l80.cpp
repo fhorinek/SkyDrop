@@ -177,7 +177,7 @@ void gps_parse_rmc()
 
 	fc.gps_data.utc_time = datetime_to_epoch(sec, min, hour, day, month, year);
 
-	if (config.connectivity.forward_gps)
+	if (config.connectivity.forward_gps && fc.gps_data.valid)
 	{
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);
@@ -291,7 +291,7 @@ void gps_parse_gga()
 //	DEBUG("fix %d (%d), hdop: %0.2f\n", fc.gps_data.sat_used, fc.gps_data.sat_total, fc.gps_data.hdop);
 //	DEBUG("alt %0.1fm geo: %0.1fm\n", fc.gps_data.altitude, 0);
 
-	if (config.connectivity.forward_gps)
+	if (config.connectivity.forward_gps && fc.gps_data.valid)
 	{
 		char tmp[NMEA_MAX_LEN];
 		sprintf(tmp, "$%s", gps_parser_buffer);

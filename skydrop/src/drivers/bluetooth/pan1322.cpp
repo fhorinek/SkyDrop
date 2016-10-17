@@ -90,7 +90,7 @@ void pan1322::Restart()
 
 void pan1322::StreamWrite(uint8_t data)
 {
-//	DEBUG("%02X .. %c\n", data);
+//	DEBUG("%02X ", data);
 	this->usart->Write(data);
 }
 
@@ -98,7 +98,7 @@ void pan1322::SetName(const char * name)
 {
 	uint8_t nameLength = strlen_P(name);
 
-	assert(nameLength > 18);
+	assert(nameLength <= 18);
 	if (nameLength > 18)
 	{
 		DEBUG("Wrong name length");
@@ -119,18 +119,18 @@ void pan1322::CreateService(const char * uuid, const char * name, uint8_t channe
 {
 	uint8_t nameLength = strlen_P(name);
 
-	assert(nameLength > 16);
+	assert(nameLength <= 16);
 	if (nameLength > 16)
 	{
-		DEBUG("Wrong name length");
+		DEBUG("Wrong name length\n");
 		return;
 	}
 
 	uint8_t uuidLength = strlen_P(uuid);
-	assert(uuidLength > 32 || uuidLength < 4);
+	assert(uuidLength <= 32 && uuidLength > 4);
 	if (uuidLength > 32 || uuidLength < 4)
 	{
-		DEBUG("Wrong uuid length");
+		DEBUG("Wrong uuid length\n");
 		return;
 	}
 
@@ -192,6 +192,10 @@ void pan1322::Step()
 			case(pan_cmd_accept_connection):
 				this->SetName(PSTR("SkyDrop Pan1322"));
 			break;
+
+			case(pan_cmd_send_data):
+				this->ready_to_xmit = true;
+			break;
 		}
 
 	}
@@ -205,14 +209,17 @@ void pan1322::Step()
 			if (len > PAN1322_MTU)
 				len = PAN1322_MTU;
 
+			this->ready_to_xmit = false;
+
+//			DEBUG("sending data len %u\n", len);
+
 			this->StreamHead(len);
 			for (uint16_t i = 0; i < len; i++)
 				this->StreamWrite(bt_output.Read());
 			this->StreamTail();
 			this->WaitForOK();
 
-			this->ready_to_xmit = false;
-			this->p_cmd = pan_cmd_send_data;
+			this->p_last_cmd = pan_cmd_send_data;
 		}
 	}
 
@@ -226,23 +233,23 @@ void pan1322::AcceptConnection()
 
 void pan1322::StreamHead(uint16_t len)
 {
-	bool first = true;
+//	bool first = true;
 	while (!this->isIdle())
 	{
-		if (first)
-		{
-			DEBUG("---tx lock\n");
-			first = false;
-		}
+//		if (first)
+//		{
+//			DEBUG("---tx lock\n");
+//			first = false;
+//		}
 
-		DEBUG("SH %d,%d,%d,%d\n", this->p_state, this->p_len, this->usart->rx_len, this->data_len);
+//		DEBUG("SH %d,%d,%d,%d\n", this->p_state, this->p_len, this->usart->rx_len, this->data_len);
 
 		this->Step();
 	}
-	if (!first)
-	{
-		DEBUG("---tx released\n");
-	}
+//	if (!first)
+//	{
+//		DEBUG("---tx released\n");
+//	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JSDA=%03d,"), len);
 //	DEBUG("AT+JSDA=%03d,", len);
@@ -351,7 +358,8 @@ void pan1322::Parse(uint8_t c)
 				break;
 
 				case(pan_cmd_send_data):
-					this->ready_to_xmit = true;
+					if (this->connected)
+						this->ready_to_xmit = true;
 				break;
 			}
 		}
@@ -424,6 +432,8 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = false;
+				this->ready_to_xmit = false;
+
 				bt_irqh(BT_IRQ_DISCONNECTED, 0);
 				break;
 			}
