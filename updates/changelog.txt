@@ -1,4 +1,4 @@
-Build 3121 - 17. 10. 2016
+Build 3122 - 17. 10. 2016
 ========================================================
 FIX:
  * Coordinates value are wrong in KML File #209
