@@ -1,7 +1,19 @@
-Build ?
+Build 3121 - 17. 10. 2016
 ========================================================
 FIX:
  * Coordinates value are wrong in KML File #209
+ * Bug in pan1026 driver causing connection timeout when updating notification settings
+ * Bug in pan1322 driver causing no telemetry data flow
+ 
+ADDED:
+ * Do not forward GPS until fix is acquired #217
+ * Suppress automatic switch off while Bluetooth is connected #225
+ * Configurator drag&drop screen configuration
+ * Vario volume control via bluetooth
+ 
+CHANGED:
+ * Configurator data holder rework
+
 
 Build 3092 - 13. 9. 2016
 ========================================================
