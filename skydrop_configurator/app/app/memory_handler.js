@@ -201,9 +201,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
         if (!Array.isArray(value))
         	value = [value];
         	
-        for (var v in value)
+        for (var k in value)
         {
-        	mem_index += var_size;
+        	var v = value[k];
         	
 	        switch(var_type)
 	        {
@@ -236,6 +236,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
 	                this.ee_buffer = set_char(this.ee_buffer, mem_index, v, size);
 	            break;               
 	        }
+	        
+        	mem_index += var_size;
         }
     };  
     

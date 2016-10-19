@@ -21,7 +21,7 @@ void protocol_generic_parse()
 {
 	char * buffer_pos = (char *)protocol_rx_buffer;
 
-//	DEBUG("Protocol rx data '%s'\n", protocol_rx_buffer);
+	DEBUG("Generic RX data '%s'\n", protocol_rx_buffer);
 
 	if (!cmpn(buffer_pos, "SBC", 3))
 		return;

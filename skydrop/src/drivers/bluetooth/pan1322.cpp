@@ -35,7 +35,7 @@ enum pan1322_emd_e
 #define BT_STATE_ROK		5
 #define BT_STATE_FIND_RN	6
 
-#define BT_TIMEOUT			3000
+#define BT_TIMEOUT			2000
 #define BT_NO_TIMEOUT		0
 
 void pan1322::TxResume()
@@ -81,8 +81,6 @@ void pan1322::Restart()
 	this->connected = false;
 	this->p_state = BT_STATE_START;
 	this->p_cmd = pan_cmd_reset;
-
-	this->ready_to_xmit = false;
 
 	bt_module_reset();
 	this->WaitForOK();
@@ -192,15 +190,11 @@ void pan1322::Step()
 			case(pan_cmd_accept_connection):
 				this->SetName(PSTR("SkyDrop Pan1322"));
 			break;
-
-			case(pan_cmd_send_data):
-				this->ready_to_xmit = true;
-			break;
 		}
 
 	}
 
-	if (this->ready_to_xmit)
+	if (this->isIdle())
 	{
 		uint16_t len = bt_output.Length();
 
@@ -209,9 +203,7 @@ void pan1322::Step()
 			if (len > PAN1322_MTU)
 				len = PAN1322_MTU;
 
-			this->ready_to_xmit = false;
-
-//			DEBUG("sending data len %u\n", len);
+			//DEBUG("sending data len %u\n", len);
 
 			this->StreamHead(len);
 			for (uint16_t i = 0; i < len; i++)
@@ -233,26 +225,11 @@ void pan1322::AcceptConnection()
 
 void pan1322::StreamHead(uint16_t len)
 {
-//	bool first = true;
+	//avoid packet collision
 	while (!this->isIdle())
-	{
-//		if (first)
-//		{
-//			DEBUG("---tx lock\n");
-//			first = false;
-//		}
-
-//		DEBUG("SH %d,%d,%d,%d\n", this->p_state, this->p_len, this->usart->rx_len, this->data_len);
-
 		this->Step();
-	}
-//	if (!first)
-//	{
-//		DEBUG("---tx released\n");
-//	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JSDA=%03d,"), len);
-//	DEBUG("AT+JSDA=%03d,", len);
 }
 
 void pan1322::StreamTail()
@@ -356,11 +333,6 @@ void pan1322::Parse(uint8_t c)
 
 					bt_irqh(BT_IRQ_INIT_OK, 0);
 				break;
-
-				case(pan_cmd_send_data):
-					if (this->connected)
-						this->ready_to_xmit = true;
-				break;
 			}
 		}
 		this->p_state = BT_STATE_FIND_RN;
@@ -421,7 +393,6 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = true;
-				this->ready_to_xmit = true;
 
 				bt_irqh(BT_IRQ_CONNECTED, 0);
 				break;
@@ -432,7 +403,6 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = false;
-				this->ready_to_xmit = false;
 
 				bt_irqh(BT_IRQ_DISCONNECTED, 0);
 				break;
@@ -440,7 +410,6 @@ void pan1322::Parse(uint8_t c)
 			if (cmpn(this->p_buff, "RDAI", 4))
 			{
 				//incoming data
-
 				this->p_state = BT_STATE_DATA;
 				this->p_len = 0;
 				break;

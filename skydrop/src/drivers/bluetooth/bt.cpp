@@ -192,6 +192,8 @@ void bt_step()
 		bt_unknown_parser();
 }
 
+bool bt_full_warning = true;
+
 void bt_send(uint16_t len, uint8_t * data)
 {
 	if (!bt_device_connected)
@@ -199,9 +201,15 @@ void bt_send(uint16_t len, uint8_t * data)
 
 	if (len + bt_output.Length() > bt_output.size)
 	{
-		DEBUG("bt output buffer full!\n");
+		if (bt_full_warning)
+		{
+			DEBUG("bt output buffer full!\n");
+			bt_full_warning = false;
+		}
 		return;
 	}
+	else
+		bt_full_warning = true;
 
 	bt_output.Write(len, data);
 }
