@@ -206,6 +206,10 @@ void skybean_file_pull()
 	len.uint8[0] = skybean_stream.Read();
 	len.uint8[1] = skybean_stream.Read();
 
+	DEBUG("skybean_file_pull pos %lu\n", pos.uint32);
+	DEBUG("skybean_file_pull len %u\n", len.uint16);
+
+
 	if (f_lseek(&skybean_file_handle, pos.uint32) != FR_OK)
 		{
 			skybean_startpacket(1, SKYBEAN_FILE, 0x07);
@@ -213,18 +217,21 @@ void skybean_file_pull()
 		}
 
 	char buffer[512];
-	uint16_t bw;
+	uint16_t br;
 
-	if (f_read(&skybean_file_handle, buffer, len.uint16, &bw) != FR_OK)
+	if (f_read(&skybean_file_handle, buffer, len.uint16, &br) != FR_OK)
 	{
 		skybean_startpacket(1, SKYBEAN_FILE, 0x07);
 		skybean_stream.Write(SB_FAIL);
 	}
 
-	skybean_startpacket(3 + bw, SKYBEAN_FILE, 0x07);
+	DEBUG("skybean_file_pull br %u\n", br);
+
+
+	skybean_startpacket(3 + br, SKYBEAN_FILE, 0x07);
 	skybean_stream.Write(SB_SUCCESS);
-	skybean_stream.Write(2, (uint8_t *)&bw);
-	skybean_stream.Write(bw, (uint8_t *)buffer);
+	skybean_stream.Write(2, (uint8_t *)&br);
+	skybean_stream.Write(br, (uint8_t *)buffer);
 }
 
 uint8_t skybean_file_mkdir()

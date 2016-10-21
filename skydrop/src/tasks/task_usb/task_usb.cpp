@@ -38,7 +38,7 @@ void task_usb_init()
 	XMEGACLK_StopInternalOscillator(CLOCK_SRC_INT_RC32MHZ);
 	//Start 32MHz OSC
 	assert(XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC32MHZ));
-	//Calibrate 32HHz using USB Start Of Frame
+	//Calibrate 32MHz using USB Start Of Frame
 	assert(XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_INT_USBSOF, F_USB));
 	sei();
 
@@ -71,12 +71,15 @@ void task_usb_init()
 
 void task_usb_stop()
 {
+	USB_Disable();
+
 	cli();
 	//Stop 32MHz DFLL
 	assert(XMEGACLK_StopDFLL(CLOCK_SRC_INT_RC32MHZ));
 	//Stop 32MHz
 	XMEGACLK_StopInternalOscillator(CLOCK_SRC_INT_RC32MHZ);
 
+	//Read calibration from signature row
 	DFLLRC32M.CALA = SP_ReadCalibrationByte(PROD_SIGNATURES_START + RCOSC32MA_offset);
 	DFLLRC32M.CALB = SP_ReadCalibrationByte(PROD_SIGNATURES_START + RCOSC32M_offset);
 
@@ -105,7 +108,7 @@ void task_usb_stop()
 		SD_SPI_PWR_OFF;
 		SD_EN_OFF;
 		GpioSetDirection(SD_SS, INPUT);
-		_delay_ms(100);
+		_delay_ms(200);
 	}
 
 }

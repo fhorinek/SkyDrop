@@ -192,25 +192,32 @@ void bt_step()
 		bt_unknown_parser();
 }
 
+bool bt_full_warning = true;
+
 void bt_send(uint16_t len, uint8_t * data)
 {
 	if (!bt_device_connected)
 		return;
 
-	DEBUG("BT send: '%s'\n", data);
+	if (len + bt_output.Length() > bt_output.size)
+	{
+		if (bt_full_warning)
+		{
+			DEBUG("bt output buffer full!\n");
+			bt_full_warning = false;
+		}
+		return;
+	}
+	else
+		bt_full_warning = true;
 
 	bt_output.Write(len, data);
 }
 
 void bt_send(char * str)
 {
-	if (!bt_device_connected)
-		return;
-
-	DEBUG("BT send: '%s'\n", str);
-
 	uint16_t len = strlen(str);
-	bt_output.Write(len, (uint8_t *)str);
+	bt_send(len, (uint8_t *)str);
 }
 
 void bt_irqh(uint8_t type, uint8_t * buf)
@@ -242,6 +249,7 @@ void bt_irqh(uint8_t type, uint8_t * buf)
 			DEBUG("BT_IRQ_DISCONNECTED\n");
 			gui_showmessage_P(PSTR("Bluetooth\ndisconnected"));
 			bt_device_connected = false;
+			bt_output.Clear();
 		break;
 		case(BT_IRQ_RESET):
 			DEBUG("BT_IRQ_RESET\n");

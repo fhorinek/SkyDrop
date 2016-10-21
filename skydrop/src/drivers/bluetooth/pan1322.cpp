@@ -35,7 +35,7 @@ enum pan1322_emd_e
 #define BT_STATE_ROK		5
 #define BT_STATE_FIND_RN	6
 
-#define BT_TIMEOUT			3000
+#define BT_TIMEOUT			2000
 #define BT_NO_TIMEOUT		0
 
 void pan1322::TxResume()
@@ -82,15 +82,13 @@ void pan1322::Restart()
 	this->p_state = BT_STATE_START;
 	this->p_cmd = pan_cmd_reset;
 
-	this->ready_to_xmit = false;
-
 	bt_module_reset();
 	this->WaitForOK();
 }
 
 void pan1322::StreamWrite(uint8_t data)
 {
-//	DEBUG("%02X .. %c\n", data);
+//	DEBUG("%02X ", data);
 	this->usart->Write(data);
 }
 
@@ -98,7 +96,7 @@ void pan1322::SetName(const char * name)
 {
 	uint8_t nameLength = strlen_P(name);
 
-	assert(nameLength > 18);
+	assert(nameLength <= 18);
 	if (nameLength > 18)
 	{
 		DEBUG("Wrong name length");
@@ -119,18 +117,18 @@ void pan1322::CreateService(const char * uuid, const char * name, uint8_t channe
 {
 	uint8_t nameLength = strlen_P(name);
 
-	assert(nameLength > 16);
+	assert(nameLength <= 16);
 	if (nameLength > 16)
 	{
-		DEBUG("Wrong name length");
+		DEBUG("Wrong name length\n");
 		return;
 	}
 
 	uint8_t uuidLength = strlen_P(uuid);
-	assert(uuidLength > 32 || uuidLength < 4);
+	assert(uuidLength <= 32 && uuidLength > 4);
 	if (uuidLength > 32 || uuidLength < 4)
 	{
-		DEBUG("Wrong uuid length");
+		DEBUG("Wrong uuid length\n");
 		return;
 	}
 
@@ -196,7 +194,7 @@ void pan1322::Step()
 
 	}
 
-	if (this->ready_to_xmit)
+	if (this->isIdle())
 	{
 		uint16_t len = bt_output.Length();
 
@@ -205,14 +203,15 @@ void pan1322::Step()
 			if (len > PAN1322_MTU)
 				len = PAN1322_MTU;
 
+			//DEBUG("sending data len %u\n", len);
+
 			this->StreamHead(len);
 			for (uint16_t i = 0; i < len; i++)
 				this->StreamWrite(bt_output.Read());
 			this->StreamTail();
 			this->WaitForOK();
 
-			this->ready_to_xmit = false;
-			this->p_cmd = pan_cmd_send_data;
+			this->p_last_cmd = pan_cmd_send_data;
 		}
 	}
 
@@ -226,26 +225,11 @@ void pan1322::AcceptConnection()
 
 void pan1322::StreamHead(uint16_t len)
 {
-	bool first = true;
+	//avoid packet collision
 	while (!this->isIdle())
-	{
-		if (first)
-		{
-			DEBUG("---tx lock\n");
-			first = false;
-		}
-
-		DEBUG("SH %d,%d,%d,%d\n", this->p_state, this->p_len, this->usart->rx_len, this->data_len);
-
 		this->Step();
-	}
-	if (!first)
-	{
-		DEBUG("---tx released\n");
-	}
 
 	fprintf_P(bt_pan1322_out, PSTR("AT+JSDA=%03d,"), len);
-//	DEBUG("AT+JSDA=%03d,", len);
 }
 
 void pan1322::StreamTail()
@@ -349,10 +333,6 @@ void pan1322::Parse(uint8_t c)
 
 					bt_irqh(BT_IRQ_INIT_OK, 0);
 				break;
-
-				case(pan_cmd_send_data):
-					this->ready_to_xmit = true;
-				break;
 			}
 		}
 		this->p_state = BT_STATE_FIND_RN;
@@ -413,7 +393,6 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = true;
-				this->ready_to_xmit = true;
 
 				bt_irqh(BT_IRQ_CONNECTED, 0);
 				break;
@@ -424,13 +403,13 @@ void pan1322::Parse(uint8_t c)
 				this->p_state = BT_STATE_FIND_RN;
 
 				this->connected = false;
+
 				bt_irqh(BT_IRQ_DISCONNECTED, 0);
 				break;
 			}
 			if (cmpn(this->p_buff, "RDAI", 4))
 			{
 				//incoming data
-
 				this->p_state = BT_STATE_DATA;
 				this->p_len = 0;
 				break;

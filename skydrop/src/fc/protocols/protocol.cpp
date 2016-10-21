@@ -5,6 +5,8 @@
 #include "bluefly.h"
 #include "skybean/skybean.h"
 
+#include "generic.h"
+
 #include "../fc.h"
 
 uint8_t protocol_rx_buffer[PROTOCOL_RX_BUFFER];
@@ -15,6 +17,7 @@ uint16_t protocol_tx_index = 0;
 uint32_t protocol_next_step = 0;
 
 CreateStdOut(protocol_tx, protocol_tx_write);
+
 
 void protocol_tx_write(uint8_t c)
 {
@@ -44,19 +47,10 @@ void protocol_tx_flush()
 	protocol_tx_index = 0;
 }
 
-uint8_t protocol_nmea_checksum(char *s)
-{
-	uint8_t c = 0;
-
-    while(*s)
-        c ^= *s++;
-
-    return c;
-}
-
 void protocol_init()
 {
 	protocol_skybean_init();
+	protocol_generic_init();
 }
 
 void protocol_set_next_step(uint32_t diff)
@@ -95,6 +89,10 @@ void protocol_rx(char c)
 	{
 		case(PROTOCOL_SKYBEAN):
 			protocol_skybean_rx(c);
+		break;
+
+		default:
+			protocol_generic_rx(c);
 		break;
 	}
 }

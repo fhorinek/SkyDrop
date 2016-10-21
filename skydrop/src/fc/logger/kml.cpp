@@ -110,13 +110,13 @@ void kml_step()
 
 		fc.logger_state = LOGGER_ACTIVE;
 
-		sprintf_P(tmp1, PSTR(" %+010ld"), fc.gps_data.longtitude);
-		memcpy((void *)tmp1, (void *)(tmp1 + 1), 3);
-		tmp1[3] = '.';
+		sprintf_P(tmp1, PSTR(" %+011ld"), fc.gps_data.longtitude);
+		memcpy((void *)tmp1, (void *)(tmp1 + 1), 4);
+		tmp1[4] = '.';
 
-		sprintf_P(tmp2, PSTR(" %+011ld"), fc.gps_data.latitude);
-		memcpy((void *)tmp2, (void *)(tmp2 + 1), 4);
-		tmp2[4] = '.';
+		sprintf_P(tmp2, PSTR(" %+010ld"), fc.gps_data.latitude);
+		memcpy((void *)tmp2, (void *)(tmp2 + 1), 3);
+		tmp2[3] = '.';
 
 		sprintf_P(line, PSTR("%s,%s,%0.0f"), tmp1, tmp2, fc.altitude1);
 		kml_writeline(line);

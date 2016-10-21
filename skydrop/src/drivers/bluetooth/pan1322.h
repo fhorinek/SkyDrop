@@ -31,8 +31,6 @@ class pan1322
 
 	volatile uint32_t timer;
 
-	bool ready_to_xmit;
-
 public:
 
 	Usart * usart;

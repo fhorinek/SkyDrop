@@ -167,7 +167,7 @@ void debug_timer_init()
 
 void debug_log(char * msg)
 {
-	if (config.system.debug_log == DEBUG_MAGIC_ON)
+	if (config.system.debug_log == DEBUG_MAGIC_ON && storage_ready())
 		debug_log_storage.Write(strlen(msg), (uint8_t *)msg);
 }
 
@@ -231,21 +231,21 @@ void debug_step()
 
 		//file is ready
 		debug_file_open = true;
-
-		char id[23];
-		GetID_str(id);
-		DEBUG("=========================================\n");
-
-		DEBUG("Device serial number ... %s\n", id);
-
-		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
-		print_fw_info();
-
-		print_reset_reason();
-
-		debug_last_dump();
-
-		DEBUG("=========================================\n");
+//
+//		char id[23];
+//		GetID_str(id);
+//		DEBUG("=========================================\n");
+//
+//		DEBUG("Device serial number ... %s\n", id);
+//
+//		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
+//		print_fw_info();
+//
+//		print_reset_reason();
+//
+//		debug_last_dump();
+//
+//		DEBUG("=========================================\n");
 	}
 
 	uint8_t ** tmp = 0;

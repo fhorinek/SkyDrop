@@ -34,7 +34,7 @@ app.directive('widgetSlot', function() {
     };
 });
 
-app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compile", function (memory, $scope, $q, $window, $sce, $compile) {
+app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compile", "$timeout", function (memory, $scope, $q, $window, $sce, $compile, $timeout) {
 	
 	var deferred = $q.defer();
 
@@ -46,13 +46,18 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 	$scope.slots = [];
 	$scope.list = {};
 	$scope.widget_size = {};
+	$scope.avalible = true;
 	
 	$scope.active_page_number = 2;
 	$scope.active_page_base = "cfg_gui_pages_" + $scope.active_page_number;
-	$scope.active_page_type = $scope.active_page_base + "_type"
+	$scope.active_page_type = $scope.active_page_base + "_type";
 	
 	deferred.promise.then(undefined, undefined, function (data){
 		$scope.list = data;
+		$scope.avalible = (memory.layouts) ? true : false;
+		
+		if (!$scope.avalible)
+			return;
 		
 		$scope.widgets = memory.get_widgets();
 		$scope.generate_slots();
@@ -77,10 +82,24 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 		memory.remove_notify(deferred);
 	});
 	
-
+	var resize_delayed = false;
+	
 	$scope.resize = function()
 	{
 		var screen_w = document.getElementById("gui_screen").clientWidth - 4;
+		if (screen_w < 0)
+		{
+			if (resize_delayed == false)
+			{
+				$timeout($scope.resize, 100);
+				console.log("delaying widgets resize!");
+			}
+			
+			resize_delayed = true;
+			return;
+		}
+		resize_delayed = false;
+		
 		zoom = screen_w / disp_w;
 		$scope.screen_style = {height: (disp_h * zoom) + "px"};
 		$scope.widget_size.label = {"font-size": (zoom * 4) + "px"};
@@ -88,16 +107,16 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 		$scope.widget_size.text = {"font-size": (zoom * 6) + "px"};
 		
 		for (var i = 0; i < active_layout.number_of_widgets; i++)
-			set_widget(i , active_layout.widgets[i])		
-	}
+			set_widget(i , active_layout.widgets[i]);	
+	};
 	
 	$scope.load_page = function(page)
 	{
 		$scope.active_page_number = page;
 		
 		$scope.active_page_base = "cfg_gui_pages_" + $scope.active_page_number;
-		$scope.active_page_type = $scope.active_page_base + "_type"
-	}
+		$scope.active_page_type = $scope.active_page_base + "_type";
+	};
 	
 	$scope.refresh = function()
 	{
@@ -108,7 +127,7 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 			clear_widget(i);
 		
 		$scope.resize();
-	}
+	};
 	
 	$scope.generate_slots = function()
 	{
@@ -123,7 +142,7 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 			
 			$scope.slots[i] = slot;
 		}		
-	}
+	};
 	
 	$scope.load_widgets = function()
 	{
@@ -134,7 +153,7 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 			$scope.slots[i].key = w_key;
 			$scope.slots[i].content = $scope.return_widget(w_key);
 		}	
-	}
+	};
 
 	function clear_widget(n)
 	{
@@ -157,25 +176,25 @@ app.controller("screens", ["memory", "$scope", "$q", '$window', "$sce", "$compil
 		var tpl = "<widget dstyle=\"widget_size\" ng-model=\"widgets[\'"+w_key+"\']\"></widget>";
 		var cmp = $compile(tpl)($scope);
 		
-		console.log("creating widget", w_key, cmp);
+//		console.log("creating widget", w_key, cmp);
 		
 		return cmp;
-	}
+	};
 	
 	$scope.drop = function(w_key, slot)
 	{
 		slot.content = $scope.return_widget(w_key);
 		$scope.list[$scope.active_page_base + "_widgets_" + slot.ident].value.option = w_key;
-	}
+	};
 	
 	$scope.change_page = function(page)
 	{
-		console.log("loading_page", page);
+//		console.log("loading_page", page);
 		
 		$scope.load_page(page);
 		$scope.refresh();
-		$scope.load_widgets()
-	}
+		$scope.load_widgets();
+	};
 	
 	//init
 	memory.getAllValues(deferred);

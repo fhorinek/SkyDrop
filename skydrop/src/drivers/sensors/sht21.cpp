@@ -64,7 +64,10 @@ bool SHT21::Read()
 	this->i2c->StartTransmittion(SHT21_ADDRESS, 2);
 	this->i2c->Wait();
 	if (this->i2c->Error())
+	{
+		assert(0);
 		return false;
+	}
 
     byte2 data;
 

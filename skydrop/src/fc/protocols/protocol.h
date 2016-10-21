@@ -12,8 +12,6 @@
 
 void protocol_step();
 void protocol_set_next_step(uint32_t diff);
-uint8_t protocol_nmea_checksum(char * s);
-
 void protocol_rx(char c);
 
 #define PROTOCOL_RX_BUFFER	512

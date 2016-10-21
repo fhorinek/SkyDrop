@@ -246,7 +246,7 @@ void task_sleep()
 	if (wake_next < task_get_ms_tick())
 	{
 		uint8_t usage = fine_acc / 6250;
-		DEBUG("CPU: %3u%% (%u irq)\n", usage, wake_ups / 5);
+//		DEBUG("CPU: %3u%% (%u irq)\n", usage, wake_ups / 5);
 
 		wake_ups = 0;
 		fine_acc = 0;

@@ -14,7 +14,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 #define BT_TIMEOUT			1000
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-//#define DEBUG_BT_ENABLED
+#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -1035,6 +1035,8 @@ void pan1026::ParseGAT_ser()
 			if (handle == this->btle_characteristic_element_handles[CHAR_SPP_SPP_DESC])
 				this->btle_notifications = this->parser_buffer[11] | (this->parser_buffer[12] << 8);
 
+			this->busy = true;
+
 			//update
 			this->SetNextStep(pan_cmd_le_update_char_element);
 		break;
@@ -1731,7 +1733,7 @@ void pan1026::Step()
 			break;
 
 			case(pan_cmd_le_gen_random_address):
-				DEBUG_BT("pan_cmd_le_gen_randvom_address\n");
+				DEBUG_BT("pan_cmd_le_gen_random_address\n");
 				RAW(TCU_MNG_LE_GEN_RESOLVABLE_BDADDR_REQ);
 			break;
 
@@ -1825,6 +1827,7 @@ void pan1026::Step()
 				//Characteristic handle
 				WRITE_16B(this->btle_characteristic_element_handles[CHAR_SPP_SPP_DESC]);
 				//Attribute Value Length
+
 				WRITE_16B(2);
 				//Attribute Value
 				WRITE_16B(this->btle_notifications);

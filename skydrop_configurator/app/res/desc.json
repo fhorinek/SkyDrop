@@ -197,7 +197,8 @@
             "options": [
                 ["PROTOCOL_DIGIFLY", "DigiFly"],
                 ["PROTOCOL_LK8EX1", "LK8EX1"],
-                ["PROTOCOL_BLUEFLY", "BlueFly (pressure only)"]
+                ["PROTOCOL_BLUEFLY", "BlueFly (pressure only)"],
+                ["PROTOCOL_SKYBEAN", "SkyBean (in development)"]
             ]
         },
         "cfg_connectivity_gps_format_flags" : {

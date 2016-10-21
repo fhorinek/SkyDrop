@@ -322,6 +322,17 @@ uint8_t fast_flip(uint8_t in);
 
 float mul_to_sec(float mul);
 float sec_to_mul(float sec);
+uint8_t hex_to_num(uint8_t c);
+
+uint32_t pow_ten(uint8_t pow);
+
+uint32_t atoi_n(char * str, uint8_t n);
+uint8_t atoi_c(char * str);
+float atoi_f(char * str);
+
+char * find_comma(char * str);
+uint8_t nmea_checksum(char *s);
+
 
 //settings
 bool LoadEEPROM();

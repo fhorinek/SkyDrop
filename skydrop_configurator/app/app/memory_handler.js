@@ -59,11 +59,11 @@ app.service("memory", ["$http", "$q", function($http, $q){
         	service.load_bin("UPDATE.EE", service.init_step_1);
         };
     
-        console.log("loading bin resource %s", url_path);
+        console.log("loading json resource %s", url_path);
 
         $http.get(url_path)     
         .success(function(data) {
-            console.log("sucess");
+        	//console.log("sucess");
             //console.log(data);
             callback(data, service);            
         })
@@ -81,7 +81,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     };
 
     this.notify_all = function(data){
-		console.log("to notify", this.data_loading_notify);
+		console.log("objects to notify", this.data_loading_notify.length);
     	for (var i = 0; i < this.data_loading_notify.length; i++)
     		this.data_loading_notify[i].notify(data);
     };
@@ -127,7 +127,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     		};
     	
     	return sizes[type];
-    }
+    };
     
     //get value form binary data (ee_bufer)
     this.getValue = function(key)
@@ -140,7 +140,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
         
 //        console.log("arr_len", arr_len);
         
-        var val = []
+        var val = [];
         for (var i = 0; i < arr_len; i++)
         {
 	        switch(var_type)
@@ -201,9 +201,9 @@ app.service("memory", ["$http", "$q", function($http, $q){
         if (!Array.isArray(value))
         	value = [value];
         	
-        for (var v in value)
+        for (var k in value)
         {
-        	mem_index += var_size;
+        	var v = value[k];
         	
 	        switch(var_type)
 	        {
@@ -236,6 +236,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
 	                this.ee_buffer = set_char(this.ee_buffer, mem_index, v, size);
 	            break;               
 	        }
+	        
+        	mem_index += var_size;
         }
     };  
     
@@ -300,7 +302,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
             
             arr = angular.extend(arr, this.getDesc(k));
           
-            arr["value"] = this.bin_to_logic(arr["value"], k, arr)
+            arr["value"] = this.bin_to_logic(arr["value"], k, arr);
             
             items[k] = (arr);
         }
@@ -409,11 +411,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
         }
     };
     
-    this.bin_to_logic = function(value_in, key, arr = false)
+    this.bin_to_logic = function(value_in, key, arr)
     {
-    	if (arr == false)
-    		arr = this.getDesc(key);
-
 		var value = {};  
 
     	switch (arr["mode"])
@@ -544,8 +543,6 @@ app.service("memory", ["$http", "$q", function($http, $q){
     
     this.upgrade = function()
     {
-    	console.log(this.data_holder);
-    	
     	var old_values = {};
     	
     	//store old values
@@ -555,29 +552,29 @@ app.service("memory", ["$http", "$q", function($http, $q){
     		if (line.pname != "cfg_build_number")
     			old_values[line.pname] = line.value;
     	}
-    	
-    	console.log(old_values);
-    	
-    	//load newest fw
+        
+        //save notify list
+        var saved_notify = this.data_loading_notify;
+        
+        //replace notify list with local function 
         var deferred = $q.defer();
+        this.data_loading_notify = [deferred];
         
-        this.data_loading_notify.push(deferred);
-//        this.data_loading_notify.push("kkt");
-        
+    	//load newest fw
         this.load_bin("UPDATE.EE", this.init_step_1);
         
         var service = this;
         
         deferred.promise.then(undefined, undefined, function (){
-        	console.log(old_values);
         	//restore values
         	for (var key in old_values)
         	{
         		if (key in service.data_holder)
-        			service.data_holder[key] = old_values[key];
+        			service.data_holder[key].value = old_values[key];
         	}
         	
-        	service.remove_notify(deferred);
+        	//restore notify list
+        	service.data_loading_notify = saved_notify;
         	service.notify_all(service.data_holder);
         });    	
     };
@@ -655,7 +652,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.get_widgets = function()
     {
     	return this.ee_desc.widgets;
-    }
+    };
     
 }]);
 
