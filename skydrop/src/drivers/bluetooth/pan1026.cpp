@@ -7,14 +7,19 @@ extern pan1026 bt_pan1026;
 CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 
 /*! The max. ATT size of TC35661 is limited to 64 bytes */
-#define PAN1026_SPP_MTU		128//max 543
-#define PAN1026_MTU_RX		50
-#define PAN1026_MTU_TX		64
+#define PAN1026_SPP_MTU			512//max 543
+#define PAN1026_MTU_RX			64 //max 64
+#define PAN1026_MTU_TX			64 //max 64
+#define PAN1026_MTU_TX_FALLBACK	20 //min 20
 
 #define BT_TIMEOUT			1000
+#define BT_TIMEOUT_CONN		2000
+#define BT_TIMEOUT_ACCEPT	200
+#define BT_TIMEOUT_TCU_ERR	50
+#define BT_TIMEOUT_SEND		100
 #define BT_NO_TIMEOUT		0xFFFFFFFF
 
-#define DEBUG_BT_ENABLED
+//#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
@@ -79,9 +84,6 @@ enum pan1026_cmd_e
 	pan_cmd_le_val_indication 						= 32,
 	pan_cmd_le_mtu_req 								= 33,
 	pan_cmd_le_mtu_accept							= 34,
-
-	//timeout
-	pan_cmd_release_busy							= 35,
 };
 
 enum pan1026_parser_e
@@ -125,14 +127,30 @@ void pan1026::Restart()
 	this->parser_status = pan_parser_idle;
 	this->btle_connection = false;
 	this->repat_last_cmd = false;
-	this->btle_notifications = BTLE_NOTIFICATION;
+	this->btle_notifications = 0x00;//BTLE_NOTIFICATION;
 	this->btle_connection = false;
-	this->busy = true;
 	this->mtu_size = PAN1026_MTU_TX;
+	this->SetBusy();
 
 	bt_irqh(BT_IRQ_RESET, 0);
 
 	bt_module_reset();
+}
+
+void pan1026::SetBusy(uint16_t timeout)
+{
+	this->busy = true;
+	if (timeout > 0)
+		this->busy_timer = task_get_ms_tick() + timeout;
+	else
+		this->busy_timer = BT_NO_TIMEOUT;
+}
+
+void pan1026::ClearBusy()
+{
+	DEBUG_BT("ClearBusy\n");
+	this->busy = false;
+	this->busy_timer = BT_NO_TIMEOUT;
 }
 
 void pan1026::SetNextStep(uint8_t cmd)
@@ -204,8 +222,7 @@ void pan1026::ParseHCI()
 			}
 
 			this->repat_last_cmd = true;
-			this->timer = task_get_ms_tick() + 10; //wait 10ms or more
-
+			this->repeat_timer = task_get_ms_tick() + 10; //wait 10ms or more
 			// PAN1026_ERROR;
 		break;
 
@@ -592,7 +609,7 @@ void pan1026::ParseSPP()
 			if (status == 0)
 			{
 				bt_irqh(BT_IRQ_CONNECTED, 0);
-				this->SetNextStep(pan_cmd_release_busy);
+				this->SetBusy(BT_TIMEOUT_CONN);
 			}
 			else
 				PAN1026_ERROR;
@@ -623,7 +640,7 @@ void pan1026::ParseSPP()
 		case(0xF1): // TCU_SPP_DATA_SEND_EVENT
 			DEBUG_BT("TCU_SPP_DATA_SEND_EVENT\n");
 
-			this->busy = false;
+			this->ClearBusy();
 		break;
 	}
 }
@@ -664,7 +681,9 @@ void pan1026::ParseMNG_LE()
 
 				bt_irqh(BT_IRQ_CONNECTED, NULL);
 				this->btle_connection = true;
-				this->busy = false;
+
+				//make room for MTU negotiation
+				this->SetBusy(BT_TIMEOUT_CONN);
 
 				this->SetNextStep(pan_cmd_le_mtu_req);
 			}
@@ -762,6 +781,30 @@ void pan1026::ParseMNG_LE()
 			DEBUG_BT("TCU_LE_ACCEPT\n");
 			DEBUG_BT(" ServiceID_Received %02X\n", this->parser_buffer[8]);
 			DEBUG_BT(" Command_OpCode_Received %02X\n", this->parser_buffer[9]);
+
+			switch (status)
+			{
+				case(0x00): //Success
+					return;
+				break;
+
+				case(0x01): //The abnormalities in a parameter
+					//if it is start advertise problem than reboot the start up sequence
+					if (this->parser_buffer[8] == 0xD1 && this->parser_buffer[9] == 0x08)
+					{
+						PAN1026_ERROR;
+						return;
+					}
+				break;
+
+				case(0x07): //LE_Error, reboot the module
+					PAN1026_ERROR;
+					return;
+				break;
+			}
+
+			//have som time to recover from boo boo
+			this->SetBusy(BT_TIMEOUT_TCU_ERR);
 		break;
 
 		case(0xFF): //TCU_LE_SYS_INVALID_COMMAND
@@ -932,7 +975,8 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
 			//release
-			this->SetNextStep(pan_cmd_release_busy);
+			this->SetBusy(BT_TIMEOUT_ACCEPT);
+
 		break;
 
 		case(0x84): //TCU_LE_GATT_SER_WRITE_CHAR_DESP_ACCEPT_RESP
@@ -942,7 +986,7 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
 			//release
-			this->SetNextStep(pan_cmd_release_busy);
+			this->SetBusy(BT_TIMEOUT_ACCEPT);
 		break;
 
 		case(0x8A): //TCU_LE_GATT_SER_READ_MULTIPLE_ACCEPT_RESP
@@ -952,7 +996,7 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
 			//release
-			this->SetNextStep(pan_cmd_release_busy);
+			this->SetBusy(BT_TIMEOUT_ACCEPT);
 		break;
 
 		case(0xC8)://TCU_LE_GATT_SER_READ_CHAR_DESP_EVENT
@@ -975,7 +1019,7 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
 			//release
-			this->SetNextStep(pan_cmd_release_busy);
+			this->SetBusy(BT_TIMEOUT_ACCEPT);
 		break;
 
 		case(0x88)://TCU_LE_GATT_SER_READ_CHAR_DESP_ACCEPT_RESP
@@ -986,7 +1030,7 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
 			//release
-			this->SetNextStep(pan_cmd_release_busy);
+			this->SetBusy(BT_TIMEOUT_ACCEPT);
 		break;
 
 		case(0x45)://TCU_LE_GATT_SER_CHAR_VAL_NOTIFICATION_EVENT
@@ -995,7 +1039,10 @@ void pan1026::ParseGAT_ser()
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" conn handle %04X\n", handle);
 
-			this->busy = false;
+			bt_output.Forward(this->last_send_len);
+			this->last_send_len = 0;
+
+			this->ClearBusy();
 		break;
 
 		case(0x46)://TCU_LE_GATT_SER_CHAR_VAL_INDICATION_EVENT
@@ -1005,7 +1052,10 @@ void pan1026::ParseGAT_ser()
 			DEBUG_BT(" conn handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
 
-			this->busy = false;
+			bt_output.Forward(this->last_send_len);
+			this->last_send_len = 0;
+
+			this->ClearBusy();
 		break;
 
 		case(0xA5)://TCU_LE_GATT_SDB_UPD_CHAR_ELE_RESP
@@ -1035,7 +1085,7 @@ void pan1026::ParseGAT_ser()
 			if (handle == this->btle_characteristic_element_handles[CHAR_SPP_SPP_DESC])
 				this->btle_notifications = this->parser_buffer[11] | (this->parser_buffer[12] << 8);
 
-			this->busy = true;
+			this->SetBusy();
 
 			//update
 			this->SetNextStep(pan_cmd_le_update_char_element);
@@ -1092,6 +1142,12 @@ void pan1026::ParseGAT_cli()
 			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT(" conn handle %04X\n", handle);
 			DEBUG_BT(" status %02X\n", this->parser_buffer[9]);
+			if (this->parser_buffer[9] != 0x00) //if status is not Success
+			{
+				this->mtu_size = PAN1026_MTU_TX_FALLBACK;
+				break;
+			}
+
 			handle = this->parser_buffer[10] | (this->parser_buffer[11] << 8);
 			DEBUG_BT(" MTU size %u\n", handle);
 
@@ -1144,8 +1200,8 @@ void pan1026::Parse(uint8_t c)
 						{
 							DEBUG_BT("connection is active!\nDO NOT PANIC\njust drop it");
 							this->parser_status = pan_parser_wait;
-							this->parser_timer = task_get_ms_tick() + 100;
-							this->SetNextStep(pan_cmd_release_busy);
+							this->parser_timer = task_get_ms_tick() + BT_TIMEOUT_TCU_ERR;
+							this->SetBusy(BT_TIMEOUT_TCU_ERR);
 							break;
 						}
 						else
@@ -1268,11 +1324,6 @@ void pan1026::RawSendStatic(const uint8_t * data, uint8_t len)
 {
 	for(uint8_t i = 0; i < len; i++)
 		this->StreamWrite(pgm_read_byte(&data[i]));
-}
-
-void pan1026::WaitForAnswer()
-{
-	this->timer = task_get_ms_tick() + BT_TIMEOUT;
 }
 
 void pan1026::Step()
@@ -1571,7 +1622,7 @@ void pan1026::Step()
 					//handle
 					WRITE_16B(this->btle_service_handles[SERVICE_SPP]);
 					//Characteristic Properties
-					this->StreamWrite(0x38); //NOTIFY | INDICATE | WRITE
+					this->StreamWrite(0x18); //NOTIFY | WRITE
 					//UUID Length
 					this->StreamWrite(0x2);
 					//UUID Value
@@ -1969,41 +2020,27 @@ void pan1026::Step()
 				//MTU size
 				WRITE_16B(PAN1026_MTU_RX); //MAX 64
 			break;
-
-			case(pan_cmd_release_busy):
-				DEBUG_BT("pan_cmd_release_busy\n");
-			 	this->timer = task_get_ms_tick() + 100;
-			break;
 		}
 
 		this->last_cmd = this->next_cmd;
 		this->next_cmd = pan_cmd_none;
 	}
 
-	if (this->repat_last_cmd && this->timer < task_get_ms_tick())
+	if (this->repat_last_cmd && this->repeat_timer < task_get_ms_tick())
 	{
 		this->repat_last_cmd = false;
 		this->next_cmd = this->last_cmd;
-		this->timer = BT_NO_TIMEOUT;
+		this->repeat_timer = BT_NO_TIMEOUT;
 	}
 
-	if (this->last_cmd == pan_cmd_release_busy && this->timer < task_get_ms_tick())
+	if (this->busy && this->busy_timer < task_get_ms_tick())
 	{
 		DEBUG_BT("Releasing busy flag\n");
 
-		this->busy = false;
-		this->last_cmd = pan_cmd_none;
-		this->timer = BT_NO_TIMEOUT;
+		this->ClearBusy();
 	}
 
-
 	this->SendString();
-
-//	if (this->timer != BT_NO_TIMEOUT && this->timer < task_get_ms_tick())
-//		{
-//			DEBUG_BT("PAN1026 timeout, last cmd %d\n", this->last_cmd);
-//			this->timer = BT_NO_TIMEOUT;
-//		}
 
 }
 
@@ -2033,37 +2070,10 @@ void pan1026::SendString()
 		if (len > this->mtu_size - 4)
 			len = this->mtu_size - 4;
 
-		if (this->btle_notifications & BTLE_INDICATION)
-		{
-			DEBUG_BT("Sending indication\n");
-			t_len = 3 + 8 + len;
-			TCU_LEN(t_len);
-
-			//ServiceID
-			this->StreamWrite(0xD3); // 1
-			//OpCode
-			this->StreamWrite(0x06); // 2
-
-			//Parameter Length
-			WRITE_16B(t_len - 7); // 4
-			//Connection Handle
-			WRITE_16B(this->btle_connection_handle);// 6
-			//Characteristic Handle
-			WRITE_16B(this->btle_characteristic_element_handles[CHAR_SPP_SPP]);// 8
-			//data
-			for (uint8_t i = 0 ; i < len; i++)
-				this->StreamWrite(bt_output.Read());
-
-			this->last_cmd = pan_cmd_le_val_indication;
-			this->busy = true;
-			this->SetNextStep(pan_cmd_release_busy);
-
-			return;
-		}
 
 		if (this->btle_notifications & BTLE_NOTIFICATION)
 		{
-			DEBUG_BT("Sending notification\n");
+			DEBUG_BT("Sending notification len %u\n", len);
 			t_len = 3 + 8 + len;
 			TCU_LEN(t_len);
 
@@ -2079,16 +2089,20 @@ void pan1026::SendString()
 			//Characteristic Handle
 			WRITE_16B(this->btle_characteristic_element_handles[CHAR_SPP_SPP]);// 8
 			//data
-			for (uint8_t i = 0 ; i < len; i++)
+			for (uint16_t i = 0 ; i < len; i++)
 				this->StreamWrite(bt_output.Read());
 
-			this->last_cmd = pan_cmd_le_val_notification;
-			this->busy = true;
-			this->SetNextStep(pan_cmd_release_busy);
+			bt_output.Rewind(len);
+			this->last_send_len = len;
 
+			this->last_cmd = pan_cmd_le_val_notification;
+			this->SetBusy(BT_TIMEOUT_SEND);
 
 			return;
 		}
+
+		//no indication or notification are enabled
+		bt_output.Clear();
 	}
 	else
 	{
@@ -2105,7 +2119,6 @@ void pan1026::SendString()
 			this->StreamWrite(bt_output.Read());
 
 		this->last_cmd = pan_cmd_spp_send;
-		this->busy = true;
-		this->SetNextStep(pan_cmd_release_busy);
+		this->SetBusy(BT_TIMEOUT_SEND);
 	}
 }

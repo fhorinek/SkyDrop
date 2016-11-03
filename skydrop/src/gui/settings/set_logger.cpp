@@ -127,6 +127,10 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				case(LOGGER_RAW):
 					sprintf_P(sub_text, PSTR("RAW (IMU diag)"));
 				break;
+
+				case(LOGGER_AERO):
+					sprintf_P(sub_text, PSTR("Aero (acc only)"));
+				break;
 			}
 		break;
 

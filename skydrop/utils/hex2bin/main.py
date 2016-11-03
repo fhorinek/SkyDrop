@@ -23,7 +23,7 @@ class Hex2BinConv():
         self.hex.loadfile(filename, "hex")
         
         size = self.hex.maxaddr() - self.hex.minaddr()
-        print " size: %0.2f KiB (%d B)" % (size/1024, size) 
+        print " size: %0.2f KiB (%d B)" % (size / 1024.0, size) 
 
     
     def conv(self, label):

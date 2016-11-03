@@ -65,11 +65,18 @@ public:
 	void ParseGAT_ser();
 
 	bool Idle();
-	void WaitForAnswer();
+	void SetBusy(uint16_t timeout = 0);
+	void ClearBusy();
+	uint32_t busy_timer;
+
+	uint32_t repeat_timer;
+
 	void StreamWrite(uint8_t data);
 	void RawSendStatic(const uint8_t * data, uint8_t len);
 
 	void SendString();
+
+	uint16_t last_send_len;
 
 	uint8_t pan_mac_address[6];
 
@@ -77,7 +84,6 @@ public:
 
 	char client_name[32];
 
-	uint32_t timer;
 };
 
 #endif /* PAN1026_H_ */

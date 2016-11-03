@@ -5,6 +5,7 @@
 #include "igc.h"
 #include "kml.h"
 #include "raw.h"
+#include "aero.h"
 
 FIL log_file;
 uint32_t logger_next = 0;
@@ -87,7 +88,7 @@ void logger_step()
 		return;
 
 	//RAW is running as fast as it can!
-	if (config.logger.format != LOGGER_RAW)
+	if (config.logger.format != LOGGER_RAW && config.logger.format != LOGGER_AERO)
 	{
 		if (fc.gps_data.new_sample)
 		{
@@ -109,6 +110,10 @@ void logger_step()
 		case(LOGGER_RAW):
 			raw_step();
 		break;
+
+		case(LOGGER_AERO):
+			aero_step();
+		break;
 	}
 }
 
@@ -128,6 +133,7 @@ void logger_comment(char * text)
 		break;
 
 		case(LOGGER_RAW):
+		case(LOGGER_AERO):
 			DEBUG("%s\n", text);
 		break;
 	}
@@ -187,6 +193,10 @@ void logger_start()
 		case(LOGGER_RAW):
 			fc.logger_state = raw_start(path);
 		break;
+
+		case(LOGGER_AERO):
+			fc.logger_state = aero_start(path);
+		break;
 	}
 }
 
@@ -227,7 +237,11 @@ void logger_stop()
 		break;
 
 		case(LOGGER_RAW):
-			raw_step();
+			raw_stop();
+		break;
+
+		case(LOGGER_AERO):
+			aero_stop();
 		break;
 	}
 }

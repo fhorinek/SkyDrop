@@ -141,7 +141,7 @@ void task_usb_irqh(uint8_t type, uint8_t * buff)
 	{
 	case(TASK_IRQ_USB):
 		if (*buff == 0)
-			task_set(TASK_ACTIVE);
+			task_set(TASK_POWERDOWN);
 	break;
 
 	default:

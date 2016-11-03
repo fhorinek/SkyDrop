@@ -227,6 +227,10 @@ void skybean_file_pull()
 
 	DEBUG("skybean_file_pull br %u\n", br);
 
+//	for (uint16_t i = 0; i < br; i++)
+//		DEBUG(" %02X", buffer[i]);
+//
+//	DEBUG("\n-----\n");
 
 	skybean_startpacket(3 + br, SKYBEAN_FILE, 0x07);
 	skybean_stream.Write(SB_SUCCESS);

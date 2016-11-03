@@ -70,6 +70,9 @@ void bt_module_reset()
 	bt_uart.Stop();
 	BT_UART_PWR_OFF;
 
+	//clear output buffer
+	bt_output.Clear();
+
 	bt_reset_counter = task_get_ms_tick() + 4000;
 	bt_reset_counter_step = 0;
 }
@@ -208,10 +211,22 @@ void bt_send(uint16_t len, uint8_t * data)
 		}
 		return;
 	}
-	else
-		bt_full_warning = true;
 
+	bt_full_warning = true;
 	bt_output.Write(len, data);
+
+//	DEBUG("\n--------\n");
+//	DEBUG("WI %d\n", bt_output.write_index);
+//	DEBUG("SI %d\n", bt_output.length);
+//
+//
+//	for (uint16_t i = 0; i < bt_output.Length(); i++)
+//	{
+//		uint16_t index = (i + bt_output.read_index) % bt_output.size;
+//
+//		DEBUG("%02X ", bt_output.buffer[index]);
+//	}
+//	DEBUG("\n--------\n");
 }
 
 void bt_send(char * str)

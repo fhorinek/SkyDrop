@@ -82,3 +82,25 @@ void RingBuffer::Clear()
 	this->read_index = 0;
 	this->write_index = 0;
 }
+
+void RingBuffer::Rewind(uint16_t len)
+{
+	if (this->length + len > this->size)
+		return;
+
+	if (this->read_index < len)
+		this->read_index = this->size - (len - this->read_index);
+	else
+		this->read_index -= len;
+
+	this->length += len;
+}
+
+void RingBuffer::Forward(uint16_t len)
+{
+	if (this->length < len)
+		return;
+
+	this->read_index = (this->read_index + len) % this->size;
+	this->length -= len;
+}

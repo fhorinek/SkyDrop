@@ -19,10 +19,22 @@ volatile uint16_t debug_min_stack_pointer = 0xFFFF;
 volatile uint16_t debug_max_heap_pointer = 0x0000;
 bool debug_done = false;
 
+bool debug_disabled()
+{
+	if (config.system.debug_log == DEBUG_MAGIC_ON && storage_ready())
+		return false;
+	if (config.connectivity.uart_function == UART_FORWARD_DEBUG)
+		return false;
+	return true;
+}
+
 void debug_uart_send(char * msg)
 {
 	if (config.connectivity.uart_function == UART_FORWARD_DEBUG)
+	{
 		uart_send(msg);
+		uart.FlushTxBuffer();
+	}
 }
 
 void debug_print_ram()

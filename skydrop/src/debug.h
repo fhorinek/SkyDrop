@@ -13,12 +13,13 @@ void debug_log(char * msg);
 //DEBUG
 #define DEBUG(format, ...) \
 	do { \
+		if (debug_disabled())\
+			break;\
 		char msg_buff[256];\
 		const char * msg PROGMEM = PSTR(format);\
 		sprintf_P(msg_buff, msg, ##__VA_ARGS__); \
 		debug_uart_send(msg_buff);\
 		debug_log(msg_buff);\
-		uart.FlushTxBuffer(); \
 	} while(0)
 
 
@@ -39,6 +40,7 @@ void debug_timer_init();
 void debug_last_dump();
 void debug_step();
 void debug_end();
+bool debug_disabled();
 
 void ewdt_init();
 void ewdt_reset();

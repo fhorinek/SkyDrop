@@ -28,6 +28,9 @@ public:
 	uint8_t Read();
 	uint16_t Length();
 
+	void Rewind(uint16_t len);
+	void Forward(uint16_t len);
+
 	void Clear();
 };
 
