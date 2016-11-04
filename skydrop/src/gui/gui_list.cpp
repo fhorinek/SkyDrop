@@ -25,7 +25,7 @@ void gui_list_draw()
 
 	int16_t y = gui_list_y_offset;
 	uint8_t height;
-	uint8_t total_height = 0;
+	int16_t total_height = 0;
 	uint8_t sub_height;
 
 	//emulate middle click

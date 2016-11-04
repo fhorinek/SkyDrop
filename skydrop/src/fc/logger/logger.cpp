@@ -90,10 +90,10 @@ void logger_step()
 	//RAW is running as fast as it can!
 	if (config.logger.format != LOGGER_RAW && config.logger.format != LOGGER_AERO)
 	{
-		if (fc.gps_data.new_sample)
+		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_LOGGER)
 		{
 			logger_next = task_get_ms_tick() + 1000;
-			fc.gps_data.new_sample = false;
+			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_LOGGER;
 		}
 	}
 
