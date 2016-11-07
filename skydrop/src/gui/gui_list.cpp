@@ -4,7 +4,7 @@
 gui_list_gen * gui_list_gen_f = NULL;
 gui_list_act * gui_list_act_f = NULL;
 
-uint8_t gui_list_size = 0;
+uint16_t gui_list_size = 0;
 uint8_t gui_list_back = 0;
 int16_t gui_list_y_offset = 0;
 uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];
@@ -24,7 +24,7 @@ void gui_list_draw()
 	uint8_t t_h = disp.GetTextHeight();
 
 	int16_t y = gui_list_y_offset;
-	uint8_t height;
+	int8_t height;
 	int16_t total_height = 0;
 	uint8_t sub_height;
 
@@ -41,7 +41,7 @@ void gui_list_draw()
 	else
 		gui_list_middle_hold = task_get_ms_tick();
 
-	for (uint8_t i = 0; i < gui_list_size; i++)
+	for (uint16_t i = 0; i < gui_list_size; i++)
 	{
 		height = 1 + t_h;
 
