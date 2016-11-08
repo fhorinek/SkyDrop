@@ -16,13 +16,19 @@
 #include "conf.h"
 #include "fake_data.h"
 
+#include "wind.h"
+
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)
-#define FC_MPS_TO_100FPM		(1.96850394)  	//100 feat per min (WTF?)
+#define FC_MPS_TO_100FPM		(1.96850394)  	//100 feet per min (WTF?)
 
 #define FC_KNOTS_TO_KPH		(1.852)				//Kilometers per hour
 #define FC_KNOTS_TO_MPH		(1.15077945)		//Miles per hour
-#define FC_KNOTS_TO_MPS		(0.51444444444)		//Meters peR seconds
+#define FC_KNOTS_TO_MPS		(0.51444444444)		//Meters per seconds
+#define FC_MPS_TO_KPH		(0.27777777778)		//Kilometers per hour
+#define FC_MPS_TO_MPH		(2.23693629)		//Miles per hour
+#define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
+
 
 #define ALT_MODE_MASK	0b11000000
 
@@ -58,10 +64,13 @@ struct flight_stats_t
 	int16_t max_sink;	//in cm
 };
 
+#define FC_GPS_NEW_SAMPLE_LOGGER		0b00000001
+#define FC_GPS_NEW_SAMPLE_WIND			0b00000010
+
 struct gps_data_t
 {
 	bool valid;
-	bool new_sample;
+	uint8_t new_sample;
 
 	char cache_igc_latitude[9];
 	char cache_igc_longtitude[10];
@@ -155,6 +164,8 @@ struct flight_data_t
 	vector_float_t acc_f;
 	vector_float_t gyro_f;
 
+	// wind calculation
+	wind_calc_t wind;
 };
 
 void fc_init();

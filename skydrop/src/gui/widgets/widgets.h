@@ -107,7 +107,12 @@ extern float widget_menu_fvalue1;
 #define WIDGET_CTRL_WLIFT		24
 #include "ctrl.h"
 
-#define NUMBER_OF_WIDGETS		25
+#define WIDGET_WIND_SPD			25
+#define WIDGET_WIND_DIR			26
+#define WIDGET_WIND_DIR_ARR		27
+#include "wind.h"
+
+#define NUMBER_OF_WIDGETS		28
 
 
 void widgets_draw(uint8_t page);

@@ -54,6 +54,7 @@ void fc_init()
 	audio_init();
 	logger_init();
 	protocol_init();
+	wind_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -443,6 +444,8 @@ void fc_step()
 	protocol_step();
 
 	logger_step();
+
+	wind_step();
 
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)

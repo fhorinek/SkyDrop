@@ -11,7 +11,7 @@ void lcd_display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void lcd_display::GotoXY(uint8_t x, uint8_t y)
+void lcd_display::GotoXY(uint8_t x, uint16_t y)
 {
 	text_x = x;
 	text_y = y;
@@ -301,9 +301,9 @@ void lcd_display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t c
  *
  * /param val -
  */
-void lcd_display::PutPixel(uint8_t x ,uint8_t  y ,uint8_t color)
+void lcd_display::PutPixel(uint8_t x ,uint16_t  y ,uint8_t color)
 {
-	if (x >= lcd_width || y >= lcd_height)
+	if (x >= lcd_width || y >= lcd_height )
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);

@@ -29,7 +29,7 @@ private:
 	float sin_table[91];
 
 	uint8_t text_x;
-	uint8_t text_y;
+	uint16_t text_y;
 
 	const uint8_t * font_data;
 	uint8_t font_spacing;
@@ -54,7 +54,7 @@ public:
 	void SetFlip(bool flip);
 
 	void ClearBuffer();
-	void PutPixel(uint8_t x ,uint8_t  y ,uint8_t color);
+	void PutPixel(uint8_t x ,uint16_t  y ,uint8_t color);
 	void DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t color);
 	void DrawCircle(uint8_t cx,uint8_t cy,uint8_t radius,uint8_t color);
 	void DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color,uint8_t fill);
@@ -64,7 +64,7 @@ public:
 	void Write(uint8_t ascii);
 	void SetRowCol(unsigned char row,unsigned char col);
 	void Draw();
-	void GotoXY(uint8_t x, uint8_t y);
+	void GotoXY(uint8_t x, uint16_t y);
 	void InvertPixel(uint8_t x ,uint8_t  y);
 	void Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2);
 	void LoadFont(const uint8_t * font);
