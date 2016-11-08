@@ -185,7 +185,7 @@ void audio_vario_step(float vario)
 			int16_t beep_freq = get_near(config.audio_profile.lift / 100.0, config.audio_profile.freq);
 			beep_freq -= config.audio_profile.weak_lift_freq;
 
-			freq = config.audio_profile.weak_lift_freq + (beep_freq * (ivario - buzz_thold)) / config.vario.weak_lift;
+			freq = config.audio_profile.weak_lift_freq + ((int32_t)beep_freq * (int32_t)(ivario - buzz_thold)) / (int32_t)config.vario.weak_lift;
 
 			if (audio_vario_freq != 0)
 				audio_vario_freq += ((float)freq - audio_vario_freq) / AUDIO_LOW_PASS;

@@ -12,12 +12,47 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_accx,
 		w_time, w_date, w_ftime,
 		w_temperature,
-		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow,
+		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow, w_gcom,
 		w_battery,
 		w_glide_ratio,
 		w_ctrl_audio, w_ctrl_wlift,
 		w_wspd, w_wdir, w_wdir_arrow
 };
+
+const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
+{
+	WIDGET_VARIO_BAR,
+	WIDGET_VARIO,
+	WIDGET_AVG_VARIO,
+	WIDGET_VARIO_HISTORY,
+	WIDGET_CTRL_WLIFT,
+	WIDGET_CTRL_AUDIO,
+	WIDGET_ALT1,
+	WIDGET_ALT2,
+	WIDGET_ALT3,
+	WIDGET_ALT4,
+	WIDGET_ALT5,
+	WIDGET_GROUND_SPD,
+	WIDGET_GLIDE_RATIO,
+	WIDGET_GHEADING,
+	WIDGET_GHEADING_ARROW,
+	WIDGET_GCOMPASS,
+	WIDGET_POSITION,
+	WIDGET_FTIME,
+	WIDGET_TIME,
+	WIDGET_WIND_DIR,
+	WIDGET_WIND_DIR_ARROW,
+	WIDGET_WIND_SPD,
+	WIDGET_DATE,
+	WIDGET_BATTERY,
+	WIDGET_TEMPERATURE,
+	WIDGET_EMPTY
+};
+
+uint8_t widget_sorted_get_index(uint8_t pos)
+{
+	return pgm_read_byte(&widget_sorted[pos]);
+}
 
 uint8_t widget_label_P(const char * label, uint8_t x, uint8_t y)
 {
@@ -213,3 +248,31 @@ void widgets_draw(uint8_t page)
 	}
 }
 
+void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	uint8_t s = min(w, h);
+	uint8_t mx = x + w / 2;
+	uint8_t my = y + h / 2;
+	float fsin = disp.get_sin(angle);
+	float fcos = disp.get_cos(angle);
+
+	uint8_t x1 = mx + fsin * s / 3;
+	uint8_t y1 = my + fcos * s / 3;
+	uint8_t x2 = mx - fsin * s / 5;
+	uint8_t y2 = my - fcos * s / 5;
+
+	fsin = disp.get_sin(angle + 25);
+	fcos = disp.get_cos(angle + 25);
+	uint8_t x3 = mx - fsin * s / 3;
+	uint8_t y3 = my - fcos * s / 3;
+
+	fsin = disp.get_sin(angle + 335);
+	fcos = disp.get_cos(angle + 335);
+	uint8_t x4 = mx - fsin * s / 3;
+	uint8_t y4 = my - fcos * s / 3;
+
+	disp.DrawLine(x1, y1, x3, y3, 1);
+	disp.DrawLine(x2, y2, x3, y3, 1);
+	disp.DrawLine(x2, y2, x4, y4, 1);
+	disp.DrawLine(x1, y1, x4, y4, 1);
+}

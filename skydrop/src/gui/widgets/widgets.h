@@ -95,25 +95,29 @@ extern float widget_menu_fvalue1;
 #define WIDGET_GROUND_SPD		18
 #define WIDGET_POSITION			19
 #define WIDGET_GHEADING_ARROW	20
+#define WIDGET_GCOMPASS			21
 #include "gps.h"
 
-#define WIDGET_BATTERY			21
+#define WIDGET_BATTERY			22
 #include "battery.h"
 
-#define WIDGET_GLIDE_RATIO		22
+#define WIDGET_GLIDE_RATIO		23
 #include "flight.h"
 
-#define WIDGET_CTRL_AUDIO		23
-#define WIDGET_CTRL_WLIFT		24
+#define WIDGET_CTRL_AUDIO		24
+#define WIDGET_CTRL_WLIFT		25
 #include "ctrl.h"
 
-#define WIDGET_WIND_SPD			25
-#define WIDGET_WIND_DIR			26
-#define WIDGET_WIND_DIR_ARR		27
+#define WIDGET_WIND_SPD			26
+#define WIDGET_WIND_DIR			27
+#define WIDGET_WIND_DIR_ARROW	28
 #include "wind.h"
 
-#define NUMBER_OF_WIDGETS		28
+#define NUMBER_OF_WIDGETS		29
 
+#define NUMBER_OF_SORTED_WIDGETS	27
+extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
+uint8_t widget_sorted_get_index(uint8_t pos);
 
 void widgets_draw(uint8_t page);
 
@@ -125,6 +129,8 @@ void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_
 
 void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+
+void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 uint8_t layout_get_number_of_widgets(uint8_t type);
 void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t * y, uint8_t * w, uint8_t * h);

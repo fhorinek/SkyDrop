@@ -340,7 +340,9 @@ void wind_new_gps_fix()  //calculte dX,dY from gps position, save to kBuff, calc
         }
 
         fc.wind.speed = sqrt( pow( fc.wind.wind_coords.X, 2) + pow( fc.wind.wind_coords.Y, 2)) * M_PI / 180 * 6378000 / 10000000;
-        fc.wind.direction =  my_atan2(fc.wind.wind_coords.X, fc.wind.wind_coords.Y);
+        fc.wind.direction =  my_atan2(fc.wind.wind_coords.X, fc.wind.wind_coords.Y) + 180.0;
+        if (fc.wind.direction > 360)
+        	fc.wind.direction -= 360;
 
         #ifdef wind_debug_enable
         float spd_act = sqrt( wind_calcX * wind_calcX + wind_calcY * wind_calcY ) * M_PI / 180 * 6378000;

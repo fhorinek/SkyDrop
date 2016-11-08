@@ -72,38 +72,13 @@ void widget_gpos_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 void widget_ghdg_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("GHdgA"), x, y);
+	uint8_t lh = widget_label_P(PSTR("GHdg"), x, y);
 
 	y += lh / 2;
 
 	if (fc.gps_data.valid)
 	{
-		uint8_t s = min(w, h);
-		uint8_t mx = x + w / 2;
-		uint8_t my = y + h / 2;
-		float fsin = disp.get_sin(fc.gps_data.heading);
-		float fcos = disp.get_cos(fc.gps_data.heading);
-
-		uint8_t x1 = mx + fsin * s / 3;
-		uint8_t y1 = my + fcos * s / 3;
-		uint8_t x2 = mx - fsin * s / 5;
-		uint8_t y2 = my - fcos * s / 5;
-
-		fsin = disp.get_sin(fc.gps_data.heading + 25);
-		fcos = disp.get_cos(fc.gps_data.heading + 25);
-		uint8_t x3 = mx - fsin * s / 3;
-		uint8_t y3 = my - fcos * s / 3;
-
-		fsin = disp.get_sin(fc.gps_data.heading + 335);
-		fcos = disp.get_cos(fc.gps_data.heading + 335);
-		uint8_t x4 = mx - fsin * s / 3;
-		uint8_t y4 = my - fcos * s / 3;
-
-
-		disp.DrawLine(x1, y1, x3, y3, 1);
-		disp.DrawLine(x2, y2, x3, y3, 1);
-		disp.DrawLine(x2, y2, x4, y4, 1);
-		disp.DrawLine(x1, y1, x4, y4, 1);
+		widget_arrow(fc.gps_data.heading, x, y, w, h);
 	}
 	else
 	{
@@ -114,8 +89,30 @@ void widget_ghdg_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 }
 
-register_widget1(w_ghdg, "GPS Heading", widget_ghdg_draw);
-register_widget1(w_ghdg_arrow, "GPS HDG Arrow", widget_ghdg_arrow_draw);
-register_widget1(w_gspd, "Ground Speed", widget_gspd_draw);
+void widget_gcompass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(PSTR("GCom"), x, y);
+
+	y += lh / 2;
+
+	if (fc.gps_data.valid)
+	{
+		int16_t compass = 360 - fc.gps_data.heading;
+
+		widget_arrow(compass, x, y, w, h);
+	}
+	else
+	{
+		char tmp[5];
+		sprintf_P(tmp, PSTR("---"));
+		widget_value_int(tmp, x, y + lh, w, h - lh);
+	}
+
+}
+
+register_widget1(w_ghdg, "GPS heading", widget_ghdg_draw);
+register_widget1(w_ghdg_arrow, "GPS HDG arrow", widget_ghdg_arrow_draw);
+register_widget1(w_gspd, "Ground speed", widget_gspd_draw);
 register_widget1(w_gpos, "GPS position", widget_gpos_draw);
+register_widget1(w_gcom, "GPS compass ", widget_gcompass_draw);
 
