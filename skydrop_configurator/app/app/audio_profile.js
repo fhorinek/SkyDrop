@@ -278,5 +278,112 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
         audio.play(); 
     };
 	
+    $scope.save_to_file = function()
+    {
+    	var audio_data = {};
+    	
+    	audio_data.system = {};
+    	audio_data.system["build"] = memory.build_number;
+    	audio_data.system["version"] = 0;
+    	audio_data.system["mode"] = "array";
+    	audio_data.system["min"] = -10;
+    	audio_data.system["max"] = 10;
+    	audio_data.system["step"] = 0.5;
+    	audio_data.system["count"] = 41;
+    	
+    	audio_data.freq = {};
+    	audio_data.length = {};
+    	audio_data.pause = {};
+    	
+    	for (var i=0; i < 41; i++)
+    	{
+    		var label = ((i - 20) / 2) + " m/s";
+    		
+    		audio_data.freq[label] = $scope.list["cfg_audio_profile_freq_" + i].value;
+    		audio_data.length[label] = $scope.list["cfg_audio_profile_length_" + i].value;
+    		audio_data.pause[label] = $scope.list["cfg_audio_profile_pause_" + i].value;
+    	}
+    	
+    	var json_data = JSON.stringify(audio_data);
+    	
+    	var blob = new Blob([json_data], {type: "text/json"});
+    	saveAs(blob, "audioprofile.json");
+    }
+    
+    $scope.load_from_file = function()
+    {
+    	$scope.file_selector.click();
+    }
+
+    $scope.read_file = function(files){
+    	var file = files[0];
+    	
+    	if (files.length != 1 || (file.name.slice(-5) != ".json"))
+    	{
+    		alert("Please select correct audio profile file (.json).");
+    		$scope.file_selector.val(null);
+    		return;
+    	}
+    	
+    	var reader = new FileReader();
+    	reader.onload = function(e) 
+    	{
+    	    var contents = e.target.result;
+    	    $scope.load_audio_json(contents);
+    	    $scope.file_selector.val(null);
+    	};
+    	  
+    	reader.readAsText(file);
+    };    
+    
+    $scope.load_audio_json = function(data)
+    {
+    	var json_data = JSON.parse(data);
+    	var pass = true;
+    	
+    	if (json_data.system == undefined)
+    		pass = false;
+    	if (json_data.system.version == undefined)
+    		pass = false;
+    	
+    	if (pass == false)
+		{
+    		alert("This file is not valid audio profile!");
+    		return;
+		}
+    	
+    	if (json_data.system.version == 0)
+    	{
+    		var tmp_data = [];
+    		
+    		try
+    		{
+	        	for (var i=0; i < 41; i++)
+	        	{
+	        		var label = ((i - 20) / 2) + " m/s";
+	        		
+	        		tmp_data["cfg_audio_profile_freq_" + i] = json_data.freq[label];
+	        		tmp_data["cfg_audio_profile_length_" + i] = json_data.length[label];
+	        		tmp_data["cfg_audio_profile_pause_" + i] = json_data.pause[label];
+	        	}    
+    		}
+    		catch (e)
+    		{
+    			alert("Unexpected error during load: " + e);
+    			pass = false;
+    		}
+    		
+    		if (pass)
+    		{
+	    		for (var key in tmp_data)
+	    			$scope.list[key].value = tmp_data[key];
+	    		
+	    		alert("Audioprofile loaded sucessfully!");
+	    		$scope.refresh();
+    		}
+    	}
+    }
+    
+    $scope.file_selector = angular.element("#audio-profile-file-selector");
 }]);
 
