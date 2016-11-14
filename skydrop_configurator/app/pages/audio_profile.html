@@ -34,6 +34,12 @@
         </div>
     </div>
 
+	<div class="hidden">
+		<form name="file-form">
+			<input id="audio-profile-file-selector" onchange="angular.element(this).scope().read_file(this.files)" type="file" />
+		</form>
+	</div>   
+
 
     <ctrl-tabs>
         <ctrl-tab name="Treshold_settings">
@@ -49,7 +55,10 @@
             <ctrl item="list['cfg_gui_vario_mute']"></ctrl>
             <ctrl item="list['cfg_gui_silent']"></ctrl>
         </ctrl-tab>
-        
+        <ctrl-tab name="Load_and_store">
+            <button type="button" class="btn btn-default btn-sm" ng-click="save_to_file()">Store profile as file</button>
+            <button type="button" class="btn btn-default btn-sm" ng-click="load_from_file()">Load profile from file</button>
+        </ctrl-tab>        
     </ctrl-tabs>
 
 </div>
