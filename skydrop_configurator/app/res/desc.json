@@ -711,21 +711,21 @@
         {
             "type": "arrow",
             "name": "Wind direction arrow",
-            "desc": "Arrow showing actual GPS heading", 
+            "desc": "Arrow showing actual wind direction, relative to GPS heading", 
             "label": "WDir" 
         },
-        "WIDGET_GCOMPASS_ARROW": 
+        "WIDGET_GCOMPASS": 
         {
             "type": "arrow",
             "name": "GPS compass arrow",
-            "desc": "Arrow showing actual GPS heading", 
+            "desc": "Arrow showing north based on GPS, relative to GPS heading", 
             "label": "GCom" 
         },
         "WIDGET_WIND_DIR":
         {
             "type": "value",
             "name": "Wind direction",
-            "desc": "Direction of wind source (0 = N, 90 = E, 180 = S, 270 = W)", 
+            "desc": "Absolute direction of wind source (0 = N, 90 = E, 180 = S, 270 = W)", 
             "label": "WDir", 
             "value": "20"
         },

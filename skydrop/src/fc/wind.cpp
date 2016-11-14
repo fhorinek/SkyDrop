@@ -338,8 +338,8 @@ void wind_new_gps_fix()  //calculte dX,dY from gps position, save to kBuff, calc
         	fc.wind.wind_coords.X = (fc.wind.wind_coords.X * float(fc.wind.avg_weight) - fc.wind.wind_coords.X + wind_calcX) / float(fc.wind.avg_weight);
           	fc.wind.wind_coords.Y = (fc.wind.wind_coords.Y * float(fc.wind.avg_weight) - fc.wind.wind_coords.Y + wind_calcY) / float(fc.wind.avg_weight);
         }
-
-        fc.wind.speed = sqrt( pow( fc.wind.wind_coords.X, 2) + pow( fc.wind.wind_coords.Y, 2)) * M_PI / 180 * 6378000 / 10000000;
+        																					// * M_PI / 180 * 6378000 / 10000000
+        fc.wind.speed = sqrt( pow( fc.wind.wind_coords.X, 2) + pow( fc.wind.wind_coords.Y, 2)) / 89.99335 ;
         fc.wind.direction =  my_atan2(fc.wind.wind_coords.X, fc.wind.wind_coords.Y) + 180.0;
         if (fc.wind.direction > 360)
         	fc.wind.direction -= 360;
