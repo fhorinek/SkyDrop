@@ -303,7 +303,7 @@ void bt_irqh(uint8_t type, uint8_t * buf)
 	}
 }
 
-bool bt_selftest()
+bool bt_ready()
 {
 	return (bt_module_state == BT_MOD_STATE_OK);
 }

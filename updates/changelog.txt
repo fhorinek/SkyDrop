@@ -1,3 +1,9 @@
+Build 3248 - 14. 11. 2016
+========================================================
+FIX:
+ * Wind speed indication underflow
+ * blue LED and the „B“ on the display are only flashing if „BT_MOD_STATE_OK“ is OK #227
+
 Build 3246 - 14. 11. 2016
 ========================================================
 FIX:

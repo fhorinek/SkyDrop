@@ -563,7 +563,7 @@ void gui_statusbar()
 	}
 
 	//BT indicator
-	if (config.connectivity.use_bt)
+	if (bt_ready())
 	{
 		char tmp[3];
 		disp.LoadFont(F_TEXT_S);

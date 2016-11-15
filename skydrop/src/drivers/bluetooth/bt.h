@@ -39,7 +39,7 @@ void bt_send(char * str);
 void bt_send(uint16_t len, uint8_t * data);
 void bt_irqh(uint8_t type, uint8_t * buf);
 
-bool bt_selftest();
+bool bt_ready();
 uint8_t bt_get_module_type();
 
 extern RingBuffer bt_output;
