@@ -54,7 +54,7 @@ ISR(LED_TIMER1_OVF)
 			led_task_state = LED_TASK_BT_NC;
 
 		case(LED_TASK_BT_NC):
-			if (config.connectivity.use_bt && !bt_device_active())
+			if (bt_ready() && !bt_device_active())
 			{
 				led_task_cnt = LED_NOTIFY_DURATION;
 				led_set(0, 0xFF, 0xFF / 2);
@@ -63,7 +63,7 @@ ISR(LED_TIMER1_OVF)
 			led_task_state = LED_TASK_BT_OK;
 
 		case(LED_TASK_BT_OK):
-			if (config.connectivity.use_bt && bt_device_active())
+			if (bt_ready() && bt_device_active())
 			{
 				led_task_cnt = LED_NOTIFY_DURATION;
 				led_set(0, 0, 0xFF);

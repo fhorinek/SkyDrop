@@ -245,6 +245,5 @@ void cfg_reset_factory_test()
 void cfg_load()
 {
 	eeprom_busy_wait();
-
 	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));
 }

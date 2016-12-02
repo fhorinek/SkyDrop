@@ -2,7 +2,7 @@
 
 void widget_wdir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("Wdir"), x, y);
+	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
 
 	char tmp[5];
 	if (fc.wind.valid)
@@ -16,7 +16,7 @@ void widget_wdir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 void widget_wspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("Wspd"), x, y);
+	uint8_t lh = widget_label_P(PSTR("WSpd"), x, y);
 
 	char tmp[5];
 	if (fc.wind.valid)
@@ -53,44 +53,17 @@ void widget_wspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("WdirA"), x, y);
+	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
 
 	y += lh / 2;
 
 	if (fc.wind.valid)
 	{
-		float relative_direction = fc.wind.direction -fc.gps_data.heading;
+		int16_t relative_direction = fc.wind.direction - fc.gps_data.heading;
 		if (relative_direction < 0)
-		{
-			relative_direction += 360.0;
-		}
+			relative_direction += 360;
 
-		uint8_t s = min(w, h);
-		uint8_t mx = x + w / 2;
-		uint8_t my = y + h / 2;
-		float fsin = disp.get_sin(relative_direction);
-		float fcos = disp.get_cos(relative_direction);
-
-		uint8_t x1 = mx + fsin * s / 3;
-		uint8_t y1 = my + fcos * s / 3;
-		uint8_t x2 = mx - fsin * s / 5;
-		uint8_t y2 = my - fcos * s / 5;
-
-		fsin = disp.get_sin(relative_direction + 25);
-		fcos = disp.get_cos(relative_direction + 25);
-		uint8_t x3 = mx - fsin * s / 3;
-		uint8_t y3 = my - fcos * s / 3;
-
-		fsin = disp.get_sin(relative_direction + 335);
-		fcos = disp.get_cos(relative_direction + 335);
-		uint8_t x4 = mx - fsin * s / 3;
-		uint8_t y4 = my - fcos * s / 3;
-
-
-		disp.DrawLine(x1, y1, x3, y3, 1);
-		disp.DrawLine(x2, y2, x3, y3, 1);
-		disp.DrawLine(x2, y2, x4, y4, 1);
-		disp.DrawLine(x1, y1, x4, y4, 1);
+		widget_arrow(relative_direction, x, y, w, h);
 	}
 	else
 	{

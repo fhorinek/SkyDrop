@@ -25,7 +25,7 @@ void gui_factory_test_init()
 	led_notify_disable();
 
 	//We need to test gps and bt module
-	if (!bt_selftest())
+	if (!bt_ready())
 	{
 		DEBUG("Force enable BT\n");
 		bt_module_init();
@@ -193,7 +193,7 @@ void gui_factory_test_loop()
 		}
 	}
 
-	res = bt_selftest();
+	res = bt_ready();
 	if (!res) err = true;
 	if (res || blik)
 	{

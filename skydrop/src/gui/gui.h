@@ -93,8 +93,9 @@ void gui_statusbar();
 #define GUI_SET_AUDIO_MENU	25
 #define GUI_TEXT			26
 #define GUI_SET_ADVANCED	27
+#define GUI_SET_ACCEL		28
 
-#define NUMBER_OF_GUI_TASKS	28
+#define NUMBER_OF_GUI_TASKS	29
 
 #define GUI_LAST_TASK		0xFF
 

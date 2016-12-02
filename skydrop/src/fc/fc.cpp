@@ -14,6 +14,7 @@
 #include "logger/logger.h"
 
 #include "../gui/gui_dialog.h"
+#include "../gui/widgets/acc.h"
 
 volatile flight_data_t fc;
 
@@ -122,6 +123,9 @@ void fc_init()
 	lsm_cfg.magHiRes = true;
 
 	lsm_cfg.tempEnable = false;
+
+	//Acceleration calculation init
+	accel_calc_init();
 
 	//Gyro
 	l3gd20_settings l3g_cfg;
@@ -295,6 +299,9 @@ ISR(FC_MEAS_TIMER_CMPB)
 	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
 
+	 fc.acc_tot = accel_calc_total();	//calculate (live) total acceleration
+	 fc.acc_tot_gui_filtered = gui_accel_filter(fc.acc_tot);  //filter total acceleration for widget
+
 	BT_ALLOW_TX
 }
 
@@ -446,6 +453,8 @@ void fc_step()
 	logger_step();
 
 	wind_step();
+
+	//accel_step();
 
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)

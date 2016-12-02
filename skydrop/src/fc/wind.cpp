@@ -398,6 +398,7 @@ void wind_step()
 		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_WIND;
 	}
 }
+
 #ifdef wind_debug_enable
 void debug_kBuffer(int numberOfPoints)
 {

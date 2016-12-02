@@ -4,7 +4,7 @@
 gui_list_gen * gui_list_gen_f = NULL;
 gui_list_act * gui_list_act_f = NULL;
 
-uint16_t gui_list_size = 0;
+uint8_t gui_list_size = 0;
 uint8_t gui_list_back = 0;
 int16_t gui_list_y_offset = 0;
 uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];

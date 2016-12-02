@@ -54,6 +54,13 @@ struct vector_i16_t
 	int16_t z;
 };
 
+struct vector_i32_t
+{
+	int32_t x;
+	int32_t y;
+	int32_t z;
+};
+
 struct vector_float_t
 {
 	float x;

@@ -10,7 +10,6 @@
 
 #include "../common.h"
 #include "../debug.h"
-extern Timer debug_timer;
 
 
 #define	wind_kBuff_size	64
