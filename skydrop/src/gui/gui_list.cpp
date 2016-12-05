@@ -41,7 +41,7 @@ void gui_list_draw()
 	else
 		gui_list_middle_hold = task_get_ms_tick();
 
-	for (uint16_t i = 0; i < gui_list_size; i++)
+	for (uint8_t i = 0; i < gui_list_size; i++)
 	{
 		height = 1 + t_h;
 
