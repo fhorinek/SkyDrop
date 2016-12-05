@@ -456,14 +456,18 @@
                 ["WIDGET_DATE", "Actual date"],
                 ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TEMPERATURE", "Temperature and humidity"],
-                ["WIDGET_GHEADING", "GPS Heading"],
+                ["WIDGET_GHEADING", "GPS heading"],
                 ["WIDGET_GROUND_SPD", "Ground speed"],
                 ["WIDGET_POSITION", "GPS position"],
                 ["WIDGET_GHEADING_ARROW", "GPS Heading arrow"],
                 ["WIDGET_BATTERY", "Battery status"],
-                ["WIDGET_GLIDE_RATIO", "Glide Ratio"],
+                ["WIDGET_GLIDE_RATIO", "Glide ratio"],
                 ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
-                ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"]
+                ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"],
+                ["WIDGET_WIND_DIR", "Wind direction"],
+                ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
+                ["WIDGET_WIND_SPD", "Wind speed"],
+                ["WIDGET_GCOMPASS", "GPS compass"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -572,7 +576,7 @@
         	"type": "arrow",
 			"name": "GPS heading arrow",
 			"desc": "Arrow showing actual GPS heading", 
-			"label": "GHdgA" 
+			"label": "GHdg" 
         },
         "WIDGET_GHEADING":
         {
@@ -702,6 +706,36 @@
 			"desc": "Indication and control widget for weaklift detection", 
 			"label": "", 
 			"value": "weak"
-        }                
+        },
+        "WIDGET_WIND_DIR_ARROW": 
+        {
+            "type": "arrow",
+            "name": "Wind direction arrow",
+            "desc": "Arrow showing actual wind direction, relative to GPS heading", 
+            "label": "WDir" 
+        },
+        "WIDGET_GCOMPASS": 
+        {
+            "type": "arrow",
+            "name": "GPS compass arrow",
+            "desc": "Arrow showing north based on GPS, relative to GPS heading", 
+            "label": "GCom" 
+        },
+        "WIDGET_WIND_DIR":
+        {
+            "type": "value",
+            "name": "Wind direction",
+            "desc": "Absolute direction of wind source (0 = N, 90 = E, 180 = S, 270 = W)", 
+            "label": "WDir", 
+            "value": "20"
+        },
+        "WIDGET_WIND_SPD":
+        {
+            "type": "value",
+            "name": "Wind speed",
+            "desc": "Calculated wind speed", 
+            "label": "WSpd", 
+            "value": "5"
+        }        
     }
 }            

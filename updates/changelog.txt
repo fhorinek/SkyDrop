@@ -1,3 +1,29 @@
+Build 3248 - 14. 11. 2016
+========================================================
+FIX:
+ * Wind speed indication underflow
+ * blue LED and the „B“ on the display are only flashing if „BT_MOD_STATE_OK“ is OK #227
+
+Build 3246 - 14. 11. 2016
+========================================================
+FIX:
+ * Wind speed indication
+ * GPS compass arrow in configurator
+ 
+ADDED:
+ * Store/Load audio profile in configurator
+
+Build 3244 - 8. 11. 2016
+========================================================
+FIX:
+ * weak lift is not working correctly on higher settings #226
+ 
+ADDED:
+ * GPS compass widget
+ * Wind estimation during circling (beta)
+ * Wind speed, direction and direction arrow relative to heading widgets
+ 
+
 Build 3204 - 3. 11. 2016
 ========================================================
 FIX:
