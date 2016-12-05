@@ -68,11 +68,6 @@ struct cfg_vario
 	uint8_t weak_lift;
 };
 
-struct cfg_accelerometer
-{
-	float convert_ratio;
-};
-
 struct cfg_altimeter
 {
 	uint8_t flags;
@@ -225,7 +220,6 @@ struct cfg_t
 	cfg_autostart autostart;
 	cfg_logger logger;
 	cfg_connectivity connectivity;
-	cfg_accelerometer accelerometer;
 };
 
 

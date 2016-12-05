@@ -46,7 +46,7 @@ struct accel_calib_t
 };
 
 
-//void gui_accelerometer_calib(void);
+
 void gui_accelerometer_calib_init(void);
 void gui_accelerometer_calib_stop(void);
 void gui_accelerometer_calib_loop(void);

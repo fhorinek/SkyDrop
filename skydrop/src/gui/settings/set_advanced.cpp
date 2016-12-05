@@ -35,15 +35,12 @@ void gui_set_advanced_format_cb(uint8_t ret)
 	gui_switch_task(GUI_SET_ADVANCED);
 }
 
-void gui_set_advanced_accelerometer_calibration(uint8_t ret)
+/*
+void gui_set_advanced_calibration(uint8_t ret)
 {
-	if (ret == GUI_DIALOG_YES)
-	{
-		gui_switch_task(GUI_SET_ACCEL);
-	}
-	gui_switch_task(GUI_SET_ADVANCED);
-
+		gui_switch_task(GUI_SET_CALIB);
 }
+*/
 
 void gui_set_advanced_action(uint8_t index)
 {
@@ -75,11 +72,7 @@ void gui_set_advanced_action(uint8_t index)
 	break;
 
 	case(3):
-		gui_dialog_set_P(PSTR("Acceleration cal"), PSTR("Continue?"), GUI_STYLE_YESNO, gui_set_advanced_accelerometer_calibration);
-		//gui_switch_task(GUI_DIALOG);
-
-		gui_switch_task(GUI_SET_ACCEL);
-
+		gui_switch_task(GUI_SET_CALIB);
 	break;
 	}
 }
@@ -131,7 +124,7 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Accelerometer cal"));
+			sprintf_P(text, PSTR("Calibration"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

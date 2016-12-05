@@ -454,8 +454,6 @@ void fc_step()
 
 	wind_step();
 
-	//accel_step();
-
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 	{

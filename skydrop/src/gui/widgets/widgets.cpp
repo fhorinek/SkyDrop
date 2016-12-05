@@ -32,10 +32,6 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_ALT3,
 	WIDGET_ALT4,
 	WIDGET_ALT5,
-<<<<<<< HEAD
-	WIDGET_ACC_TOT,
-=======
->>>>>>> refs/heads/original
 	WIDGET_GROUND_SPD,
 	WIDGET_GLIDE_RATIO,
 	WIDGET_GHEADING,

@@ -201,7 +201,7 @@ void gui_accelerometer_calib_loop()
 	disp.LoadFont(F_TEXT_M);
 	uint8_t h_t = disp.GetTextHeight();
 
-	gui_dialog_P(PSTR("Accel calib"));
+	gui_dialog_P(PSTR("Accelerometer"));
 
 	char tmp[16];
 	//screen before calib calculation
@@ -370,10 +370,10 @@ void gui_accelerometer_calib_loop()
 void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff)
 {
 	if (*buff == BE_CLICK && type == B_MIDDLE)
-		gui_switch_task(GUI_SET_ADVANCED);
+		gui_switch_task(GUI_SET_CALIB);
 
 	if (*buff == BE_LONG && type == B_MIDDLE)
-		gui_switch_task(GUI_SET_ADVANCED);
+		gui_switch_task(GUI_SET_CALIB);
 
 	if (*buff == BE_CLICK && type == B_LEFT && gui_acc_calib.new_calib)
 	{
@@ -388,6 +388,6 @@ void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff)
 
 		accel_load_calibration(&gui_acc_calib.sens, &gui_acc_calib.bias);
 		//return to menu
-		gui_switch_task(GUI_SET_ADVANCED);
+		gui_switch_task(GUI_SET_CALIB);
 	}
 }

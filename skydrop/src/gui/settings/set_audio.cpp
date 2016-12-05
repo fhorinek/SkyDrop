@@ -29,7 +29,7 @@ void gui_set_audio_vario_vol_cb(float val)
 	gui_switch_task(GUI_SET_AUDIO);
 	eeprom_busy_wait();
 	uint8_t tmp = val;
-	//tmp = tmp;
+	tmp = tmp;
 	eeprom_update_byte(&config_ee.gui.vario_volume, tmp);
 	config.gui.vario_volume = tmp;
 }
