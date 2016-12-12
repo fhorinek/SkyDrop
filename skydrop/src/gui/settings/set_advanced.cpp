@@ -4,13 +4,14 @@
 #include "../gui_value.h"
 #include "../gui_dialog.h"
 #include "../gui_storage.h"
+#include "../gui_accel_calib.h"
 
 #include "../../fc/conf.h"
 #include "../../drivers/storage/storage.h"
 
 void gui_set_advanced_init()
 {
-	gui_list_set(gui_set_advanced_item, gui_set_advanced_action, 3, GUI_SET_SYSTEM);
+	gui_list_set(gui_set_advanced_item, gui_set_advanced_action, 4, GUI_SET_SYSTEM);
 }
 
 void gui_set_advanced_stop() {}
@@ -33,6 +34,13 @@ void gui_set_advanced_format_cb(uint8_t ret)
 	}
 	gui_switch_task(GUI_SET_ADVANCED);
 }
+
+/*
+void gui_set_advanced_calibration(uint8_t ret)
+{
+		gui_switch_task(GUI_SET_CALIB);
+}
+*/
 
 void gui_set_advanced_action(uint8_t index)
 {
@@ -61,6 +69,10 @@ void gui_set_advanced_action(uint8_t index)
 		}
 		gui_dialog_set_P(PSTR("Warning"), PSTR("This will erase\nall data from SD\ncard! Continue?"), GUI_STYLE_YESNO, gui_set_advanced_format_cb);
 		gui_switch_task(GUI_DIALOG);
+	break;
+
+	case(3):
+		gui_switch_task(GUI_SET_CALIB);
 	break;
 	}
 }
@@ -108,6 +120,11 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 
 		case (2):
 			sprintf_P(text, PSTR("Format SD"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (3):
+			sprintf_P(text, PSTR("Calibration"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

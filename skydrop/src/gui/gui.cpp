@@ -34,6 +34,9 @@
 #include "settings/set_menu_audio.h"
 #include "gui_text.h"
 #include "settings/set_advanced.h"
+#include "settings/set_calib.h"
+#include "gui_accel_calib.h"
+#include "gui_mag_calib.h"
 
 
 lcd_display disp;
@@ -51,7 +54,8 @@ void (* gui_init_array[])() =
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
-	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init};
+	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init, gui_set_calib_init,
+	gui_accelerometer_calib_init, gui_mag_calib_init };
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -60,7 +64,8 @@ void (* gui_stop_array[])() =
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
-	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop};
+	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
+	gui_accelerometer_calib_stop, gui_mag_calib_stop };
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -69,7 +74,8 @@ void (* gui_loop_array[])() =
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
-	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop};
+	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
+	gui_accelerometer_calib_loop, gui_mag_calib_loop };
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -78,7 +84,8 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
-	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh};
+	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
+	gui_accelerometer_calib_irqh, gui_mag_calib_irqh };
 
 #define GUI_ANIM_STEPS	20
 
@@ -365,6 +372,9 @@ void gui_loop()
 				&& gui_task != GUI_SET_VAL
 				&& gui_task != GUI_UPDATE
 				&& gui_task != GUI_TEXT
+				&& gui_task != GUI_SET_CALIB
+				&& gui_task != GUI_SET_CALIB_ACC
+				&& gui_task != GUI_SET_CALIB_MAG
 				)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)

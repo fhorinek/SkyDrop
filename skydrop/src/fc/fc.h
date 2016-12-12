@@ -18,6 +18,8 @@
 
 #include "wind.h"
 
+#include "acc.h"
+
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)
 #define FC_MPS_TO_100FPM		(1.96850394)  	//100 feet per min (WTF?)
@@ -143,7 +145,6 @@ struct flight_data_t
 
 	// --- CALC ---
 	float pressure;
-
 	float vario;
 
 	uint16_t vario_history_delay;
@@ -160,9 +161,9 @@ struct flight_data_t
 
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
-	vector_float_t mag_f;
-	vector_float_t acc_f;
-	vector_float_t gyro_f;
+	//ACCELEROMETER
+	float acc_tot;  //total acceleration (max +-16G)
+	float acc_tot_gui_filtered;  //total acceleration (max +-16G), + filtered, + peak detection, used by accel widget
 
 	// wind calculation
 	wind_calc_t wind;

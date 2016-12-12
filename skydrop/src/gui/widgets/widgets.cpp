@@ -9,7 +9,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_dummy, w_debug_etc, w_debug_imu,
 		w_vario, w_avg_vario, w_vario_bar, w_vario_history,
 		w_alt1, w_alt2, w_alt3, w_alt4, w_alt5,
-		w_accx,
+		w_acc_tot,
 		w_time, w_date, w_ftime,
 		w_temperature,
 		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow, w_gcom,

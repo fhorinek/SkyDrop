@@ -80,7 +80,7 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ALT5				11
 #include "altitude.h"
 
-#define WIDGET_ACCX				12
+#define WIDGET_ACC_TOT				12
 #include "acc.h"
 
 #define WIDGET_TIME				13
