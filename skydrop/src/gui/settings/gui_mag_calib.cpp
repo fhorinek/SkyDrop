@@ -39,15 +39,20 @@ int8_t gui_mag_calc_bar(int16_t value, int16_t min, int16_t max)
 		return int8_t(int(-BAR_MAX_LENGHT * (float(value) / float(min)) - 0.5));
 }
 
-void gui_mag_calib_get_extrem(int16_t in_value, int16_t * out_min_value, int16_t * out_max_value)
+int16_t gui_mag_calib_get_extrem(int16_t in_value, int16_t * out_min_value, int16_t * out_max_value)
 {
 	if(in_value > *out_max_value)
+	{
 		*out_max_value = in_value;
+		gui_mag_snd_update();
+	}
+
 	if(in_value < *out_min_value)
+	{
 		*out_min_value = in_value;
-	else
-		return;
-	gui_mag_snd_update();
+		gui_mag_snd_update();
+	}
+	return in_value;
 }
 
 void gui_mag_calib_init()
@@ -65,9 +70,9 @@ void gui_mag_calib_stop() {}
 void gui_mag_calib_loop()
 {
 	//get min, max values to each direction
-	gui_mag_calib_get_extrem( fc.mag_data_raw.x, &gui_mag_calib.samples.min.x, &gui_mag_calib.samples.max.x );
-	gui_mag_calib_get_extrem( fc.mag_data_raw.y, &gui_mag_calib.samples.min.y, &gui_mag_calib.samples.max.y );
-	gui_mag_calib_get_extrem( fc.mag_data_raw.z, &gui_mag_calib.samples.min.z, &gui_mag_calib.samples.max.z );
+	int16_t bar_x = gui_mag_calib_get_extrem( fc.mag_data_raw.x, &gui_mag_calib.samples.min.x, &gui_mag_calib.samples.max.x );
+	int16_t bar_y = gui_mag_calib_get_extrem( fc.mag_data_raw.y, &gui_mag_calib.samples.min.y, &gui_mag_calib.samples.max.y );
+	int16_t bar_z = gui_mag_calib_get_extrem( fc.mag_data_raw.z, &gui_mag_calib.samples.min.z, &gui_mag_calib.samples.max.z );
 
 	gui_dialog_P(PSTR("Magnetometer"));
 	disp.LoadFont(F_TEXT_M);
@@ -87,11 +92,11 @@ void gui_mag_calib_loop()
 
 	//draw value bars
 	int8_t value;
-	value = gui_mag_calc_bar(fc.mag_data_raw.x, gui_mag_calib.samples.min.x, gui_mag_calib.samples.max.x);
+	value = gui_mag_calc_bar(bar_x, gui_mag_calib.samples.min.x, gui_mag_calib.samples.max.x);
 	disp.DrawRectangle(BAR_CENTER_POS , GUI_DIALOG_TOP + 2 , BAR_CENTER_POS + value, GUI_DIALOG_TOP  + BAR_HEIGHT, 1, 1);
-	value = gui_mag_calc_bar(fc.mag_data_raw.y, gui_mag_calib.samples.min.y, gui_mag_calib.samples.max.y);
+	value = gui_mag_calc_bar(bar_y, gui_mag_calib.samples.min.y, gui_mag_calib.samples.max.y);
 	disp.DrawRectangle(BAR_CENTER_POS , GUI_DIALOG_TOP + 2 + h_t , BAR_CENTER_POS + value, GUI_DIALOG_TOP + h_t + BAR_HEIGHT, 1, 1);
-	value = gui_mag_calc_bar(fc.mag_data_raw.z, gui_mag_calib.samples.min.z, gui_mag_calib.samples.max.z);
+	value = gui_mag_calc_bar(bar_z, gui_mag_calib.samples.min.z, gui_mag_calib.samples.max.z);
 	disp.DrawRectangle(BAR_CENTER_POS , GUI_DIALOG_TOP + 2 + h_t + h_t , BAR_CENTER_POS + value, GUI_DIALOG_TOP + h_t + h_t + BAR_HEIGHT, 1, 1);
 
 	//float size = sqrt(fc.mag_data.x * fc.mag_data.x + fc.mag_data.y * fc.mag_data.y + fc.mag_data.z * fc.mag_data.z);

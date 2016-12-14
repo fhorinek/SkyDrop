@@ -42,12 +42,12 @@ void gui_set_calib_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_dialog_set_P(PSTR("Accelerometer"), PSTR("Line 1\nline 2\nline 3"), GUI_STYLE_OK, gui_set_calib_action_acc);
+		gui_dialog_set_P(PSTR("Place device on"), PSTR("each edge and\nwait for confirm.\nRefer to manual."), GUI_STYLE_OK | GUI_STYLE_NO_TITLE, gui_set_calib_action_acc);
 		gui_switch_task(GUI_DIALOG);
 	break;
 
 	case(1):
-		gui_dialog_set_P(PSTR("Magnetometer"), PSTR("Rotate device until\nit stops beeping,\nthen press save"), GUI_STYLE_OK, gui_set_calib_action_mag);
+		gui_dialog_set_P(PSTR("Rotate device"), PSTR("around each axis.\nRefer to manual."), GUI_STYLE_OK | GUI_STYLE_NO_TITLE, gui_set_calib_action_mag);
 		gui_switch_task(GUI_DIALOG);
 	break;
 	}

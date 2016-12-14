@@ -1,15 +1,15 @@
 #include "gui_dialog.h"
 
-char gui_dialog_title[16];
-char gui_dialog_msg_line1[20];
-char gui_dialog_msg_line2[20];
-char gui_dialog_msg_line3[20];
+char gui_dialog_msg_line0[21];
+char gui_dialog_msg_line1[21];
+char gui_dialog_msg_line2[21];
+char gui_dialog_msg_line3[21];
 uint8_t gui_dialog_style;
 uint8_cb * gui_dialog_cb;
 
 void gui_dialog_set_P(const char * title, const char * msg, uint8_t style, uint8_cb * cb)
 {
-	char tmp1[16];
+	char tmp1[21];
 	char tmp2[64];
 
 	strcpy_P(tmp1, title);
@@ -20,7 +20,7 @@ void gui_dialog_set_P(const char * title, const char * msg, uint8_t style, uint8
 
 void gui_dialog_set(char * title, char * msg, uint8_t style, uint8_cb * cb)
 {
-	strcpy(gui_dialog_title, title);
+	strcpy(gui_dialog_msg_line0, title);
 
 	gui_dialog_style = style;
 	gui_dialog_cb = cb;
@@ -56,11 +56,21 @@ void gui_dialog_stop() {}
 
 void gui_dialog_loop()
 {
-	gui_dialog(gui_dialog_title);
+	if (gui_dialog_style & GUI_STYLE_NO_TITLE)
+	{
+		//no title mode (GUI_STYLE_NO_TITLE is set)
+		disp.DrawRectangle(0, 0, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 2, 1, false);
+	}
+	else
+	{
+		//normal mode
+		gui_dialog(gui_dialog_msg_line0);
+	}
+
 	disp.LoadFont(F_TEXT_M);
 	uint8_t f_h = disp.GetTextHeight();
 
-	if (gui_dialog_style == GUI_STYLE_STATS)
+	if ((gui_dialog_style & GUI_STYLE_MASK) == GUI_STYLE_STATS)
 	{
 		//if new flight has begin exit the stat screen
 		if (fc.flight_state != FLIGHT_LAND)
@@ -108,20 +118,36 @@ void gui_dialog_loop()
 	}
 	else
 	{
-		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 0);
+		uint8_t top;
+
+		if (gui_dialog_style & GUI_STYLE_NO_TITLE)
+		{
+			//no title mode (GUI_STYLE_NO_TITLE is set)
+			top = 3;
+
+			disp.GotoXY(GUI_DIALOG_LEFT, top + f_h * 0);
+			fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line0);
+		}
+		else
+		{
+			//normal mode
+			top = GUI_DIALOG_TOP - f_h;
+		}
+
+		disp.GotoXY(GUI_DIALOG_LEFT, top + f_h * 1);
 		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line1);
 
-		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 1);
+		disp.GotoXY(GUI_DIALOG_LEFT, top + f_h * 2);
 		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line2);
 
-		disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + f_h * 2);
+		disp.GotoXY(GUI_DIALOG_LEFT, top + f_h * 3);
 		fprintf_P(lcd_out, PSTR("%s"), gui_dialog_msg_line3);
 	}
 
 	disp.LoadFont(F_TEXT_S);
 	f_h = disp.GetAHeight();
 
-	switch (gui_dialog_style)
+	switch (gui_dialog_style & GUI_STYLE_MASK)
 	{
 		case(GUI_STYLE_OK):
 		case(GUI_STYLE_STATS):
