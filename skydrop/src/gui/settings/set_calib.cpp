@@ -7,16 +7,15 @@
 
 #include "set_calib.h"
 #include "../gui_list.h"
+#include "../gui_dialog.h"
 
 
 void gui_set_calib_init()
 {
-	gui_list_set(gui_set_calib_item, gui_set_calib_action, 1, GUI_PAGES);
+	gui_list_set(gui_set_calib_item, gui_set_calib_action, 2, GUI_SET_ADVANCED);
 }
 
-void gui_set_calib_stop()
-{
-}
+void gui_set_calib_stop() {}
 
 void gui_set_calib_loop()
 {
@@ -28,18 +27,29 @@ void gui_set_calib_irqh(uint8_t type, uint8_t * buff)
 	gui_list_irqh(type, buff);
 }
 
+void gui_set_calib_action_acc(uint8_t ret)
+{
+	gui_switch_task(GUI_SET_CALIB_ACC);
+}
+
+void gui_set_calib_action_mag(uint8_t ret)
+{
+	gui_switch_task(GUI_SET_CALIB_MAG);
+}
+
 void gui_set_calib_action(uint8_t index)
 {
 	switch(index)
 	{
 	case(0):
-		gui_switch_task(GUI_SET_CALIB_ACC);
+		gui_dialog_set_P(PSTR("Accelerometer"), PSTR("Line 1\nline 2\nline 3"), GUI_STYLE_OK, gui_set_calib_action_acc);
+		gui_switch_task(GUI_DIALOG);
 	break;
 
 	case(1):
-		gui_switch_task(GUI_SET_CALIB_MAG);
+		gui_dialog_set_P(PSTR("Magnetometer"), PSTR("Rotate device until\nit stops beeping,\nthen press save"), GUI_STYLE_OK, gui_set_calib_action_mag);
+		gui_switch_task(GUI_DIALOG);
 	break;
-
 	}
 }
 
@@ -56,7 +66,6 @@ void gui_set_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 			sprintf_P(text, PSTR("Magnetometer"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
-
 	}
 }
 

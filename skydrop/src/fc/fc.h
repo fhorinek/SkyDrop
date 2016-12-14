@@ -19,6 +19,7 @@
 #include "wind.h"
 
 #include "acc.h"
+#include "mag.h"
 
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)
@@ -115,9 +116,9 @@ struct gps_data_t
 struct flight_data_t
 {
 	// --- RAW from sensors ---
-	vector_i16_t mag_data;
-	vector_i16_t acc_data;
-	vector_i16_t gyro_data;
+	vector_i16_t mag_data_raw;
+	vector_i16_t acc_data_raw;
+	vector_i16_t gyro_data_raw;
 
 	gps_data_t gps_data;
 
@@ -164,6 +165,9 @@ struct flight_data_t
 	//ACCELEROMETER
 	float acc_tot;  //total acceleration (max +-16G)
 	float acc_tot_gui_filtered;  //total acceleration (max +-16G), + filtered, + peak detection, used by accel widget
+
+	//MAGNETOMETER
+	vector_float_t mag_data;
 
 	// wind calculation
 	wind_calc_t wind;

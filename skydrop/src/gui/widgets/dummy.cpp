@@ -26,29 +26,29 @@ void widget_imu_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	disp.GotoXY(0, 12);
 	fprintf_P(lcd_out, PSTR("A"));
 	disp.GotoXY(8, 12);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data.x);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data_raw.x);
 	disp.GotoXY(30, 12);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data.y);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data_raw.y);
 	disp.GotoXY(52, 12);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data.z);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.acc_data_raw.z);
 
 	disp.GotoXY(0, 24);
 	fprintf_P(lcd_out, PSTR("M"));
 	disp.GotoXY(8, 24);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data.x);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data_raw.x);
 	disp.GotoXY(30, 24);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data.y);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data_raw.y);
 	disp.GotoXY(52, 24);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data.z);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.mag_data_raw.z);
 
 	disp.GotoXY(0, 36);
 	fprintf_P(lcd_out, PSTR("G"));
 	disp.GotoXY(8, 36);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data.x);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data_raw.x);
 	disp.GotoXY(30, 36);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data.y);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data_raw.y);
 	disp.GotoXY(52, 36);
-	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data.z);
+	fprintf_P(lcd_out, PSTR("%04d"), fc.gyro_data_raw.z);
 
 }
 

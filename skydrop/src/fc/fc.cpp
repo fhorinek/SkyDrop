@@ -126,6 +126,8 @@ void fc_init()
 
 	//Acceleration calculation init
 	accel_calc_init();
+	//Magnetic field calculation init
+	mag_calc_init();
 
 	//Gyro
 	l3gd20_settings l3g_cfg;
@@ -272,7 +274,7 @@ ISR(FC_MEAS_TIMER_CMPA)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadMag(&fc.mag_data.x, &fc.mag_data.y, &fc.mag_data.z);
+	lsm303d.ReadMag(&fc.mag_data_raw.x, &fc.mag_data_raw.y, &fc.mag_data_raw.z);
 	ms5611.ReadTemperature();
 
 	ms5611.StartPressure();
@@ -296,11 +298,14 @@ ISR(FC_MEAS_TIMER_CMPB)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
+	lsm303d.ReadAccStreamAvg(&fc.acc_data_raw.x, &fc.acc_data_raw.y, &fc.acc_data_raw.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
 
 	 fc.acc_tot = accel_calc_total();	//calculate (live) total acceleration
 	 fc.acc_tot_gui_filtered = gui_accel_filter(fc.acc_tot);  //filter total acceleration for widget
+
+	 mag_calc();
+
 
 	BT_ALLOW_TX
 }
@@ -312,7 +317,7 @@ ISR(FC_MEAS_TIMER_CMPC)
 {
 	BT_SUPRESS_TX
 
-	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
+	l3gd20.ReadGyroStreamAvg(&fc.gyro_data_raw.x, &fc.gyro_data_raw.y, &fc.gyro_data_raw.z, 7); //it take 1000us to transfer
 
 	if (fc.temp_cnt >= FC_TEMP_PERIOD)
 	{

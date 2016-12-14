@@ -30,7 +30,7 @@ void gui_set_layouts_pages_cb(float val)
 	eeprom_busy_wait();
 	eeprom_update_byte(&config_ee.gui.number_of_pages, tmp);
 
-	if (active_page >= tmp);
+	if (active_page >= tmp)
 		active_page = 0;
 
 	gui_switch_task(GUI_LAYOUTS);

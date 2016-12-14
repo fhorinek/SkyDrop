@@ -24,6 +24,7 @@ struct acc_data_t
 	float total_acc;
 	uint8_t hold_time;
 };
+
 void accel_save_calibration(vector_float_t, vector_float_t);
 void accel_load_calibration(vector_float_t * , vector_float_t * );
 void accel_calc_init(void);

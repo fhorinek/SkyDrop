@@ -43,9 +43,9 @@ void aero_step()
 
 	uint32_t g_value;
 
-	g_value =  (int32_t)fc.acc_data.x * (int32_t)fc.acc_data.x;
-	g_value += (int32_t)fc.acc_data.y * (int32_t)fc.acc_data.y;
-	g_value += (int32_t)fc.acc_data.z * (int32_t)fc.acc_data.z;
+	g_value =  (int32_t)fc.acc_data_raw.x * (int32_t)fc.acc_data_raw.x;
+	g_value += (int32_t)fc.acc_data_raw.y * (int32_t)fc.acc_data_raw.y;
+	g_value += (int32_t)fc.acc_data_raw.z * (int32_t)fc.acc_data_raw.z;
 
 //	DEBUG("aero_step\n");
 //	DEBUG(" diff %u\n", diff);

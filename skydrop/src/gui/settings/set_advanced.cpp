@@ -4,7 +4,7 @@
 #include "../gui_value.h"
 #include "../gui_dialog.h"
 #include "../gui_storage.h"
-#include "../gui_accel_calib.h"
+#include "gui_accel_calib.h"
 
 #include "../../fc/conf.h"
 #include "../../drivers/storage/storage.h"
@@ -34,13 +34,6 @@ void gui_set_advanced_format_cb(uint8_t ret)
 	}
 	gui_switch_task(GUI_SET_ADVANCED);
 }
-
-/*
-void gui_set_advanced_calibration(uint8_t ret)
-{
-		gui_switch_task(GUI_SET_CALIB);
-}
-*/
 
 void gui_set_advanced_action(uint8_t index)
 {

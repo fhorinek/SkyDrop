@@ -19,6 +19,7 @@ void accel_save_calibration(vector_float_t sens_vf, vector_float_t bias_vf)
 	eeprom_busy_wait();
 	eeprom_update_block(&bias, &config_ro.calibration.acc_bias, sizeof(config_ro.calibration.acc_bias));
 	eeprom_update_block(&sens, &config_ro.calibration.acc_sensitivity, sizeof(config_ro.calibration.acc_sensitivity));
+
 	//DEBUG("written float: bias %f %f %f sens %f %f %f\n", bias_vf.x, bias_vf.y, bias_vf.z, sens_vf.x, sens_vf.y, sens_vf.z);
 	//DEBUG("written int: bias %d %d %d sens %d %d %d\n", bias.x, bias.y, bias.z, sens.x, sens.y, sens.z);
 }
@@ -54,8 +55,8 @@ void accel_calc_init()
 
 float accel_calc_total()	//calculate total acceleration
 {
-	float acc_x = (float(fc.acc_data.x) - acc_data.calibration.bias.x) / acc_data.calibration.sens.x;
-	float acc_y = (float(fc.acc_data.y) - acc_data.calibration.bias.y) / acc_data.calibration.sens.y;
-	float acc_z = (float(fc.acc_data.z) - acc_data.calibration.bias.z) / acc_data.calibration.sens.z;
+	float acc_x = (float(fc.acc_data_raw.x) - acc_data.calibration.bias.x) / acc_data.calibration.sens.x;
+	float acc_y = (float(fc.acc_data_raw.y) - acc_data.calibration.bias.y) / acc_data.calibration.sens.y;
+	float acc_z = (float(fc.acc_data_raw.z) - acc_data.calibration.bias.z) / acc_data.calibration.sens.z;
 	return ( sqrt(acc_x * acc_x + acc_y * acc_y + acc_z * acc_z) );
 }
