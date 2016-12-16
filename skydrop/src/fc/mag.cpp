@@ -61,11 +61,11 @@ void mag_calc_init()
 }
 
 
-void mag_calc()
+void mag_calc_vector()
 {
 	//calc magnetic data using bias and sens
-	fc.mag_data.x = float(fc.mag_data_raw.x - mag_calc_data.calibration.bias.x) / float(mag_calc_data.calibration.sens.x) ;
-	fc.mag_data.y = float(fc.mag_data_raw.y - mag_calc_data.calibration.bias.y) / float(mag_calc_data.calibration.sens.y) ;
-	fc.mag_data.z = float(fc.mag_data_raw.z - mag_calc_data.calibration.bias.z) / float(mag_calc_data.calibration.sens.z) ;
+	fc.mag.vector.x = float(fc.mag.raw.x - mag_calc_data.calibration.bias.x) / float(mag_calc_data.calibration.sens.x) ;
+	fc.mag.vector.y = float(fc.mag.raw.y - mag_calc_data.calibration.bias.y) / float(mag_calc_data.calibration.sens.y) ;
+	fc.mag.vector.z = float(fc.mag.raw.z - mag_calc_data.calibration.bias.z) / float(mag_calc_data.calibration.sens.z) ;
 
 }

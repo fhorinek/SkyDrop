@@ -70,9 +70,9 @@ void gui_mag_calib_stop() {}
 void gui_mag_calib_loop()
 {
 	//get min, max values to each direction
-	int16_t bar_x = gui_mag_calib_get_extrem( fc.mag_data_raw.x, &gui_mag_calib.samples.min.x, &gui_mag_calib.samples.max.x );
-	int16_t bar_y = gui_mag_calib_get_extrem( fc.mag_data_raw.y, &gui_mag_calib.samples.min.y, &gui_mag_calib.samples.max.y );
-	int16_t bar_z = gui_mag_calib_get_extrem( fc.mag_data_raw.z, &gui_mag_calib.samples.min.z, &gui_mag_calib.samples.max.z );
+	int16_t bar_x = gui_mag_calib_get_extrem( fc.mag.raw.x, &gui_mag_calib.samples.min.x, &gui_mag_calib.samples.max.x );
+	int16_t bar_y = gui_mag_calib_get_extrem( fc.mag.raw.y, &gui_mag_calib.samples.min.y, &gui_mag_calib.samples.max.y );
+	int16_t bar_z = gui_mag_calib_get_extrem( fc.mag.raw.z, &gui_mag_calib.samples.min.z, &gui_mag_calib.samples.max.z );
 
 	gui_dialog_P(PSTR("Magnetometer"));
 	disp.LoadFont(F_TEXT_M);

@@ -28,6 +28,7 @@ struct acc_data_t
 void accel_save_calibration(vector_float_t, vector_float_t);
 void accel_load_calibration(vector_float_t * , vector_float_t * );
 void accel_calc_init(void);
-float accel_calc_total(void);
+void accel_calc_vector(void);
+void accel_calc_total(void);
 
 #endif /* FC_ACC_H_ */

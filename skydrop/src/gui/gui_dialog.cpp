@@ -73,12 +73,12 @@ void gui_dialog_loop()
 	if ((gui_dialog_style & GUI_STYLE_MASK) == GUI_STYLE_STATS)
 	{
 		//if new flight has begin exit the stat screen
-		if (fc.flight_state != FLIGHT_LAND)
+		if (fc.flight.state != FLIGHT_LAND)
 		{
 			gui_dialog_cb(1);
 		}
 
-		uint32_t diff = fc.flight_timer / 1000;
+		uint32_t diff = fc.flight.timer / 1000;
 		uint8_t hour, min;
 
 		hour = diff / 3600;
@@ -100,14 +100,14 @@ void gui_dialog_loop()
 		sprintf_P(tmp, PSTR("Vario"));
 		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 0);
 
-		sprintf_P(tmp, PSTR("%dm"), fc.stats.max_alt);
+		sprintf_P(tmp, PSTR("%dm"), fc.flight.stats.max_alt);
 		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 1);
-		sprintf_P(tmp, PSTR("%dm"), fc.stats.min_alt);
+		sprintf_P(tmp, PSTR("%dm"), fc.flight.stats.min_alt);
 		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 2);
 
-		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.stats.max_climb / 100.0);
+		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.flight.stats.max_climb / 100.0);
 		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 1);
-		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.stats.max_sink / 100.0);
+		sprintf_P(tmp, PSTR("%0.1fm"), (float)fc.flight.stats.max_sink / 100.0);
 		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 2);
 
 		disp.LoadFont(F_TEXT_S);

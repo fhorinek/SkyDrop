@@ -140,36 +140,36 @@ void gui_accelerometer_calib_loop()
 
 	gui_acc_calib.sampling = 0;
 
-	//DEBUG("%d    %d    %d\n", fc.acc_data_raw.x, fc.acc_data_raw.y, fc.acc_data_raw.z);
+	//DEBUG("%d    %d    %d\n", fc.acc_raw.x, fc.acc_raw.y, fc.acc_raw.z);
 
-	if(abs(fc.acc_data_raw.x) > (treshold_lo) )
-	//if(abs(fc.acc_data_raw.x) > (fc.acc_tot * treshold_percent / 100.0) )
+	if(abs(fc.acc.raw.x) > (treshold_lo) )
+	//if(abs(fc.acc_raw.x) > (fc.acc_tot * treshold_percent / 100.0) )
 	{
-		if(fc.acc_data_raw.x > 0 and !(gui_acc_calib.valid & VALID_XP))
-			gui_acc_calib.calc.pos_val.x = acc_calib_get_value(VALID_XP, fc.acc_data_raw.x);
+		if(fc.acc.raw.x > 0 and !(gui_acc_calib.valid & VALID_XP))
+			gui_acc_calib.calc.pos_val.x = acc_calib_get_value(VALID_XP, fc.acc.raw.x);
 
-		if(fc.acc_data_raw.x < 0 and !(gui_acc_calib.valid & VALID_XN))
-			gui_acc_calib.calc.neg_val.x = acc_calib_get_value(VALID_XN, fc.acc_data_raw.x);
+		if(fc.acc.raw.x < 0 and !(gui_acc_calib.valid & VALID_XN))
+			gui_acc_calib.calc.neg_val.x = acc_calib_get_value(VALID_XN, fc.acc.raw.x);
 	}
 
-	if(abs(fc.acc_data_raw.y) > (treshold_lo) )
-	//if(abs(fc.acc_data_raw.y) > (fc.acc_tot * treshold_percent / 100.0) )
+	if(abs(fc.acc.raw.y) > (treshold_lo) )
+	//if(abs(fc.acc_raw.y) > (fc.acc_tot * treshold_percent / 100.0) )
 	{
-		if(fc.acc_data_raw.y > 0 and !(gui_acc_calib.valid & VALID_YP))
-			gui_acc_calib.calc.pos_val.y = acc_calib_get_value(VALID_YP, fc.acc_data_raw.y);
+		if(fc.acc.raw.y > 0 and !(gui_acc_calib.valid & VALID_YP))
+			gui_acc_calib.calc.pos_val.y = acc_calib_get_value(VALID_YP, fc.acc.raw.y);
 
-		if(fc.acc_data_raw.y < 0 and !(gui_acc_calib.valid & VALID_YN))
-			gui_acc_calib.calc.neg_val.y = acc_calib_get_value(VALID_YN, fc.acc_data_raw.y);
+		if(fc.acc.raw.y < 0 and !(gui_acc_calib.valid & VALID_YN))
+			gui_acc_calib.calc.neg_val.y = acc_calib_get_value(VALID_YN, fc.acc.raw.y);
 	}
 
-	if(abs(fc.acc_data_raw.z) > (treshold_lo) )
-	//if(abs(fc.acc_data_raw.z) > (fc.acc_tot * treshold_percent / 100.0) )
+	if(abs(fc.acc.raw.z) > (treshold_lo) )
+	//if(abs(fc.acc_raw.z) > (fc.acc_tot * treshold_percent / 100.0) )
 	{
-		if(fc.acc_data_raw.z > 0 and !(gui_acc_calib.valid & VALID_ZP))
-			gui_acc_calib.calc.pos_val.z = acc_calib_get_value(VALID_ZP, fc.acc_data_raw.z);
+		if(fc.acc.raw.z > 0 and !(gui_acc_calib.valid & VALID_ZP))
+			gui_acc_calib.calc.pos_val.z = acc_calib_get_value(VALID_ZP, fc.acc.raw.z);
 
-		if(fc.acc_data_raw.z < 0 and !(gui_acc_calib.valid & VALID_ZN))
-			gui_acc_calib.calc.neg_val.z = acc_calib_get_value(VALID_ZN, fc.acc_data_raw.z);
+		if(fc.acc.raw.z < 0 and !(gui_acc_calib.valid & VALID_ZN))
+			gui_acc_calib.calc.neg_val.z = acc_calib_get_value(VALID_ZN, fc.acc.raw.z);
 	}
 
 	disp.LoadFont(F_TEXT_M);
@@ -286,14 +286,14 @@ void gui_accelerometer_calib_loop()
 		//calibration values were calculated
 
 		vector_float_t new_acc;
-		new_acc.x = (float(fc.acc_data_raw.x) - gui_acc_calib.bias.x) / gui_acc_calib.sens.x;
-		new_acc.y = (float(fc.acc_data_raw.y) - gui_acc_calib.bias.y) / gui_acc_calib.sens.y;
-		new_acc.z = (float(fc.acc_data_raw.z) - gui_acc_calib.bias.z) / gui_acc_calib.sens.z;
+		new_acc.x = (float(fc.acc.raw.x) - gui_acc_calib.bias.x) / gui_acc_calib.sens.x;
+		new_acc.y = (float(fc.acc.raw.y) - gui_acc_calib.bias.y) / gui_acc_calib.sens.y;
+		new_acc.z = (float(fc.acc.raw.z) - gui_acc_calib.bias.z) / gui_acc_calib.sens.z;
 
 		float new_acc_tot = sqrt(new_acc.x * new_acc.x + new_acc.y * new_acc.y + new_acc.z * new_acc.z);
 
 		gui_acc_calib.filtered_total_new = (gui_acc_calib.filtered_total_new - (LPF_beta * (gui_acc_calib.filtered_total_new - new_acc_tot)));
-		gui_acc_calib.filtered_total_old = (gui_acc_calib.filtered_total_old - (LPF_beta * (gui_acc_calib.filtered_total_old - fc.acc_tot)));
+		gui_acc_calib.filtered_total_old = (gui_acc_calib.filtered_total_old - (LPF_beta * (gui_acc_calib.filtered_total_old - fc.acc.total)));
 
 
 		disp.LoadFont(F_TEXT_M);

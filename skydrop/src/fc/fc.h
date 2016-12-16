@@ -101,76 +101,95 @@ struct gps_data_t
 	uint8_t fix_cnt;
 };
 
+struct accel_data_t
+{
+	vector_i16_t raw;			//raw data from sensor
+	vector_float_t vector;		//acceleration vector in g, max +-16g for each axis
+	float total;				//total acceleration, absolute value of vector
+	float total_gui_filtered; 	//total acceleration, + filtered, + peak detection, used by acceleration widget
+};
+
+struct mag_data_t
+{
+	vector_i16_t raw;			//raw data from sensor
+	vector_float_t vector;		//magnetic vector, not in scale
+};
+
+struct gyro_data_t
+{
+	vector_i16_t raw;			//raw data from sensor
+};
+
 #define FC_TEMP_PERIOD	100
+struct temp_data_t
+{
+	int16_t temp;				//temperature
+	int16_t humid;				//humidity
+	uint8_t step;
+	uint8_t cnt;
+};
+
+#define VARIO_HISTORY_SIZE 32
+#define VARIO_HISTORY_SCALE	24 // == 1m/s
+struct vario_data_t
+{
+	bool valid;					//baro valid
+
+	float pressure;
+	float vario;
+
+	uint16_t history_delay;
+	int8_t history[VARIO_HISTORY_SIZE];
+	uint8_t history_pointer;
+	uint16_t history_step;
+
+	float digital;
+	float avg;
+};
 
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
-
-#define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
-#define FC_GLIDE_MIN_SINK	(-0.01)
-
-#define VARIO_HISTORY_SIZE 32
-#define VARIO_HISTORY_SCALE	24 // == 1m/s
-
 struct flight_data_t
 {
-	// --- RAW from sensors ---
-	vector_i16_t mag_data_raw;
-	vector_i16_t acc_data_raw;
-	vector_i16_t gyro_data_raw;
-
-	gps_data_t gps_data;
-
-	int16_t temperature;
-	int16_t humidity;
-
-	uint8_t temp_step;
-	uint8_t temp_cnt;
-
-	// --- STATE ---
-	bool baro_valid;
-	bool glide_ratio_valid;
+	flight_stats_t stats;
 
 	//flight time and flight duration holder after land
-	uint32_t flight_timer; //in ms
-	uint8_t flight_state;
+	uint32_t timer; //in ms
+	uint8_t state;
 
 	//wait timer
 	uint32_t autostart_timer;
 	float autostart_altitude;
+};
+
+#define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
+#define FC_GLIDE_MIN_SINK	(-0.01)
+
+struct flight_computer_data_t
+{
+	accel_data_t acc;		//accelerometer data
+	mag_data_t mag;			//magnetometer data
+	gyro_data_t gyro;		//gyroscope data
+
+	gps_data_t gps_data;
+
+	wind_data_t wind; 		// wind calculation data
+
+	temp_data_t temp;		// temperature and humidity data
+
+	vario_data_t vario;		//vario, pressure, history data
+
+	flight_data_t flight;	//flight related stats, measurements, data
+
 
 	uint8_t logger_state;
 
-	flight_stats_t stats;
-
-	// --- CALC ---
-	float pressure;
-	float vario;
-
-	uint16_t vario_history_delay;
-	int8_t vario_history[VARIO_HISTORY_SIZE];
-	uint8_t vario_history_pointer;
-	uint16_t vario_history_step;
-
-	float digital_vario;
-	float avg_vario;
-
+	bool glide_ratio_valid;
 	float glide_ratio;
 
 	float altitude1;
-
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
-
-	//ACCELEROMETER
-	float acc_tot;  //total acceleration (max +-16G)
-	float acc_tot_gui_filtered;  //total acceleration (max +-16G), + filtered, + peak detection, used by accel widget
-
-	//MAGNETOMETER
-	vector_float_t mag_data;
-
-	// wind calculation
-	wind_calc_t wind;
 };
 
 void fc_init();
@@ -195,6 +214,6 @@ void fc_reset();
 
 void fc_log_battery();
 
-extern volatile flight_data_t fc;
+extern volatile flight_computer_data_t fc;
 
 #endif /* FC_H_ */

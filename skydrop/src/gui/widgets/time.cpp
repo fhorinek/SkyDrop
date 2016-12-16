@@ -42,9 +42,9 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 	uint8_t lh = widget_label_P(PSTR("FTime"), x, y);
 
 	char tmp[7];
-	if (fc.flight_state == FLIGHT_FLIGHT)
+	if (fc.flight.state == FLIGHT_FLIGHT)
 	{
-		uint32_t diff = (task_get_ms_tick() - fc.flight_timer) / 1000;
+		uint32_t diff = (task_get_ms_tick() - fc.flight.timer) / 1000;
 		uint8_t hour, min;
 
 		hour = diff / 3600;
@@ -63,9 +63,9 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 		widget_value_int(tmp, x, y + lh, w, h - lh);
 	}
 
-	if (fc.flight_state == FLIGHT_LAND)
+	if (fc.flight.state == FLIGHT_LAND)
 	{
-		uint32_t diff = fc.flight_timer / 1000;
+		uint32_t diff = fc.flight.timer / 1000;
 		uint8_t hour, min;
 
 		hour = diff / 3600;
@@ -84,7 +84,7 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 		widget_value_int(tmp, x, y + lh, w, h - lh);
 	}
 
-	if (fc.flight_state == FLIGHT_WAIT)
+	if (fc.flight.state == FLIGHT_WAIT)
 	{
 		sprintf_P(tmp, PSTR("Start"));
 		widget_value_txt(tmp, x, y + lh, w, h - lh);
@@ -95,19 +95,19 @@ void widget_flight_time_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
-		if (fc.flight_state == FLIGHT_WAIT)
+		if (fc.flight.state == FLIGHT_WAIT)
 		{
 			fc_takeoff();
 			return;
 		}
 
-		if (fc.flight_state == FLIGHT_FLIGHT)
+		if (fc.flight.state == FLIGHT_FLIGHT)
 		{
 			fc_landing();
 			return;
 		}
 
-		if (fc.flight_state == FLIGHT_LAND)
+		if (fc.flight.state == FLIGHT_LAND)
 		{
 			fc_reset();
 			return;

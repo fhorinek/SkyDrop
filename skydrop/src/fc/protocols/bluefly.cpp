@@ -5,7 +5,7 @@
 
 void protocol_bluefly_step()
 {
-	uint32_t tmp = round(fc.pressure);
+	uint32_t tmp = round(fc.vario.pressure);
 
 	fprintf_P(protocol_tx, PSTR("PRS %lX\n"), tmp);
 

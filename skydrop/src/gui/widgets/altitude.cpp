@@ -30,7 +30,7 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 	if ((alt_flags & 0b11000000) == ALT_ABS_GPS)
 		valid = fc.gps_data.valid;
 	else
-		valid = fc.baro_valid;
+		valid = fc.vario.valid;
 
 	char text[10];
 	if (valid)
@@ -53,7 +53,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 		a_type  = config.altitude.altimeter[index - 2].flags & 0b11000000;
 
 
-	if (a_type != ALT_ABS_GPS && fc.baro_valid == false)
+	if (a_type != ALT_ABS_GPS && fc.vario.valid == false)
 		return;
 
 	if (a_type == ALT_ABS_GPS && fc.gps_data.valid == false)
@@ -101,7 +101,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 					new_alt = fc.altitudes[index - 2] + inc;
 
 				fc_manual_alt0_change(new_alt);
-				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
 			break;
 
 			case(ALT_ABS_QNH2):
@@ -110,7 +110,7 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 				else
 					new_alt = fc.altitudes[index - 2] + inc;
 
-				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
 			break;
 
 			case(ALT_DIFF):
@@ -174,7 +174,7 @@ void widget_alt_menu_loop(uint8_t alt_index)
 
 				fc_manual_alt0_change(new_alt);
 
-				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
 			break;
 
 			case(ALT_ABS_QNH2):
@@ -183,7 +183,7 @@ void widget_alt_menu_loop(uint8_t alt_index)
 				else
 					new_alt = fc.altitudes[alt_index - 2] + inc;
 
-				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.pressure);
+				config.altitude.QNH2 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
 			break;
 
 			case(ALT_DIFF):

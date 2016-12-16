@@ -24,6 +24,6 @@ struct mag_calc_data_t
 void mag_save_calibration(vector_float_t , vector_float_t );
 void mag_load_calibration(vector_float_t * , vector_float_t * );
 void mag_calc_init();
-void mag_calc();
+void mag_calc_vector();
 
 #endif /* FC_MAG_H_ */

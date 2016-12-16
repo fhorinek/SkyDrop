@@ -92,7 +92,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 		case (0):
 			sprintf_P(text, PSTR("State"));
 			*flags |= GUI_LIST_SUB_TEXT;
-			switch (fc.flight_state)
+			switch (fc.flight.state)
 			{
 				case(FLIGHT_WAIT):
 					sprintf_P(sub_text, PSTR("Waiting"));
