@@ -84,7 +84,7 @@ void logger_step()
 	if (logger_next > task_get_ms_tick())
 		return;
 
-	if (!fc.baro_valid)
+	if (!fc.vario.valid)
 		return;
 
 	//RAW is running as fast as it can!

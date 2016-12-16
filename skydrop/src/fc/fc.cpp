@@ -16,7 +16,7 @@
 #include "../gui/gui_dialog.h"
 #include "../gui/widgets/acc.h"
 
-volatile flight_data_t fc;
+volatile flight_computer_data_t fc;
 
 Timer fc_meas_timer;
 
@@ -45,7 +45,7 @@ void fc_init()
 	#endif
 
 	//temperature state machine
-	fc.temp_step = 0;
+	fc.temp.step = 0;
 
 	//init DMA
 	DMA_PWR_ON;
@@ -126,6 +126,8 @@ void fc_init()
 
 	//Acceleration calculation init
 	accel_calc_init();
+	//Magnetic field calculation init
+	mag_calc_init();
 
 	//Gyro
 	l3gd20_settings l3g_cfg;
@@ -179,7 +181,7 @@ void fc_deinit()
 {
 	fc_meas_timer.Stop();
 
-	if (fc.flight_state == FLIGHT_FLIGHT)
+	if (fc.flight.state == FLIGHT_FLIGHT)
 		fc_landing();
 
 	eeprom_busy_wait();
@@ -272,7 +274,7 @@ ISR(FC_MEAS_TIMER_CMPA)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadMag(&fc.mag_data.x, &fc.mag_data.y, &fc.mag_data.z);
+	lsm303d.ReadMag(&fc.mag.raw.x, &fc.mag.raw.y, &fc.mag.raw.z);
 	ms5611.ReadTemperature();
 
 	ms5611.StartPressure();
@@ -296,11 +298,15 @@ ISR(FC_MEAS_TIMER_CMPB)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadAccStreamAvg(&fc.acc_data.x, &fc.acc_data.y, &fc.acc_data.z, 16);
+	lsm303d.ReadAccStreamAvg(&fc.acc.raw.x, &fc.acc.raw.y, &fc.acc.raw.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
 
-	 fc.acc_tot = accel_calc_total();	//calculate (live) total acceleration
-	 fc.acc_tot_gui_filtered = gui_accel_filter(fc.acc_tot);  //filter total acceleration for widget
+	accel_calc_vector(); //calculate actual acceleration as vector
+	accel_calc_total();	//calculate actual total acceleration
+	fc.acc.total_gui_filtered = gui_accel_filter(fc.acc.total);  //filter total acceleration for widget
+
+	mag_calc_vector();
+
 
 	BT_ALLOW_TX
 }
@@ -312,13 +318,13 @@ ISR(FC_MEAS_TIMER_CMPC)
 {
 	BT_SUPRESS_TX
 
-	l3gd20.ReadGyroStreamAvg(&fc.gyro_data.x, &fc.gyro_data.y, &fc.gyro_data.z, 7); //it take 1000us to transfer
+	l3gd20.ReadGyroStreamAvg(&fc.gyro.raw.x, &fc.gyro.raw.y, &fc.gyro.raw.z, 7); //it take 1000us to transfer
 
-	if (fc.temp_cnt >= FC_TEMP_PERIOD)
+	if (fc.temp.cnt >= FC_TEMP_PERIOD)
 	{
-		fc.temp_cnt = 0;
+		fc.temp.cnt = 0;
 
-		switch (fc.temp_step)
+		switch (fc.temp.step)
 		{
 			case(0):
 				sht21.StartHumidity();
@@ -328,7 +334,7 @@ ISR(FC_MEAS_TIMER_CMPC)
 			break;
 			case(2):
 				sht21.CompensateHumidity();
-				fc.humidity = sht21.humidity;
+				fc.temp.humid = sht21.humidity;
 			break;
 			case(3):
 				sht21.StartTemperature();
@@ -338,14 +344,14 @@ ISR(FC_MEAS_TIMER_CMPC)
 			break;
 			case(5):
 				sht21.CompensateTemperature();
-				fc.temperature = sht21.temperature;
+				fc.temp.temp = sht21.temperature;
 			break;
 		}
-		fc.temp_step = (fc.temp_step + 1) % 6;
+		fc.temp.step = (fc.temp.step + 1) % 6;
 	}
 	else
 	{
-		fc.temp_cnt++;
+		fc.temp.cnt++;
 	}
 
 //	DEBUG("$;%d;%d;%d", fc.acc_data.x, fc.acc_data.y, fc.acc_data.z);
@@ -358,17 +364,17 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 void fc_takeoff()
 {
-	if (!fc.baro_valid)
+	if (!fc.vario.valid)
 		return;
 
 	gui_showmessage_P(PSTR("Take off"));
 
-	fc.flight_state = FLIGHT_FLIGHT;
-	fc.flight_timer = task_get_ms_tick();
+	fc.flight.state = FLIGHT_FLIGHT;
+	fc.flight.timer = task_get_ms_tick();
 
 	//reset timer and altitude for autoland
-	fc.autostart_altitude = fc.altitude1;
-	fc.autostart_timer = task_get_ms_tick();
+	fc.flight.autostart_altitude = fc.altitude1;
+	fc.flight.autostart_timer = task_get_ms_tick();
 
 	//reset battery info timer
 	fc_log_battery_next = 0;
@@ -396,10 +402,10 @@ void fc_landing()
 	fc_landing_old_gui_task = gui_task;
 	gui_switch_task(GUI_DIALOG);
 
-	fc.flight_state = FLIGHT_LAND;
-	fc.autostart_timer = task_get_ms_tick();
+	fc.flight.state = FLIGHT_LAND;
+	fc.flight.autostart_timer = task_get_ms_tick();
 
-	fc.flight_timer = task_get_ms_tick() - fc.flight_timer;
+	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
 
 	audio_off();
 
@@ -409,14 +415,14 @@ void fc_landing()
 void fc_reset()
 {
 	//autostart timer reset
-	fc.autostart_timer = task_get_ms_tick();
-	fc.flight_state = FLIGHT_WAIT;
+	fc.flight.autostart_timer = task_get_ms_tick();
+	fc.flight.state = FLIGHT_WAIT;
 
 	//statistic
-	fc.stats.max_alt = -32678;
-	fc.stats.min_alt = 32677;
-	fc.stats.max_climb = 0;
-	fc.stats.max_sink = 0;
+	fc.flight.stats.max_alt = -32678;
+	fc.flight.stats.min_alt = 32677;
+	fc.flight.stats.max_climb = 0;
+	fc.flight.stats.max_sink = 0;
 
 }
 
@@ -457,7 +463,7 @@ void fc_step()
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 	{
-		if (fc.baro_valid && fc.flight_state == FLIGHT_WAIT)
+		if (fc.vario.valid && fc.flight.state == FLIGHT_WAIT)
 		{
 			fc_takeoff();
 		}
@@ -466,9 +472,9 @@ void fc_step()
 	{
 		//auto start
 		// baro valid, waiting to take off or landed, and enabled auto start
-		if (fc.baro_valid && (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
+		if (fc.vario.valid && (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
 		{
-			if (abs(fc.altitude1 - fc.autostart_altitude) > config.autostart.start_sensititvity)
+			if (abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity)
 			{
 				fc_takeoff();
 			}
@@ -476,41 +482,41 @@ void fc_step()
 			{
 				uint32_t t = task_get_ms_tick();
 
-				if(t < fc.autostart_timer)
+				if(t < fc.flight.autostart_timer)
 				{
 					assert(0);
-					DEBUG("old %lu\n", fc.autostart_timer);
+					DEBUG("old %lu\n", fc.flight.autostart_timer);
 					DEBUG("act %lu\n", t);
 				}
 
 				//reset wait timer
-				if (t - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
+				if (t - fc.flight.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
 				{
-					fc.autostart_timer = t;
-					fc.autostart_altitude = fc.altitude1;
+					fc.flight.autostart_timer = t;
+					fc.flight.autostart_altitude = fc.altitude1;
 				}
 			}
 		}
 
 		//auto land
 		// flying and auto land enabled
-		if (fc.flight_state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
+		if (fc.flight.state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
 		{
-			if (abs(fc.altitude1 - fc.autostart_altitude) < config.autostart.land_sensititvity)
+			if (abs(fc.altitude1 - fc.flight.autostart_altitude) < config.autostart.land_sensititvity)
 			{
 				uint32_t tick = task_get_ms_tick();
 
-				if (tick < fc.autostart_timer)
+				if (tick < fc.flight.autostart_timer)
 				{
 					assert(0);
 					DEBUG("TT %lu\n", tick);
-					DEBUG("AT %lu\n", fc.autostart_timer);
+					DEBUG("AT %lu\n", fc.flight.autostart_timer);
 				}
 				else
-				if (tick - fc.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
+				if (tick - fc.flight.autostart_timer > (uint32_t)config.autostart.timeout * 1000ul)
 				{
 					//reduce timeout from flight time
-					fc.flight_timer += (uint32_t)config.autostart.timeout * 1000ul;
+					fc.flight.timer += (uint32_t)config.autostart.timeout * 1000ul;
 
 					gui_reset_timeout();
 					fc_landing();
@@ -518,8 +524,8 @@ void fc_step()
 			}
 			else
 			{
-				fc.autostart_altitude = fc.altitude1;
-				fc.autostart_timer = task_get_ms_tick();
+				fc.flight.autostart_altitude = fc.altitude1;
+				fc.flight.autostart_timer = task_get_ms_tick();
 			}
 		}
 	}
@@ -537,10 +543,10 @@ void fc_step()
 
 	//glide ratio
 	//when you have GPS, baro and speed is higher than 2km/h and you are sinking <= -0.01
-	if (fc.gps_data.valid && fc.baro_valid && fc.gps_data.groud_speed > FC_GLIDE_MIN_KNOTS && fc.avg_vario <= FC_GLIDE_MIN_SINK)
+	if (fc.gps_data.valid && fc.vario.valid && fc.gps_data.groud_speed > FC_GLIDE_MIN_KNOTS && fc.vario.avg <= FC_GLIDE_MIN_SINK)
 	{
 		float spd_m = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS;
-		fc.glide_ratio = spd_m / abs(fc.avg_vario);
+		fc.glide_ratio = spd_m / abs(fc.vario.avg);
 
 		fc.glide_ratio_valid = true;
 	}
@@ -552,26 +558,26 @@ void fc_step()
 	//flight logger
 	if (config.logger.enabled)
 	{
-		if (fc.flight_state == FLIGHT_FLIGHT && !logger_active() && time_is_set() && !logger_error())
+		if (fc.flight.state == FLIGHT_FLIGHT && !logger_active() && time_is_set() && !logger_error())
 		{
 			logger_start();
 		}
 	}
 
 	//flight statistic
-	if (fc.flight_state == FLIGHT_FLIGHT)
+	if (fc.flight.state == FLIGHT_FLIGHT)
 	{
-		int16_t t_vario = fc.avg_vario * 100;
+		int16_t t_vario = fc.vario.avg * 100;
 
-		if (fc.altitude1 > fc.stats.max_alt)
-			fc.stats.max_alt = fc.altitude1;
-		if (fc.altitude1 < fc.stats.min_alt)
-			fc.stats.min_alt = fc.altitude1;
+		if (fc.altitude1 > fc.flight.stats.max_alt)
+			fc.flight.stats.max_alt = fc.altitude1;
+		if (fc.altitude1 < fc.flight.stats.min_alt)
+			fc.flight.stats.min_alt = fc.altitude1;
 
-		if (t_vario > fc.stats.max_climb)
-			fc.stats.max_climb = t_vario;
-		if (t_vario < fc.stats.max_sink)
-			fc.stats.max_sink = t_vario;
+		if (t_vario > fc.flight.stats.max_climb)
+			fc.flight.stats.max_climb = t_vario;
+		if (t_vario < fc.flight.stats.max_sink)
+			fc.flight.stats.max_sink = t_vario;
 	}
 }
 
@@ -610,9 +616,9 @@ void fc_manual_alt0_change(float val)
 {
 	kalmanFilter.reset(val);
 
-    if (fc.flight_state == FLIGHT_WAIT || fc.flight_state == FLIGHT_LAND)
+    if (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND)
     {
-    	fc.autostart_altitude = val;
+    	fc.flight.autostart_altitude = val;
     	fc.altitude1 = val;
     }
 }

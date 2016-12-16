@@ -105,13 +105,13 @@ void gui_set_altimeter_gps_alt(uint8_t ret)
 
 			if (a_type == ALT_ABS_QNH1)
 			{
-				config.altitude.QNH1 = fc_alt_to_qnh(fc.gps_data.altitude, fc.pressure);
+				config.altitude.QNH1 = fc_alt_to_qnh(fc.gps_data.altitude, fc.vario.pressure);
 				fc_manual_alt0_change(fc.gps_data.altitude);
 			}
 
 			if (a_type == ALT_ABS_QNH2)
 			{
-				config.altitude.QNH2 = fc_alt_to_qnh(fc.gps_data.altitude, fc.pressure);
+				config.altitude.QNH2 = fc_alt_to_qnh(fc.gps_data.altitude, fc.vario.pressure);
 			}
 
 			if (a_type == ALT_DIFF)

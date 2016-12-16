@@ -195,7 +195,7 @@ void igc_step()
 		c = 'V';
 	}
 
-	uint16_t alt = fc_press_to_alt(fc.pressure, 101325);
+	uint16_t alt = fc_press_to_alt(fc.vario.pressure, 101325);
 
 	//B record
 	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);

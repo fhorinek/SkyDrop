@@ -40,9 +40,9 @@ void raw_step()
 	uint32_t time = task_get_ms_tick();
 	memcpy(line + 1, &time, 4);
 
-	memcpy(line + 5, (void *)&fc.acc_data, 6);
-	memcpy(line + 11, (void *)&fc.gyro_data, 6);
-	memcpy(line + 17, (void *)&fc.mag_data, 6);
+	memcpy(line + 5, (void *)&fc.acc.raw, 6);
+	memcpy(line + 11, (void *)&fc.gyro.raw, 6);
+	memcpy(line + 17, (void *)&fc.mag.raw, 6);
 
 	memcpy(line + 23, (void *)&fc.altitude1, 4);
 

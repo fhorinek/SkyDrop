@@ -36,20 +36,20 @@ void audio_step()
 	}
 
 	//barometer data are valid now
-	if (fc.baro_valid)
+	if (fc.vario.valid)
 	{
 		//audio is suppressed due auto start
 		if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
 		{
 			//vario in flight -> enable sound
-			if (fc.flight_state == FLIGHT_FLIGHT)
-				audio_vario_step(fc.vario);
+			if (fc.flight.state == FLIGHT_FLIGHT)
+				audio_vario_step(fc.vario.vario);
 
 			return;
 		}
 
 		//audio suppress is not used
-		audio_vario_step(fc.vario);
+		audio_vario_step(fc.vario.vario);
 	}
 }
 

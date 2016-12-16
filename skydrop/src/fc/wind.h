@@ -20,7 +20,7 @@ struct vector_2d_t
 	float Y;
 };
 
-struct wind_calc_t
+struct wind_data_t
 {
 	bool fromEnd;
 	vector_2d_t kBuff[wind_kBuff_size];

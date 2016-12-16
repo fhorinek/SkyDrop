@@ -4,7 +4,7 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 {
 	uint8_t lh = widget_label_P(PSTR("Vario"), x, y);
 
-	float val = fc.digital_vario;
+	float val = fc.vario.digital;
 
 	if (config.vario.flags & VARIO_UNITS_I)
 		val *= FC_MPS_TO_100FPM;
@@ -13,7 +13,7 @@ void widget_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags
 		val = 0;
 
 	char text[10];
-	if (fc.baro_valid)
+	if (fc.vario.valid)
 		sprintf_P(text, PSTR("%0.1f"), val);
 	else
 		sprintf_P(text, PSTR("-.-"), val);
@@ -24,7 +24,7 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 {
 	uint8_t lh = widget_label_P(PSTR("Avg"), x, y);
 
-	float val = fc.avg_vario;
+	float val = fc.vario.avg;
 
 	if (config.vario.flags & VARIO_UNITS_I)
 		val *= FC_MPS_TO_100FPM;
@@ -33,7 +33,7 @@ void widget_avg_vario_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 		val = 0;
 
 	char text[10];
-	if (fc.baro_valid)
+	if (fc.vario.valid)
 		sprintf_P(text, PSTR("%0.1f"), val);
 	else
 		sprintf_P(text, PSTR("-.-"), val);
@@ -57,7 +57,7 @@ void widget_vario_bar_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	float vario;
 
-	vario = fc.vario;
+	vario = fc.vario.vario;
 
 	if (abs(vario) > 0.09)
 	{
@@ -128,8 +128,8 @@ void widget_vario_history_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 	uint8_t max = VARIO_HISTORY_SCALE / 2;
 	for (uint8_t i = 0; i < VARIO_HISTORY_SIZE; i++)
 	{
-		if (abs(fc.vario_history[i]) > max)
-			max = abs(fc.vario_history[i]);
+		if (abs(fc.vario.history[i]) > max)
+			max = abs(fc.vario.history[i]);
 	}
 
 	max /= VARIO_HISTORY_SCALE / 2;
@@ -138,15 +138,15 @@ void widget_vario_history_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	uint8_t middle = y + lh + (h - lh) / 2;
 	uint8_t max_h = (h - lh) / 2 - 1;
-	uint8_t ptr = fc.vario_history_pointer;
+	uint8_t ptr = fc.vario.history_pointer;
 	float step_x = (w - 1) / (float)(VARIO_HISTORY_SIZE - 1);
 	float step_y = -max_h / (float)max;
 
-	uint8_t old_y = clamp(fc.vario_history[ptr] * step_y, max_h) + middle;
+	uint8_t old_y = clamp(fc.vario.history[ptr] * step_y, max_h) + middle;
 	for (uint8_t i = 1; i < VARIO_HISTORY_SIZE - 1; i++)
 	{
 		ptr = (ptr + 1) % VARIO_HISTORY_SIZE;
-		uint8_t new_y = clamp(fc.vario_history[ptr] * step_y, max_h) + middle;
+		uint8_t new_y = clamp(fc.vario.history[ptr] * step_y, max_h) + middle;
 
 		disp.DrawLine(x + (i - 1) * step_x, old_y, x + i * step_x, new_y, 1);
 		old_y = new_y;
