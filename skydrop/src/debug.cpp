@@ -260,11 +260,11 @@ void debug_step()
 //		DEBUG("=========================================\n");
 	}
 
-	uint8_t ** tmp = 0;
+	uint8_t * tmp = 0;
 
 	//write content
-	len = debug_log_storage.Read(DEBUG_LOG_BUFFER_CHUNK, tmp);
-	res = f_write(&debug_file, *tmp, len, &wt);
+	len = debug_log_storage.Read(DEBUG_LOG_BUFFER_CHUNK, &tmp);
+	res = f_write(&debug_file, tmp, len, &wt);
 	if (res != FR_OK || wt != len)
 	{
 		f_close(&debug_file);

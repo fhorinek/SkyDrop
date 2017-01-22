@@ -1,3 +1,18 @@
+Build 3329 - 22. 01. 2017
+========================================================
+FIX:
+ * debug_step pointer arithmetic bug #235
+ * Auto take off when changing QNH bug #236
+
+ADDED:
+ * widgets Height above ground and Ground level (https://github.com/fhorinek/SkyDrop/wiki/HAGL-data-files)
+ * USB utilisation graph in USB mode
+ * Accelerometer widget
+ * Accelerometer & Magnetometer calibration in settings->advanced
+ 
+CHANGED:
+ * flight computer data structure 
+
 Build 3248 - 14. 11. 2016
 ========================================================
 FIX:

@@ -36,7 +36,7 @@ float gui_accel_filter(float new_accel)
 
 void widget_acc_total_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("TotAcc"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Acc"), x, y);
 
 	float val = fc.acc.total_gui_filtered;
 

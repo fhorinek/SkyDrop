@@ -140,8 +140,6 @@ void MassStorage_Task(void)
 	/* Process sent command block from the host if one has been sent */
 	if (ReadInCommandBlock())
 	{
-		uint32_t start = task_get_ms_tick();
-
 		/* Check direction of command, select Data IN endpoint if data is from the device */
 		if (CommandBlock.Flags & MS_COMMAND_DIR_DATA_IN)
 		  Endpoint_SelectEndpoint(MASS_STORAGE_IN_EPADDR);
@@ -164,12 +162,7 @@ void MassStorage_Task(void)
 		/* Return command status block to the host */
 		ReturnCommandStatus();
 
-		uint32_t delta = task_get_ms_tick() - start;
-
-		if (delta > 200)
-			usb_int_state = USB_BUSY;
-		else
-			usb_int_state = USB_READY;
+		usb_int_state = USB_READY;
 	}
 
 	/* Check if a Mass Storage Reset occurred */

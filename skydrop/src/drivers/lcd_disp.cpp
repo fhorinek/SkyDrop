@@ -536,6 +536,36 @@ void lcd_display::CopyToLayerX(uint8_t dst, int8_t x)
 	}
 }
 
+void lcd_display::CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1, uint8_t row2)
+{
+	uint8_t start_x, end_x, col_x;
+
+	if (x < 0)
+	{
+		start_x = abs(x);
+		end_x = lcd_width;
+		col_x = 0;
+	}
+	else
+	{
+		start_x = 0;
+		end_x = lcd_width - x;
+		col_x = x;
+	}
+
+	for (uint8_t j=row1; j<row2; j++)
+	{
+		uint16_t index = j * lcd_width + col_x;
+		uint8_t cnt = 0;
+
+		for (uint8_t a = start_x; a < end_x; a++)
+		{
+			this->layers[dst][index + cnt] = this->active_buffer[a + (j * lcd_width)];
+			cnt++;
+		}
+	}
+}
+
 void lcd_display::CopyToLayer(uint8_t dst)
 {
 	memcpy(this->layers[dst], this->active_buffer, (lcd_height / 8) * lcd_width);
@@ -548,7 +578,7 @@ uint8_t * lcd_display::GetActiveLayerPtr()
 
 void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
 {
-	for (uint8_t j=row1;j<row2;j++)
+	for (uint8_t j=row1; j<row2; j++)
 	{
 		uint16_t start_i = j * lcd_width;
 
