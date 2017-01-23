@@ -104,10 +104,10 @@ struct gps_data_t
 
 struct accel_data_t
 {
-	vector_i16_t raw;			//raw data from sensor
-	vector_float_t vector;		//acceleration vector in g, max +-16g for each axis
-	float total;				//total acceleration, absolute value of vector
-	float total_gui_filtered; 	//total acceleration, + filtered, + peak detection, used by acceleration widget
+	vector_i16_t raw;				//raw data from sensor
+	vector_float_t vector;			//acceleration vector in g, max +-16g for each axis
+	float total;					//total acceleration, absolute value of vector
+	float total_widget_filtered;	//total acceleration, + filtered, + peak detection, used by acceleration widget
 };
 
 struct mag_data_t

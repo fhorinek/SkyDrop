@@ -12,6 +12,4 @@
 
 extern widget w_acc_tot;
 
-float gui_accel_filter(float);
-
 #endif /* WACC_H_ */
