@@ -14,7 +14,7 @@
 #include "logger/logger.h"
 
 #include "../gui/gui_dialog.h"
-#include "../gui/widgets/acc.h"
+//#include "../gui/widgets/acc.h"
 
 volatile flight_computer_data_t fc;
 
@@ -125,7 +125,7 @@ void fc_init()
 	lsm_cfg.tempEnable = false;
 
 	//Acceleration calculation init
-	accel_calc_init();
+	acc_calc_init();
 	//Magnetic field calculation init
 	mag_calc_init();
 
@@ -301,9 +301,9 @@ ISR(FC_MEAS_TIMER_CMPB)
 	lsm303d.ReadAccStreamAvg(&fc.acc.raw.x, &fc.acc.raw.y, &fc.acc.raw.z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
 
-	accel_calc_vector(); //calculate actual acceleration as vector
-	accel_calc_total();	//calculate actual total acceleration
-	fc.acc.total_gui_filtered = gui_accel_filter(fc.acc.total);  //filter total acceleration for widget
+	acc_calc_vector(); //calculate actual acceleration as vector
+	acc_calc_total();	//calculate actual total acceleration from vector data
+	acc_widget_filter();  //filter total acceleration for widget
 
 	mag_calc_vector();
 

@@ -12,7 +12,7 @@
 #include "../../drivers/lcd_disp.h"
 
 
-struct accel_calib_calc_t
+struct acc_calib_calc_t
 {
 	int16_t old_value;
 	uint8_t counter;
@@ -30,9 +30,9 @@ struct accel_calib_calc_t
 
 #define VALID_CALIB 0b10000000
 
-struct accel_calib_t
+struct acc_calib_t
 {
-	accel_calib_calc_t calc;
+	acc_calib_calc_t calc;
 	uint8_t valid;
 
 	bool new_calib;
@@ -57,7 +57,7 @@ struct accel_calib_t
 #define calib_samples		100		//n of samples collected for calculating accel calibration
 #define max_err				40		//max variance between samples
 
-accel_calib_t gui_acc_calib;
+acc_calib_t gui_acc_calib;
 
 MK_SEQ(snd_confirm, ARR({750, 0, 750, 0}), ARR({150, 150, 150, 150}));
 MK_SEQ(snd_complete, ARR({750, 0, 750, 0, 900, 0}), ARR({150, 150, 150, 150, 250, 150}));
@@ -342,7 +342,7 @@ void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff)
 		acc_data.calibration.bias = gui_acc_calib.bias;
 
 		//save settings to eeprom
-		accel_save_calibration(gui_acc_calib.sens, gui_acc_calib.bias);
+		acc_save_calibration(gui_acc_calib.sens, gui_acc_calib.bias);
 
 		//return to menu
 		gui_switch_task(GUI_SET_CALIB);
