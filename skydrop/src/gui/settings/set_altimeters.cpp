@@ -28,6 +28,9 @@ void gui_set_altimeters_qnh1_cb(float val)
 	eeprom_write_float(&config_ee.altitude.QNH1, val);
 
 	config.altitude.QNH1 = val;
+
+	float new_alt = fc_press_to_alt(fc.vario.pressure, config.altitude.QNH1);
+	fc_manual_alt0_change(new_alt);
 }
 
 void gui_set_altimeters_qnh2_cb(float val)

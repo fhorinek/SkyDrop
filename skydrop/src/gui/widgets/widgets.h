@@ -80,7 +80,7 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ALT5				11
 #include "altitude.h"
 
-#define WIDGET_ACC_TOT				12
+#define WIDGET_ACC_TOT			12
 #include "acc.h"
 
 #define WIDGET_TIME				13
@@ -113,9 +113,13 @@ extern float widget_menu_fvalue1;
 #define WIDGET_WIND_DIR_ARROW	28
 #include "wind.h"
 
-#define NUMBER_OF_WIDGETS		29
+#define WIDGET_AGL_HEIGHT		29
+#define WIDGET_AGL_LEVEL		30
+#include "agl.h"
 
-#define NUMBER_OF_SORTED_WIDGETS	27
+#define NUMBER_OF_WIDGETS		31
+
+#define NUMBER_OF_SORTED_WIDGETS	28
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 

@@ -3,11 +3,12 @@
 
 SleepLock usb_lock;
 extern Usart sd_spi_usart;
+extern uint16_t usb_loop_time;
 
 uint8_t task_usb_sd_ready = false;
 
 uint32_t task_usb_gui_timer = 0;
-#define TASK_USB_GUI_REFRESH	500ul
+#define TASK_USB_GUI_REFRESH	250ul
 
 void task_usb_init()
 {
@@ -120,13 +121,16 @@ void task_usb_loop()
 		gui_loop();
 	}
 
-	for (uint8_t i=0; i < 128; i++)
+	uint32_t start = task_get_ms_tick_once();
+	for (uint8_t i=0; i < 32; i++)
 	{
 		if (task_usb_sd_ready)
 			MassStorage_Loop();
 
 		ewdt_reset();
 	}
+	uint32_t delta = task_get_ms_tick_once() - start;
+	usb_loop_time = min(delta / 100, 15);
 
 	if (usb_int_state == USB_NOT_RDY)
 		usb_lock.Unlock();

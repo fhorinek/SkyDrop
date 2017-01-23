@@ -451,7 +451,7 @@
                 ["WIDGET_ALT3", "Altitude 3"],
                 ["WIDGET_ALT4", "Altitude 4"],
                 ["WIDGET_ALT5", "Altitude 5"],
-                ["WIDGET_ACCX", "Debug info Acc X"],
+                ["WIDGET_ACC_TOT", "Total acceleration"],
                 ["WIDGET_TIME", "Actual time"],
                 ["WIDGET_DATE", "Actual date"],
                 ["WIDGET_FTIME", "Flight time"],
@@ -467,7 +467,9 @@
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
                 ["WIDGET_WIND_SPD", "Wind speed"],
-                ["WIDGET_GCOMPASS", "GPS compass"]
+                ["WIDGET_GCOMPASS", "GPS compass"],
+                ["WIDGET_AGL_HEIGHT", "Altitude abore ground"],
+                ["WIDGET_AGL_LEVEL", "Ground level"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -736,6 +738,30 @@
             "desc": "Calculated wind speed", 
             "label": "WSpd", 
             "value": "5"
-        }        
+        },      
+        "WIDGET_AGL_HEIGHT":
+        {
+            "type": "value",
+            "name": "Height above ground level",
+            "desc": "Calculated distance between you and the terrain", 
+            "label": "HAGL", 
+            "value": "437"
+        },       
+        "WIDGET_AGL_LEVEL":
+        {
+            "type": "value",
+            "name": "Ground level",
+            "desc": "Terrain height above see estimated from GPS position and altitude data file", 
+            "label": "GLevel", 
+            "value": "150"
+        },    
+        "WIDGET_ACC_TOT":
+        {
+            "type": "value",
+            "name": "Total acceleration",
+            "desc": "Total acceleration in g", 
+            "label": "Acc", 
+            "value": "1.0"
+        }    
     }
 }            

@@ -16,7 +16,8 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_battery,
 		w_glide_ratio,
 		w_ctrl_audio, w_ctrl_wlift,
-		w_wspd, w_wdir, w_wdir_arrow
+		w_wspd, w_wdir, w_wdir_arrow,
+		w_agl_height, w_agl_level
 };
 
 const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
@@ -32,6 +33,8 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_ALT3,
 	WIDGET_ALT4,
 	WIDGET_ALT5,
+	WIDGET_AGL_HEIGHT,
+	WIDGET_AGL_LEVEL,
 	WIDGET_GROUND_SPD,
 	WIDGET_GLIDE_RATIO,
 	WIDGET_GHEADING,

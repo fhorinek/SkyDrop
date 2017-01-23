@@ -79,8 +79,7 @@
 #define USB_IDLE	0
 #define USB_ENUM	1
 #define USB_NOT_RDY	2
-#define USB_BUSY	3
-#define USB_READY	4
+#define USB_READY	3
 
 extern uint8_t usb_int_state;
 
