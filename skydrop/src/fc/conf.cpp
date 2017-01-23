@@ -212,17 +212,7 @@ EEMEM cfg_t config_ee = {
 	}
 };
 
-////calibration
-//{
-//	//mag bias
-//	{476, 1179, 1141},
-//	//mag sensitivity
-//	{-2486, -2494, -2442},
-//	//acc bias
-//	{6, -46, -59},
-//	//acc sensitivity
-//	{1376, 1369, 1325},
-//},
+
 
 bool cfg_factory_passed()
 {
@@ -242,8 +232,62 @@ void cfg_reset_factory_test()
 	task_set(TASK_POWERDOWN);
 }
 
+void cfg_acc_write_defaults()
+{
+	vector_i16_t tmp;
+	//bias
+	tmp.x = 89;
+	tmp.y = 107;
+	tmp.z = -240;
+	eeprom_busy_wait();
+	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_bias, sizeof(vector_i16_t));
+
+	//sensitivity
+	tmp.x = 2759;
+	tmp.y = 2729;
+	tmp.z = 2686;
+	eeprom_busy_wait();
+	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_sensitivity, sizeof(vector_i16_t));
+}
+
+void cfg_mag_write_defaults()
+{
+	vector_i16_t tmp;
+	//bias
+	tmp.x = 1364;
+	tmp.y = 1752;
+	tmp.z = 2136;
+	eeprom_busy_wait();
+	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_bias, sizeof(vector_i16_t));
+
+	//sensitivity
+	tmp.x = 5392;
+	tmp.y = 4780;
+	tmp.z = 5154;
+	eeprom_busy_wait();
+	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
+}
+
 void cfg_load()
 {
+
+	eeprom_busy_wait();
+	uint8_t calib_flags = eeprom_read_byte(&config_ro.calibration_flags);
+	if (calib_flags & CALIB_ACC_NOT_DONE)
+	{
+		cfg_acc_write_defaults();
+		calib_flags &= ~CALIB_ACC_NOT_DONE;
+	}
+
+	if (calib_flags & CALIB_MAG_NOT_DONE)
+	{
+		cfg_mag_write_defaults();
+		calib_flags &= ~CALIB_MAG_NOT_DONE;
+	}
+
+	eeprom_busy_wait();
+	eeprom_update_byte(&config_ro.calibration_flags, calib_flags);
+
 	eeprom_busy_wait();
 	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));
 }

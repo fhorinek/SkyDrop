@@ -108,19 +108,19 @@ void gui_update_bar()
 	switch (update_state)
 	{
 		case(UPDATE_IDLE):
-				strcpy_P(tmp, PSTR("Reading file"));
+			strcpy_P(tmp, PSTR("Reading file"));
 		break;
 		case(UPDATE_CHECK_EE):
-				strcpy_P(tmp, PSTR("Checking EE"));
+			strcpy_P(tmp, PSTR("Checking EE"));
 		break;
 		case(UPDATE_UNPACK):
-				strcpy_P(tmp, PSTR("Unpacking FW"));
+			strcpy_P(tmp, PSTR("Unpacking FW"));
 		break;
 		case(UPDATE_CHECK_FW):
-				strcpy_P(tmp, PSTR("Checking FW"));
+			strcpy_P(tmp, PSTR("Checking FW"));
 		break;
 		case(UPDATE_EE):
-				strcpy_P(tmp, PSTR("Writing EE"));
+			strcpy_P(tmp, PSTR("Writing EE"));
 		break;
 	}
 
@@ -139,7 +139,7 @@ void gui_update_loop()
 	uint16_t rd, wr;
 	uint16_t to_read;
 
-	//steal some buffer from debug
+	//steal buffer from debug
 	extern uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
 
 	uint8_t * buff = debug_log_buffer;

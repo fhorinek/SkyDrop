@@ -11,8 +11,6 @@
 #include "../gui.h"
 #include "../../common.h"
 
-extern acc_data_t acc_data;
-
 void gui_accelerometer_calib_init(void);
 void gui_accelerometer_calib_stop(void);
 void gui_accelerometer_calib_loop(void);

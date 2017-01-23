@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 9, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 13, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -83,6 +83,8 @@ void gui_set_debug_action(uint8_t index)
 
 void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
+	vector_float_t tmp_vf;
+
 	switch (index)
 	{
 		case (0):
@@ -172,6 +174,34 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (9):
+			sprintf_P(text, PSTR("Acc bias"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			memcpy((void *)&tmp_vf, (void *)&fc.acc.bias, sizeof(tmp_vf));
+			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
+		break;
+
+		case (10):
+			sprintf_P(text, PSTR("Acc sens"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			memcpy((void *)&tmp_vf, (void *)&fc.acc.sens, sizeof(tmp_vf));
+			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
+		break;
+
+		case (11):
+			sprintf_P(text, PSTR("Mag bias"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			memcpy((void *)&tmp_vf, (void *)&fc.mag.bias, sizeof(tmp_vf));
+			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
+		break;
+
+		case (12):
+			sprintf_P(text, PSTR("Mag sens"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			memcpy((void *)&tmp_vf, (void *)&fc.mag.sens, sizeof(tmp_vf));
+			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
 		break;
 	}
 }
