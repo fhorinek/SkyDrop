@@ -5,9 +5,9 @@
 #include "../drivers/audio/audio.h"
 #include "../drivers/audio/sequencer.h"
 
-
 #include "kalman.h"
 #include "vario.h"
+#include "agl.h"
 
 #include "protocols/protocol.h"
 
@@ -56,6 +56,7 @@ void fc_init()
 	logger_init();
 	protocol_init();
 	wind_init();
+	agl_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -442,6 +443,8 @@ void fc_sync_gps_time()
 	time_set_flags();
 }
 
+
+
 void fc_step()
 {
 	//using fake data
@@ -449,6 +452,8 @@ void fc_step()
 		return;
 	#endif
 
+
+	agl_step(); //it is before gps_step, so new gps fix will be processed in next loop
 
 	gps_step();
 

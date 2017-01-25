@@ -78,6 +78,7 @@ public:
 	uint8_t GetAHeight();
 
 	void CopyToLayerX(uint8_t dst, int8_t x);
+	void CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1, uint8_t row2);
 	void CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2);
 	void CopyToLayer(uint8_t dst);
 

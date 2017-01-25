@@ -3,6 +3,8 @@
 #include "../fc/fc.h"
 #include "../task_usb/task_usb.h"
 
+uint16_t usb_loop_time = 0;
+
 #define USB_LED_MAX		0x10
 
 void gui_usb_set_mode(uint8_t mode)
@@ -38,7 +40,7 @@ void gui_usb_loop()
 			strcpy_P(tmp, PSTR("USB mode"));
 		}
 
-		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h + 2);
 	}
 	else
 	{
@@ -51,21 +53,17 @@ void gui_usb_loop()
 
 	if (usb_int_state != USB_NOT_RDY)
 	{
-		switch (usb_int_state)
-		{
-			case(USB_IDLE):
-				strcpy_P(tmp, PSTR("idle"));
-			break;
-			case(USB_ENUM):
-				strcpy_P(tmp, PSTR("enumerating"));
-			break;
-			case(USB_BUSY):
-				strcpy_P(tmp, PSTR("busy"));
-			break;
-			case(USB_READY):
-				strcpy_P(tmp, PSTR("ready"));
-			break;
-		}
+		disp.SetDrawLayer(1);
+		disp.CopyToLayerXPart(0, -1, 3, 6);
+		disp.SetDrawLayer(0);
+		disp.DrawLine(GUI_DISP_WIDTH - 2, 39 - usb_loop_time, GUI_DISP_WIDTH - 2, 39, 1);
+		disp.CopyToLayerPart(1, 3, 0, 6, GUI_DISP_WIDTH - 1);
+
+		if (usb_loop_time < 1)
+			strcpy_P(tmp, PSTR("idle"));
+		else
+			strcpy_P(tmp, PSTR("busy"));
+
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 + f_h);
 	}
 
