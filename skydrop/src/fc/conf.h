@@ -83,15 +83,6 @@ struct cfg_altitude
 	cfg_altimeter altimeter[NUMBER_OF_ALTIMETERS];
 };
 
-struct cfg_calibration
-{
-	vector_i16_t mag_bias;
-	vector_i16_t mag_sensitivity;
-
-	vector_i16_t acc_bias;
-	vector_i16_t acc_sensitivity;
-};
-
 struct cfg_audio_profile
 {
 	uint16_t freq[41];	//in Hz
@@ -225,8 +216,17 @@ struct cfg_t
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 
-//DO NOT CHANGE THE ORDER, add new value at the end
+//DO NOT CHANGE THE ORDER
+struct cfg_calibration
+{
+	vector_i16_t mag_bias;			//6
+	vector_i16_t mag_sensitivity;	//6
 
+	vector_i16_t acc_bias;			//6
+	vector_i16_t acc_sensitivity;	//6
+};
+
+//DO NOT CHANGE THE ORDER
 struct debug_info
 {
 	uint32_t time;				//4
@@ -236,6 +236,11 @@ struct debug_info
 	uint16_t max_heap;			//2
 };
 
+//0xFF or 0b11111111 is default value
+#define CALIB_ACC_NOT_DONE	0b00000001
+#define CALIB_MAG_NOT_DONE	0b00000010
+
+//DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
 //						dec		hex
 //size 					128		0x80
@@ -259,7 +264,9 @@ struct cfg_ro_t
 
 	uint16_t bat_adc_max;			//+48		2
 
-	uint8_t reserved[78];			//+50		78
+	uint8_t calibration_flags;		//+50		1
+
+	uint8_t reserved[78];			//+52		77
 };
 
 //configuration in RAM

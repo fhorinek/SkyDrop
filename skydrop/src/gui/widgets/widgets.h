@@ -119,7 +119,7 @@ extern float widget_menu_fvalue1;
 
 #define NUMBER_OF_WIDGETS		31
 
-#define NUMBER_OF_SORTED_WIDGETS	28
+#define NUMBER_OF_SORTED_WIDGETS	29
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 
