@@ -338,8 +338,8 @@ void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff)
 	{	//if calibration is done
 
 		//apply new settings
-		acc_data.calibration.sens = gui_acc_calib.sens;
-		acc_data.calibration.bias = gui_acc_calib.bias;
+		memcpy((void *)&fc.acc.sens, &gui_acc_calib.sens, sizeof(vector_float_t));
+		memcpy((void *)&fc.acc.bias, &gui_acc_calib.bias, sizeof(vector_float_t));
 
 		//save settings to eeprom
 		acc_save_calibration(gui_acc_calib.sens, gui_acc_calib.bias);

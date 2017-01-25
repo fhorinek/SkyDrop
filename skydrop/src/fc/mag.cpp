@@ -8,9 +8,6 @@
 #include "mag.h"
 #include "fc.h"
 
-mag_calc_data_t mag_calc_data;
-
-
 void mag_save_calibration(vector_float_t sens_vf, vector_float_t bias_vf)
 {
 	vector_i16_t bias;
@@ -31,7 +28,7 @@ void mag_save_calibration(vector_float_t sens_vf, vector_float_t bias_vf)
 	//DEBUG("written int: bias %d %d %d sens %d %d %d\n", bias.x, bias.y, bias.z, sens.x, sens.y, sens.z);
 }
 
-void mag_load_calibration(vector_float_t * sens_vf, vector_float_t * bias_vf)
+void mag_load_calibration(volatile vector_float_t * sens_vf, volatile vector_float_t * bias_vf)
 {
 	vector_i16_t bias;
 	vector_i16_t sens;
@@ -57,15 +54,14 @@ void mag_calc_init()
 	//initialize variables
 	// ...
 	//load config from eeprom
-	mag_load_calibration( &mag_calc_data.calibration.sens, &mag_calc_data.calibration.bias );
+	mag_load_calibration(&fc.mag.sens, &fc.mag.bias);
 }
 
 
 void mag_calc_vector()
 {
 	//calc magnetic data using bias and sens
-	fc.mag.vector.x = float(fc.mag.raw.x - mag_calc_data.calibration.bias.x) / float(mag_calc_data.calibration.sens.x) ;
-	fc.mag.vector.y = float(fc.mag.raw.y - mag_calc_data.calibration.bias.y) / float(mag_calc_data.calibration.sens.y) ;
-	fc.mag.vector.z = float(fc.mag.raw.z - mag_calc_data.calibration.bias.z) / float(mag_calc_data.calibration.sens.z) ;
-
+	fc.mag.vector.x = float(fc.mag.raw.x - fc.mag.bias.x) / float(fc.mag.sens.x) ;
+	fc.mag.vector.y = float(fc.mag.raw.y - fc.mag.bias.y) / float(fc.mag.sens.y) ;
+	fc.mag.vector.z = float(fc.mag.raw.z - fc.mag.bias.z) / float(fc.mag.sens.z) ;
 }
