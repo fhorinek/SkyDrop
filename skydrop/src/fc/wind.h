@@ -5,8 +5,8 @@
  *      Author: fiala
  */
 
-#ifndef WIND2_H_
-#define WIND2_H_
+#ifndef WIND_H_
+#define WIND_H_
 
 #include "../common.h"
 #include "../debug.h"
@@ -23,7 +23,7 @@ struct wind_data_t
 {
 	float 		dir[number_of_sectors];
 	float 		spd[number_of_sectors];
-	vector_2d_t old_gps;
+//	vector_2d_t old_gps;	//GPS position input mode only
 	uint8_t 	old_sector;
 	int8_t		sectors_cnt;
 
