@@ -81,17 +81,17 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 		num_points = HGT_DATA_WIDTH_3;
 	}
 
-	// "-1" is, because a file has a overlap of 1 point to the next file.
-	unsigned long coord_div = HGT_COORD_MUL / (num_points - 1);
+	// "-2" is, because a file has a overlap of 1 point to the next file.
+	unsigned long coord_div = HGT_COORD_MUL / (num_points - 2);
 	uint16_t y = (lat % HGT_COORD_MUL) / coord_div;
 	uint16_t x = (lon % HGT_COORD_MUL) / coord_div;
 
-	unsigned int rd;
+	uint16_t rd;
 	uint8_t tmp[4];
 	byte2 alt11, alt12, alt21, alt22;
 
 	//seek to position
-	int pos = ((int)x + num_points * (int)((num_points - y) - 1)) * 2;
+	DWORD pos = ((DWORD)x + num_points * (DWORD)((num_points - y) - 1)) * 2;
 	DEBUG("x=%d, y=%d, pos=%d\n", x, y, pos);
 
 	assert(f_lseek(&agl_data_file, pos) == FR_OK);
@@ -107,23 +107,16 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 
 	//seek to opposite position
 	pos -= num_points * 2;
-	if ( pos >= 0 ) {
-	  assert(f_lseek(&agl_data_file, pos) == FR_OK);
-	  assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
-	  assert(rd == 4);
+	assert(f_lseek(&agl_data_file, pos) == FR_OK);
+	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
+	assert(rd == 4);
 
-	  //switch big endian to little
-	  alt12.uint8[0] = tmp[1];
-	  alt12.uint8[1] = tmp[0];
+	//switch big endian to little
+	alt12.uint8[0] = tmp[1];
+	alt12.uint8[1] = tmp[0];
 	  
-	  alt22.uint8[0] = tmp[3];
-	  alt22.uint8[1] = tmp[2];
-	} else {
-	  // corner case, e.g. lat=489999999 with SRTM3 will lead to an access 
-	  // outside the tile.
-	  alt12 = alt11;
-	  alt22 = alt21;
-	}
+	alt22.uint8[0] = tmp[3];
+	alt22.uint8[1] = tmp[2];
 
 	DEBUG("alt11=%d, alt21=%d, alt12=%d, alt22=%d\n", alt11.int16, alt21.int16, alt12.int16, alt22.int16);
 
