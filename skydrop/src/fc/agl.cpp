@@ -5,9 +5,18 @@
 
 FIL agl_data_file;
 
+// The SRMT HGT file format is described in detail in
+//     http://dds.cr.usgs.gov/srtm/version2_1/Documentation/SRTM_Topo.pdf
+
+// All lat/lon values are multiplied by HGT_COORD_MUL, so that we can use
+// fixed point integer arithmetic instead of floating points:
 #define HGT_COORD_MUL	10000000ul
-#define HGT_COORD_DIV	8340ul
-#define HGD_DATA_WIDTH	1201ul
+
+// Some HGT files contain 1201 x 1201 points (3 arc/90m resolution)
+#define HGT_DATA_WIDTH_3	1201ul
+
+// Some HGT files contain 3601 x 3601 points (1 arc/30m resolution)
+#define HGT_DATA_WIDTH_1	3601ul
 
 void agl_init()
 {
@@ -63,48 +72,63 @@ void agl_open_file(char * fn)
 
 int16_t agl_get_alt(int32_t lat, int32_t lon)
 {
-	//get file position
-    uint16_t y = (lat % HGT_COORD_MUL) / HGT_COORD_DIV;
-	uint16_t x = (lon % HGT_COORD_MUL) / HGT_COORD_DIV;
+	unsigned int num_points;
+
+	// Check, if we have a 1201x1201 or 3601x3601 tile:
+	if (f_size(&agl_data_file) == HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2) {
+		num_points = HGT_DATA_WIDTH_1;
+	} else {
+		num_points = HGT_DATA_WIDTH_3;
+	}
+
+	// "-2" is, because a file has a overlap of 1 point to the next file.
+	unsigned long coord_div = HGT_COORD_MUL / (num_points - 2);
+	uint16_t y = (lat % HGT_COORD_MUL) / coord_div;
+	uint16_t x = (lon % HGT_COORD_MUL) / coord_div;
 
 	uint16_t rd;
 	uint8_t tmp[4];
 	byte2 alt11, alt12, alt21, alt22;
 
 	//seek to position
-    uint32_t pos = ((uint32_t)x + HGD_DATA_WIDTH * (uint32_t)((HGD_DATA_WIDTH - y) - 1)) * 2;
-    assert(f_lseek(&agl_data_file, pos) == FR_OK);
-    assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
-    assert(rd == 4);
+	DWORD pos = ((DWORD)x + num_points * (DWORD)((num_points - y) - 1)) * 2;
+	DEBUG("x=%d, y=%d, pos=%d\n", x, y, pos);
 
-    //switch big endian to little
-    alt11.uint8[0] = tmp[1];
-    alt11.uint8[1] = tmp[0];
+	assert(f_lseek(&agl_data_file, pos) == FR_OK);
+	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
+	assert(rd == 4);
 
-    alt21.uint8[0] = tmp[3];
-    alt21.uint8[1] = tmp[2];
+	//switch big endian to little
+	alt11.uint8[0] = tmp[1];
+	alt11.uint8[1] = tmp[0];
 
-    //seek to position
-    pos = ((uint32_t)x + HGD_DATA_WIDTH * (uint32_t)((HGD_DATA_WIDTH - y) - 2)) * 2;
-    assert(f_lseek(&agl_data_file, pos) == FR_OK);
-    assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
-    assert(rd == 4);
+	alt21.uint8[0] = tmp[3];
+	alt21.uint8[1] = tmp[2];
 
-    //switch big endian to little
-    alt12.uint8[0] = tmp[1];
-    alt12.uint8[1] = tmp[0];
+	//seek to opposite position
+	pos -= num_points * 2;
+	assert(f_lseek(&agl_data_file, pos) == FR_OK);
+	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
+	assert(rd == 4);
 
-    alt22.uint8[0] = tmp[3];
-    alt22.uint8[1] = tmp[2];
+	//switch big endian to little
+	alt12.uint8[0] = tmp[1];
+	alt12.uint8[1] = tmp[0];
+	  
+	alt22.uint8[0] = tmp[3];
+	alt22.uint8[1] = tmp[2];
+
+	DEBUG("alt11=%d, alt21=%d, alt12=%d, alt22=%d\n", alt11.int16, alt21.int16, alt12.int16, alt22.int16);
 
 	//get point displacement
-	float lat_dr = ((lat % HGT_COORD_MUL) % HGT_COORD_DIV) / float(HGT_COORD_DIV);
-	float lon_dr = ((lon % HGT_COORD_MUL) % HGT_COORD_DIV) / float(HGT_COORD_DIV);
+	float lat_dr = ((lat % HGT_COORD_MUL) % coord_div) / float(coord_div);
+	float lon_dr = ((lon % HGT_COORD_MUL) % coord_div) / float(coord_div);
 
-    float alt1 = alt11.int16 + float(alt12.int16 - alt11.int16) * lat_dr;
-    float alt2 = alt21.int16 + float(alt22.int16 - alt21.int16) * lat_dr;
+	//compute height by using bilinear interpolation
+	float alt1 = alt11.int16 + float(alt12.int16 - alt11.int16) * lat_dr;
+	float alt2 = alt21.int16 + float(alt22.int16 - alt21.int16) * lat_dr;
 
-    return alt1 + float(alt2 - alt1) * lon_dr;
+	return alt1 + float(alt2 - alt1) * lon_dr;
 }
 
 void agl_step()
@@ -129,7 +153,7 @@ void agl_step()
 			fc.agl.ground_level = agl_get_alt(fc.gps_data.latitude, fc.gps_data.longtitude);
 			fc.agl.valid = true;
 		}
-		else //data file is diffrent than actual
+		else //data file is different than actual
 		{
 			//try to open data file
 			agl_open_file(tmp_name);
