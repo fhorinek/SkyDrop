@@ -72,17 +72,18 @@ void agl_open_file(char * fn)
 
 int16_t agl_get_alt(int32_t lat, int32_t lon)
 {
-	unsigned int num_points;
+	uint16_t num_points;
 
 	// Check, if we have a 1201x1201 or 3601x3601 tile:
-	if (f_size(&agl_data_file) == HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2) {
+	if (f_size(&agl_data_file) == HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2)
+	{
 		num_points = HGT_DATA_WIDTH_1;
 	} else {
 		num_points = HGT_DATA_WIDTH_3;
 	}
 
 	// "-2" is, because a file has a overlap of 1 point to the next file.
-	unsigned long coord_div = HGT_COORD_MUL / (num_points - 2);
+	uint32_t coord_div = HGT_COORD_MUL / (num_points - 2);
 	uint16_t y = (lat % HGT_COORD_MUL) / coord_div;
 	uint16_t x = (lon % HGT_COORD_MUL) / coord_div;
 
@@ -91,7 +92,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 	byte2 alt11, alt12, alt21, alt22;
 
 	//seek to position
-	DWORD pos = ((DWORD)x + num_points * (DWORD)((num_points - y) - 1)) * 2;
+	uint32_t pos = ((uint32_t)x + num_points * (uint32_t)((num_points - y) - 1)) * 2;
 	DEBUG("x=%d, y=%d, pos=%d\n", x, y, pos);
 
 	assert(f_lseek(&agl_data_file, pos) == FR_OK);
