@@ -9,19 +9,8 @@
 #define DEBUG_LOG_BUFFER_SIZE	2048
 
 void debug_log(char * msg);
-
-//DEBUG
-#define DEBUG(format, ...) \
-	do { \
-		if (debug_disabled())\
-			break;\
-		char msg_buff[256];\
-		const char * msg PROGMEM = PSTR(format);\
-		sprintf_P(msg_buff, msg, ##__VA_ARGS__); \
-		debug_uart_send(msg_buff);\
-		debug_log(msg_buff);\
-	} while(0)
-
+void debug(const char *format, ...);
+#define DEBUG(format, ...) debug(PSTR(format), ##__VA_ARGS__)
 
 //assert
 #define assert(cond) \
