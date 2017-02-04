@@ -1,7 +1,7 @@
 /*
- * wind.h
+ * wind2.h
  *
- *  Created on: 16.9.2016
+ *  Created on: Jan 23, 2017
  *      Author: fiala
  */
 
@@ -11,8 +11,7 @@
 #include "../common.h"
 #include "../debug.h"
 
-
-#define	wind_kBuff_size	64
+#define number_of_sectors 8
 
 struct vector_2d_t
 {
@@ -22,27 +21,16 @@ struct vector_2d_t
 
 struct wind_data_t
 {
-	bool fromEnd;
-	vector_2d_t kBuff[wind_kBuff_size];
-	uint8_t kBuff_start;
-	uint8_t kBuff_end;
-	bool kBuff_full;
-	vector_2d_t old_gps;
-	uint32_t old_time;
-	//
-	uint8_t circle_end;
-	float oldAngle;
-	float sumAngle;
-	vector_2d_t wind_coords;
-	bool first_wind_calc_data;
-	bool first_wind_calc_avg;
-	uint8_t avg_weight;
-	uint8_t nOfTurns_old;
+	float 		dir[number_of_sectors];
+	float 		spd[number_of_sectors];
+//	vector_2d_t old_gps;	//GPS position input mode only
+	uint8_t 	old_sector;
+	int8_t		sectors_cnt;
 
 	//calculated wind values
-	bool valid;			// was wind calculated?
-	float speed;		// m/s
-	float direction;	// degrees
+	bool 		valid;		// was wind calculated?
+	float 		speed;		// m/s
+	float 		direction;	// degrees
 };
 
 
