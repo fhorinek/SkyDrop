@@ -104,6 +104,28 @@ void debug_timeout_handler()
 //	for(;;);
 }
 
+/**
+ * printf-like function to send output to the debug log or UART iff debug is enabled.
+ *
+ * \param format a printf-like format string that must reside in PROGMEM.
+ *
+ */
+void debug(const char *format, ...)
+{
+	va_list arp;
+	char msg_buff[256];
+
+	if (debug_disabled())
+		return;
+
+	va_start(arp, format);
+	vsnprintf_P(msg_buff, sizeof(msg_buff), format, arp);
+	va_end(arp);
+
+	debug_uart_send(msg_buff);
+	debug_log(msg_buff);
+}
+
 
 ISR(DEBUG_TIMER_OVF, ISR_NAKED)
 {
