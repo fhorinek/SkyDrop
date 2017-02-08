@@ -2,6 +2,11 @@
 #include "logger.h"
 #include "../../drivers/storage/storage.h"
 
+/** 
+ * Here we save the filepointer at the position right before the
+ * <TimeStamp>...<end>". So we can rewind to set the end date, when
+ * we close the log.
+ */
 uint32_t filepos_for_end;
 
 /**
@@ -30,17 +35,23 @@ void kml_sprintf_P(const char *format, ...)
 	assert(f_sync(&log_file) == FR_OK);
 }
 
+/**
+ * Insert a line into the log containing a XML element and "now" as the content, 
+ * e.g. "<end>2016-12-24T18:00:00Z</end>".
+ * 
+ * \param tag the name of the XML element, in the above example, this would be "end".
+ */
 void kml_now(const char *tag) {
 	uint8_t sec;
-    uint8_t min;
-    uint8_t hour;
-    uint8_t day;
-    uint8_t wday;
-    uint8_t month;
-    uint16_t year;
+	uint8_t min;
+	uint8_t hour;
+	uint8_t day;
+	uint8_t wday;
+	uint8_t month;
+	uint16_t year;
 
-    datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
-    kml_sprintf_P(PSTR("<%s>%d-%d-%dT%d:%d.%dZ</%s>"), tag, year, month, day, hour, min, sec, tag);
+	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
+	kml_sprintf_P(PSTR("<%s>%04d-%02d-%02dT%02d:%02d:%02dZ</%s>"), tag, year, month, day, hour, min, sec, tag);
 }
 
 bool kml_start(char * path)
@@ -144,7 +155,7 @@ void kml_stop()
 	kml_sprintf_P(PSTR("</Document>"));
 	kml_sprintf_P(PSTR("</kml>"));
 
-	// Overwrite previous entry of end with "now":
+	// Overwrite previous entry of <end> with "now":
 	f_lseek(&log_file, filepos_for_end);
 	kml_now("end");
 
