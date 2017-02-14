@@ -11,7 +11,7 @@
 #include "../common.h"
 #include "../debug.h"
 
-#define number_of_sectors 8
+#define WIND_NUM_OF_SECTORS 8
 
 struct vector_2d_t
 {
@@ -21,8 +21,8 @@ struct vector_2d_t
 
 struct wind_data_t
 {
-	float 		dir[number_of_sectors];
-	float 		spd[number_of_sectors];
+	float 		dir[WIND_NUM_OF_SECTORS];
+	float 		spd[WIND_NUM_OF_SECTORS];
 //	vector_2d_t old_gps;	//GPS position input mode only
 	uint8_t 	old_sector;
 	int8_t		sectors_cnt;
