@@ -53,6 +53,12 @@
 #define GPS_FIX_TIME_SYNC	10
 #define GPS_FIX_ALT_SYNC	50
 
+/**
+ * Latitude and longitude are multiplied with GPS_MULT to get fixed point integers.
+ * E.g. 48.5 will be 48500000.
+ */
+#define GPS_MULT			10000000ul
+
 #define LOGGER_IDLE			0
 #define LOGGER_WAIT_FOR_GPS	1
 #define LOGGER_ACTIVE		2
@@ -171,6 +177,8 @@ struct flight_data_t
 	//wait timer
 	uint32_t autostart_timer;
 	float autostart_altitude;
+
+	int32_t autostart_lat, autostart_lon;
 };
 
 struct agl_data_t
@@ -202,6 +210,8 @@ struct flight_computer_data_t
 	flight_data_t flight;	//flight related stats, measurements, data
 
 	agl_data_t agl;
+
+	uint32_t odometer;              // in cm gives up to 42.000km
 
 	uint8_t logger_state;
 
