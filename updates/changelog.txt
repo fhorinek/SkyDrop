@@ -1,7 +1,9 @@
 Build XXXX - DD. MM. 2017
 ========================================================
 ADDED:
- * Odometer widget to show distance flown
+ * new widget "Odometer" to show distance flown in km
+ * new widget "Back" showing arrow in direction back to starting point
+ * new widget "Distance" showing direct distance from starting point in km 
  
 CHANGED:
  * [Please write here, what has changed or delete this]
