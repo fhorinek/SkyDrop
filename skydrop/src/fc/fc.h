@@ -53,12 +53,6 @@
 #define GPS_FIX_TIME_SYNC	10
 #define GPS_FIX_ALT_SYNC	50
 
-/**
- * Latitude and longitude are multiplied with GPS_MULT to get fixed point integers.
- * E.g. 48.5 will be 48500000.
- */
-#define GPS_MULT			10000000ul
-
 #define LOGGER_IDLE			0
 #define LOGGER_WAIT_FOR_GPS	1
 #define LOGGER_ACTIVE		2
