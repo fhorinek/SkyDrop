@@ -28,7 +28,7 @@
 #define FC_KNOTS_TO_KPH		(1.852)				//Kilometers per hour
 #define FC_KNOTS_TO_MPH		(1.15077945)		//Miles per hour
 #define FC_KNOTS_TO_MPS		(0.51444444444)		//Meters per seconds
-#define FC_MPS_TO_KPH		(0.27777777778)		//Kilometers per hour
+#define FC_MPS_TO_KPH		(3.6)				//Kilometers per hour
 #define FC_MPS_TO_MPH		(2.23693629)		//Miles per hour
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
 

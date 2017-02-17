@@ -191,6 +191,11 @@ void igc_step()
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			return;
 
+		if (igc_last_timestamp == time_get_utc())
+			return;
+
+		igc_last_timestamp = time_get_utc();
+
 		time_from_epoch(time_get_utc(), &sec, &min, &hour);
 		c = 'V';
 	}
