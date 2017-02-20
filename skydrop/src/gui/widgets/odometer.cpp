@@ -13,7 +13,11 @@ void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 
 	char text[10];
 
-	sprintf_P(text, PSTR("%.1f"), fc.odometer / 100000.0);   // cm to km
+	double distance = fc.odometer / 100000.0;        // cm to km
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+		distance *= FC_KM_TO_MILE;
+
+	sprintf_P(text, PSTR("%.1f"), distance);
 
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
