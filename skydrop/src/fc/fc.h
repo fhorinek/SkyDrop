@@ -67,13 +67,26 @@ struct flight_stats_t
 	int16_t max_sink;	//in cm
 };
 
+/**
+ * Bit masks for gps.new_sample.
+ */
 #define FC_GPS_NEW_SAMPLE_LOGGER		0b00000001
 #define FC_GPS_NEW_SAMPLE_WIND			0b00000010
 #define FC_GPS_NEW_SAMPLE_AGL			0b00000100
+#define FC_GPS_NEW_SAMPLE_ODO			0b00001000
 
 struct gps_data_t
 {
+	/**
+	 * Set to "true" if we received a valid GPS position.
+	 */
 	bool valid;
+
+	/**
+	 * Whenever a new GPS position arrives, then
+	 * new_sample will be set to 0xFF and every subroutine can check with its own bit (FC_GPS_NEW_SAMPLE_XXX)
+	 * if there is a new GPS for them to be handled.
+	 */
 	uint8_t new_sample;
 
 	char cache_igc_latitude[9];

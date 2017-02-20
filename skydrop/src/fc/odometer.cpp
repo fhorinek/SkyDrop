@@ -22,8 +22,8 @@
 int16_t gps_bearing(int32_t lat1, int32_t lon1,
 					int32_t lat2, int32_t lon2)
 {
-	double dX = (lon1 - lon2) / GPS_MULT;
-	double dY = (lat1 - lat2) / GPS_MULT;
+	double dX = ((double)lon1 - lon2) / GPS_MULT;
+	double dY = ((double)lat1 - lat2) / GPS_MULT;
 	return ((int16_t)to_degrees(atan2(dX,dY)) + 360) % 360;
 }
 
@@ -50,7 +50,7 @@ uint32_t gps_distance_2d(int32_t lat1, int32_t lon1,
 	lat = (lat1 + lat2) / 2 / GPS_MULT * (M_PI / 180.0);
 
 	// 111.3 km (in cm) is the width of 1 degree
-	dx = cos(lat) * 11130000 * abs(lon1 - lon2) / GPS_MULT;
+	dx = cos(lat) * 11130000 * abs(lon1 - lon2) / GPS_MULT;   // Todo: Use lcd_disp.get_cos()
 	dy = 1.0      * 11130000 * abs(lat1 - lat2) / GPS_MULT;
 
 	return (uint32_t)sqrt(dx * dx + dy * dy);

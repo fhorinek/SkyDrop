@@ -542,7 +542,10 @@ void fc_step()
 	}
 
 	if (fc.gps_data.valid) {
-		odometer_step();
+		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO) {
+			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
+			odometer_step();
+		}
 	}
 
 	//gps time sync
