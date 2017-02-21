@@ -5,6 +5,9 @@
 # in b/w format. Anything in "white" will be transparent and any other
 # color will be "black".
 #
+# If you only give a single input file (and no output file), then the
+# image will be dumped in C source format for use by disp.DrawImage.
+#
 # Copyright 2017 by Dr. Tilmann Bubeck <tilmann@bubecks.de>
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -24,6 +27,15 @@
 import sys
 import subprocess
 
+def identify(filename, formatFlag):
+    return subprocess.check_output(["identify", "-format", formatFlag, filename])
+
+def getWidth(filename):
+    return int(identify(filename, "%w"))
+
+def getHeight(filename):
+    return int(identify(filename, "%h"))
+
 def getPixel(x, y):
     output = subprocess.check_output(["convert", sys.argv[1] + "[1x1+" + str(x) + "+" + str(y) + "]", "txt:"])
     if "#FFFFFF" in output:
@@ -39,14 +51,20 @@ def putPixel(x, y, color):
 	img[index] &= ~(1 << (y % 8));
 
 # Check usage:
-if len(sys.argv) != 3:
-    print "usage: convert-image-to-LOGO.py input-file-of-logo output"
-    print "  convert the image into a LOGO file."
+if len(sys.argv) != 2 and len(sys.argv) != 3:
+    print "usage: convert-image-to-LOGO.py input-file-of-logo [output]"
+    print "  convert the image into a LOGO file or to a byte array if no output is given."
     sys.exit(1)
 
+filename = sys.argv[1]
+
 # These are the dimensions of the image (and the LCD):
-width  = 84
-height = 48
+width  = getWidth(filename)
+height = getHeight(filename)
+
+if height % 8 != 0:
+    print "Height must be multiple of 8!"
+    sys.exit(1)
 
 # Create a memory array which holds the data and is organized as the LCD memory:
 img = []
@@ -58,11 +76,25 @@ for y in range(height):
     for x in range(width):
         putPixel(x, y, getPixel(x, y))
 
-# Convert into byte array:
-img = map(chr, img)
-img = "".join(img)
+if len(sys.argv) == 2:
+    # No output file given, print as byte array
+    print str(width) + ", " + str(height) + "," + " // width, heigth"
+    num = 0
+    for i in img:
+        print ("0x%0.2X" % i) + "," ,
+        num = num + 1
+        if num % 8 == 0:
+            print 
+else:
+    if width != 84 or height != 48:
+        print "LOGO must be 84x48 pixel."
+        sys.exit(1)
+        
+    # Convert into byte array:
+    img = map(chr, img)
+    img = "".join(img)
 
-# Write out byte array
-f = open(sys.argv[2], "wb");
-f.write(img)
-f.close()
+    # Write out byte array
+    f = open(sys.argv[2], "wb");
+    f.write(img)
+    f.close()

@@ -89,6 +89,61 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 
 #define GUI_ANIM_STEPS	20
 
+/**
+ * This are 14 6x8 images giving a GPS animation. There is no width/height at the beginning, only bit map.
+ */
+#define IMG_GPS_WIDTH 6
+#define IMG_GPS_HEIGHT 8
+#define IMG_GPS_ON_NO 14
+
+const uint8_t PROGMEM img_gps_on[] = {
+		0x38, 0x00, 0x18, 0x18, 0x00, 0x00,
+		0x18, 0x04, 0x18, 0x18, 0x00, 0x00,
+		0x08, 0x04, 0x1A, 0x18, 0x00, 0x00,
+		0x00, 0x04, 0x1A, 0x1A, 0x00, 0x00,
+		0x00, 0x00, 0x1A, 0x1A, 0x02, 0x00,
+		0x00, 0x00, 0x18, 0x1A, 0x02, 0x04,
+		0x00, 0x00, 0x18, 0x18, 0x02, 0x0C,
+		0x00, 0x00, 0x18, 0x18, 0x00, 0x1C,
+		0x00, 0x00, 0x18, 0x18, 0x20, 0x18,
+		0x00, 0x00, 0x18, 0x58, 0x20, 0x10,
+		0x00, 0x00, 0x58, 0x58, 0x20, 0x00,
+		0x00, 0x40, 0x58, 0x58, 0x00, 0x00,
+		0x20, 0x40, 0x58, 0x18, 0x00, 0x00,
+		0x30, 0x40, 0x18, 0x18, 0x00, 0x00
+};
+
+#define IMG_GPS_OFF_NO 6
+
+const uint8_t PROGMEM img_gps_off[] = {
+		0x00, 0x00, 0x10, 0x08, 0x00, 0x00,
+		0x00, 0x00, 0x18, 0x18, 0x00, 0x00,
+		0x00, 0x18, 0x3C, 0x3C, 0x18, 0x00,
+		0x18, 0x3C, 0x7E, 0x7E, 0x3C, 0x18,
+		0x00, 0x18, 0x3C, 0x3C, 0x18, 0x00,
+		0x00, 0x00, 0x10, 0x08, 0x00, 0x00
+};
+
+const uint8_t PROGMEM img_bluetooth[] = {
+		6, 8, // width, heigth
+		0x22, 0x14, 0x7F, 0x2A, 0x14, 0x00
+};
+
+const uint8_t PROGMEM img_logger[] = {
+		6, 8, // width, heigth
+		0xFF, 0x81, 0xBD, 0xA1, 0x82, 0xFC
+};
+
+const uint8_t PROGMEM img_logger_error[] = {
+		6, 8, // width, heigth
+		0xFF, 0xC5, 0xA9, 0x91, 0xAA, 0xFC
+};
+
+const uint8_t PROGMEM img_debug[] = {
+		6, 8, // width, heigth
+		0x93, 0x54, 0x3D, 0x3D, 0x54, 0x93
+};
+
 MK_SEQ(snd_but_short, ARR({1000}), ARR({50}));
 MK_SEQ(snd_but_long, ARR({800}), ARR({200}));
 
@@ -562,36 +617,33 @@ void gui_statusbar()
 	//GPS indicator
 	if (config.connectivity.use_gps)
 	{
-		char tmp[3];
-		disp.LoadFont(F_TEXT_S);
-		sprintf_P(tmp, PSTR("G"));
+		int index;
 
 		if(fc.gps_data.valid)
 		{
-			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 1);
+			index = (task_get_ms_tick() % 1000) / (1000 / IMG_GPS_ON_NO);
+		    disp.DrawImage(img_gps_on + index * 6, GUI_DISP_WIDTH - IMG_GPS_WIDTH, 1, IMG_GPS_WIDTH, IMG_GPS_HEIGHT);
 		}
 		else
 		{
-			if (GUI_BLINK_TGL(1000))
-				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 1);
+			if (GUI_BLINK_TGL(2000)) {
+				index = (task_get_ms_tick() % 1000) / (1000 / IMG_GPS_OFF_NO);
+				disp.DrawImage(img_gps_off + index * 6, GUI_DISP_WIDTH - IMG_GPS_WIDTH, 1, IMG_GPS_WIDTH, IMG_GPS_HEIGHT);
+			}
 		}
 	}
 
 	//BT indicator
 	if (bt_ready())
 	{
-		char tmp[3];
-		disp.LoadFont(F_TEXT_S);
-		sprintf_P(tmp, PSTR("B"));
-
 		if (bt_device_active())
 		{
-			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 9);
+			disp.DrawImage(img_bluetooth, GUI_DISP_WIDTH - 6, 9);
 		}
 		else
 		{
 			if (GUI_BLINK_TGL(1000))
-				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 9);
+				disp.DrawImage(img_bluetooth, GUI_DISP_WIDTH - 6, 9);
 		}
 	}
 
@@ -603,31 +655,24 @@ void gui_statusbar()
 
 		if (fc.logger_state == LOGGER_ACTIVE)
 		{
-			sprintf_P(tmp, PSTR("L"));
-			gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+			disp.DrawImage(img_logger, GUI_DISP_WIDTH - 6, 17);
 		}
 		else if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 		{
-			sprintf_P(tmp, PSTR("L"));
 			if (GUI_BLINK_TGL(1000))
-				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+				disp.DrawImage(img_logger, GUI_DISP_WIDTH - 6, 17);
 		}
 		else if (fc.logger_state == LOGGER_ERROR)
 		{
-			sprintf_P(tmp, PSTR("E"));
 			if (GUI_BLINK_TGL(500))
-				gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 17);
+				disp.DrawImage(img_logger_error, GUI_DISP_WIDTH - 6, 17);
 		}
 	}
 
 	//Debug.log indicator
 	if (config.system.debug_log == DEBUG_MAGIC_ON)
 	{
-		char tmp[3];
-		disp.LoadFont(F_TEXT_S);
-		sprintf_P(tmp, PSTR("D"));
-
-		gui_raligh_text(tmp, GUI_DISP_WIDTH - 1, 25);
+		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 25);
 	}
 
 	//battery indicator

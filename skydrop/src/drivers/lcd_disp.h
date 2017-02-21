@@ -61,6 +61,7 @@ public:
 	void DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color);
 	void DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end);
 	void DrawImage(const uint8_t *data,uint8_t x,uint8_t y);
+	void DrawImage(const uint8_t *data,uint8_t x,uint8_t y, uint8_t w, uint8_t h);
 	void Write(uint8_t ascii);
 	void SetRowCol(unsigned char row,unsigned char col);
 	void Draw();
