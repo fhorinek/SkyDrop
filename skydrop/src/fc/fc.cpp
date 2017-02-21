@@ -8,6 +8,7 @@
 #include "kalman.h"
 #include "vario.h"
 #include "agl.h"
+#include "odometer.h"
 
 #include "protocols/protocol.h"
 
@@ -38,6 +39,9 @@ void fc_init()
 
 	//reset flight status
 	fc_reset();
+
+	// Todo: read/write into eeprom
+	fc.odometer = 0;
 
 	//using fake data
 	#ifdef FAKE_ENABLE
@@ -377,6 +381,9 @@ void fc_takeoff()
 	fc.flight.autostart_altitude = fc.altitude1;
 	fc.flight.autostart_timer = task_get_ms_tick();
 
+	fc.flight.autostart_lat = fc.gps_data.latitude;
+	fc.flight.autostart_lon = fc.gps_data.longtitude;
+
 	//reset battery info timer
 	fc_log_battery_next = 0;
 
@@ -442,7 +449,6 @@ void fc_sync_gps_time()
 
 	time_set_flags();
 }
-
 
 
 void fc_step()
@@ -535,6 +541,12 @@ void fc_step()
 		}
 	}
 
+	if (fc.gps_data.valid) {
+		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO) {
+			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
+			odometer_step();
+		}
+	}
 
 	//gps time sync
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)

@@ -469,7 +469,10 @@
                 ["WIDGET_WIND_SPD", "Wind speed"],
                 ["WIDGET_GCOMPASS", "GPS compass"],
                 ["WIDGET_AGL_HEIGHT", "Altitude abore ground"],
-                ["WIDGET_AGL_LEVEL", "Ground level"]
+                ["WIDGET_AGL_LEVEL", "Ground level"],
+                ["WIDGET_ODO_METER", "Odometer"],
+                ["WIDGET_ODO_BACK", "Back"],
+                ["WIDGET_ODO_DISTANCE", "Distance"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -762,6 +765,29 @@
             "desc": "Total acceleration in g", 
             "label": "Acc", 
             "value": "1.0"
-        }    
+        },
+        "WIDGET_ODO_METER":
+        {
+            "type": "value",
+            "name": "Odometer",
+            "desc": "Flown distance in km",
+            "label": "Odometer",
+            "value": "13.8"
+        },
+        "WIDGET_ODO_BACK":
+        {
+            "type": "arrow",
+            "name": "Back",
+            "desc": "Arrow showing direction to starting point",
+            "label": "Back"
+        },
+        "WIDGET_ODO_DISTANCE":
+        {
+            "type": "value",
+            "name": "Distance",
+            "desc": "Direct distance of flight in km",
+            "label": "Distance",
+            "value": "8.1"
+        }
     }
 }            

@@ -117,9 +117,14 @@ extern float widget_menu_fvalue1;
 #define WIDGET_AGL_LEVEL		30
 #include "agl.h"
 
-#define NUMBER_OF_WIDGETS		31
+#define WIDGET_ODO_METER		31
+#define WIDGET_ODO_BACK			32
+#define WIDGET_ODO_DISTANCE		33
+#include "odometer.h"
 
-#define NUMBER_OF_SORTED_WIDGETS	29
+#define NUMBER_OF_WIDGETS		34
+
+#define NUMBER_OF_SORTED_WIDGETS	32
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 
