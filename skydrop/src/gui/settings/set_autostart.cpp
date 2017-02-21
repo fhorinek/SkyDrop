@@ -67,7 +67,7 @@ void gui_set_autostart_action(uint8_t index)
 		break;
 
 		case(3):
-			gui_value_conf_P(PSTR("Timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.autostart.timeout, 5, 240, 1, gui_set_autostart_timeout_cb);
+			gui_value_conf_P(PSTR("Timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.autostart.timeout, 30, 240, 1, gui_set_autostart_timeout_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
