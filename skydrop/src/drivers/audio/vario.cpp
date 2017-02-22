@@ -160,7 +160,7 @@ void audio_vario_apply()
 
 void audio_vario_step(float vario)
 {
-	if (config.gui.vario_mute || config.gui.silent & (1 << active_page))
+	if (config.gui.vario_mute || (config.gui.silent & (1 << active_page)))
 	{
 		audio_off();
 		return;

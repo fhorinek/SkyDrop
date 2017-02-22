@@ -541,7 +541,7 @@ void gui_loop()
 	if (config.system.record_screen && storage_ready())
 	{
 		FIL fimg;
-		uint16_t wb;
+		UINT wb;
 		char fname[32];
 
 		sprintf_P(fname, PSTR("/REC/%08d"), gui_record_cnt);
@@ -582,7 +582,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_LEFT || type == B_MIDDLE || type == B_RIGHT)
 	{
-		if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS && gui_buttons_override == false)
+		if ( (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS) && gui_buttons_override == false)
 		{
 			if (*buff == BE_CLICK)
 				seq_start(&snd_but_short, config.gui.menu_volume);

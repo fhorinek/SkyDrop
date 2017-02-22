@@ -648,7 +648,6 @@ void pan1026::ParseSPP()
 void pan1026::ParseMNG_LE()
 {
 	uint8_t status, op_code, tmp;
-	uint16_t handle;
 
 #ifdef DEBUG_BT_ENABLED
 	DEBUG_BT("\n - MNG LE ----\n");
@@ -692,9 +691,11 @@ void pan1026::ParseMNG_LE()
 		break;
 
 		case(0x93): // TCU_MNG_LE_DISCONNECT_EVENT
+#ifdef DEBUG_BT_ENABLED
 			DEBUG_BT("LE Disconnection event\n");
-			handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
+		 	uint16_t handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT("Handle 0x%04X\n", handle);
+#endif
 			bt_irqh(BT_IRQ_DISCONNECTED, NULL);
 			this->btle_connection = false;
 
