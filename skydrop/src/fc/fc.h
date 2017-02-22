@@ -31,6 +31,7 @@
 #define FC_MPS_TO_KPH		(3.6)				//Kilometers per hour
 #define FC_MPS_TO_MPH		(2.23693629)		//Miles per hour
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
+#define FC_KM_TO_MILE		(0.621371)
 
 
 #define ALT_MODE_MASK	0b11000000
@@ -57,15 +58,6 @@
 #define LOGGER_WAIT_FOR_GPS	1
 #define LOGGER_ACTIVE		2
 #define LOGGER_ERROR		3
-
-struct flight_stats_t
-{
-	int16_t max_alt;	//in m
-	int16_t min_alt;	//in m
-
-	int16_t max_climb; 	//in cm
-	int16_t max_sink;	//in cm
-};
 
 /**
  * Bit masks for gps.new_sample.
@@ -170,9 +162,20 @@ struct vario_data_t
 	float avg;
 };
 
+struct flight_stats_t
+{
+	int16_t max_alt;	//in m
+	int16_t min_alt;	//in m
+
+	int16_t max_climb; 	//in cm
+	int16_t max_sink;	//in cm
+
+};
+
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
+
 struct flight_data_t
 {
 	flight_stats_t stats;
@@ -185,7 +188,16 @@ struct flight_data_t
 	uint32_t autostart_timer;
 	float autostart_altitude;
 
-	int32_t autostart_lat, autostart_lon;
+	//takeoff (home) position
+	bool home_valid;
+	int32_t home_lat;
+	int32_t home_lon;
+
+	//we will cache the bearing and distance to save cpu
+	//computation @ widget_draw ~30Hz
+	//computation @ gps new_sample ~1Hz
+	int16_t home_bearing;
+	float home_distance;
 };
 
 struct agl_data_t

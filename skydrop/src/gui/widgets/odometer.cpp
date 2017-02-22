@@ -13,7 +13,7 @@ void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 
 	char text[10];
 
-	double distance = fc.odometer / 100000.0;        // cm to km
+	float distance = fc.odometer / 100000.0;        // cm to km
 	if (config.altitude.alt1_flags & ALT_UNIT_I)
 		distance *= FC_KM_TO_MILE;
 
@@ -28,15 +28,17 @@ void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 
 	char text[10];
 
-	if (fc.flight.state == FLIGHT_FLIGHT || fc.flight.state == FLIGHT_LAND ) {
-		double distance;
+	if (fc.flight.home_valid && fc.gps_data.valid)
+	{
+		float distance = fc.flight.home_distance;
 
-		distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.autostart_lat, fc.flight.autostart_lon) / 100000.0;   // cm to km
 		if (config.altitude.alt1_flags & ALT_UNIT_I)
 			distance *= FC_KM_TO_MILE;
 
 		sprintf_P(text, PSTR("%.1f"), distance);
-	} else {
+	}
+	else
+	{
 		sprintf_P(text, PSTR("---"));
 	}
 
@@ -50,14 +52,16 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 
 	y += lh / 2;
 
-	if (fc.flight.state == FLIGHT_FLIGHT || fc.flight.state == FLIGHT_LAND ) {
-		int16_t bearing_back = gps_bearing(fc.flight.autostart_lat, fc.flight.autostart_lon, fc.gps_data.latitude, fc.gps_data.longtitude );
-		int16_t relative_direction = bearing_back - fc.gps_data.heading;
+	if (fc.flight.home_valid && fc.gps_data.valid)
+	{
+		int16_t relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
 		while (relative_direction < 0)
 			relative_direction += 360;
 
 		widget_arrow(relative_direction, x, y, w, h);
-	} else {
+	}
+	else
+	{
 		char tmp[5];
 		sprintf_P(tmp, PSTR("---"));
 		widget_value_int(tmp, x, y + lh, w, h - lh);

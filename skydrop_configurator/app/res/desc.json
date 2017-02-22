@@ -770,23 +770,23 @@
         {
             "type": "value",
             "name": "Odometer",
-            "desc": "Flown distance in km",
-            "label": "Odometer",
+            "desc": "Flown distance",
+            "label": "Odo",
             "value": "13.8"
         },
         "WIDGET_ODO_BACK":
         {
             "type": "arrow",
-            "name": "Back",
-            "desc": "Arrow showing direction to starting point",
-            "label": "Back"
+            "name": "Arrow to home",
+            "desc": "Arrow showing direction to take-off position",
+            "label": "Home"
         },
         "WIDGET_ODO_DISTANCE":
         {
             "type": "value",
-            "name": "Distance",
-            "desc": "Direct distance of flight in km",
-            "label": "Distance",
+            "name": "Distance from home",
+            "desc": "Direct distance measured from take-off position",
+            "label": "Home",
             "value": "8.1"
         }
     }

@@ -89,13 +89,25 @@ uint32_t gps_distance_3d(int32_t lat1, int32_t lon1, double alt1,
  */
 void odometer_step()
 {
-	static int32_t last_lat = -32768;
+	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO)
+		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
+	else
+		return;
+
+	if (fc.flight.home_valid)
+	{
+		fc.flight.home_bearing = gps_bearing(fc.flight.home_lat, fc.flight.home_lon, fc.gps_data.latitude, fc.gps_data.longtitude );
+		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.home_lat, fc.flight.home_lon) / 100000.0;   // cm to km
+	}
+
+	static int32_t last_lat = INT32_MAX;
 	static int32_t last_lon;
 	static float last_alt;
 
 	// Do we already have a previous GPS point?
-	if ( last_lat != -32768 ) {
-	  fc.odometer += gps_distance_3d(last_lat, last_lon, last_alt, fc.gps_data.latitude, fc.gps_data.longtitude, fc.gps_data.altitude);
+	if (last_lat != INT32_MAX)
+	{
+		fc.odometer += gps_distance_3d(last_lat, last_lon, last_alt, fc.gps_data.latitude, fc.gps_data.longtitude, fc.gps_data.altitude);
 	}
 
 	// Save the current GPS position for the next step

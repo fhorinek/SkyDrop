@@ -6,8 +6,8 @@ ADDED:
  * new widget "Distance" showing direct distance from starting point in km 
  
 CHANGED:
- * [Please write here, what has changed or delete this]
-
+ * Minimum auto-takeoff/land timeout is now 30 seconds 
+ 
 Build 3395 - 14. 02. 2017
 ========================================================
 FIX:

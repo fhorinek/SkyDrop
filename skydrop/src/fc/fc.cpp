@@ -15,7 +15,6 @@
 #include "logger/logger.h"
 
 #include "../gui/gui_dialog.h"
-//#include "../gui/widgets/acc.h"
 
 volatile flight_computer_data_t fc;
 
@@ -200,7 +199,7 @@ void fc_deinit()
 	if (config.connectivity.use_gps)
 		gps_stop();
 
-	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
+	for (uint8_t i=0; i < NUMBER_OF_ALTIMETERS; i++)
 	{
 		eeprom_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
 	}
@@ -381,8 +380,15 @@ void fc_takeoff()
 	fc.flight.autostart_altitude = fc.altitude1;
 	fc.flight.autostart_timer = task_get_ms_tick();
 
-	fc.flight.autostart_lat = fc.gps_data.latitude;
-	fc.flight.autostart_lon = fc.gps_data.longtitude;
+	//set start position
+	if (fc.gps_data.valid)
+	{
+		fc.flight.home_valid = true;
+		fc.flight.home_lat = fc.gps_data.latitude;
+		fc.flight.home_lon = fc.gps_data.longtitude;
+	}
+	else
+		fc.flight.home_valid = false;
 
 	//reset battery info timer
 	fc_log_battery_next = 0;
@@ -471,6 +477,8 @@ void fc_step()
 
 	wind_step();
 
+	odometer_step();
+
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 	{
@@ -541,12 +549,7 @@ void fc_step()
 		}
 	}
 
-	if (fc.gps_data.valid) {
-		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO) {
-			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
-			odometer_step();
-		}
-	}
+
 
 	//gps time sync
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
