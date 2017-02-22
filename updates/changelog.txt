@@ -1,12 +1,14 @@
-Build XXXX - DD. MM. 2017
+Build 3416 - 22. 02. 2017
 ========================================================
 ADDED:
- * new widget "Odometer" to show distance flown in km
- * new widget "Back" showing arrow in direction back to starting point
- * new widget "Distance" showing direct distance from starting point in km 
+ * new widget "Odometer" to show distance flown in km (bubeck)
+ * new widget "Back" showing arrow in direction back to starting point (bubeck)
+ * new widget "Distance" showing direct distance from starting point in km (bubeck)
+ * graphical statisbar icons (bubeck)
  
 CHANGED:
- * Minimum auto-takeoff/land timeout is now 30 seconds 
+ * Minimum auto-takeoff/land timeout is now 30 seconds
+ * odometer filtering
  
 Build 3395 - 14. 02. 2017
 ========================================================
@@ -18,7 +20,7 @@ FIX:
 Build 3394 - 04. 02. 2017
 ========================================================
 ADDED:
- * Handling 30m HGT files for increased resolution
+ * Handling 30m HGT files for increased resolution (bubeck)
  
 CHANGED:
  * Simplified windspeed and direction calculation

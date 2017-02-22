@@ -621,13 +621,13 @@ void gui_statusbar()
 
 		if(fc.gps_data.valid)
 		{
-			index = (task_get_ms_tick() % 1000) / (1000 / IMG_GPS_ON_NO);
+			index = (task_get_ms_tick() % 1000) / (1000 / (IMG_GPS_ON_NO - 1));
 		    disp.DrawImage(img_gps_on + index * 6, GUI_DISP_WIDTH - IMG_GPS_WIDTH, 1, IMG_GPS_WIDTH, IMG_GPS_HEIGHT);
 		}
 		else
 		{
 			if (GUI_BLINK_TGL(2000)) {
-				index = (task_get_ms_tick() % 1000) / (1000 / IMG_GPS_OFF_NO);
+				index = (task_get_ms_tick() % 1000) / (1000 / (IMG_GPS_OFF_NO - 1));
 				disp.DrawImage(img_gps_off + index * 6, GUI_DISP_WIDTH - IMG_GPS_WIDTH, 1, IMG_GPS_WIDTH, IMG_GPS_HEIGHT);
 			}
 		}
@@ -650,8 +650,6 @@ void gui_statusbar()
 	//LOG indicator
 	if (fc.logger_state != LOGGER_IDLE)
 	{
-		char tmp[3];
-		disp.LoadFont(F_TEXT_S);
 
 		if (fc.logger_state == LOGGER_ACTIVE)
 		{
@@ -672,7 +670,7 @@ void gui_statusbar()
 	//Debug.log indicator
 	if (config.system.debug_log == DEBUG_MAGIC_ON)
 	{
-		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 25);
+		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
 	}
 
 	//battery indicator

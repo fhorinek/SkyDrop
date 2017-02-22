@@ -22,6 +22,18 @@ void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
+void widget_odometer_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+{
+	if (type == B_MIDDLE && *buff == BE_LONG)
+	{
+		if (fc.odometer > 0)
+		{
+			gui_showmessage_P(PSTR("Odometer reset"));
+			fc.odometer = 0;
+		}
+	}
+}
+
 void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	uint8_t lh = widget_label_P(PSTR("Home"), x, y);
@@ -68,7 +80,7 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 	}
 }
 
-register_widget1(w_odo_meter,    "Odometer",       widget_odometer_draw);
+register_widget2(w_odo_meter, 	 "Odometer", 	  widget_odometer_draw, 0, widget_odometer_irqh);
 register_widget1(w_odo_back,     "Home Arrow",     widget_odoback_draw);
 register_widget1(w_odo_distance, "Home Distance",  widget_ododistance_draw);
 

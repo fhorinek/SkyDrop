@@ -209,8 +209,11 @@ struct agl_data_t
 	int16_t ground_level;
 };
 
-#define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
-#define FC_GLIDE_MIN_SINK	(-0.01)
+#define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
+#define FC_GLIDE_MIN_SINK		(-0.01)
+
+#define FC_ODO_MAX_SPEED_DIFF	(5.39957) 	//10km/h
+#define FC_ODO_MIN_SPEED		(0.539957) //1km/h
 
 struct flight_computer_data_t
 {

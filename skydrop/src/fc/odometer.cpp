@@ -74,7 +74,7 @@ uint32_t gps_distance_3d(int32_t lat1, int32_t lon1, double alt1,
 			 	 	 	 int32_t lat2, int32_t lon2, double alt2)
 {
 	uint32_t dx, dy;
-	double da;
+	float da;
 
 	dx = gps_distance_2d(lat1, lon1, lat1, lon2);
 	dy = gps_distance_2d(lat1, lon1, lat2, lon1);
@@ -89,6 +89,12 @@ uint32_t gps_distance_3d(int32_t lat1, int32_t lon1, double alt1,
  */
 void odometer_step()
 {
+	#define NO_LAT_DATA  ((int32_t)2147483647)
+
+	static int32_t last_lat = NO_LAT_DATA;
+	static int32_t last_lon;
+	static float last_alt;
+
 	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO)
 		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
 	else
@@ -100,14 +106,18 @@ void odometer_step()
 		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.home_lat, fc.flight.home_lon) / 100000.0;   // cm to km
 	}
 
-	static int32_t last_lat = INT32_MAX;
-	static int32_t last_lon;
-	static float last_alt;
-
 	// Do we already have a previous GPS point?
-	if (last_lat != INT32_MAX)
+	if (last_lat != NO_LAT_DATA)
 	{
-		fc.odometer += gps_distance_3d(last_lat, last_lon, last_alt, fc.gps_data.latitude, fc.gps_data.longtitude, fc.gps_data.altitude);
+		uint32_t v = gps_distance_3d(last_lat, last_lon, last_alt, fc.gps_data.latitude, fc.gps_data.longtitude, fc.gps_data.altitude);
+
+		//calculated speed in knots
+		uint16_t calc_speed = (v * FC_MPS_TO_KNOTS) / 100;
+
+		//do not add when gps speed is < 1 km/h
+		//do not add when difference between calculated speed and gps speed id > 10 km/h
+		if (abs(calc_speed - fc.gps_data.groud_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.groud_speed > FC_ODO_MIN_SPEED)
+			fc.odometer += v;
 	}
 
 	// Save the current GPS position for the next step
