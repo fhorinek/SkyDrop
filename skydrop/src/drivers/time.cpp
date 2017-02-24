@@ -57,7 +57,7 @@ uint32_t datetime_to_epoch(uint8_t sec, uint8_t min, uint8_t hour, uint8_t day, 
 		}
 	}
 	// add days for this year
-	for (i = 0; i < month - 1; i++) {
+	for (i = 0; i < (uint16_t)(month - 1); i++) {
 		if (i == 1 && LEAP_YEAR(year)) {
 			timestamp += 60 * 60 * 24L * 29;
 		} else {

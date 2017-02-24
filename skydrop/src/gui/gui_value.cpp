@@ -91,7 +91,7 @@ void gui_value_loop()
 			disp.LoadFont(F_TEXT_S);
 			f_h = disp.GetTextHeight();
 			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 2);
-			fprintf(lcd_out, "f=%0.0f", audio_vario_freq);
+			fprintf(lcd_out, "f=%0.0f", (double)audio_vario_freq);
 			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 4 + f_h);
 			fprintf(lcd_out, "l=%4u", audio_vario_length / 31);
 			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 6 + f_h * 2);

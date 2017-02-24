@@ -35,7 +35,7 @@ void skybean_info(uint8_t op)
 		break;
 
 		case(0x03): //SW version
-			sprintf(tmp, "build %04u", BUILD_NUMBER);
+			sprintf(tmp, "build %04lu", BUILD_NUMBER);
 			len = strlen(tmp);
 
 			skybean_startpacket(len + 1, SKYBEAN_INFO, op);

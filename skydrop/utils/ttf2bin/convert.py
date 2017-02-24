@@ -216,9 +216,9 @@ class FontConvertor:
             if (i % 5 == 0):
                 file.write("\n// ")
             else:
-                file.write("\t\t")
-                
-            file.write("%03d %02X = %c" % (c, c, chr(c)))
+                file.write("    ")
+
+            file.write("%3d 0x%02X = '%c'" % (c, c, chr(c)))
             i += 1
                 
         file.write("\n\n")
