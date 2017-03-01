@@ -52,7 +52,6 @@ void gui_settings_action(uint8_t index)
 	case(6):
 		gui_switch_task(GUI_SET_DEBUG);
 	break;
-
 	}
 }
 
@@ -88,8 +87,6 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 			sprintf_P(text, PSTR("Debug"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
-
-
 	}
 }
 
