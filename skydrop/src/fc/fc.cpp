@@ -423,7 +423,7 @@ void fc_landing()
 	fc.flight.autostart_timer = task_get_ms_tick();
 	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
 
-	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local());
+	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
 	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
 	logger_comment(PSTR(" SKYDROP-ALT-MAX-m: %d "), fc.flight.stats.max_alt);
 	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);

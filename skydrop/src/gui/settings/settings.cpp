@@ -3,7 +3,7 @@
 
 void gui_settings_init()
 {
-	gui_list_set(gui_settings_item, gui_settings_action, 8, GUI_PAGES);
+	gui_list_set(gui_settings_item, gui_settings_action, 7, GUI_PAGES);
 }
 
 void gui_settings_stop()
@@ -52,10 +52,6 @@ void gui_settings_action(uint8_t index)
 	case(6):
 		gui_switch_task(GUI_SET_DEBUG);
 	break;
-	case(7):
-		gui_switch_task(GUI_FLIGHTLOG1);
-	break;
-
 	}
 }
 
@@ -89,10 +85,6 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		break;
 		case (6):
 			sprintf_P(text, PSTR("Debug"));
-			*flags |= GUI_LIST_FOLDER;
-		break;
-		case (7):
-			sprintf_P(text, PSTR("Flight log"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

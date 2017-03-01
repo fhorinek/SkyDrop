@@ -22,7 +22,7 @@ char flightlog_dir[30];
 
 void gui_flightlog1_init()
 {
-	gui_list_set(gui_flightlog1_item, gui_flightlog1_action, logger_count(true), GUI_SETTINGS);
+	gui_list_set(gui_flightlog1_item, gui_flightlog1_action, logger_count(true), GUI_SET_LOGGER);
 }
 
 void gui_flightlog1_stop() {}
