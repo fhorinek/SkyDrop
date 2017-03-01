@@ -69,9 +69,9 @@ void parse_logfile(const char *filename)
 	while(1) {
 		if ( f_gets(line, sizeof(line), &fp) == NULL ) break;
 
-		p = strstr_P(line, PSTR("SKYDROP-START: "));
+		p = strstr_P(line, PSTR("SKYDROP-START-s: "));
 		if ( p != NULL ) {
-			log_start = atol(p + 15);
+			log_start = atol(p + 17);
 			continue;
 		}
 

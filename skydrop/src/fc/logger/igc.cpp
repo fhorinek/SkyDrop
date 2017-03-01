@@ -154,10 +154,6 @@ void igc_write_grecord()
 	}
 
 	igc_writeline(line, false);
-
-	//rewind pointer
-	uint32_t pos = f_tell(&log_file);
-	assert(f_lseek(&log_file, pos - 43) == FR_OK);
 #endif
 }
 
@@ -205,7 +201,6 @@ void igc_step()
 	//B record
 	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);
 	igc_writeline(line);
-	igc_write_grecord();
 }
 
 void igc_comment(char * text)
@@ -218,5 +213,6 @@ void igc_comment(char * text)
 
 void igc_stop()
 {
+	igc_write_grecord();
 	assert(f_close(&log_file) == FR_OK);
 }

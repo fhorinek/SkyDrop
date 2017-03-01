@@ -1,6 +1,9 @@
 /*
  * gui_flightlog1.cpp
  *
+ * Let the user choose a log directory. If he selects one, then store that
+ * name in flightlog_dir and call gui_flightlog2.
+ *
  *  Created on: 22.02.2017
  *      Author: tilmann@bubecks.de
  */
@@ -19,8 +22,6 @@ char flightlog_dir[30];
 
 void gui_flightlog1_init()
 {
-	//config.system.debug_log = DEBUG_MAGIC_ON;
-
 	gui_list_set(gui_flightlog1_item, gui_flightlog1_action, logger_count(true), GUI_SETTINGS);
 }
 
@@ -39,32 +40,14 @@ void gui_flightlog1_irqh(uint8_t type, uint8_t * buff)
 void gui_flightlog1_action(uint8_t index)
 {
  	logger_fileno(index + 1, flightlog_dir, true);
- 	DEBUG("\n\n\nCalling FLIGHTLOG2 with %s\n", flightlog_dir);
  	gui_switch_task(GUI_FLIGHTLOG2);
 }
 
 void gui_flightlog1_item(uint8_t idx, char * text, uint8_t * flags, char * sub_text)
 {
-
-	if (true) {
-		logger_fileno(idx + 1, text, true);
-		strcpy(text, text + 6);         // strlen("/logs/") = 6
-		text[10] = 0;                   // strlen("2017/02/17") = 10
-		*flags |= GUI_LIST_FOLDER;
-
-		DEBUG("gui_flightlog_item(%d)=%s\n", idx, text);
-
-	} else {
-		logger_fileno(idx + 1, text, false);
-
-		strcpy(sub_text, text + 17);    // strlen("/logs/2017/02/17/") = 17
-
-		// Remove preceeding LOG_DIR:
-		strcpy(text, text + 6);         // strlen("/logs/") = 6
-		text[10] = 0;                   // strlen("2017/02/17") = 10
-		DEBUG("gui_flightlog_item(%d)=%s,%s\n", idx, text, sub_text);
-
-		*flags |= GUI_LIST_SUB_TEXT;
-	}
+	logger_fileno(idx + 1, text, true);
+	strcpy(text, index(text, '/') + 1);         // strlen("/logs/") = 6
+	//text[10] = 0;                   // strlen("2017/02/17") = 10
+	*flags |= GUI_LIST_FOLDER;
 }
 

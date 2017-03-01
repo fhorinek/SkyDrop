@@ -1,6 +1,9 @@
 /*
  * gui_flightlog2.cpp
  *
+ * Let the user choose a file in the previously chosen directory.
+ * The filename is stored in flightlog_file and then gui_flightlog3 is called.
+ *
  *  Created on: 22.02.2017
  *      Author: tilmann@bubecks.de
  */
@@ -44,7 +47,7 @@ void gui_flightlog2_item(uint8_t idx, char * text, uint8_t * flags, char * sub_t
 {
 	logger_fileno(flightlog_dir, idx + 1, text, false);
 
-	strcpy(text, text + 17);    // strlen("/logs/2017/02/17/") = 17
+	strcpy(text, rindex(text, '/') + 1);   // copy only basename
 
 	*flags |= GUI_LIST_FOLDER;
 }
