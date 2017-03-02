@@ -184,7 +184,7 @@ void logger_start()
 	sprintf_P(path, PSTR("%S"), LOG_DIR_P);
 	f_mkdir(path);
 	//day
-	sprintf_P(path, PSTR("%S/%04d-%02d-%02d"), LOG_DIR_P, year, month, day);
+	sprintf_P(path, PSTR("%S/%04d%02d%02d"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
 
 	switch (config.logger.format)
