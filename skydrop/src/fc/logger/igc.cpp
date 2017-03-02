@@ -217,6 +217,7 @@ void igc_comment(char * text)
 
 	sprintf_P(line, PSTR("L%S %s"), LOG_MID_P, text);
 	igc_writeline(line, false);
+	igc_write_grecord();
 }
 
 void igc_stop()
