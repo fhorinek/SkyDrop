@@ -122,6 +122,9 @@ bool igc_start(char * path)
 	//H F ALP
 	sprintf_P(line, PSTR("HFALPALTPRESSURE:ISA"));
 	igc_writeline(line);
+	//H TZN
+	sprintf_P(line, PSTR("HTZN%f0.1"), config.system.time_zone / 2.0);
+	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY
 	//Developer note: we can't publish the private key for signing the IGC file
