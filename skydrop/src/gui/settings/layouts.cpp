@@ -73,23 +73,23 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Change widgets"));
+			strcpy_P(text, PSTR("Change widgets"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Change layout"));
+			strcpy_P(text, PSTR("Change layout"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Pages count"));
+			strcpy_P(text, PSTR("Pages count"));
 			sprintf_P(sub_text, PSTR("%d"), config.gui.number_of_pages);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Silent page"));
+			strcpy_P(text, PSTR("Silent page"));
 			if (config.gui.silent & (1 << active_page))
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -97,7 +97,7 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Hide labels"));
+			strcpy_P(text, PSTR("Hide labels"));
 			if (config.gui.hide_label & (1 << active_page))
 				*flags |= GUI_LIST_CHECK_ON;
 			else

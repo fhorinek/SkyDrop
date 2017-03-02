@@ -64,42 +64,42 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Vario"));
+			strcpy_P(text, PSTR("Vario"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Altimeters"));
+			strcpy_P(text, PSTR("Altimeters"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Logger"));
+			strcpy_P(text, PSTR("Logger"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Flight logs"));
+			strcpy_P(text, PSTR("Flight logs"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("GPS"));
+			strcpy_P(text, PSTR("GPS"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Bluetooth"));
+			strcpy_P(text, PSTR("Bluetooth"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
-			sprintf_P(text, PSTR("Settings"));
+			strcpy_P(text, PSTR("Settings"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (7):
-			sprintf_P(text, PSTR("Debug"));
+			strcpy_P(text, PSTR("Debug"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

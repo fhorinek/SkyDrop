@@ -225,21 +225,21 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 {
 	if (index == 0)
 	{
-		sprintf_P(text, PSTR("Mode"));
+		strcpy_P(text, PSTR("Mode"));
 		*flags |= GUI_LIST_SUB_TEXT;
 		switch (set_alt_flags & 0b11000000)
 		{
 			case(ALT_ABS_QNH1):
-				sprintf_P(sub_text, PSTR("Absolute QNH1"));
+				strcpy_P(sub_text, PSTR("Absolute QNH1"));
 			break;
 			case(ALT_ABS_QNH2):
-				sprintf_P(sub_text, PSTR("Absolute QNH2"));
+				strcpy_P(sub_text, PSTR("Absolute QNH2"));
 			break;
 			case(ALT_ABS_GPS):
-				sprintf_P(sub_text, PSTR("Absolute GPS"));
+				strcpy_P(sub_text, PSTR("Absolute GPS"));
 			break;
 			case(ALT_DIFF):
-				sprintf_P(sub_text, PSTR("Relative"));
+				strcpy_P(sub_text, PSTR("Relative"));
 		}
 		return;
 	}
@@ -248,7 +248,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 	{
 		if (index == 1)
 		{
-			sprintf_P(text, PSTR("Relative to"));
+			strcpy_P(text, PSTR("Relative to"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("Altimeter %d"), (set_alt_flags & 0b00001111) + 1);
 			return;
@@ -256,7 +256,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 		if (index == 2)
 		{
-			sprintf_P(text, PSTR("Zero at Take off"));
+			strcpy_P(text, PSTR("Zero at Take off"));
 			if (set_alt_flags & ALT_AUTO_ZERO)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -267,17 +267,17 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 	if ((index == 3 && set_alt_list_num == 5) || index == 1)
 	{
-		sprintf_P(text, PSTR("Units"));
+		strcpy_P(text, PSTR("Units"));
 		*flags |= GUI_LIST_SUB_TEXT;
 		if (set_alt_flags & ALT_UNIT_I)
-			sprintf_P(sub_text, PSTR("imperial"));
+			strcpy_P(sub_text, PSTR("imperial"));
 		else
-			sprintf_P(sub_text, PSTR("metric"));
+			strcpy_P(sub_text, PSTR("metric"));
 		return;
 	}
 
 	if ((index == 4 && set_alt_list_num == 5) ||index == 2)
-		sprintf_P(text, PSTR("Get from GPS"));
+		strcpy_P(text, PSTR("Get from GPS"));
 
 }
 

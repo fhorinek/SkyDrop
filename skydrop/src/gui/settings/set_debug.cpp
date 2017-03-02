@@ -88,60 +88,60 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Reset"));
+			strcpy_P(text, PSTR("Reset"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (system_rst & 0b00100000)
-				sprintf_P(sub_text, PSTR("Software"));
+				strcpy_P(sub_text, PSTR("Software"));
 			else
 			if (system_rst & 0b00010000)
-				sprintf_P(sub_text, PSTR("Programming"));
+				strcpy_P(sub_text, PSTR("Programming"));
 			else
 			if (system_rst & 0b00001000)
-				sprintf_P(sub_text, PSTR("Watchdog"));
+				strcpy_P(sub_text, PSTR("Watchdog"));
 			else
 			if (system_rst & 0b00000100)
-				sprintf_P(sub_text, PSTR("Brownout"));
+				strcpy_P(sub_text, PSTR("Brownout"));
 			else
 			if (system_rst & 0b00000010)
-				sprintf_P(sub_text, PSTR("External"));
+				strcpy_P(sub_text, PSTR("External"));
 			else
 			if (system_rst & 0b00000001)
-				sprintf_P(sub_text, PSTR("Power On"));
+				strcpy_P(sub_text, PSTR("Power On"));
 			else
 				sprintf_P(sub_text, PSTR("Unknown: %02X"), system_rst);
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Firmware"));
+			strcpy_P(text, PSTR("Firmware"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("%s"), fw_info.app_name);
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("ADC raw (max)"));
+			strcpy_P(text, PSTR("ADC raw (max)"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("%d (%u)"), battery_adc_raw, bat_adc_max);
 		break;
 
 //		case (3):
-//			sprintf_P(text, PSTR("Reset Factory test"));
+//			strcpy_P(text, PSTR("Reset Factory test"));
 //		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Board rev."));
+			strcpy_P(text, PSTR("Board rev."));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (hw_revision == HW_REW_1504)
-				sprintf_P(sub_text, PSTR("drop 1504"));
+				strcpy_P(sub_text, PSTR("drop 1504"));
 			else if (hw_revision == HW_REW_1506)
-				sprintf_P(sub_text, PSTR("drop 1506"));
-			else sprintf_P(sub_text, PSTR("???"));
+				strcpy_P(sub_text, PSTR("drop 1506"));
+			else strcpy_P(sub_text, PSTR("???"));
 
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Debug log"));
+			strcpy_P(text, PSTR("Debug log"));
 			if (config.system.debug_log == DEBUG_MAGIC_ON)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -149,12 +149,12 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Clear log"));
+			strcpy_P(text, PSTR("Clear log"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
-			sprintf_P(text, PSTR("Debug GPS"));
+			strcpy_P(text, PSTR("Debug GPS"));
 			if (config.system.debug_gps)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -162,14 +162,14 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (7):
-			sprintf_P(text, PSTR("WDT last PC"));
+			strcpy_P(text, PSTR("WDT last PC"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			sprintf_P(sub_text, PSTR("0x%lX"), debug_last_pc);
 		break;
 
 		case (8):
-			sprintf_P(text, PSTR("Record screen"));
+			strcpy_P(text, PSTR("Record screen"));
 			if (config.system.record_screen)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -177,28 +177,28 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (9):
-			sprintf_P(text, PSTR("Acc bias"));
+			strcpy_P(text, PSTR("Acc bias"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			memcpy((void *)&tmp_vf, (void *)&fc.acc.bias, sizeof(tmp_vf));
 			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
 		break;
 
 		case (10):
-			sprintf_P(text, PSTR("Acc sens"));
+			strcpy_P(text, PSTR("Acc sens"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			memcpy((void *)&tmp_vf, (void *)&fc.acc.sens, sizeof(tmp_vf));
 			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
 		break;
 
 		case (11):
-			sprintf_P(text, PSTR("Mag bias"));
+			strcpy_P(text, PSTR("Mag bias"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			memcpy((void *)&tmp_vf, (void *)&fc.mag.bias, sizeof(tmp_vf));
 			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
 		break;
 
 		case (12):
-			sprintf_P(text, PSTR("Mag sens"));
+			strcpy_P(text, PSTR("Mag sens"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			memcpy((void *)&tmp_vf, (void *)&fc.mag.sens, sizeof(tmp_vf));
 			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));

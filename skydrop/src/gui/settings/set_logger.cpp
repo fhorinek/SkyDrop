@@ -104,7 +104,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Enabled"));
+			strcpy_P(text, PSTR("Enabled"));
 			if (config.logger.enabled)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -112,33 +112,33 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Format"));
+			strcpy_P(text, PSTR("Format"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.logger.format)
 			{
 				case(LOGGER_IGC):
-					sprintf_P(sub_text, PSTR("IGC"));
+					strcpy_P(sub_text, PSTR("IGC"));
 				break;
 
 				case(LOGGER_KML):
-					sprintf_P(sub_text, PSTR("KML"));
+					strcpy_P(sub_text, PSTR("KML"));
 				break;
 
 				case(LOGGER_RAW):
-					sprintf_P(sub_text, PSTR("RAW (IMU diag)"));
+					strcpy_P(sub_text, PSTR("RAW (IMU diag)"));
 				break;
 
 				case(LOGGER_AERO):
-					sprintf_P(sub_text, PSTR("Aero (acc only)"));
+					strcpy_P(sub_text, PSTR("Aero (acc only)"));
 				break;
 			}
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Auto start/land"));
+			strcpy_P(text, PSTR("Auto start/land"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
-				sprintf_P(sub_text, PSTR("record always"));
+				strcpy_P(sub_text, PSTR("record always"));
 			else if (config.autostart.start_sensititvity > 0 && config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("S +/-%dm L +/-%dm"), config.autostart.start_sensititvity, config.autostart.land_sensititvity);
 			else if(config.autostart.start_sensititvity > 0)
@@ -146,35 +146,35 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			else if(config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("L +/-%dm"), config.autostart.land_sensititvity);
 			else
-				sprintf_P(sub_text, PSTR("disabled"));
+				strcpy_P(sub_text, PSTR("disabled"));
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Pilot name"));
+			strcpy_P(text, PSTR("Pilot name"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (strlen((char *)config.logger.pilot) == 0)
-				sprintf_P(sub_text, PSTR("<empty>"));
+				strcpy_P(sub_text, PSTR("<empty>"));
 			else
 				gui_fit_text((char *)config.logger.pilot, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Glider type"));
+			strcpy_P(text, PSTR("Glider type"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (strlen((char *)config.logger.glider_type) == 0)
-				sprintf_P(sub_text, PSTR("<empty>"));
+				strcpy_P(sub_text, PSTR("<empty>"));
 			else
 				gui_fit_text((char *)config.logger.glider_type, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Glider id"));
+			strcpy_P(text, PSTR("Glider id"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (strlen((char *)config.logger.glider_id) == 0)
-				sprintf_P(sub_text, PSTR("<empty>"));
+				strcpy_P(sub_text, PSTR("<empty>"));
 			else
 				gui_fit_text((char *)config.logger.glider_id, sub_text, GUI_DISP_WIDTH - 2);
 		break;

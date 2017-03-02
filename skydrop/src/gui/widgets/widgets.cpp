@@ -294,6 +294,11 @@ void widgets_draw(uint8_t page)
  */
 void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
+	// make sure, that angle is always between 0 and 359:
+	if (angle < 0 || angle > 359) {
+		angle = (angle % 360 + 360) % 360;
+	}
+
 	uint8_t s = min(w, h);
 	uint8_t mx = x + w / 2;
 	uint8_t my = y + h / 2;

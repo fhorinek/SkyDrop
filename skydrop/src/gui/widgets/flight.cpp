@@ -10,7 +10,7 @@ void widget_glide_ratio(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flag
 	if (fc.glide_ratio_valid)
 		sprintf_P(text, PSTR("%0.1f"), fc.glide_ratio);
 	else
-		sprintf_P(text, PSTR("---"));
+		strcpy_P(text, PSTR("---"));
 
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
