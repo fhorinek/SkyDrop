@@ -74,9 +74,11 @@ void acc_calc_init()
 
 void acc_calc_vector() //calculate real acceleration using calibration values
 {
+
 	fc.acc.vector.x = (float(fc.acc.raw.x) - fc.acc.bias.x) / fc.acc.sens.x;
 	fc.acc.vector.y = (float(fc.acc.raw.y) - fc.acc.bias.y) / fc.acc.sens.y;
 	fc.acc.vector.z = (float(fc.acc.raw.z) - fc.acc.bias.z) / fc.acc.sens.z;
+
 }
 
 void acc_calc_total()	//calculate total acceleration

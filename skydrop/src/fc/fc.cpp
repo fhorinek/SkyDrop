@@ -57,6 +57,7 @@ void fc_init()
 	protocol_init();
 	wind_init();
 	agl_init();
+	imu_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -359,6 +360,9 @@ ISR(FC_MEAS_TIMER_CMPC)
 //	DEBUG(";%d;%d;%d", fc.mag_data.x, fc.mag_data.y, fc.mag_data.z);
 //	DEBUG(";%d;%d;%d", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
 //	DEBUG(";%0.0f\n", ms5611.pressure);
+
+	imu_step();
+
 
 	BT_ALLOW_TX
 }
