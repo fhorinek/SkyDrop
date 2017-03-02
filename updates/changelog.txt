@@ -1,4 +1,9 @@
+Build XXXX - DD. MM. 2017
+========================================================
 ADDED:
+ * save flight statistics inside log file
+ * new file explorer under "logger" menu entry allowing
+   to see statistics in log files.
  * Time zone in logger #255
 
 Build 3416 - 22. 02. 2017

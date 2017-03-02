@@ -337,6 +337,26 @@ uint32_t atoi_n(char * str, uint8_t n);
 uint8_t atoi_c(char * str);
 float atoi_f(char * str);
 
+/**
+ * Returns a pointer to the last occurrence of the character c in the string s.
+ *
+ * @param s the string to look through
+ * @param c the character to search
+ *
+ * @return pointer to found character or NULL if not found.
+ */
+char *index(char * s, char c);
+
+/**
+ * Returns a pointer to the last occurrence of the character c in the string s.
+ *
+ * @param s the string to look through
+ * @param c the character to search
+ *
+ * @return pointer to found character or NULL if not found.
+ */
+char *rindex(char * s, char c);
+
 char * find_comma(char * str);
 uint8_t nmea_checksum(char *s);
 
