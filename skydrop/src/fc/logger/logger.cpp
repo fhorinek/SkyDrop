@@ -183,8 +183,11 @@ void logger_start()
 	//base dir
 	sprintf_P(path, PSTR("%S"), LOG_DIR_P);
 	f_mkdir(path);
-	//day
-	sprintf_P(path, PSTR("%S/%04d-%02d-%02d"), LOG_DIR_P, year, month, day);
+	//year
+	sprintf_P(path, PSTR("%S/%04u"), LOG_DIR_P, year, month, day);
+	f_mkdir(path);
+	//month-day
+	sprintf_P(path, PSTR("%S/%04u/%02u-%02u"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
 
 	switch (config.logger.format)
@@ -250,107 +253,3 @@ void logger_stop()
 	}
 }
 
-/**
- * Traverse dirname and return the path entry number "count" in fname.
- * If the entry is found, then "0" is returned. Otherwise the remaining
- * value of count is returned. E.g. if the current directory holds 3
- * files and we look for count=5, then 2 is returned.
- *
- * @param dirname The name of the directory, where we start searching
- * @param count   The number of the entry, which we are searching, start with "1"
- * @param fname   A pointer to a memory area allocated by caller to take full filename
- *                (including directory) of the found filename
- * @param dirOnly Set to "true", if we only look for directories.
- *                "false" means, to look for files only.
- *
- * @return the remaining count.
- */
-uint16_t logger_fileno(const char *dirname, uint16_t count, char *fname, bool dirOnly)
-{
-	FRESULT f_result;
-	DIR dir;
-	FILINFO fileinfo;
-	char next_dirname[128];
-
-	f_result = f_opendir(&dir, dirname);
-	if (f_result != FR_OK )
-		return count;
-
-	while(1) {
-		f_result = f_readdir (&dir, &fileinfo);
-		if ( fileinfo.fname[0] == 0) break;           // end of directory
-
-		if ( fileinfo.fattrib & AM_DIR ) {
-			sprintf(next_dirname, "%s/%s", dirname, fileinfo.fname);
-			count = logger_fileno(next_dirname, count, fname, dirOnly);
-			if (count == 0) break;
-		} else {
-			count--;
-			if (count == 0) {
-				if (dirOnly) {
-					sprintf(fname, "%s", dirname);
-				} else {
-					sprintf(fname, "%s/%s", dirname, fileinfo.fname);
-				}
-				break;
-			}
-			if (dirOnly) {
-				break;
-			}
-		}
-	}
-
-	f_closedir(&dir);
-
-	return count;
-}
-
-/**
- * Traverse LOG_DIR and return the path entry number "count" in fname.
- * If the entry is found, then "0" is returned. Otherwise the remaining
- * value of count is returned. E.g. if the current directory holds 3
- * files and we look for count=5, then 2 is returned.
- *
- * @param count   The number of the entry, which we are searching, start with "1"
- * @param fname   A pointer to a memory area allocated by caller to take full filename
- *                (including directory) of the found filename
- * @param dirOnly Set to "true", if we only look for directories.
- *                "false" means, to look for files only.
- *
- * @return the remaining count.
- */
-uint16_t logger_fileno(uint16_t count, char *fname, bool dirOnly)
-{
-	return logger_fileno(LOG_DIR, count, fname, dirOnly);
-}
-
-/**
- * Return how many entries we have.
- *
- * @param dirname The name of the directory to search through all subdirs
- * @param dirOnly Set to "true", if we only look for directories.
- *                "false" means, to look for files only.
- *
- * @return the number of path entries found.
- */
-uint16_t logger_count(const char *dirname, bool dirOnly)
-{
-	char fname[128];
-
-	#define MAX_NUM_LOGS 1000
-
-	return MAX_NUM_LOGS - logger_fileno(dirname, MAX_NUM_LOGS, fname, dirOnly);
-}
-
-/**
- * Return how many entries we have in the LOG_DIR directory.
- *
- * @param dirOnly Set to "true", if we only look for directories.
- *                "false" means, to look for files only.
- *
- * @return the number of path entries found.
- */
-uint16_t logger_count(bool dirOnly)
-{
-	return logger_count(LOG_DIR, dirOnly);
-}

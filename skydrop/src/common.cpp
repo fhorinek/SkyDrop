@@ -534,7 +534,7 @@ float atoi_f(char * str)
 }
 
 /**
- * Returns a pointer to the last occurrence of the character c in the string s.
+ * Returns a pointer to the first occurrence of the character c in the string s.
  *
  * @param s the string to look through
  * @param c the character to search

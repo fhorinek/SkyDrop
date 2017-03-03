@@ -30,5 +30,6 @@ void gui_list_irqh(uint8_t type, uint8_t * buff);
 #define GUI_LIST_CHECK_ON	2     // An entry with a checkbox, which is currently ON
 #define GUI_LIST_CHECK_OFF	3     // An entry with a checkbox, which is currently OFF
 #define GUI_LIST_SUB_TEXT	4     // An entry containing a text under it.
+#define GUI_LIST_TITLE		5     // Small text used as title in file manager
 
 #endif /* GUI_LIST_H_ */

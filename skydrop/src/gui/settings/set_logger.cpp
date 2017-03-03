@@ -9,7 +9,7 @@
 
 void gui_set_logger_init()
 {
-	gui_list_set(gui_set_logger_item, gui_set_logger_action, 7, GUI_SETTINGS);
+	gui_list_set(gui_set_logger_item, gui_set_logger_action, 6, GUI_SETTINGS);
 }
 
 void gui_set_logger_stop() {}
@@ -62,16 +62,12 @@ void gui_set_logger_action(uint8_t index)
 	switch(index)
 	{
 		case(0):
-			gui_switch_task(GUI_FLIGHTLOG1);
-		break;
-
-		case(1):
 			config.logger.enabled = !config.logger.enabled;
 			eeprom_busy_wait();
 			eeprom_update_byte(&config_ee.logger.enabled, config.logger.enabled);
 		break;
 
-		case(2):
+		case(1):
 			if (logger_active())
 			{
 				gui_showmessage_P(PSTR("Cannot change\nin flight!"));
@@ -82,21 +78,21 @@ void gui_set_logger_action(uint8_t index)
 			eeprom_update_byte(&config_ee.logger.format, config.logger.format);
 		break;
 
-		case(3):
+		case(2):
 			gui_switch_task(GUI_SET_AUTOSTART);
 		break;
 
-		case(4):
+		case(3):
 			gui_text_conf((char *)config.logger.pilot, LOG_TEXT_LEN, gui_set_logger_pilot_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
 
-		case(5):
+		case(4):
 			gui_text_conf((char *)config.logger.glider_type, LOG_TEXT_LEN, gui_set_logger_glider_type_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
 
-		case(6):
+		case(5):
 			gui_text_conf((char *)config.logger.glider_id, LOG_TEXT_LEN, gui_set_logger_glider_id_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
@@ -108,11 +104,6 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Flight log"));
-			*flags |= GUI_LIST_FOLDER;
-		break;
-
-		case (1):
 			sprintf_P(text, PSTR("Enabled"));
 			if (config.logger.enabled)
 				*flags |= GUI_LIST_CHECK_ON;
@@ -120,7 +111,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
-		case (2):
+		case (1):
 			sprintf_P(text, PSTR("Format"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.logger.format)
@@ -143,7 +134,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			}
 		break;
 
-		case (3):
+		case (2):
 			sprintf_P(text, PSTR("Auto start/land"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
@@ -158,7 +149,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				sprintf_P(sub_text, PSTR("disabled"));
 		break;
 
-		case (4):
+		case (3):
 			sprintf_P(text, PSTR("Pilot name"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
@@ -168,7 +159,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				gui_fit_text((char *)config.logger.pilot, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
-		case (5):
+		case (4):
 			sprintf_P(text, PSTR("Glider type"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
@@ -178,7 +169,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				gui_fit_text((char *)config.logger.glider_type, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
-		case (6):
+		case (5):
 			sprintf_P(text, PSTR("Glider id"));
 			*flags |= GUI_LIST_SUB_TEXT;
 

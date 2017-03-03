@@ -43,7 +43,6 @@ void gui_list_draw()
 
 	for (uint8_t i = 0; i < gui_list_size; i++)
 	{
-		height = 1 + t_h;
 
 		flags = 0;
 		if (i < gui_list_size - 1)
@@ -67,7 +66,16 @@ void gui_list_draw()
 			case(GUI_LIST_BACK):
 				x_val = 2;
 			break;
+
+			case(GUI_LIST_TITLE):
+				x_val = 1;
+				disp.LoadFont(F_TEXT_S);
+				t_h = disp.GetTextHeight();
+			break;
+
 		}
+
+		height = 1 + t_h;
 
 		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
 		{
@@ -105,6 +113,7 @@ void gui_list_draw()
 			}
 		}
 
+		//disabled entry
 		if (flags & GUI_LIST_DISABLED)
 		{
 			for (uint8_t cx = 0; cx < GUI_DISP_WIDTH - 1; cx++)
@@ -112,6 +121,7 @@ void gui_list_draw()
 					disp.PutPixel(cx, cy, 0);
 		}
 
+		//selector
 		if (gui_list_index[gui_task] == i)
 		{
 			disp.Invert(0, y, GUI_DISP_WIDTH - 1, y + height - 1);
@@ -121,12 +131,17 @@ void gui_list_draw()
 			disp.PutPixel(0, y + height - 1, 0);
 		}
 
+		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_TITLE)
+		{
+			//restore font
+			disp.LoadFont(F_TEXT_M);
+			t_h = disp.GetTextHeight();
+		}
+
 		y += height;
 		total_height += height;
 	}
 }
-
-
 
 void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size, uint8_t back)
 {

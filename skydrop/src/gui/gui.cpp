@@ -1,3 +1,5 @@
+#include <gui/settings/gui_flightdetail.h>
+#include <gui/settings/gui_flightlog.h>
 #include "gui.h"
 
 #include "../drivers/audio/sequencer.h"
@@ -37,9 +39,8 @@
 #include "settings/set_calib.h"
 #include "settings/gui_accel_calib.h"
 #include "settings/gui_mag_calib.h"
-#include "settings/gui_flightlog1.h"
-#include "settings/gui_flightlog2.h"
-#include "settings/gui_flightlog3.h"
+#include "settings/gui_flightlog.h"
+#include "settings/gui_flightdetail.h"
 
 
 lcd_display disp;
@@ -58,8 +59,7 @@ void (* gui_init_array[])() =
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
 	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init, gui_set_calib_init,
-	gui_accelerometer_calib_init, gui_mag_calib_init, gui_flightlog1_init, gui_flightlog2_init,
-	gui_flightlog3_init };
+	gui_accelerometer_calib_init, gui_mag_calib_init, gui_flightlog_init, gui_flightdetail_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -69,8 +69,7 @@ void (* gui_stop_array[])() =
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
 	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
-	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_flightlog1_stop, gui_flightlog2_stop,
-	gui_flightlog3_stop };
+	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_flightlog_stop, gui_flightdetail_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -80,8 +79,7 @@ void (* gui_loop_array[])() =
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
 	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
-	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_flightlog1_loop, gui_flightlog2_loop,
-	gui_flightlog3_loop };
+	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_flightlog_loop, gui_flightdetail_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -91,8 +89,7 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
 	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
-	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_flightlog1_irqh, gui_flightlog2_irqh,
-	gui_flightlog3_irqh };
+	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_flightlog_irqh, gui_flightdetail_irqh};
 
 #define GUI_ANIM_STEPS	20
 

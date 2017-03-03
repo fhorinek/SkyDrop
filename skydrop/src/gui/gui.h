@@ -96,12 +96,12 @@ void gui_statusbar();
 #define GUI_SET_CALIB		28
 #define GUI_SET_CALIB_ACC	29
 #define GUI_SET_CALIB_MAG	30
-#define GUI_FLIGHTLOG1		31
-#define GUI_FLIGHTLOG2		32
-#define GUI_FLIGHTLOG3		33
+#define GUI_FLIGHTLOG		31
+#define GUI_FLIGHTDETAIL	32
 
 
-#define NUMBER_OF_GUI_TASKS	34
+
+#define NUMBER_OF_GUI_TASKS	33
 
 #define GUI_LAST_TASK		0xFF
 
@@ -109,6 +109,7 @@ extern uint8_t lcd_contrast_min;
 extern uint8_t lcd_contrast_max;
 
 extern volatile uint8_t gui_task;
+extern volatile uint8_t gui_new_task;
 extern volatile bool gui_buttons_override;
 
 #endif /* GUI_H_ */

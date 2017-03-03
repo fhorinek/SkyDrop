@@ -1,9 +1,8 @@
-Build XXXX - DD. MM. 2017
+Build 3466 - 03. 03. 2017
 ========================================================
 ADDED:
- * save flight statistics inside log file
- * new file explorer under "logger" menu entry allowing
-   to see statistics in log files.
+ * save flight statistics inside log file as comment (bubeck)
+ * new file explorer under "logger" menu entry allowing to see statistics in log files. (bubeck) #208 #73
  * Time zone in logger #255
 
 Build 3416 - 22. 02. 2017
