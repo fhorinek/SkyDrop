@@ -115,6 +115,7 @@ struct accel_data_t
 	float filter_old;
 	uint8_t filter_hold_time;
 	float total_filtered;			//total acceleration, + filtered, + peak detection, used by acceleration widget
+	float zGCA;						//Z direction (external frame), gravity compensated acceleration
 };
 
 struct mag_data_t

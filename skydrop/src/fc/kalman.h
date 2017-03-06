@@ -1,40 +1,41 @@
-#ifndef KALMAN_H_
-#define KALMAN_H_
+/*
+ * kalman.h
+ *
+ *  Created on: Mar 2, 2017
+ */
 
+#ifndef FC_KALMAN_H_
+#define FC_KALMAN_H_
 
 class KalmanFilter {
 public:
-    // The state we are tracking, namely:
-    float x_abs;  // The absolute value of x.
-    float x_vel;  // The rate of change of x.
 
-    // Covariance matrix for the state.
-    float p_abs_abs;
-    float p_abs_vel;
-    float p_vel_vel;
 
-    // The variance of the acceleration noise input in the system model.
-    float var_accel;
+	float z_;  // position
+	float v_;  // velocity
+	float aBias_; // acceleration
 
-    //calculation variables
-    float y;
-    float s_inv;
-    float k_abs;
-    float k_vel;
+    float zAccelBiasVariance_; // assumed fixed.
+	float zAccelVariance_;  // dynamic acceleration variance
+	float zVariance_; //  z measurement noise variance fixed
+
+	// 3x3 State Covariance matrix
+	float Pzz_;
+	float Pzv_;
+	float Pza_;
+	float Pvz_;
+	float Pvv_;
+	float Pva_;
+	float Paz_;
+	float Pav_;
+	float Paa_;
 
     KalmanFilter();
-    KalmanFilter(float var_accel);
-    void reset();
-    void reset(float abs_value);
-    void reset(float abs_value, float vel_value);
-    void setAccelerationVariance(float var_accel);
-    void update(float z_abs);
-    float getXAbs();
-    float getXVel();
-    float getCovAbsAbs();
-    float getCovAbsVel();
-    float getCovVelVel();
-    void setXAbs(float X);
+    void Configure(float zVariance, float zAccelVariance, float zAccelBiasVariance, float zInitial, float vInitial, float aBiasInitial);
+    void Update(float z, float a, float dt, float* pZ, float* pV);
+
 };
 
-#endif /* KALMAN_H_ */
+
+
+#endif /* FC_KALMAN_H_ */

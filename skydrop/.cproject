@@ -90,9 +90,13 @@
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1616035555" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.1038396672" name="kalman_old.h" rcbsApplicability="disable" resourcePath="src/fc/kalman_old.h" toolsToInvoke=""/>
+					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.1464608673" name="kalman_old.cpp" rcbsApplicability="disable" resourcePath="src/fc/kalman_old.cpp" toolsToInvoke="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.1462853274">
+						<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693.1462853274" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.1524560693"/>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="fc/kalman_old.cpp|fc/kalman_old.h|drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -190,9 +194,13 @@
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1022896845" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.104421566.136692496" name="kalman_old.h" rcbsApplicability="disable" resourcePath="src/fc/kalman_old.h" toolsToInvoke=""/>
+					<fileInfo id="de.innot.avreclipse.configuration.app.release.1357051489.104421566.1628736161" name="kalman_old.cpp" rcbsApplicability="disable" resourcePath="src/fc/kalman_old.cpp" toolsToInvoke="de.innot.avreclipse.tool.cppcompiler.app.release.362795592.186349669">
+						<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.362795592.186349669" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release.362795592"/>
+					</fileInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="fc/kalman_old.cpp|fc/kalman_old.h|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -201,8 +209,7 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Release">
-		</configuration>
+		<configuration configurationName="Release"/>
 		<configuration configurationName="Debug"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">

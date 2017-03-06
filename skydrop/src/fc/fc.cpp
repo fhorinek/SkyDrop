@@ -1,3 +1,4 @@
+#include "kalman.h"
 #include "fc.h"
 
 #include "../drivers/sensors/devices.h"
@@ -5,7 +6,6 @@
 #include "../drivers/audio/audio.h"
 #include "../drivers/audio/sequencer.h"
 
-#include "kalman.h"
 #include "vario.h"
 #include "agl.h"
 
@@ -623,7 +623,7 @@ void fc_zero_alt(uint8_t index)
 
 void fc_manual_alt0_change(float val)
 {
-	kalmanFilter.reset(val);
+	//kalmanFilter.reset(val);
 
     if (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND)
     {
