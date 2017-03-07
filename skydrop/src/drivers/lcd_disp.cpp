@@ -70,6 +70,14 @@ void lcd_display::Write(uint8_t ascii=0)
 //	}
 }
 
+uint8_t lcd_display::GetTextWidth_P(const char * text)
+{
+	char textRAM[100];
+
+	strcpy_P(textRAM, text);
+	return GetTextWidth(textRAM);
+}
+
 uint8_t lcd_display::GetTextWidth(char * text)
 {
 	uint8_t ret = 0;
