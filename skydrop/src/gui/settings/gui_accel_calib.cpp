@@ -181,19 +181,19 @@ void gui_accelerometer_calib_loop()
 	//screen before calib calculation
 	if((gui_acc_calib.valid & VALID_CALIB) == false)
 	{
-		sprintf_P(tmp, PSTR("X+"));
+		strcpy_P(tmp, PSTR("X+"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 - 20 , GUI_DIALOG_TOP + 2 + h_t);
-		sprintf_P(tmp, PSTR("X - "));
+		strcpy_P(tmp, PSTR("X - "));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 - 20 , GUI_DIALOG_TOP + 2 + h_t + h_t);
 
-		sprintf_P(tmp, PSTR("Y+"));
+		strcpy_P(tmp, PSTR("Y+"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 +1, GUI_DIALOG_TOP + 2 + h_t);
-		sprintf_P(tmp, PSTR("Y - "));
+		strcpy_P(tmp, PSTR("Y - "));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 +1, GUI_DIALOG_TOP + 2 + h_t + h_t);
 
-		sprintf_P(tmp, PSTR("Z+"));
+		strcpy_P(tmp, PSTR("Z+"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20 +1, GUI_DIALOG_TOP + 2 + h_t);
-		sprintf_P(tmp, PSTR("Z -"));
+		strcpy_P(tmp, PSTR("Z -"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20 +1, GUI_DIALOG_TOP + 2 + h_t + h_t);
 
 		if(gui_acc_calib.valid & VALID_XP)
@@ -218,43 +218,43 @@ void gui_accelerometer_calib_loop()
 		disp.LoadFont(F_TEXT_M);
 		if(gui_acc_calib.sampling == VALID_XP)
 		{
-			sprintf_P(tmp, PSTR("Calibrating X+"));	//status area
+			strcpy_P(tmp, PSTR("Calibrating X+"));	//status area
 			if(GUI_BLINK_TGL(500))					//blink what is being measured
 				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_XN)
 		{
-			sprintf_P(tmp, PSTR("Calibrating X-"));
+			strcpy_P(tmp, PSTR("Calibrating X-"));
 			if(GUI_BLINK_TGL(500))
 				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_YP)
 		{
-			sprintf_P(tmp, PSTR("Calibrating Y+"));
+			strcpy_P(tmp, PSTR("Calibrating Y+"));
 			if(GUI_BLINK_TGL(500))
 				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_YN)
 		{
-			sprintf_P(tmp, PSTR("Calibrating Y-"));
+			strcpy_P(tmp, PSTR("Calibrating Y-"));
 			if(GUI_BLINK_TGL(500))
 				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_ZP)
 		{
-			sprintf_P(tmp, PSTR("Calibrating Z+"));
+			strcpy_P(tmp, PSTR("Calibrating Z+"));
 			if(GUI_BLINK_TGL(500))
 				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_ZN)
 		{
-			sprintf_P(tmp, PSTR("Calibrating Z-"));
+			strcpy_P(tmp, PSTR("Calibrating Z-"));
 			if(GUI_BLINK_TGL(500))
 				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else
 		{
-			sprintf_P(tmp, PSTR("Waiting..."));
+			strcpy_P(tmp, PSTR("Waiting..."));
 		}
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + 1 );
 
@@ -299,14 +299,14 @@ void gui_accelerometer_calib_loop()
 		disp.LoadFont(F_TEXT_M);
 
 		//status area
-		sprintf_P(tmp, PSTR("Done!"));
+		strcpy_P(tmp, PSTR("Done!"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + 1 );
 
 		//main area labels
 		disp.LoadFont(F_TEXT_S);
-		sprintf_P(tmp, PSTR("old"));
+		strcpy_P(tmp, PSTR("old"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 - 20 , GUI_DIALOG_TOP +  h_t );
-		sprintf_P(tmp, PSTR("new"));
+		strcpy_P(tmp, PSTR("new"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20 , GUI_DIALOG_TOP +  h_t );
 
 		//add menu option

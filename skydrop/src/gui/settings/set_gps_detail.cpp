@@ -32,13 +32,13 @@ void gui_set_gps_detail_loop()
 	switch (fc.gps_data.fix)
 	{
 		case(1):
-				sprintf_P(tmp, PSTR("No Fix"));
+				strcpy_P(tmp, PSTR("No Fix"));
 		break;
 		case(2):
-				sprintf_P(tmp, PSTR("2D Fix"));
+				strcpy_P(tmp, PSTR("2D Fix"));
 		break;
 		case(3):
-				sprintf_P(tmp, PSTR("3D Fix"));
+				strcpy_P(tmp, PSTR("3D Fix"));
 		break;
 	}
 	gui_raligh_text(tmp, GUI_DISP_WIDTH, f_h);

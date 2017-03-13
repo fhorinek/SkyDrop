@@ -17,9 +17,11 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_glide_ratio,
 		w_ctrl_audio, w_ctrl_wlift,
 		w_wspd, w_wdir, w_wdir_arrow,
-		w_agl_height, w_agl_level
+		w_agl_height, w_agl_level,
+		w_odo_meter, w_odo_back, w_odo_distance
 };
 
+// Whenever you change something here, you have to do "Clean Project" in Eclipse:
 const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 {
 	WIDGET_VARIO_BAR,
@@ -43,6 +45,9 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_POSITION,
 	WIDGET_FTIME,
 	WIDGET_TIME,
+	WIDGET_ODO_METER,
+	WIDGET_ODO_BACK,
+	WIDGET_ODO_DISTANCE,
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
 	WIDGET_WIND_SPD,
@@ -121,6 +126,22 @@ void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_
 	fprintf_P(lcd_out, PSTR("%s"), sub);
 }
 
+/**
+ * Prints the text (containing digits) into the given box. Values are printed in
+ * a bigger font and with a limited character set:
+ *
+ * Available characters:
+ *   042 2A = *		043 2B = +		044 2C = ,		045 2D = -		046 2E = .
+ *   047 2F = /		048 30 = 0		049 31 = 1		050 32 = 2		051 33 = 3
+ *   052 34 = 4		053 35 = 5		054 36 = 6		055 37 = 7		056 38 = 8
+ *   057 39 = 9
+ *
+ * \param value the text to be shown.
+ * \param x the X coordinate of the box
+ * \param y the X coordinate of the box
+ * \param w the width of the box
+ * \param h the height of the box
+ */
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	disp.LoadFont(F_VALUES_XL);
@@ -152,6 +173,15 @@ void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	fprintf_P(lcd_out, PSTR("%s"), value);
 }
 
+/**
+ * Prints the text into the given box.
+ *
+ * \param value the text to be shown.
+ * \param x the X coordinate of the box
+ * \param y the X coordinate of the box
+ * \param w the width of the box
+ * \param h the height of the box
+ */
 void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	disp.LoadFont(F_TEXT_L);
@@ -252,8 +282,23 @@ void widgets_draw(uint8_t page)
 	}
 }
 
-void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+/**
+ * Draw an arrow at the given position.
+ *
+ * \param angle the angle of the arrow (0=up, 90=right, 180=down, 270=left) and
+ *              anything between.
+ * \param x the X position (Todo: Clarify of what? the center? The lower left?)
+ * \param y the Y position
+ * \param w the width
+ * \param h the height
+ */
+void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
+	// make sure, that angle is always between 0 and 359:
+	if (angle < 0 || angle > 359) {
+		angle = (angle % 360 + 360) % 360;
+	}
+
 	uint8_t s = min(w, h);
 	uint8_t mx = x + w / 2;
 	uint8_t my = y + h / 2;

@@ -80,13 +80,13 @@ void gui_set_altimeters_item(uint8_t index, char * text, uint8_t * flags, char *
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("QNH1 for Alt 1"));
+			strcpy_P(text, PSTR("QNH1 for Alt 1"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH1 / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (6):
-			sprintf_P(text, PSTR("QNH2"));
+			strcpy_P(text, PSTR("QNH2"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH2 / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;

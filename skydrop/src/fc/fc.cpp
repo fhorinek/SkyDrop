@@ -8,13 +8,13 @@
 #include "kalman.h"
 #include "vario.h"
 #include "agl.h"
+#include "odometer.h"
 
 #include "protocols/protocol.h"
 
 #include "logger/logger.h"
 
 #include "../gui/gui_dialog.h"
-//#include "../gui/widgets/acc.h"
 
 volatile flight_computer_data_t fc;
 
@@ -38,6 +38,9 @@ void fc_init()
 
 	//reset flight status
 	fc_reset();
+
+	// Todo: read/write into eeprom
+	fc.odometer = 0;
 
 	//using fake data
 	#ifdef FAKE_ENABLE
@@ -196,7 +199,7 @@ void fc_deinit()
 	if (config.connectivity.use_gps)
 		gps_stop();
 
-	for (uint8_t i=0; i<NUMBER_OF_ALTIMETERS; i++)
+	for (uint8_t i=0; i < NUMBER_OF_ALTIMETERS; i++)
 	{
 		eeprom_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
 	}
@@ -377,6 +380,16 @@ void fc_takeoff()
 	fc.flight.autostart_altitude = fc.altitude1;
 	fc.flight.autostart_timer = task_get_ms_tick();
 
+	//set start position
+	if (fc.gps_data.valid)
+	{
+		fc.flight.home_valid = true;
+		fc.flight.home_lat = fc.gps_data.latitude;
+		fc.flight.home_lon = fc.gps_data.longtitude;
+	}
+	else
+		fc.flight.home_valid = false;
+
 	//reset battery info timer
 	fc_log_battery_next = 0;
 
@@ -403,12 +416,19 @@ void fc_landing()
 	fc_landing_old_gui_task = gui_task;
 	gui_switch_task(GUI_DIALOG);
 
+	audio_off();
+
+
 	fc.flight.state = FLIGHT_LAND;
 	fc.flight.autostart_timer = task_get_ms_tick();
-
 	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
 
-	audio_off();
+	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
+	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
+	logger_comment(PSTR(" SKYDROP-ALT-MAX-m: %d "), fc.flight.stats.max_alt);
+	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);
+	logger_comment(PSTR(" SKYDROP-CLIMB-MAX-cm: %d "), fc.flight.stats.max_climb);
+	logger_comment(PSTR(" SKYDROP-SINK-MAX-cm: %d "), fc.flight.stats.max_sink);
 
 	logger_stop();
 }
@@ -444,7 +464,6 @@ void fc_sync_gps_time()
 }
 
 
-
 void fc_step()
 {
 	//using fake data
@@ -464,6 +483,8 @@ void fc_step()
 	logger_step();
 
 	wind_step();
+
+	odometer_step();
 
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
@@ -534,6 +555,7 @@ void fc_step()
 			}
 		}
 	}
+
 
 
 	//gps time sync
@@ -635,14 +657,10 @@ void fc_log_battery()
 
 	fc_log_battery_next = task_get_ms_tick() + FC_LOG_BATTERY_EVERY;
 
-	char text[32];
-
 	if (battery_per == BATTERY_CHARGING)
-		sprintf_P(text, PSTR("bat: chrg"));
+		logger_comment(PSTR("bat: chrg"));
 	else if (battery_per == BATTERY_FULL)
-		sprintf_P(text, PSTR("bat: full"));
+		logger_comment(PSTR("bat: full"));
 	else
-		sprintf_P(text, PSTR("bat: %u%% (%u)"), battery_per, battery_adc_raw);
-
-	logger_comment(text);
+		logger_comment(PSTR("bat: %u%% (%u)"),  battery_per, battery_adc_raw);
 }

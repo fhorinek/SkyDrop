@@ -1,3 +1,37 @@
+Build 3466 - 03. 03. 2017
+========================================================
+ADDED:
+ * save flight statistics inside log file as comment (bubeck)
+ * new file explorer under "logger" menu entry allowing to see statistics in log files. (bubeck) #208 #73
+ * Time zone in logger #255
+
+Build 3416 - 22. 02. 2017
+========================================================
+ADDED:
+ * new widget "Odometer" to show distance flown in km (bubeck)
+ * new widget "Back" showing arrow in direction back to starting point (bubeck)
+ * new widget "Distance" showing direct distance from starting point in km (bubeck)
+ * graphical statisbar icons (bubeck)
+ 
+CHANGED:
+ * Minimum auto-takeoff/land timeout is now 30 seconds
+ * odometer filtering
+ 
+Build 3395 - 14. 02. 2017
+========================================================
+FIX:
+ * Wind direction
+ * Wind speed (wrong calculation)
+ * GPS logger period with no fix
+
+Build 3394 - 04. 02. 2017
+========================================================
+ADDED:
+ * Handling 30m HGT files for increased resolution (bubeck)
+ 
+CHANGED:
+ * Simplified windspeed and direction calculation
+
 Build 3363 - 23. 01. 2017
 ========================================================
 FIX:

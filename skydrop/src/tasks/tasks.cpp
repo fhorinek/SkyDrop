@@ -62,7 +62,7 @@ ISR(TASK_TIMER_CMPA)
 	if (SP < debug_min_stack_pointer)
 		debug_min_stack_pointer = SP;
 
-	if (debug_max_heap_pointer < freeRam())
+	if (debug_max_heap_pointer < (uint16_t)freeRam())
 		debug_max_heap_pointer = freeRam();
 
 	task_timer_high += 512ul;
@@ -245,7 +245,7 @@ void task_sleep()
 
 	if (wake_next < task_get_ms_tick())
 	{
-		uint8_t usage = fine_acc / 6250;
+		//uint8_t usage = fine_acc / 6250;
 //		DEBUG("CPU: %3u%% (%u irq)\n", usage, wake_ups / 5);
 
 		wake_ups = 0;

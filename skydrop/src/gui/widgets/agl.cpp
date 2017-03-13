@@ -15,7 +15,7 @@ void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	if (fc.agl.valid)
 		sprintf_P(text, PSTR("%d"), val);
 	else
-		sprintf_P(text, PSTR("---"));
+		strcpy_P(text, PSTR("---"));
 
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
@@ -34,7 +34,7 @@ void widget_gl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	if (fc.agl.valid)
 		sprintf_P(text, PSTR("%d"), val);
 	else
-		sprintf_P(text, PSTR("---"));
+		strcpy_P(text, PSTR("---"));
 
 	widget_value_int(text, x, y + lh, w, h - lh);
 }

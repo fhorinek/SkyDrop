@@ -117,9 +117,14 @@ extern float widget_menu_fvalue1;
 #define WIDGET_AGL_LEVEL		30
 #include "agl.h"
 
-#define NUMBER_OF_WIDGETS		31
+#define WIDGET_ODO_METER		31
+#define WIDGET_ODO_BACK			32
+#define WIDGET_ODO_DISTANCE		33
+#include "odometer.h"
 
-#define NUMBER_OF_SORTED_WIDGETS	29
+#define NUMBER_OF_WIDGETS		34
+
+#define NUMBER_OF_SORTED_WIDGETS	32
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 
@@ -134,7 +139,7 @@ void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_
 void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
-void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 uint8_t layout_get_number_of_widgets(uint8_t type);
 void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t * y, uint8_t * w, uint8_t * h);

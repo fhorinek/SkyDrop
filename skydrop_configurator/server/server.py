@@ -12,7 +12,7 @@ import urllib
 import cgi
 import binascii
 
-import logging
+# import logging
 
 PORT = 8080
 

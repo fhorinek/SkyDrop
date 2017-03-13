@@ -533,12 +533,52 @@ float atoi_f(char * str)
 	return tmp;
 }
 
+/**
+ * Returns a pointer to the first occurrence of the character c in the string s.
+ *
+ * @param s the string to look through
+ * @param c the character to search
+ *
+ * @return pointer to found character or NULL if not found.
+ */
+char *index(char * s, char c)
+{
+	while ((*s) != c) {
+		if (*s == 0) return NULL;
+		s++;
+	}
+
+	return s;
+}
+
+/**
+ * Returns a pointer to the last occurrence of the character c in the string s.
+ *
+ * @param s the string to look through
+ * @param c the character to search
+ *
+ * @return pointer to found character or NULL if not found.
+ */
+char *rindex(char * s, char c)
+{
+	char *s2 = s + strlen(s);
+
+	while ((*s2) != c) {
+		s2--;
+		if (s2 < s) return NULL;
+	}
+
+	return s2;
+}
+
+/**
+ * Find the first character after the ','.
+ *
+ * @return a pointer to the first character after ','.
+ */
 char * find_comma(char * str)
 {
-	while ((*str) != ',')
-		str++;
-
-	return (str + 1);
+	return index(str, ',') + 1;
 }
 
 uint8_t nmea_checksum(char *s)

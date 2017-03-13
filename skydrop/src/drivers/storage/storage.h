@@ -23,4 +23,13 @@ bool storage_card_in();
 bool storage_ready();
 void storage_step();
 
+//flags for storage_dir_list
+#define STORAGE_IS_DIR	0x01
+
+uint8_t storage_get_files();
+bool storage_dir_open(char * path);
+void storage_dir_close();
+void storage_dir_rewind();
+bool storage_dir_list(char * fname, uint8_t * flags);
+
 #endif /* STORAGE_H_ */

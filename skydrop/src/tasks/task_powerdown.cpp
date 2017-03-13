@@ -1,7 +1,7 @@
 #include "task_powerdown.h"
 
 extern SleepLock powerdown_lock;
-extern Usart uart;
+// extern Usart uart;
 
 volatile bool powerdown_loop_break = false;
 

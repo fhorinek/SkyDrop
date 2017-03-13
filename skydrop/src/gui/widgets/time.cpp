@@ -86,7 +86,7 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 
 	if (fc.flight.state == FLIGHT_WAIT)
 	{
-		sprintf_P(tmp, PSTR("Start"));
+		strcpy_P(tmp, PSTR("Start"));
 		widget_value_txt(tmp, x, y + lh, w, h - lh);
 	}
 }
