@@ -95,36 +95,36 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Contrast"));
+			strcpy_P(text, PSTR("Contrast"));
 //			sprintf_P(sub_text, PSTR("%d %%"), lcd_contrast);
 //			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 		case (1):
-			sprintf_P(text, PSTR("Backlight"));
+			strcpy_P(text, PSTR("Backlight"));
 //			sprintf_P(sub_text, PSTR("%d %%"), lcd_brightness);
 //			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 		case (2):
-			sprintf_P(text, PSTR("Backlight timeout"));
+			strcpy_P(text, PSTR("Backlight timeout"));
 			sprintf_P(sub_text, PSTR("%d sec"), config.gui.brightness_timeout);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 		case (3):
-			sprintf_P(text, PSTR("Invert display"));
+			strcpy_P(text, PSTR("Invert display"));
 			if (config.gui.disp_flags & CFG_DISP_INVERT)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 		case (4):
-			sprintf_P(text, PSTR("Flip orientation"));
+			strcpy_P(text, PSTR("Flip orientation"));
 			if (config.gui.disp_flags & CFG_DISP_FLIP)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 		case (5):
-			sprintf_P(text, PSTR("Animation"));
+			strcpy_P(text, PSTR("Animation"));
 			if (config.gui.disp_flags & CFG_DISP_ANIM)
 				*flags |= GUI_LIST_CHECK_ON;
 			else

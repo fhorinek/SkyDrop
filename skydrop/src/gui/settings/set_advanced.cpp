@@ -75,7 +75,7 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Mass Storage"));
+			strcpy_P(text, PSTR("Mass Storage"));
 			if (config.connectivity.usb_mode == USB_MODE_MASSSTORAGE)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -83,41 +83,41 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Uart function"));
+			strcpy_P(text, PSTR("Uart function"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.uart_function)
 			{
 				case(UART_FORWARD_DEBUG):
-					sprintf_P(sub_text, PSTR("Debug msg"));
+					strcpy_P(sub_text, PSTR("Debug msg"));
 				break;
 				case(UART_FORWARD_OFF):
-					sprintf_P(sub_text, PSTR("Uart off"));
+					strcpy_P(sub_text, PSTR("Uart off"));
 				break;
 				case(UART_FORWARD_9600):
-					sprintf_P(sub_text, PSTR("Telemetry 9600"));
+					strcpy_P(sub_text, PSTR("Telemetry 9600"));
 				break;
 				case(UART_FORWARD_19200):
-					sprintf_P(sub_text, PSTR("Telemetry 19200"));
+					strcpy_P(sub_text, PSTR("Telemetry 19200"));
 				break;
 				case(UART_FORWARD_38400):
-					sprintf_P(sub_text, PSTR("Telemetry 38400"));
+					strcpy_P(sub_text, PSTR("Telemetry 38400"));
 				break;
 				case(UART_FORWARD_57600):
-					sprintf_P(sub_text, PSTR("Telemetry 57600"));
+					strcpy_P(sub_text, PSTR("Telemetry 57600"));
 				break;
 				case(UART_FORWARD_115200):
-					sprintf_P(sub_text, PSTR("Telemetry 115200"));
+					strcpy_P(sub_text, PSTR("Telemetry 115200"));
 				break;
 			}
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Format SD"));
+			strcpy_P(text, PSTR("Format SD"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Calibration"));
+			strcpy_P(text, PSTR("Calibration"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

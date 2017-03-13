@@ -100,25 +100,25 @@ void gui_set_time_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Time"));
+			strcpy_P(text, PSTR("Time"));
 			sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Date"));
+			strcpy_P(text, PSTR("Date"));
 			sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Time Zone"));
+			strcpy_P(text, PSTR("Time Zone"));
 			sprintf_P(sub_text, PSTR("UTC %+0.1f"), config.system.time_zone / 2.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("DST"));
+			strcpy_P(text, PSTR("DST"));
 			if (config.system.time_flags & TIME_DST)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -126,7 +126,7 @@ void gui_set_time_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Sync with GPS"));
+			strcpy_P(text, PSTR("Sync with GPS"));
 			if (config.system.time_flags & TIME_SYNC)
 				*flags |= GUI_LIST_CHECK_ON;
 			else

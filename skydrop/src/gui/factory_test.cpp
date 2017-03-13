@@ -72,19 +72,19 @@ void gui_factory_test_loop()
 		switch (f_test_lcd)
 		{
 			case(FTEST_LCD_MIN_AUTO):
-				sprintf_P(tmp, PSTR("Min auto"));
+				strcpy_P(tmp, PSTR("Min auto"));
 			break;
 			case(FTEST_LCD_MIN):
-				sprintf_P(tmp, PSTR("Set minimum"));
+				strcpy_P(tmp, PSTR("Set minimum"));
 			break;
 			case(FTEST_LCD_MAX_AUTO):
-				sprintf_P(tmp, PSTR("Max auto"));
+				strcpy_P(tmp, PSTR("Max auto"));
 			break;
 			case(FTEST_LCD_MAX):
-				sprintf_P(tmp, PSTR("Set maximum"));
+				strcpy_P(tmp, PSTR("Set maximum"));
 			break;
 			case(FTEST_LCD_MID):
-				sprintf_P(tmp, PSTR("Set optimal"));
+				strcpy_P(tmp, PSTR("Set optimal"));
 			break;
 		}
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP);

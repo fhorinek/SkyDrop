@@ -78,31 +78,31 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Time & Date"));
+			strcpy_P(text, PSTR("Time & Date"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Display"));
+			strcpy_P(text, PSTR("Display"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Audio"));
+			strcpy_P(text, PSTR("Audio"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Auto power-off"));
+			strcpy_P(text, PSTR("Auto power-off"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.system.auto_power_off > 0)
 				sprintf_P(sub_text, PSTR("%u min"), config.system.auto_power_off);
 			else
-				sprintf_P(sub_text, PSTR("disabled"));
+				strcpy_P(sub_text, PSTR("disabled"));
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Advanced"));
+			strcpy_P(text, PSTR("Advanced"));
 		break;
 	}
 }
