@@ -8,7 +8,8 @@
 #ifndef LOGGER_H_
 #define LOGGER_H_
 
-#define LOG_DIR		PSTR("logs")
+#define LOG_DIR		"logs"
+#define LOG_DIR_P	PSTR(LOG_DIR)
 #define LOG_MID		"XSB"
 #define LOG_MID_P	PSTR(LOG_MID)
 
@@ -23,7 +24,7 @@ void logger_init();
 void logger_step();
 void logger_start();
 void logger_stop();
-void logger_comment(char * text);
+void logger_comment(const char *format, ...);
 bool logger_active();
 bool logger_error();
 

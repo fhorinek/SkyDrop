@@ -73,7 +73,7 @@ bool pan1322::SetBaudrate(uint32_t baud)
 ////	this->usart.dbg = true;
 //	this->usart->SetInterruptPriority(MEDIUM);
 //
-//	return true;
+	return true;
 }
 
 void pan1322::Restart()

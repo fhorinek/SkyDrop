@@ -67,7 +67,7 @@ void gui_set_autostart_action(uint8_t index)
 		break;
 
 		case(3):
-			gui_value_conf_P(PSTR("Timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.autostart.timeout, 5, 240, 1, gui_set_autostart_timeout_cb);
+			gui_value_conf_P(PSTR("Timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.autostart.timeout, 30, 240, 1, gui_set_autostart_timeout_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
@@ -90,50 +90,50 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("State"));
+			strcpy_P(text, PSTR("State"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (fc.flight.state)
 			{
 				case(FLIGHT_WAIT):
-					sprintf_P(sub_text, PSTR("Waiting"));
+					strcpy_P(sub_text, PSTR("Waiting"));
 				break;
 				case(FLIGHT_FLIGHT):
-					sprintf_P(sub_text, PSTR("Flying"));
+					strcpy_P(sub_text, PSTR("Flying"));
 				break;
 				case(FLIGHT_LAND):
-					sprintf_P(sub_text, PSTR("Landed"));
+					strcpy_P(sub_text, PSTR("Landed"));
 				break;
 			}
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Start threshold"));
+			strcpy_P(text, PSTR("Start threshold"));
 			if (config.autostart.start_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.start_sensititvity);
 			else
-				sprintf_P(sub_text, PSTR("disabled"));
+				strcpy_P(sub_text, PSTR("disabled"));
 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 
 		case (2):
-			sprintf_P(text, PSTR("Land threshold"));
+			strcpy_P(text, PSTR("Land threshold"));
 			if (config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.land_sensititvity);
 			else
-				sprintf_P(sub_text, PSTR("disabled"));
+				strcpy_P(sub_text, PSTR("disabled"));
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Timeout"));
+			strcpy_P(text, PSTR("Timeout"));
 			sprintf_P(sub_text, PSTR("%d sec"), config.autostart.timeout);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Suppress audio"));
+			strcpy_P(text, PSTR("Suppress audio"));
 			if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -141,7 +141,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Record always"));
+			strcpy_P(text, PSTR("Record always"));
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 				*flags |= GUI_LIST_CHECK_ON;
 			else

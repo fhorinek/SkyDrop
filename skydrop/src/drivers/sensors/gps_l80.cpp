@@ -566,6 +566,8 @@ void gps_start()
 	//reset cache
 	strcpy_P((char *)fc.gps_data.cache_igc_latitude, PSTR("0000000N"));
 	strcpy_P((char *)fc.gps_data.cache_igc_longtitude, PSTR("00000000E"));
+	strcpy_P((char *)fc.gps_data.cache_gui_latitude, PSTR("---"));
+	strcpy_P((char *)fc.gps_data.cache_gui_longtitude, PSTR("---"));
 }
 
 void gps_init()

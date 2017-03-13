@@ -57,25 +57,25 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Bluetooth module"));
+			strcpy_P(text, PSTR("Bluetooth module"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (bt_get_module_type())
 			{
 				case(BT_UNKNOWN):
-					sprintf_P(sub_text, PSTR("Unknown"));
+					strcpy_P(sub_text, PSTR("Unknown"));
 				break;
 				case(BT_PAN1026):
-					sprintf_P(sub_text, PSTR("pan1026 v4.0"));
+					strcpy_P(sub_text, PSTR("pan1026 v4.0"));
 				break;
 				case(BT_PAN1322):
-					sprintf_P(sub_text, PSTR("pan1322 v2.1"));
+					strcpy_P(sub_text, PSTR("pan1322 v2.1"));
 				break;
 			}
 
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Enabled"));
+			strcpy_P(text, PSTR("Enabled"));
 			if (config.connectivity.use_bt)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -83,27 +83,27 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Protocol"));
+			strcpy_P(text, PSTR("Protocol"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch(config.connectivity.protocol)
 			{
 				case(PROTOCOL_DIGIFLY):
-					sprintf_P(sub_text, PSTR("DigiFly"));
+					strcpy_P(sub_text, PSTR("DigiFly"));
 				break;
 				case(PROTOCOL_LK8EX1):
-					sprintf_P(sub_text, PSTR("LK8EX1"));
+					strcpy_P(sub_text, PSTR("LK8EX1"));
 				break;
 				case(PROTOCOL_BLUEFLY):
-					sprintf_P(sub_text, PSTR("BlueFly"));
+					strcpy_P(sub_text, PSTR("BlueFly"));
 				break;
 				case(PROTOCOL_SKYBEAN):
-					sprintf_P(sub_text, PSTR("SkyBean"));
+					strcpy_P(sub_text, PSTR("SkyBean"));
 				break;
 			}
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Forward GPS"));
+			strcpy_P(text, PSTR("Forward GPS"));
 			if (config.connectivity.forward_gps)
 				*flags |= GUI_LIST_CHECK_ON;
 			else

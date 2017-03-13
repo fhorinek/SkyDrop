@@ -325,20 +325,25 @@ void lcd_display::InvertPixel(uint8_t x ,uint8_t  y)
 
 void lcd_display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
 {
+	uint8_t w, h;
+
+	w = pgm_read_byte(&data[0]);
+	h = pgm_read_byte(&data[1]);
+	DrawImage(data + 2, x, y, w, h);
+}
+
+void lcd_display::DrawImage(const uint8_t *data, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
 	uint8_t cbuf;
 
-	cbuf = pgm_read_byte(&data[0]);
-
-	uint8_t imgwidth = (cbuf+x < lcd_width)?cbuf:lcd_width-x;
-	int16_t xCutOff  = (cbuf+x < lcd_width)?0:(cbuf+x-lcd_width);
+	uint8_t imgwidth = (w+x < lcd_width)?w:lcd_width-x;
+	int16_t xCutOff  = (w+x < lcd_width)?0:(w+x-lcd_width);
 	uint8_t yOffset  = (y/8 < 1)?0:y/8;
 
-	cbuf = pgm_read_byte(&data[1]);
-
-	uint8_t imgheight = (cbuf/8);
+	uint8_t imgheight = (h/8);
 	uint8_t _x = x;
 	uint8_t _y = 0;
-	uint16_t index = 2;
+	uint16_t index = 0;
 
 	if (y >= lcd_height || x >= lcd_width) return;
 

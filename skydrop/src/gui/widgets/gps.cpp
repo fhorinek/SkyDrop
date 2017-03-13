@@ -8,7 +8,7 @@ void widget_ghdg_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	if (fc.gps_data.valid)
 		sprintf_P(tmp, PSTR("%0.0f"), fc.gps_data.heading);
 	else
-		sprintf_P(tmp, PSTR("---"));
+		strcpy_P(tmp, PSTR("---"));
 
 
 	widget_value_int(tmp, x, y + lh, w, h - lh);
@@ -45,7 +45,7 @@ void widget_gspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 		sprintf_P(tmp, PSTR("%0.0f"), val);
 	}
 	else
-		sprintf_P(tmp, PSTR("---"));
+		strcpy_P(tmp, PSTR("---"));
 
 
 	widget_value_int(tmp, x, y + lh, w, h - lh);
@@ -63,7 +63,7 @@ void widget_gpos_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	else
 	{
 		char tmp[4];
-		sprintf_P(tmp, PSTR("---"));
+		strcpy_P(tmp, PSTR("---"));
 		widget_value_int(tmp, x, y + lh, w, h - lh);
 	}
 
@@ -83,7 +83,7 @@ void widget_ghdg_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 	else
 	{
 		char tmp[5];
-		sprintf_P(tmp, PSTR("---"));
+		strcpy_P(tmp, PSTR("---"));
 		widget_value_int(tmp, x, y + lh, w, h - lh);
 	}
 
@@ -104,7 +104,7 @@ void widget_gcompass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 	else
 	{
 		char tmp[5];
-		sprintf_P(tmp, PSTR("---"));
+		strcpy_P(tmp, PSTR("---"));
 		widget_value_int(tmp, x, y + lh, w, h - lh);
 	}
 

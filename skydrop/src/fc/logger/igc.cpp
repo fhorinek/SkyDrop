@@ -122,6 +122,9 @@ bool igc_start(char * path)
 	//H F ALP
 	sprintf_P(line, PSTR("HFALPALTPRESSURE:ISA"));
 	igc_writeline(line);
+	//H TZN
+	sprintf_P(line, PSTR("HTZN%f0.1"), config.system.time_zone / 2.0);
+	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY
 	//Developer note: we can't publish the private key for signing the IGC file
@@ -191,6 +194,11 @@ void igc_step()
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			return;
 
+		if (igc_last_timestamp == time_get_utc())
+			return;
+
+		igc_last_timestamp = time_get_utc();
+
 		time_from_epoch(time_get_utc(), &sec, &min, &hour);
 		c = 'V';
 	}
@@ -209,6 +217,7 @@ void igc_comment(char * text)
 
 	sprintf_P(line, PSTR("L%S %s"), LOG_MID_P, text);
 	igc_writeline(line, false);
+	igc_write_grecord();
 }
 
 void igc_stop()

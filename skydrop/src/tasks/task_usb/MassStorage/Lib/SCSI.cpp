@@ -185,7 +185,9 @@ static uint8_t Page_Inquiry_Data[] =
  */
 static bool SCSI_Command_Inquiry(void)
 {
-	uint16_t AllocationLength  = SwapEndian_16(*(uint16_t*)&CommandBlock.SCSICommandData[3]);
+	// uint16_t AllocationLength  = SwapEndian_16(*(uint16_t*)&CommandBlock.SCSICommandData[3]);
+	uint16_t AllocationLength  = (uint16_t)CommandBlock.SCSICommandData[3] << 8 | (uint16_t)CommandBlock.SCSICommandData[4];
+
 	uint16_t BytesTransferred  = MIN(AllocationLength, sizeof(InquiryData));
 	uint8_t * ptr = (uint8_t *)&InquiryData;
 
@@ -378,8 +380,11 @@ static bool SCSI_Command_ReadWrite_10(const bool IsDataRead)
 		return false;
 	}
 
-	BlockAddress = SwapEndian_32(*(uint32_t*)&CommandBlock.SCSICommandData[2]);
-	TotalBlocks  = SwapEndian_16(*(uint16_t*)&CommandBlock.SCSICommandData[7]);
+	// BlockAddress = SwapEndian_32(*(uint32_t*)&CommandBlock.SCSICommandData[2]);
+	BlockAddress = (uint32_t)CommandBlock.SCSICommandData[2] << 24 | (uint32_t)CommandBlock.SCSICommandData[3] << 16
+				 | (uint32_t)CommandBlock.SCSICommandData[4] << 8  | (uint32_t)CommandBlock.SCSICommandData[5];
+	// TotalBlocks  = SwapEndian_16(*(uint16_t*)&CommandBlock.SCSICommandData[7]);
+	TotalBlocks  = (uint16_t)CommandBlock.SCSICommandData[7] << 8 | (uint16_t)CommandBlock.SCSICommandData[8];
 
 	/* Check if the block address is outside the maximum allowable value for the LUN */
 	if (BlockAddress >= LUN_MEDIA_BLOCKS)

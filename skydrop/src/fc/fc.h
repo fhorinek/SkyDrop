@@ -20,7 +20,6 @@
 
 #include "acc.h"
 #include "mag.h"
-#include "imu.h"
 
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)
@@ -29,9 +28,10 @@
 #define FC_KNOTS_TO_KPH		(1.852)				//Kilometers per hour
 #define FC_KNOTS_TO_MPH		(1.15077945)		//Miles per hour
 #define FC_KNOTS_TO_MPS		(0.51444444444)		//Meters per seconds
-#define FC_MPS_TO_KPH		(0.27777777778)		//Kilometers per hour
+#define FC_MPS_TO_KPH		(3.6)				//Kilometers per hour
 #define FC_MPS_TO_MPH		(2.23693629)		//Miles per hour
 #define FC_MPS_TO_KNOTS		(1.94384449)		//Knots
+#define FC_KM_TO_MILE		(0.621371)
 
 
 #define ALT_MODE_MASK	0b11000000
@@ -59,22 +59,26 @@
 #define LOGGER_ACTIVE		2
 #define LOGGER_ERROR		3
 
-struct flight_stats_t
-{
-	int16_t max_alt;	//in m
-	int16_t min_alt;	//in m
-
-	int16_t max_climb; 	//in cm
-	int16_t max_sink;	//in cm
-};
-
+/**
+ * Bit masks for gps.new_sample.
+ */
 #define FC_GPS_NEW_SAMPLE_LOGGER		0b00000001
 #define FC_GPS_NEW_SAMPLE_WIND			0b00000010
 #define FC_GPS_NEW_SAMPLE_AGL			0b00000100
+#define FC_GPS_NEW_SAMPLE_ODO			0b00001000
 
 struct gps_data_t
 {
+	/**
+	 * Set to "true" if we received a valid GPS position.
+	 */
 	bool valid;
+
+	/**
+	 * Whenever a new GPS position arrives, then
+	 * new_sample will be set to 0xFF and every subroutine can check with its own bit (FC_GPS_NEW_SAMPLE_XXX)
+	 * if there is a new GPS for them to be handled.
+	 */
 	uint8_t new_sample;
 
 	char cache_igc_latitude[9];
@@ -115,7 +119,6 @@ struct accel_data_t
 	float filter_old;
 	uint8_t filter_hold_time;
 	float total_filtered;			//total acceleration, + filtered, + peak detection, used by acceleration widget
-	float zGCA;						//Z direction (external frame), gravity compensated acceleration
 };
 
 struct mag_data_t
@@ -124,13 +127,12 @@ struct mag_data_t
 	vector_float_t sens;
 
 	vector_i16_t raw;			//raw data from sensor
-	vector_float_t vector;		//magnetic vector, not in scale, normalized
+	vector_float_t vector;		//magnetic vector, not in scale
 };
 
 struct gyro_data_t
 {
 	vector_i16_t raw;			//raw data from sensor
-	vector_float_t vector;		//gyro data +calibration
 };
 
 #define FC_TEMP_PERIOD	100
@@ -160,9 +162,20 @@ struct vario_data_t
 	float avg;
 };
 
+struct flight_stats_t
+{
+	int16_t max_alt;	//in m
+	int16_t min_alt;	//in m
+
+	int16_t max_climb; 	//in cm
+	int16_t max_sink;	//in cm
+
+};
+
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
+
 struct flight_data_t
 {
 	flight_stats_t stats;
@@ -174,6 +187,17 @@ struct flight_data_t
 	//wait timer
 	uint32_t autostart_timer;
 	float autostart_altitude;
+
+	//takeoff (home) position
+	bool home_valid;
+	int32_t home_lat;
+	int32_t home_lon;
+
+	//we will cache the bearing and distance to save cpu
+	//computation @ widget_draw ~30Hz
+	//computation @ gps new_sample ~1Hz
+	int16_t home_bearing;
+	float home_distance;
 };
 
 struct agl_data_t
@@ -185,15 +209,17 @@ struct agl_data_t
 	int16_t ground_level;
 };
 
-#define FC_GLIDE_MIN_KNOTS	(1.07) //2km/h
-#define FC_GLIDE_MIN_SINK	(-0.01)
+#define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
+#define FC_GLIDE_MIN_SINK		(-0.01)
+
+#define FC_ODO_MAX_SPEED_DIFF	(5.39957) 	//10km/h
+#define FC_ODO_MIN_SPEED		(0.539957) //1km/h
 
 struct flight_computer_data_t
 {
 	accel_data_t acc;		//accelerometer data
 	mag_data_t mag;			//magnetometer data
 	gyro_data_t gyro;		//gyroscope data
-	imu_data_t imu;
 
 	gps_data_t gps_data;
 
@@ -206,6 +232,8 @@ struct flight_computer_data_t
 	flight_data_t flight;	//flight related stats, measurements, data
 
 	agl_data_t agl;
+
+	uint32_t odometer;              // in cm gives up to 42.000km
 
 	uint8_t logger_state;
 

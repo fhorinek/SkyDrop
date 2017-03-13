@@ -117,10 +117,23 @@ void logger_step()
 	}
 }
 
-void logger_comment(char * text)
+/**
+ * printf-like function to send output to the GPS log .
+ *
+ * \param format a printf-like format string that must reside in PROGMEM.
+ *
+ */
+void logger_comment(const char *format, ...)
 {
+	va_list arp;
+	char text[80];
+
 	if (!logger_active())
 		return;
+
+	va_start(arp, format);
+	vsnprintf_P(text, sizeof(text), format, arp);
+	va_end(arp);
 
 	switch (config.logger.format)
 	{
@@ -168,16 +181,13 @@ void logger_start()
 	char path[128];
 
 	//base dir
-	sprintf_P(path, PSTR("%S"), LOG_DIR);
+	sprintf_P(path, PSTR("%S"), LOG_DIR_P);
 	f_mkdir(path);
 	//year
-	sprintf_P(path, PSTR("%S/%04d"), LOG_DIR, year);
+	sprintf_P(path, PSTR("%S/%04u"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
-	//month
-	sprintf_P(path, PSTR("%S/%04d/%02d"), LOG_DIR, year, month);
-	f_mkdir(path);
-	//day
-	sprintf_P(path, PSTR("%S/%04d/%02d/%02d"), LOG_DIR, year, month, day);
+	//month-day
+	sprintf_P(path, PSTR("%S/%04u/%02u-%02u"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
 
 	switch (config.logger.format)
@@ -218,10 +228,7 @@ void logger_stop()
 
 	if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 	{
-		char text[32];
-		strcpy_P(text, PSTR("No GPS fix during flight!"));
-
-		logger_comment(text);
+		logger_comment(PSTR("No GPS fix during flight!"));
 	}
 
 	fc.logger_state = LOGGER_IDLE;
@@ -245,3 +252,4 @@ void logger_stop()
 		break;
 	}
 }
+

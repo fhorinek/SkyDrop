@@ -10,6 +10,9 @@ uint32_t storage_free_space = 0;
 bool sd_avalible = false;
 bool sd_error = false;
 
+//handle for dir operations
+DIR storage_dir_h;
+
 #define SD_CARD_DETECT	(GpioRead(SD_IN) == LOW)
 
 bool storage_init()
@@ -141,4 +144,70 @@ bool storage_card_in()
 bool storage_ready()
 {
 	return sd_avalible && !sd_error;
+}
+
+uint8_t storage_get_files()
+{
+	FILINFO f_info;
+	uint8_t cnt = 0;
+
+	storage_dir_rewind();
+
+	while(f_readdir(&storage_dir_h, &f_info) == FR_OK)
+	{
+		if (f_info.fname[0] == 0)
+			break;
+
+		if(f_info.fname[0] == 0xFF) //bugs in FatFs?
+			continue;
+
+		cnt++;
+	}
+
+	storage_dir_rewind();
+
+	return cnt;
+}
+
+bool storage_dir_open(char * path)
+{
+	DEBUG("Open dir %s\n", path);
+
+	return f_opendir(&storage_dir_h, path) == FR_OK;
+}
+
+void storage_dir_close()
+{
+	assert(f_closedir(&storage_dir_h) == FR_OK);
+}
+
+void storage_dir_rewind()
+{
+	//rewind directory
+	f_readdir(&storage_dir_h, NULL);
+}
+
+bool storage_dir_list(char * fname, uint8_t * flags)
+{
+	FILINFO f_info;
+	*flags = 0;
+
+	while(f_readdir(&storage_dir_h, &f_info) == FR_OK)
+	{
+		if (f_info.fname[0] == 0)
+			break;
+
+		if(f_info.fname[0] == 0xFF) //bugs in FatFs?
+			continue;
+
+		strcpy(fname, f_info.fname);
+
+		if (f_info.fattrib & AM_DIR)
+			*flags |= STORAGE_IS_DIR;
+
+		return true;
+	}
+
+	storage_dir_rewind();
+	return false;
 }

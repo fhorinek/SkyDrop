@@ -1,5 +1,5 @@
-#include <fc/kalman_old.h>
 #include "altitude.h"
+#include "../../fc/kalman.h"
 
 
 void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
@@ -36,7 +36,7 @@ void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)
 	if (valid)
 		sprintf_P(text, PSTR("%0.0f"), val);
 	else
-		sprintf_P(text, PSTR("---"));
+		strcpy_P(text, PSTR("---"));
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
@@ -201,16 +201,16 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	switch (a_type)
 	{
 		case(ALT_ABS_QNH1):
-			sprintf_P(title, PSTR("Absolute QNH1"));
+			strcpy_P(title, PSTR("Absolute QNH1"));
 		break;
 		case(ALT_ABS_QNH2):
-			sprintf_P(title, PSTR("Absolute QNH2"));
+			strcpy_P(title, PSTR("Absolute QNH2"));
 		break;
 		case(ALT_DIFF):
 			sprintf_P(title, PSTR("Relative to Alt%d"), a_index + 1);
 		break;
 		case(ALT_ABS_GPS):
-			sprintf_P(title, PSTR("Absolute GPS"));
+			strcpy_P(title, PSTR("Absolute GPS"));
 		break;
 	}
 
@@ -278,9 +278,9 @@ void widget_alt_menu_loop(uint8_t alt_index)
 		break;
 		case(ALT_ABS_GPS):
 			if (fc.gps_data.valid)
-				sprintf_P(tmp, PSTR("valid"));
+				strcpy_P(tmp, PSTR("valid"));
 			else
-				sprintf_P(tmp, PSTR("invalid"));
+				strcpy_P(tmp, PSTR("invalid"));
 		break;
 	}
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2 + h_v);
