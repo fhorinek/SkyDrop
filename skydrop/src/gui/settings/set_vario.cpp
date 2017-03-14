@@ -127,28 +127,28 @@ void gui_set_vario_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Lift threshold"));
+			strcpy_P(text, PSTR("Lift threshold"));
 			sprintf_P(sub_text, PSTR("%0.1f m/s"), config.audio_profile.lift / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Sink threshold"));
+			strcpy_P(text, PSTR("Sink threshold"));
 			sprintf_P(sub_text, PSTR("%0.1f m/s"), config.audio_profile.sink / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Weak lift"));
+			strcpy_P(text, PSTR("Weak lift"));
 			if (config.vario.weak_lift_enabled)
 				sprintf_P(sub_text, PSTR("%0.1fm/s"), (float)(config.audio_profile.lift - config.vario.weak_lift) / 100.0);
 			else
-				sprintf_P(sub_text, PSTR("disabled"));
+				strcpy_P(sub_text, PSTR("disabled"));
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Fluid audio"));
+			strcpy_P(text, PSTR("Fluid audio"));
 			if (config.audio_profile.fluid)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -156,28 +156,28 @@ void gui_set_vario_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Digital vario int."));
+			strcpy_P(text, PSTR("Digital vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.digital_vario_dampening));
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Average vario int."));
+			strcpy_P(text, PSTR("Average vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.avg_vario_dampening));
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (6):
-			sprintf_P(text, PSTR("Units"));
+			strcpy_P(text, PSTR("Units"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.vario.flags & VARIO_UNITS_I)
-				sprintf_P(sub_text, PSTR("imperial"));
+				strcpy_P(sub_text, PSTR("imperial"));
 			else
-				sprintf_P(sub_text, PSTR("metric"));
+				strcpy_P(sub_text, PSTR("metric"));
 		break;
 
 		case (7):
-			sprintf_P(text, PSTR("Vario demo"));
+			strcpy_P(text, PSTR("Vario demo"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

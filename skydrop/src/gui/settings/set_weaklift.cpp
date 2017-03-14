@@ -88,7 +88,7 @@ void gui_set_weaklift_item(uint8_t index, char * text, uint8_t * flags, char * s
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Enabled"));
+			strcpy_P(text, PSTR("Enabled"));
 			if (config.vario.weak_lift_enabled)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -96,19 +96,19 @@ void gui_set_weaklift_item(uint8_t index, char * text, uint8_t * flags, char * s
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Weak lift setting"));
+			strcpy_P(text, PSTR("Weak lift setting"));
 			sprintf_P(sub_text, PSTR("%d (%0.1f m/s)"), config.vario.weak_lift / 10, (float)(config.audio_profile.lift - config.vario.weak_lift) / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Frequency low"));
+			strcpy_P(text, PSTR("Frequency low"));
 			sprintf_P(sub_text, PSTR("%d Hz"), config.audio_profile.weak_lift_freq_low);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("Frequency high"));
+			strcpy_P(text, PSTR("Frequency high"));
 			sprintf_P(sub_text, PSTR("%d Hz"), config.audio_profile.weak_lift_freq_high);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;

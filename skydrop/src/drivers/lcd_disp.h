@@ -74,6 +74,7 @@ public:
 	void InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2);
 
 	uint8_t GetTextWidth(char * text);
+	uint8_t GetTextWidth_P(const char * text);
 	uint8_t GetTextWidthN(char * text, uint8_t n);
 	uint8_t GetTextHeight();
 	uint8_t GetAHeight();

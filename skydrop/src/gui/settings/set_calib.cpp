@@ -58,12 +58,12 @@ void gui_set_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Accelerometer"));
+			strcpy_P(text, PSTR("Accelerometer"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Magnetometer"));
+			strcpy_P(text, PSTR("Magnetometer"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

@@ -18,7 +18,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_ctrl_audio, w_ctrl_wlift,
 		w_wspd, w_wdir, w_wdir_arrow,
 		w_agl_height, w_agl_level,
-		w_odo_meter, w_odo_back, w_odo_distance
+		w_odo_meter, w_odo_back, w_odo_distance, w_home_time
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -48,6 +48,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_ODO_METER,
 	WIDGET_ODO_BACK,
 	WIDGET_ODO_DISTANCE,
+	WIDGET_HOME_TIME,
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
 	WIDGET_WIND_SPD,
@@ -292,8 +293,13 @@ void widgets_draw(uint8_t page)
  * \param w the width
  * \param h the height
  */
-void widget_arrow(uint16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
+	// make sure, that angle is always between 0 and 359:
+	if (angle < 0 || angle > 359) {
+		angle = (angle % 360 + 360) % 360;
+	}
+
 	uint8_t s = min(w, h);
 	uint8_t mx = x + w / 2;
 	uint8_t my = y + h / 2;

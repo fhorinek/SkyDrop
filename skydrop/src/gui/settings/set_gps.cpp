@@ -120,7 +120,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 	switch (index)
 	{
 		case (0):
-			sprintf_P(text, PSTR("Enable GPS"));
+			strcpy_P(text, PSTR("Enable GPS"));
 			if (config.connectivity.use_gps)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
@@ -129,94 +129,94 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 		break;
 
 		case (1):
-			sprintf_P(text, PSTR("Status"));
+			strcpy_P(text, PSTR("Status"));
 			if (config.connectivity.use_gps)
 			{
 				switch (fc.gps_data.fix)
 				{
 					case(2):
-						sprintf_P(tmp, PSTR("2D"));
+						strcpy_P(tmp, PSTR("2D"));
 					break;
 					case(3):
-						sprintf_P(tmp, PSTR("3D"));
+						strcpy_P(tmp, PSTR("3D"));
 					break;
 					default:
-						sprintf_P(tmp, PSTR("No"));
+						strcpy_P(tmp, PSTR("No"));
 					break;
 				}
 				sprintf_P(sub_text, PSTR("%d/%d %s Fix"), fc.gps_data.sat_used, fc.gps_data.sat_total, tmp);
 			}
 			else
 			{
-				sprintf_P(sub_text, PSTR("GPS disabled"));
+				strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("GPS time"));
+			strcpy_P(text, PSTR("GPS time"));
 			if (fc.gps_data.valid)
 				sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
 			else
 			{
 				if (config.connectivity.use_gps)
-					sprintf_P(sub_text, PSTR("Waiting for fix"));
+					strcpy_P(sub_text, PSTR("Waiting for fix"));
 				else
-					sprintf_P(sub_text, PSTR("GPS disabled"));
+					strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
-			sprintf_P(text, PSTR("GPS date"));
+			strcpy_P(text, PSTR("GPS date"));
 			if (fc.gps_data.valid)
 				sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
 			else
 			{
 				if (config.connectivity.use_gps)
-					sprintf_P(sub_text, PSTR("Waiting for fix"));
+					strcpy_P(sub_text, PSTR("Waiting for fix"));
 				else
-					sprintf_P(sub_text, PSTR("GPS disabled"));
+					strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
-			sprintf_P(text, PSTR("Speed units"));
+			strcpy_P(text, PSTR("Speed units"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.gps_format_flags & GPS_SPD_MASK)
 			{
 				case(GPS_SPD_KNOT):
-					sprintf_P(sub_text, PSTR("Knots"));
+					strcpy_P(sub_text, PSTR("Knots"));
 				break;
 				case(GPS_SPD_KPH):
-					sprintf_P(sub_text, PSTR("Km/h"));
+					strcpy_P(sub_text, PSTR("Km/h"));
 				break;
 				case(GPS_SPD_MS):
-					sprintf_P(sub_text, PSTR("m/s"));
+					strcpy_P(sub_text, PSTR("m/s"));
 				break;
 				case(GPS_SPD_MPH):
-					sprintf_P(sub_text, PSTR("MPH"));
+					strcpy_P(sub_text, PSTR("MPH"));
 				break;
 			}
 		break;
 
 		case (5):
-			sprintf_P(text, PSTR("Format"));
+			strcpy_P(text, PSTR("Format"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.gps_format_flags & GPS_FORMAT_MASK)
 			{
 				case(GPS_DDMMSS):
-					sprintf_P(sub_text, PSTR("DD*MM'SS\""));
+					strcpy_P(sub_text, PSTR("DD*MM'SS\""));
 				break;
 				case(GPS_DDMMmmm):
-					sprintf_P(sub_text, PSTR("DD*MM.mmm'"));
+					strcpy_P(sub_text, PSTR("DD*MM.mmm'"));
 				break;
 				case(GPS_DDdddddd):
-					sprintf_P(sub_text, PSTR("DD.dddddd"));
+					strcpy_P(sub_text, PSTR("DD.dddddd"));
 				break;
 			}
 		break;

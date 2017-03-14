@@ -95,9 +95,9 @@ void gui_dialog_loop()
 		else
 			fprintf_P(lcd_out, PSTR("%02d.%02d"), min, diff);
 
-		sprintf_P(tmp, PSTR("Alt"));
+		strcpy_P(tmp, PSTR("Alt"));
 		gui_raligh_text(tmp, (GUI_DIALOG_WIDTH * 2) / 3 - 2, GUI_DIALOG_TOP + f_h * 0);
-		sprintf_P(tmp, PSTR("Vario"));
+		strcpy_P(tmp, PSTR("Vario"));
 		gui_raligh_text(tmp, GUI_DIALOG_RIGHT + 1, GUI_DIALOG_TOP + f_h * 0);
 
 		sprintf_P(tmp, PSTR("%dm"), fc.flight.stats.max_alt);
