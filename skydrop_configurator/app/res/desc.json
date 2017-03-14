@@ -107,14 +107,22 @@
             "max": 200,
             "step": 10
         },              
-        "cfg_audio_profile_weak_lift_freq" : {
-            "name": "Weak lift buzzer frequency",
+        "cfg_audio_profile_weak_lift_freq_low" : {
+            "name": "Weak lift buzzer low frequency",
             "desc": "in Hz",
             "mode": "number",
             "min": 10,
             "max": 2000,
             "step": 10
         },
+        "cfg_audio_profile_weak_lift_freq_high" : {
+            "name": "Weak lift buzzer high frequency",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 2000,
+            "step": 10
+        },        
         "cfg_altitude_alt1_flags" :
         {
             "name": "Altimeter 1 flags",

@@ -59,6 +59,9 @@ class Interface(threading.Thread):
             data = map(int_16, line.split())
             
         data = [op_hi, op_lo] + data
+        
+        #print "TX data", data
+        
         self.cout.Write("send", False)
         self.cout.Write(data)
 
@@ -101,7 +104,7 @@ class Interface(threading.Thread):
                     type = self.cin.Read()
                     if type == "msg": 
                         data = self.cin.Read()
-#                         print "RX data", data
+                        #print "RX data", data
                         
                         op_hi = data[0]
                         op_lo = data[1]

@@ -7,7 +7,7 @@
 
 void gui_set_weaklift_init()
 {
-	gui_list_set(gui_set_weaklift_item, gui_set_weaklift_action, 3, GUI_SET_VARIO);
+	gui_list_set(gui_set_weaklift_item, gui_set_weaklift_action, 4, GUI_SET_VARIO);
 }
 
 void gui_set_weaklift_stop() {}
@@ -32,16 +32,28 @@ void gui_set_weaklift_val_cb(float val)
 	gui_switch_task(GUI_SET_WEEKLIFT);
 }
 
-void gui_set_weaklift_freq_cb(float val)
+void gui_set_weaklift_freq_low_cb(float val)
 {
 	uint16_t tmp = val;
 
-	config.audio_profile.weak_lift_freq = tmp;
+	config.audio_profile.weak_lift_freq_low = tmp;
 
 	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.audio_profile.weak_lift_freq, config.audio_profile.weak_lift_freq);
+	eeprom_update_word(&config_ee.audio_profile.weak_lift_freq_low, config.audio_profile.weak_lift_freq_low);
 	gui_switch_task(GUI_SET_WEEKLIFT);
 }
+
+void gui_set_weaklift_freq_high_cb(float val)
+{
+	uint16_t tmp = val;
+
+	config.audio_profile.weak_lift_freq_high = tmp;
+
+	eeprom_busy_wait();
+	eeprom_update_word(&config_ee.audio_profile.weak_lift_freq_high, config.audio_profile.weak_lift_freq_high);
+	gui_switch_task(GUI_SET_WEEKLIFT);
+}
+
 
 void gui_set_weaklift_action(uint8_t index)
 {
@@ -59,7 +71,12 @@ void gui_set_weaklift_action(uint8_t index)
 		break;
 
 		case(2):
-			gui_value_conf_P(PSTR("Buzzer frequency"), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.weak_lift_freq, 10, 2000, 10, gui_set_weaklift_freq_cb);
+			gui_value_conf_P(PSTR("Frequency low"), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.weak_lift_freq_low, 10, 2000, 10, gui_set_weaklift_freq_low_cb);
+			gui_switch_task(GUI_SET_VAL);
+		break;
+
+		case(3):
+			gui_value_conf_P(PSTR("Frequency high"), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.weak_lift_freq_high, 10, 2000, 10, gui_set_weaklift_freq_high_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
@@ -85,8 +102,14 @@ void gui_set_weaklift_item(uint8_t index, char * text, uint8_t * flags, char * s
 		break;
 
 		case (2):
-			sprintf_P(text, PSTR("Buzzer frequency"));
-			sprintf_P(sub_text, PSTR("%d Hz"), config.audio_profile.weak_lift_freq);
+			sprintf_P(text, PSTR("Frequency low"));
+			sprintf_P(sub_text, PSTR("%d Hz"), config.audio_profile.weak_lift_freq_low);
+			*flags |= GUI_LIST_SUB_TEXT;
+		break;
+
+		case (3):
+			sprintf_P(text, PSTR("Frequency high"));
+			sprintf_P(sub_text, PSTR("%d Hz"), config.audio_profile.weak_lift_freq_high);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 	}

@@ -73,13 +73,13 @@ def parse(op, data):
             
     if op == 0x82:
         if data[0]:
-            print "File open for writing"
+            print "File opened for writing"
         else:
             print "Fail to open file for writing"
             
     if op == 0x83:
         if data[0]:
-            print "File open for reading"
+            print "File opened for reading"
         else:
             print "Fail to open file for reading"      
             

@@ -1,3 +1,11 @@
+FIX:
+ * Time zone in logger header #255
+ 
+ADDED:
+ * new layouts 11, 133, 223, 233 #260 #183
+ * upper frequency for weak lift #253
+ 
+
 Build 3466 - 03. 03. 2017
 ========================================================
 ADDED:

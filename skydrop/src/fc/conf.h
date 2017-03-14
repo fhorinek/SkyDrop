@@ -89,7 +89,8 @@ struct cfg_audio_profile
 	uint16_t pause[41];	//in ms
 	uint16_t length[41];//in ms
 
-	uint16_t weak_lift_freq; //in Hz
+	uint16_t weak_lift_freq_low; //in Hz
+	uint16_t weak_lift_freq_high; //in Hz
 
 	int16_t lift;		//in cm
 	int16_t sink;		//in cm
