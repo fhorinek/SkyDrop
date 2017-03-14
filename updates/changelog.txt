@@ -1,3 +1,12 @@
+Build XXXX - XX. XX. 2017
+========================================================
+ADDED:
+ * new widget "Home (Time)" showing time to home in minutes.
+ * added icons to various home widgets to make them different.
+
+CHANGED:
+ * internal optimization (strcpy instead of sprintf) where possible.
+
 Build 3466 - 03. 03. 2017
 ========================================================
 ADDED:
