@@ -13,7 +13,7 @@
 
 void gyro_save_calibration(volatile vector_float_t * );
 void gyro_load_calibration(volatile vector_float_t * );
-void gyro_calc_init();
+void gyro_init();
 void gyro_calc_vector();
 
 

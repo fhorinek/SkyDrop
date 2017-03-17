@@ -42,7 +42,7 @@ void gyro_load_calibration(volatile vector_float_t * bias_vf)
 	//DEBUG("loaded int: bias %d %d %d\n", bias.x, bias.y, bias.z);
 }
 
-void gyro_calc_init()
+void gyro_init()
 {
 	//initialize variables
 

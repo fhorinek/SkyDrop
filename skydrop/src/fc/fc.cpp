@@ -54,14 +54,15 @@ void fc_init()
 	DMA_PWR_ON;
 
 	//init calculators
-	vario_init(ms5611.pressure);
+
 	audio_init();
 	logger_init();
 	protocol_init();
 	wind_init();
 	agl_init();
-	gyro_calc_init();
+	gyro_init();
 	imu_init();
+	vario_init(ms5611.pressure);
 
 	gps_init();
 	if (config.connectivity.use_gps)
