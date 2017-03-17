@@ -42,7 +42,8 @@ void KalmanFilter::Configure(float zVariance, float zAccelVariance, float zAccel
 
 	Paz_ = 0.0f;
 	Pav_ = 0.0;
-	Paa_ = 100000.0f;
+	//Paa_ = 100000.0f;
+	Paa_ = 1.0e10f;
 	}
 
 
@@ -116,7 +117,7 @@ void KalmanFilter::Update(float z, float a, float dt, float* pZ, float* pV)
 	aBias_ += ka * innov;
 
 	*pZ = z_;
-	*pV = v_;
+	*pV = v_ / 2.0;
 
 	// Update state covariance matrix
 	Pzz_ -= kz * Pzz_;

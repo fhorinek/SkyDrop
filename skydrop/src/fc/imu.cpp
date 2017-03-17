@@ -16,8 +16,7 @@
 
 void imu_init()
 {
-	fc.imu.gyro.count = 0;
-	fc.imu.gyro.factor = 16.384; // 2^16 / 4000 deg per sec
+
 	fc.imu.quat[0] = 1.0;
 	fc.imu.quat[1] = 0.0;
 	fc.imu.quat[2] = 0.0;
@@ -150,39 +149,6 @@ void imu_MadgwickQuaternionUpdate()
 }
 
 
-void imu_calc()
-{
-
-	if( fc.imu.gyro.count < 50 )
-	{
-		fc.imu.gyro.count ++;
-		return;
-	}
-	if(	fc.imu.gyro.count >= 50 and fc.imu.gyro.count < 550 )
-	{
-		fc.imu.gyro.sum.x += (float) fc.gyro.raw.x;
-		fc.imu.gyro.sum.y += (float) fc.gyro.raw.y;
-		fc.imu.gyro.sum.z += (float) fc.gyro.raw.z;
-		fc.imu.gyro.count ++;
-		return;
-	}
-	if( fc.imu.gyro.count == 550 )
-	{
-		fc.imu.gyro.avg.x = fc.imu.gyro.sum.x / 500.0;
-		fc.imu.gyro.avg.y = fc.imu.gyro.sum.y / 500.0;
-		fc.imu.gyro.avg.z = fc.imu.gyro.sum.z / 500.0;
-		fc.imu.gyro.count ++;
-		//DEBUG("AVG: %f %f %f\n", fc.imu.gyro.avg.x, fc.imu.gyro.avg.y, fc.imu.gyro.avg.z );
-	}
-
-	fc.gyro.vector.x = ( ( float(fc.gyro.raw.x) - fc.imu.gyro.avg.x ) / fc.imu.gyro.factor * 0.01 );
-	fc.gyro.vector.y = ( ( float(fc.gyro.raw.y) - fc.imu.gyro.avg.y ) / fc.imu.gyro.factor * 0.01 );
-	fc.gyro.vector.z = ( ( float(fc.gyro.raw.z) - fc.imu.gyro.avg.z ) / fc.imu.gyro.factor * 0.01 );
-
-	imu_MadgwickQuaternionUpdate();
-
-}
-
 float imu_GravityCompensatedAccel(float ax, float ay, float az, volatile float* q)
 {
 	float za;
@@ -193,8 +159,6 @@ float imu_GravityCompensatedAccel(float ax, float ay, float az, volatile float* 
 void imu_step()
 {
 
-	imu_calc();
-
 	//DEBUG("#QTN# % 03.3f % 03.3f % 03.3f % 03.3f\n", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 
 /*
@@ -203,7 +167,7 @@ void imu_step()
 			, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
 			, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
 */
-
+	imu_MadgwickQuaternionUpdate();
 	fc.acc.zGCA = imu_GravityCompensatedAccel(fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z, fc.imu.quat );
 
 	//DEBUG("#VERT_ACC# % 05.2f\n",fc.acc.zGCA);

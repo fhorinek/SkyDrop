@@ -14,8 +14,8 @@ struct imu_gyro_t
 {
 	uint16_t count;
 	vector_float_t sum;
-	vector_float_t avg;
-	float factor;
+	vector_float_t bias;
+
 };
 
 struct imu_quaternion_t
@@ -29,9 +29,7 @@ struct imu_quaternion_t
 
 struct imu_data_t
 {
-	imu_gyro_t gyro;
 	float quat[4];
-
 };
 
 

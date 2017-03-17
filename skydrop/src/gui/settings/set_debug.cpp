@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 13, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 14, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -202,6 +202,13 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 			*flags |= GUI_LIST_SUB_TEXT;
 			memcpy((void *)&tmp_vf, (void *)&fc.mag.sens, sizeof(tmp_vf));
 			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
+		break;
+
+		case (13):
+			strcpy_P(text, PSTR("Gyro bias"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			memcpy((void *)&tmp_vf, (void *)&fc.gyro.bias, sizeof(tmp_vf));
+			sprintf_P(sub_text, PSTR("% 4.1f % 4.1f % 4.1f"), tmp_vf.x, tmp_vf.y, tmp_vf.z );
 		break;
 	}
 }

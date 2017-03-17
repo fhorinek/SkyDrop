@@ -268,11 +268,23 @@ void cfg_mag_write_defaults()
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
 }
 
+void cfg_gyro_write_defaults()
+{
+	vector_i16_t tmp;
+	//bias
+	tmp.x = 0;
+	tmp.y = 0;
+	tmp.z = 0;
+	eeprom_busy_wait();
+	eeprom_write_block((void *)&tmp, (void *)&config_ro.gyro_bias, sizeof(vector_i16_t));
+}
+
 void cfg_load()
 {
 
 	eeprom_busy_wait();
 	uint8_t calib_flags = eeprom_read_byte(&config_ro.calibration_flags);
+
 	if (calib_flags & CALIB_ACC_NOT_DONE)
 	{
 		cfg_acc_write_defaults();
@@ -283,6 +295,12 @@ void cfg_load()
 	{
 		cfg_mag_write_defaults();
 		calib_flags &= ~CALIB_MAG_NOT_DONE;
+	}
+
+	if (calib_flags & CALIB_GYRO_NOT_DONE)
+	{
+		cfg_gyro_write_defaults();
+		calib_flags &= ~CALIB_GYRO_NOT_DONE;
 	}
 
 	eeprom_busy_wait();

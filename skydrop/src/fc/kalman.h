@@ -11,13 +11,13 @@ class KalmanFilter {
 public:
 
 
-	float z_;  // position
-	float v_;  // velocity
-	float aBias_; // acceleration
+	float z_;  		// position
+	float v_;  		// velocity
+	float aBias_; 	// acceleration
 
-    float zAccelBiasVariance_; // assumed fixed.
-	float zAccelVariance_;  // dynamic acceleration variance
-	float zVariance_; //  z measurement noise variance fixed
+    float zAccelBiasVariance_; 	// assumed fixed.
+	float zAccelVariance_;  	// dynamic acceleration variance
+	float zVariance_; 			//  z measurement noise variance fixed
 
 	// 3x3 State Covariance matrix
 	float Pzz_;
