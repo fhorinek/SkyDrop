@@ -202,7 +202,7 @@ struct flight_data_t
 	//computation @ widget_draw ~30Hz
 	//computation @ gps new_sample ~1Hz
 	int16_t home_bearing;
-	float home_distance;
+	float home_distance;    // in km
 };
 
 struct agl_data_t
