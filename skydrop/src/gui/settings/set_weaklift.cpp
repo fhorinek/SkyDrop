@@ -10,18 +10,6 @@ void gui_set_weaklift_init()
 	gui_list_set(gui_set_weaklift_item, gui_set_weaklift_action, 3, GUI_SET_VARIO);
 }
 
-void gui_set_weaklift_stop() {}
-
-void gui_set_weaklift_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_weaklift_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_weaklift_val_cb(float val)
 {
 	uint16_t tmp = val * 10;

@@ -14,16 +14,6 @@ void gui_set_menu_audio_stop()
 	eeprom_update_byte(&config_ee.gui.menu_audio_flags, config.gui.menu_audio_flags);
 }
 
-void gui_set_menu_audio_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_menu_audio_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_menu_audio_action(uint8_t index)
 {
 	switch(index)

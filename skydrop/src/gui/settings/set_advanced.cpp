@@ -14,18 +14,6 @@ void gui_set_advanced_init()
 	gui_list_set(gui_set_advanced_item, gui_set_advanced_action, 4, GUI_SET_SYSTEM);
 }
 
-void gui_set_advanced_stop() {}
-
-void gui_set_advanced_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_advanced_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_advanced_format_cb(uint8_t ret)
 {
 	if (ret == GUI_DIALOG_YES)

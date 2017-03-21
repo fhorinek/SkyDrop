@@ -12,18 +12,6 @@ void gui_set_vario_init()
 	gui_list_set(gui_set_vario_item, gui_set_vario_action, 8, GUI_SETTINGS);
 }
 
-void gui_set_vario_stop() {}
-
-void gui_set_vario_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_vario_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_vario_dig_int_cb(float val)
 {
 	gui_switch_task(GUI_SET_VARIO);

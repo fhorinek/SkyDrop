@@ -8,18 +8,6 @@ void gui_set_debug_init()
 	gui_list_set(gui_set_debug_item, gui_set_debug_action, 13, GUI_SETTINGS);
 }
 
-void gui_set_debug_stop() {}
-
-void gui_set_debug_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_debug_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_debug_reset_fc(uint8_t ret)
 {
 	if (ret == GUI_DIALOG_YES)

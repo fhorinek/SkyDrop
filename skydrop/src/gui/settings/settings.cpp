@@ -8,18 +8,6 @@ void gui_settings_init()
 	gui_list_set(gui_settings_item, gui_settings_action, 8, GUI_PAGES);
 }
 
-void gui_settings_stop() {}
-
-void gui_settings_loop()
-{
-	gui_list_draw();
-}
-
-void gui_settings_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_settings_action(uint8_t index)
 {
 	switch(index)

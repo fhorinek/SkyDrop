@@ -53,16 +53,6 @@ void gui_set_altimeter_stop()
 
 }
 
-void gui_set_altimeter_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_altimeter_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 bool set_alt_find_abs(uint8_t index, uint8_t rep)
 {
 	//cyclic binding

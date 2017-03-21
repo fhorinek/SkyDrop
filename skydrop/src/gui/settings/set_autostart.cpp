@@ -10,18 +10,6 @@ void gui_set_autostart_init()
 	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 6, GUI_SET_LOGGER);
 }
 
-void gui_set_autostart_stop() {}
-
-void gui_set_autostart_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_autostart_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_autostart_start_threshold_cb(float val)
 {
 	uint8_t tmp = val;

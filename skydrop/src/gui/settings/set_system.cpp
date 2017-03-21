@@ -13,18 +13,6 @@ void gui_set_system_init()
 	gui_list_set(gui_set_system_item, gui_set_system_action, 5, GUI_SETTINGS);
 }
 
-void gui_set_system_stop() {}
-
-void gui_set_system_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_system_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_system_auto_power_off_cb(float ret)
 {
 	uint8_t val = ret;

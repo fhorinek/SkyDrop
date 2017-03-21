@@ -64,8 +64,6 @@ void gui_mag_calib_init()
 	gui_mag_calib.min.z = 32767;
 }
 
-void gui_mag_calib_stop() {}
-
 void gui_mag_calib_loop()
 {
 	//get min, max values to each direction

@@ -61,16 +61,6 @@ void gui_flightlog_stop()
 	}
 }
 
-void gui_flightlog_loop()
-{
-	gui_list_draw();
-}
-
-void gui_flightlog_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_flightlog_action(uint8_t index)
 {
 	char tmp[44];

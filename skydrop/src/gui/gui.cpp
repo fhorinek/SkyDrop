@@ -14,6 +14,7 @@
 #include "settings/set_vario.h"
 #include "settings/set_audio.h"
 #include "gui_value.h"
+#include "gui_list.h"
 #include "settings/set_widgets.h"
 #include "settings/layouts.h"
 #include "settings/set_layout.h"
@@ -62,34 +63,34 @@ void (* gui_init_array[])() =
 	gui_accelerometer_calib_init, gui_mag_calib_init, gui_flightlog_init, gui_flightdetail_init};
 
 void (* gui_stop_array[])() =
-	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
-	gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop,
-	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
-	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
-	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
-	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
-	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
-	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_flightlog_stop, gui_flightdetail_stop};
+	{gui_pages_stop, NULL, gui_splash_stop, NULL, gui_value_stop,
+	NULL, NULL, NULL, NULL,
+	NULL, gui_usb_stop, gui_factory_test_stop, NULL,
+	NULL, gui_set_gps_stop, NULL, NULL,
+	NULL, gui_set_altimeter_stop, NULL, NULL,
+	gui_dialog_stop, NULL, gui_update_stop, NULL,
+	gui_set_menu_audio_stop, gui_text_stop, NULL, NULL,
+	gui_accelerometer_calib_stop, NULL, gui_flightlog_stop, NULL};
 
 void (* gui_loop_array[])() =
-	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
-	gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop,
-	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
-	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
-	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
-	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
-	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
-	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_flightlog_loop, gui_flightdetail_loop};
+	{gui_pages_loop, gui_list_draw, gui_splash_loop, gui_list_draw, gui_value_loop,
+	gui_list_draw, gui_set_widgets_loop, gui_list_draw, gui_set_layout_loop,
+	gui_list_draw, gui_usb_loop, gui_factory_test_loop, gui_list_draw,
+	gui_list_draw, gui_list_draw, gui_set_gps_detail_loop, gui_list_draw,
+	gui_list_draw, gui_list_draw, gui_list_draw, gui_list_draw,
+	gui_dialog_loop, gui_list_draw, gui_update_loop, gui_list_draw,
+	gui_list_draw, gui_text_loop, gui_list_draw, gui_list_draw,
+	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_list_draw, gui_list_draw};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
-	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
-	gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh,
-	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
-	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
-	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
-	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
-	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
-	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_flightlog_irqh, gui_flightdetail_irqh};
+	{gui_pages_irqh, gui_list_irqh, gui_splash_irqh, gui_list_irqh, gui_value_irqh,
+	gui_list_irqh, gui_set_widgets_irqh, gui_list_irqh, gui_set_layout_irqh,
+	gui_list_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_list_irqh,
+	gui_list_irqh, gui_list_irqh, gui_set_gps_detail_irqh, gui_list_irqh,
+	gui_list_irqh, gui_list_irqh, gui_list_irqh, gui_list_irqh,
+	gui_dialog_irqh, gui_list_irqh, gui_update_irqh, gui_list_irqh,
+	gui_list_irqh, gui_text_irqh, gui_list_irqh, gui_list_irqh,
+	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_list_irqh, gui_list_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -457,7 +458,7 @@ void gui_loop()
 	{
 		//DEBUG("switching tasks %d %d\n", gui_new_task, gui_task);
 
-		if (gui_task != GUI_NONE)
+		if (gui_task != GUI_NONE && gui_stop_array[gui_task])
 			gui_stop_array[gui_task]();
 
 		//DEBUG("1 %6X\n", (uint32_t)gui_stop_array[gui_task]);

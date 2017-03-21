@@ -183,7 +183,8 @@ void gui_list_action()
 		gui_switch_task(gui_list_back);
 	}
 	else
-		gui_list_act_f(gui_list_index[gui_task]);
+		if (gui_list_act_f)
+			gui_list_act_f(gui_list_index[gui_task]);
 }
 
 void gui_list_irqh(uint8_t type, uint8_t * buff)
