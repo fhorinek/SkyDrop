@@ -10,7 +10,7 @@ FIL agl_data_file;
 
 // All lat/lon values are multiplied by HGT_COORD_MUL, so that we can use
 // fixed point integer arithmetic instead of floating points:
-#define HGT_COORD_MUL	10000000ul
+#define HGT_COORD_MUL	10000000l
 
 // Some HGT files contain 1201 x 1201 points (3 arc/90m resolution)
 #define HGT_DATA_WIDTH_3	1201ul
