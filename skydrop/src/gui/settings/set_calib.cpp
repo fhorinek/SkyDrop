@@ -15,18 +15,6 @@ void gui_set_calib_init()
 	gui_list_set(gui_set_calib_item, gui_set_calib_action, 2, GUI_SET_ADVANCED);
 }
 
-void gui_set_calib_stop() {}
-
-void gui_set_calib_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_calib_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_calib_action_acc(uint8_t ret)
 {
 	gui_switch_task(GUI_SET_CALIB_ACC);

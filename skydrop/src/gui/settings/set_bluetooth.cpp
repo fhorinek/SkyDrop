@@ -11,18 +11,6 @@ void gui_set_bluetooth_init()
 	gui_list_set(gui_set_bluetooth_item, gui_set_bluetooth_action, 4, GUI_SETTINGS);
 }
 
-void gui_set_bluetooth_stop() {}
-
-void gui_set_bluetooth_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_bluetooth_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_bluetooth_action(uint8_t index)
 {
 	switch (index)

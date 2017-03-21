@@ -10,8 +10,6 @@ void gui_set_layout_init()
 	set_layout_type = config.gui.pages[active_page].type;
 }
 
-void gui_set_layout_stop() {}
-
 void gui_set_layout_loop()
 {
 	uint8_t widget_cnt = layout_get_number_of_widgets(set_layout_type);

@@ -11,7 +11,6 @@
 #include "../gui.h"
 
 void gui_set_widgets_init();
-void gui_set_widgets_stop();
 void gui_set_widgets_loop();
 void gui_set_widgets_irqh(uint8_t type, uint8_t * buff);
 void gui_set_widgets_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);

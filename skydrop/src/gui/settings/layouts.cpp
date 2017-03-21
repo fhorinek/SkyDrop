@@ -8,20 +8,6 @@ void gui_layouts_init()
 	gui_list_set(gui_layouts_item, gui_layouts_action, 5, GUI_PAGES);
 }
 
-void gui_layouts_stop()
-{
-}
-
-void gui_layouts_loop()
-{
-	gui_list_draw();
-}
-
-void gui_layouts_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_layouts_pages_cb(float val)
 {
 	uint8_t tmp = val;

@@ -20,16 +20,6 @@ void gui_set_gps_stop()
 		gps_normal();
 }
 
-void gui_set_gps_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_gps_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_gps_action(uint8_t index)
 {
 	uint8_t tmp;
