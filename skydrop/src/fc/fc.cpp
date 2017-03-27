@@ -54,12 +54,15 @@ void fc_init()
 	DMA_PWR_ON;
 
 	//init calculators
-	vario_init();
+
 	audio_init();
 	logger_init();
 	protocol_init();
 	wind_init();
 	agl_init();
+	gyro_init();
+	imu_init();
+	vario_init(ms5611.pressure);
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -363,6 +366,8 @@ ISR(FC_MEAS_TIMER_CMPC)
 //	DEBUG(";%d;%d;%d", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
 //	DEBUG(";%0.0f\n", ms5611.pressure);
 
+	imu_step();
+
 	BT_ALLOW_TX
 }
 
@@ -645,7 +650,7 @@ void fc_zero_alt(uint8_t index)
 
 void fc_manual_alt0_change(float val)
 {
-	kalmanFilter.reset(val);
+
 
     if (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND)
     {

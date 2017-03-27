@@ -20,6 +20,8 @@
 
 #include "acc.h"
 #include "mag.h"
+#include "gyro.h"
+#include "imu.h"
 
 //metric to imperial
 #define FC_METER_TO_FEET		(3.2808399)
@@ -119,6 +121,7 @@ struct accel_data_t
 	float filter_old;
 	uint8_t filter_hold_time;
 	float total_filtered;			//total acceleration, + filtered, + peak detection, used by acceleration widget
+	float zGCA;						//Z direction (external frame), gravity compensated acceleration
 };
 
 struct mag_data_t
@@ -133,6 +136,8 @@ struct mag_data_t
 struct gyro_data_t
 {
 	vector_i16_t raw;			//raw data from sensor
+	vector_float_t vector;		//gyro data +calibration
+	vector_float_t bias;		//
 };
 
 #define FC_TEMP_PERIOD	100
@@ -220,6 +225,7 @@ struct flight_computer_data_t
 	accel_data_t acc;		//accelerometer data
 	mag_data_t mag;			//magnetometer data
 	gyro_data_t gyro;		//gyroscope data
+	imu_data_t imu;
 
 	gps_data_t gps_data;
 

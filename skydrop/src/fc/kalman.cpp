@@ -1,117 +1,135 @@
+/*
+ * kalman.cpp
+ *
+ *  Created on: Mar 2, 2017
+ */
+
+
+
+
+#include "common.h"
+#include <math.h>
 #include "kalman.h"
 
-// Constructor. Assumes a variance of 1.0 for the system model's
-// acceleration noise input, in units per second squared.
+// Tracks the position z and velocity v of an object moving in a straight line,
+// (here assumed to be vertical) that is perturbed by random accelerations.
+// sensor measurement of z is assumed to have constant measurement noise
+// variance zVariance,
+// This can be calculated offline for the specific sensor, and is supplied
+// as an initialization parameter.
+
 KalmanFilter::KalmanFilter()
 {
-	setAccelerationVariance(1.0);
-	reset();
+
 }
 
-// Constructor. Caller supplies the variance for the system model's
-// acceleration noise input, in units per second squared.
-KalmanFilter::KalmanFilter(float var_accel)
+void KalmanFilter::Configure(float zVariance, float zAccelVariance, float zAccelBiasVariance, float zInitial, float vInitial, float aBiasInitial)
 {
-	setAccelerationVariance(var_accel);
-	reset();
-}
+	zAccelVariance_ = zAccelVariance;
+    zAccelBiasVariance_ = zAccelBiasVariance;
+	zVariance_ = zVariance;
 
-// The following three methods reset the filter. All of them assign a huge
-// variance to the tracked absolute quantity and a var_accel variance to
-// its derivative, so the very next measurement will essentially be
-// copied directly into the filter. Still, we provide methods that allow
-// you to specify initial settings for the filter's tracked state.
+	z_ = zInitial;
+	v_ = vInitial;
+	aBias_ = aBiasInitial;
+	Pzz_ = 1.0f;
+	Pzv_ = 0.0f;
+	Pza_ = 0.0f;
 
-void KalmanFilter::reset()
+	Pvz_ = 0.0f;
+	Pvv_ = 1.0f;
+	Pva_ = 0.0f;
+
+	Paz_ = 0.0f;
+	Pav_ = 0.0;
+	//Paa_ = 100000.0f;
+	Paa_ = 1.0e10f;
+	}
+
+
+// Updates state given a sensor measurement of z, acceleration a,
+// and the time in seconds dt since the last measurement.
+// 19uS on Navspark @81.84MHz
+void KalmanFilter::Update(float z, float a, float dt, float* pZ, float* pV)
 {
-	reset(0.0, 0.0);
-}
 
-void KalmanFilter::reset(float abs_value)
-{
-	reset(abs_value, 0.0);
-}
+	// Predict state
+    float accel = a - aBias_;
+	v_ += accel * dt;
+	z_ += v_ * dt;
 
-void KalmanFilter::reset(float abs_value, float vel_value)
-{
-	x_abs = abs_value;
-	x_vel = vel_value;
-	p_abs_abs = 1.0e10;
-	p_abs_vel = 0.0;
-	p_vel_vel = var_accel;
-}
+    zAccelVariance_ = fabs(accel)/50.0f;
+    CLAMP(zAccelVariance_, 1.0f, 50.0f);
 
-// Sets the variance for the acceleration noise input in the system model,
-// in units per second squared.
-void KalmanFilter::setAccelerationVariance(float var_accel)
-{
-	this->var_accel = var_accel;
-}
+    // Predict State Covariance matrix
+	float t00,t01,t02;
+    float t10,t11,t12;
+    float t20,t21,t22;
 
-// Updates state given a sensor measurement of the absolute value of x,
-// the variance of that measurement, and the interval since the last
-// measurement in seconds. This interval must be greater than 0; for the
-// first measurement after a reset(), it's safe to use 1.0.
-void KalmanFilter::update(float z_abs)
-{
-	#define	var_z_abs	0.2
-	#define	dt			0.01
+    float dt2div2 = dt*dt/2.0f;
+    float dt3div2 = dt2div2*dt;
+    float dt4div4 = dt2div2*dt2div2;
 
-	// Note: math is not optimized by hand. Let the compiler sort it out.
-	// Predict step.
-	// Update state estimate.
-	x_abs += x_vel * dt;
-	// Update state covariance. The last term mixes in acceleration noise.
-	p_abs_abs += 2.0 * dt * p_abs_vel + dt * dt * p_vel_vel
-			+ var_accel * dt * dt * dt * dt / 4.0;
-	p_abs_vel += dt * p_vel_vel + var_accel * dt * dt * dt / 2.0;
-	p_vel_vel += var_accel * dt * dt;
+	t00 = Pzz_ + dt*Pvz_ - dt2div2*Paz_;
+	t01 = Pzv_ + dt*Pvv_ - dt2div2*Pav_;
+	t02 = Pza_ + dt*Pva_ - dt2div2*Paa_;
 
-	// Update step.
-	y = z_abs - x_abs;  // Innovation.
-	s_inv = 1. / (p_abs_abs + var_z_abs);  // Innovation precision.
-	k_abs = p_abs_abs * s_inv;  // Kalman gain
-	k_vel = p_abs_vel * s_inv;
-	// Update state estimate.
-	x_abs += k_abs * y;
-	x_vel += k_vel * y;
-	// Update state covariance.
-	p_vel_vel -= p_abs_vel * k_vel;
-	p_abs_vel -= p_abs_vel * k_abs;
-	p_abs_abs -= p_abs_abs * k_abs;
-}
+	t10 = Pvz_ - dt*Paz_;
+	t11 = Pvv_ - dt*Pav_;
+	t12 = Pva_ - dt*Paa_;
 
-// Getters for the state and its covariance.
-float KalmanFilter::getXAbs()
-{
-	return x_abs;
-}
+	t20 = Paz_;
+	t21 = Pav_;
+	t22 = Paa_;
 
+	Pzz_ = t00 + dt*t01 - dt2div2*t02;
+	Pzv_ = t01 - dt*t02;
+	Pza_ = t02;
 
-// Getters for the state and its covariance.
-void KalmanFilter::setXAbs(float X)
-{
-	x_abs = X;
-}
+	Pvz_ = t10 + dt*t11 - dt2div2*t12;
+	Pvv_ = t11 - dt*t12;
+	Pva_ = t12;
 
+	Paz_ = t20 + dt*t21 - dt2div2*t22;
+	Pav_ = t21 - dt*t22;
+	Paa_ = t22;
 
-float KalmanFilter::getXVel()
-{
-	return x_vel;
-}
+    Pzz_ += dt4div4*zAccelVariance_;
+    Pzv_ += dt3div2*zAccelVariance_;
 
-float KalmanFilter::getCovAbsAbs()
-{
-	return p_abs_abs;
-}
+    Pvz_ += dt3div2*zAccelVariance_;
+    Pvv_ += dt*dt*zAccelVariance_;
 
-float KalmanFilter::getCovAbsVel()
-{
-	return p_abs_vel;
-}
+    Paa_ += zAccelBiasVariance_;
 
-float KalmanFilter::getCovVelVel()
-{
-	return p_vel_vel;
-}
+	// Error
+	float innov = z - z_;
+	float sInv = 1.0f / (Pzz_ + zVariance_);
+
+    // Kalman gains
+	float kz = Pzz_ * sInv;
+	float kv = Pvz_ * sInv;
+	float ka = Paz_ * sInv;
+
+	// Update state
+	z_ += kz * innov;
+	v_ += kv * innov;
+	aBias_ += ka * innov;
+
+	*pZ = z_;
+	*pV = v_ / 2.0;
+
+	// Update state covariance matrix
+	Pzz_ -= kz * Pzz_;
+	Pzv_ -= kz * Pzv_;
+	Pza_ -= kz * Pza_;
+
+	Pvz_ -= kv * Pzz_;
+	Pvv_ -= kv * Pzv_;
+	Pva_ -= kv * Pza_;
+
+	Paz_ -= ka * Pzz_;
+	Pav_ -= ka * Pzv_;
+	Paa_ -= ka * Pza_;
+	}
 

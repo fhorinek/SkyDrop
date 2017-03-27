@@ -57,6 +57,7 @@ struct cfg_gui
 
 #define VARIO_UNITS_M		0b00000000
 #define VARIO_UNITS_I		0b10000000
+#define VARIO_USE_ACC		0b01000000
 
 struct cfg_vario
 {
@@ -240,6 +241,7 @@ struct debug_info
 //0xFF or 0b11111111 is default value
 #define CALIB_ACC_NOT_DONE	0b00000001
 #define CALIB_MAG_NOT_DONE	0b00000010
+#define CALIB_GYRO_NOT_DONE	0b00000100
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
@@ -267,7 +269,9 @@ struct cfg_ro_t
 
 	uint8_t calibration_flags;		//+50		1
 
-	uint8_t reserved[78];			//+52		77
+	vector_i16_t gyro_bias;				//+51		6
+
+	uint8_t reserved[72];			//+57		72
 };
 
 //configuration in RAM

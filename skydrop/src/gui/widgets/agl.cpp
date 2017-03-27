@@ -1,5 +1,5 @@
 #include "agl.h"
-
+#include "../../fc/agl.h"
 
 void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
@@ -12,7 +12,7 @@ void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	if (config.altitude.alt1_flags & ALT_UNIT_I)
 		val *= FC_METER_TO_FEET;
 
-	if (fc.agl.valid)
+	if (fc.agl.ground_level != AGL_INVALID)
 		sprintf_P(text, PSTR("%d"), val);
 	else
 		strcpy_P(text, PSTR("---"));
@@ -31,7 +31,7 @@ void widget_gl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	if (config.altitude.alt1_flags & ALT_UNIT_I)
 		val *= FC_METER_TO_FEET;
 
-	if (fc.agl.valid)
+	if (fc.agl.ground_level != AGL_INVALID)
 		sprintf_P(text, PSTR("%d"), val);
 	else
 		strcpy_P(text, PSTR("---"));

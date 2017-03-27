@@ -9,7 +9,7 @@
 
 void gui_set_vario_init()
 {
-	gui_list_set(gui_set_vario_item, gui_set_vario_action, 8, GUI_SETTINGS);
+	gui_list_set(gui_set_vario_item, gui_set_vario_action, 9, GUI_SETTINGS);
 }
 
 void gui_set_vario_stop() {}
@@ -113,6 +113,12 @@ void gui_set_vario_action(uint8_t index)
 		break;
 
 		case(7):
+			config.vario.flags ^= VARIO_USE_ACC;
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ee.vario.flags, config.vario.flags);
+		break;
+
+		case(8):
 			gui_value_conf_P(PSTR("Vario demo"), GUI_VAL_VARIO_TEST, PSTR("%+0.1f m/s"), 0.0, -10.0, +10.0, 0.1, gui_set_vario_demo_cb);
 			gui_switch_task(GUI_SET_VAL);
 			audio_demo_val = 0;
@@ -177,9 +183,18 @@ void gui_set_vario_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		break;
 
 		case (7):
+			strcpy_P(text, PSTR("Use accel"));
+			if (config.vario.flags & VARIO_USE_ACC)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+
+		case (8):
 			strcpy_P(text, PSTR("Vario demo"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
+
 	}
 }
 

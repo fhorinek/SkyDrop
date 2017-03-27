@@ -98,10 +98,11 @@ void gui_statusbar();
 #define GUI_SET_CALIB_MAG	30
 #define GUI_FLIGHTLOG		31
 #define GUI_FLIGHTDETAIL	32
+#define GUI_SET_CALIB_GYRO	33
 
 
 
-#define NUMBER_OF_GUI_TASKS	33
+#define NUMBER_OF_GUI_TASKS	34
 
 #define GUI_LAST_TASK		0xFF
 
