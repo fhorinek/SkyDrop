@@ -15,7 +15,7 @@
  * Latitude and longitude are multiplied with GPS_MULT to get fixed point integers.
  * E.g. 48.5 will be 48500000.
  */
-#define GPS_MULT			10000000ul
+#define GPS_MULT			10000000l
 
 /**
  * Convert an angle given in radians to degree.
