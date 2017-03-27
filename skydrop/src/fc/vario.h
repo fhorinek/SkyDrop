@@ -10,7 +10,7 @@
 
 #include "../common.h"
 
-void vario_init();
+void vario_init(float pressure);
 void vario_calc(float pressure);
 void vario_update_history_delay();
 

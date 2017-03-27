@@ -1,5 +1,5 @@
 /*
- * accel.h
+ * acc.h
  *
  *  Created on: Nov 8, 2016
  *      Author: Fiala
