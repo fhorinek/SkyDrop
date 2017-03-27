@@ -18,13 +18,15 @@ FIL agl_data_file;
 // Some HGT files contain 3601 x 3601 points (1 arc/30m resolution)
 #define HGT_DATA_WIDTH_1	3601ul
 
+// Some HGT files contain 3601 x 1801 points (1 arc/30m resolution)
+#define HGT_DATA_WIDTH_1_HALF	1801ul
+
 void agl_init()
 {
 	DEBUG("agl_init\n");
-	fc.agl.valid = false;
 	fc.agl.file_valid = false;
 
-	fc.agl.ground_level = 0;
+	fc.agl.ground_level = AGL_INVALID;
 	memset((void *)fc.agl.filename, 0, sizeof(fc.agl.filename));
 }
 
@@ -63,37 +65,47 @@ void agl_open_file(char * fn)
 	}
 	else
 	{
-		//file is not availible
+		//file is not available
 		fc.agl.file_valid = false;
-		fc.agl.valid = false;
+		fc.agl.ground_level = AGL_INVALID;
 	}
 
 }
 
 int16_t agl_get_alt(int32_t lat, int32_t lon)
 {
-	uint16_t num_points;
+	uint16_t num_points_x;
+	uint16_t num_points_y;
 
 	// Check, if we have a 1201x1201 or 3601x3601 tile:
-	if (f_size(&agl_data_file) == HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2)
-	{
-		num_points = HGT_DATA_WIDTH_1;
-	} else {
-		num_points = HGT_DATA_WIDTH_3;
+	switch(f_size(&agl_data_file)) {
+	case HGT_DATA_WIDTH_3 * HGT_DATA_WIDTH_3 * 2:
+		num_points_x = num_points_y = HGT_DATA_WIDTH_3;
+		break;
+	case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1 * 2:
+		num_points_x = num_points_y = HGT_DATA_WIDTH_1;
+		break;
+	case HGT_DATA_WIDTH_1 * HGT_DATA_WIDTH_1_HALF * 2:
+		num_points_x = HGT_DATA_WIDTH_1_HALF;
+		num_points_y = HGT_DATA_WIDTH_1;
+		break;
+	default:
+		return AGL_INVALID;
 	}
 
 	// "-2" is, because a file has a overlap of 1 point to the next file.
-	uint32_t coord_div = HGT_COORD_MUL / (num_points - 2);
-	uint16_t y = (lat % HGT_COORD_MUL) / coord_div;
-	uint16_t x = (lon % HGT_COORD_MUL) / coord_div;
+	uint32_t coord_div_x = HGT_COORD_MUL / (num_points_x - 2);
+	uint32_t coord_div_y = HGT_COORD_MUL / (num_points_y - 2);
+	uint16_t y = (lat % HGT_COORD_MUL) / coord_div_y;
+	uint16_t x = (lon % HGT_COORD_MUL) / coord_div_x;
 
 	uint16_t rd;
 	uint8_t tmp[4];
 	byte2 alt11, alt12, alt21, alt22;
 
 	//seek to position
-	uint32_t pos = ((uint32_t)x + num_points * (uint32_t)((num_points - y) - 1)) * 2;
-	DEBUG("x=%d, y=%d, pos=%d\n", x, y, pos);
+	uint32_t pos = ((uint32_t)x + num_points_x * (uint32_t)((num_points_y - y) - 1)) * 2;
+	DEBUG("agl_get_alt: x=%d, y=%d, pos=%d\n", x, y, pos);
 
 	assert(f_lseek(&agl_data_file, pos) == FR_OK);
 	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
@@ -107,7 +119,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 	alt21.uint8[1] = tmp[2];
 
 	//seek to opposite position
-	pos -= num_points * 2;
+	pos -= num_points_x * 2;
 	assert(f_lseek(&agl_data_file, pos) == FR_OK);
 	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
 	assert(rd == 4);
@@ -122,8 +134,8 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 	DEBUG("alt11=%d, alt21=%d, alt12=%d, alt22=%d\n", alt11.int16, alt21.int16, alt12.int16, alt22.int16);
 
 	//get point displacement
-	float lat_dr = ((lat % HGT_COORD_MUL) % coord_div) / float(coord_div);
-	float lon_dr = ((lon % HGT_COORD_MUL) % coord_div) / float(coord_div);
+	float lat_dr = ((lat % HGT_COORD_MUL) % coord_div_y) / float(coord_div_y);
+	float lon_dr = ((lon % HGT_COORD_MUL) % coord_div_x) / float(coord_div_x);
 
 	//compute height by using bilinear interpolation
 	float alt1 = alt11.int16 + float(alt12.int16 - alt11.int16) * lat_dr;
@@ -152,7 +164,6 @@ void agl_step()
 
 			//get ground level
 			fc.agl.ground_level = agl_get_alt(fc.gps_data.latitude, fc.gps_data.longtitude);
-			fc.agl.valid = true;
 		}
 		else //data file is different than actual
 		{

@@ -13,4 +13,6 @@
 void agl_init();
 void agl_step();
 
+#define AGL_INVALID -32767
+
 #endif /* FC_AGL_H_ */
