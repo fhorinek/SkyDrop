@@ -90,7 +90,7 @@
             "desc": "",
             "mode": "number",
             "min": 1,
-            "max": 5
+            "max": 8
         },
         "cfg_vario_flags" : {
             "name": "Vario Flags",
@@ -384,7 +384,10 @@
                 [2, "Screen 2"],
                 [4, "Screen 3"],
                 [8, "Screen 4"],
-                [16, "Screen 5"]
+                [16, "Screen 5"],
+                [32, "Screen 6"],
+                [64, "Screen 7"],
+                [128, "Screen 8"]
             ]
         },         
         "cfg_gui_hide_label" : {
@@ -395,7 +398,10 @@
                 [2, "Screen 2"],
                 [4, "Screen 3"],
                 [8, "Screen 4"],
-                [16, "Screen 5"]
+                [16, "Screen 5"],
+                [32, "Screen 6"],
+                [64, "Screen 7"],
+                [128, "Screen 8"]
             ]
         },
          "cfg_system_record_screen" : {
@@ -427,7 +433,7 @@
     },
     
     "regexp": {
-        "cfg_gui_pages_[0-4]_type" : {
+        "cfg_gui_pages_[0-7]_type" : {
             "name": "Page layout type",
             "mode": "select",
             "options": [
@@ -443,7 +449,7 @@
                 ["LAYOUT_333", "Layout 3 | 3 | 3"]
             ]
         },
-        "cfg_gui_pages_[0-4]_widgets_[0-8]" : {
+        "cfg_gui_pages_[0-7]_widgets_[0-8]" : {
             "name": "Widget type",
             "mode": "select",
             "options": [
@@ -480,7 +486,8 @@
                 ["WIDGET_AGL_LEVEL", "Ground level"],
                 ["WIDGET_ODO_METER", "Odometer"],
                 ["WIDGET_ODO_BACK", "Back"],
-                ["WIDGET_ODO_DISTANCE", "Distance"]
+                ["WIDGET_ODO_DISTANCE", "Distance"],
+                ["WIDGET_HOME_TIME", "Time to home"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -796,6 +803,14 @@
             "desc": "Direct distance measured from take-off position",
             "label": "Home",
             "value": "8.1"
+        },
+        "WIDGET_HOME_TIME":
+        {
+            "type": "value",
+            "name": "Time to home",
+            "desc": "Showing time to home in minutes",
+            "label": "Home",
+            "value": "21"
         }
     }
 }            

@@ -9,7 +9,7 @@
 #define WIDGETS_H_
 
 #define MAX_WIDGES_PER_PAGE		9
-#define MAX_NUMBER_OF_PAGES		5
+#define MAX_NUMBER_OF_PAGES		8
 
 #include "../gui.h"
 #include "../../fc/fc.h"

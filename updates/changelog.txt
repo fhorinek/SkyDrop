@@ -6,9 +6,9 @@ FIX:
 ADDED:
  * new layouts 11, 133, 223, 233 #260 #183
  * upper frequency for weak lift #253
- 
  * new widget "Home (Time)" showing time to home in minutes.
  * added icons to various home widgets to make them different.
+ * more pages #264
 
 CHANGED:
  * internal optimization (strcpy instead of sprintf) where possible.

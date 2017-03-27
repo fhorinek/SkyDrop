@@ -53,9 +53,12 @@ MK_SEQ(snd_page_0, ARR({800}), ARR({100}));
 MK_SEQ(snd_page_1, ARR({800, 1000}), ARR({100, 100}));
 MK_SEQ(snd_page_2, ARR({800, 1000, 1200}), ARR({100, 100, 100}));
 MK_SEQ(snd_page_3, ARR({800, 1000, 1200, 1400}), ARR({100, 100, 100, 100}));
-MK_SEQ(snd_page_4, ARR({800, 1000, 1200, 1400, 1600}), ARR({100, 100, 100, 100, 100}));
+MK_SEQ(snd_page_4, ARR({800, 1000, 1200, 1400, 1600}), ARR({100, 100, 100, 100, 100, 100}));
+MK_SEQ(snd_page_5, ARR({800, 1000, 1200, 1400, 1600, 1800}), ARR({100, 100, 100, 100, 100, 100, 100}));
+MK_SEQ(snd_page_6, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000}), ARR({100, 100, 100, 100, 100, 100, 100, 100}));
+MK_SEQ(snd_page_7, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000, 2200}), ARR({100, 100, 100, 100, 100, 100, 100, 100, 100}));
 
-const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4};
+const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4, &snd_page_5, &snd_page_6, &snd_page_7};
 
 void gui_pages_set_date_manual_cb(float ret)
 {
@@ -136,6 +139,7 @@ void gui_page_power_off()
 void gui_pages_loop()
 {
 	uint8_t start_x;
+	uint8_t box_spacing;
 	uint8_t wtype;
 
 
@@ -199,11 +203,12 @@ void gui_pages_loop()
 		gui_statusbar();
 		disp.CopyToLayerX(0, split);
 
-		start_x = (- config.gui.number_of_pages * (8 + 4) + 4 + GUI_DISP_WIDTH) / 2;
+		box_spacing = (config.gui.number_of_pages == 8) ? 2 : 4;
+		start_x = (- config.gui.number_of_pages * (8 + box_spacing) + box_spacing + GUI_DISP_WIDTH) / 2;
 
 		for (uint8_t i = 0; i < config.gui.number_of_pages; i++)
 		{
-			uint8_t x = start_x + i * 12;
+			uint8_t x = start_x + i * (8 + box_spacing);
 
 			if (i == active_page)
 			{
@@ -231,11 +236,13 @@ void gui_pages_loop()
 		gui_statusbar();
 
 		disp.SetDrawLayer(1);
-		start_x = ( - config.gui.number_of_pages * (8 + 4) + 4 + GUI_DISP_WIDTH) / 2;
+
+		box_spacing = (config.gui.number_of_pages == 8) ? 2 : 4;
+		start_x = ( - config.gui.number_of_pages * (8 + box_spacing) + box_spacing + GUI_DISP_WIDTH) / 2;
 
 		for (uint8_t i = 0; i <  config.gui.number_of_pages; i++)
 		{
-			uint8_t x = start_x + i * 12;
+			uint8_t x = start_x + i * (8 + box_spacing);
 
 			if (i == active_page)
 			{
