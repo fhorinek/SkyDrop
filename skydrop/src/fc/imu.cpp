@@ -14,6 +14,10 @@
 // Converts radians to degrees.
 #define radiansToDegrees(angleRadians) (angleRadians * 180.0 / M_PI)
 
+#define dt 1.0
+#define beta (sqrt(3.0 / 4.0) * degreesToRadians(10.0))
+#define bUseAccel true
+
 void imu_init()
 {
 
@@ -25,20 +29,25 @@ void imu_init()
 
 void imu_MadgwickQuaternionUpdate()
 {
-	float dt = 0.1;
-	float beta = 0.6;
-	bool bUseAccel = true;
+	//float dt = 1.0;
+	//float beta = sqrt(3.0 / 4.0) * degreesToRadians(10.0);
+	//bool bUseAccel = true;
 
 	float ax = fc.acc.vector.x;
 	float ay = fc.acc.vector.y;
 	float az = fc.acc.vector.z;
-
+/*
 	float gx,gy,gz;
-	float dead_angle = 3;
+	float dead_angle = 3.0;
 
-	( abs(fc.gyro.vector.x) > dead_angle ) ? gx = degreesToRadians(fc.gyro.vector.x) : gx = 0;
-	( abs(fc.gyro.vector.y) > dead_angle ) ? gy = degreesToRadians(fc.gyro.vector.y) : gy = 0;
-	( abs(fc.gyro.vector.z) > dead_angle ) ? gz = degreesToRadians(fc.gyro.vector.z) : gz = 0;
+	( abs(fc.gyro.vector.x) > dead_angle ) ? gx = degreesToRadians(fc.gyro.vector.x) : gx = 0.0;
+	( abs(fc.gyro.vector.y) > dead_angle ) ? gy = degreesToRadians(fc.gyro.vector.y) : gy = 0.0;
+	( abs(fc.gyro.vector.z) > dead_angle ) ? gz = degreesToRadians(fc.gyro.vector.z) : gz = 0.0;
+*/
+
+	float gx = degreesToRadians(fc.gyro.vector.x);
+	float gy = degreesToRadians(fc.gyro.vector.y);
+	float gz = degreesToRadians(fc.gyro.vector.z);
 
 	float mx = fc.mag.vector.x;
 	float my = fc.mag.vector.y;
@@ -110,7 +119,8 @@ void imu_MadgwickQuaternionUpdate()
     	_2q1mz = 2.0 * q1 * mz;
     	_2q2mx = 2.0 * q2 * mx;
     	hx = mx * q1q1 - _2q1my * q4 + _2q1mz * q3 + mx * q2q2 + _2q2 * my * q3 + _2q2 * mz * q4 - mx * q3q3 - mx * q4q4;
-    	hy = _2q1mx * q4 + my * q1q1 - _2q1mz * q2 + _2q2mx * q3 - my * q2q2 + my * q3q3 + _2q3 * mz * q4 - my * q4q4;_2bx = sqrt(hx * hx + hy * hy);
+    	hy = _2q1mx * q4 + my * q1q1 - _2q1mz * q2 + _2q2mx * q3 - my * q2q2 + my * q3q3 + _2q3 * mz * q4 - my * q4q4;
+    	_2bx = sqrt(hx * hx + hy * hy);
     	_2bz = -_2q1mx * q3 + _2q1my * q2 + mz * q1q1 + _2q2mx * q4 - mz * q2q2 + _2q3 * my * q4 - mz * q3q3 + mz * q4q4;
     	_4bx = 2.0 * _2bx;
     	_4bz = 2.0 * _2bz;
@@ -161,12 +171,13 @@ void imu_step()
 
 	//DEBUG("#QTN# % 03.3f % 03.3f % 03.3f % 03.3f\n", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 
-/*
+	/*
 	DEBUG("#AGM# % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f\n"
 			, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
 			, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
 			, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
-*/
+	 */
+
 	imu_MadgwickQuaternionUpdate();
 	fc.acc.zGCA = imu_GravityCompensatedAccel(fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z, fc.imu.quat );
 

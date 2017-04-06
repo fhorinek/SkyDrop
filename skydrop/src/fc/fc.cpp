@@ -9,6 +9,7 @@
 #include "vario.h"
 #include "agl.h"
 #include "odometer.h"
+#include "compass.h"
 
 #include "protocols/protocol.h"
 
@@ -63,6 +64,7 @@ void fc_init()
 	gyro_init();
 	imu_init();
 	vario_init(ms5611.pressure);
+	compass_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -139,7 +141,7 @@ void fc_init()
 	//Gyro
 	l3gd20_settings l3g_cfg;
 	l3g_cfg.enabled = true;
-	l3g_cfg.bw = l3g_50Hz;
+	l3g_cfg.bw = l3g_100Hz;
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
 
@@ -488,6 +490,8 @@ void fc_step()
 	logger_step();
 
 	wind_step();
+
+	compass_step();
 
 	odometer_step();
 

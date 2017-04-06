@@ -212,6 +212,7 @@ struct cfg_t
 	cfg_autostart autostart;
 	cfg_logger logger;
 	cfg_connectivity connectivity;
+
 };
 
 
@@ -268,9 +269,11 @@ struct cfg_ro_t
 
 	uint8_t calibration_flags;		//+50		1
 
-	vector_i16_t gyro_bias;				//+51		6
+	vector_i16_t gyro_bias;			//+51		6
 
-	uint8_t reserved[72];			//+57		72
+	int16_t	magnetic_declination;	//+57		2
+
+	uint8_t reserved[70];			//+59		70
 };
 
 //configuration in RAM
