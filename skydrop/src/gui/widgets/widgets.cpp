@@ -19,7 +19,8 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_wspd, w_wdir, w_wdir_arrow,
 		w_agl_height, w_agl_level,
 		w_odo_meter, w_odo_back, w_odo_distance, w_home_time,
-		w_compass, w_compass_arrow, w_compass_heading
+		w_compass, w_compass_arrow, w_compass_heading,
+		w_ghdg_dir
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -60,6 +61,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_COMPASS,
 	WIDGET_COMPASS_ARROW,
 	WIDGET_COMPASS_HEADING,
+	WIDGET_GHDG_DIR,
 	WIDGET_EMPTY
 };
 

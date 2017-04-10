@@ -29,21 +29,10 @@ void imu_init()
 
 void imu_MadgwickQuaternionUpdate()
 {
-	//float dt = 1.0;
-	//float beta = sqrt(3.0 / 4.0) * degreesToRadians(10.0);
-	//bool bUseAccel = true;
 
 	float ax = fc.acc.vector.x;
 	float ay = fc.acc.vector.y;
 	float az = fc.acc.vector.z;
-/*
-	float gx,gy,gz;
-	float dead_angle = 3.0;
-
-	( abs(fc.gyro.vector.x) > dead_angle ) ? gx = degreesToRadians(fc.gyro.vector.x) : gx = 0.0;
-	( abs(fc.gyro.vector.y) > dead_angle ) ? gy = degreesToRadians(fc.gyro.vector.y) : gy = 0.0;
-	( abs(fc.gyro.vector.z) > dead_angle ) ? gz = degreesToRadians(fc.gyro.vector.z) : gz = 0.0;
-*/
 
 	float gx = degreesToRadians(fc.gyro.vector.x);
 	float gy = degreesToRadians(fc.gyro.vector.y);
@@ -171,8 +160,7 @@ void imu_step()
 
 	//DEBUG("#QTN# % 03.3f % 03.3f % 03.3f % 03.3f\n", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 
-	/*
-	DEBUG("#AGM# % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f\n"
+	/*DEBUG("#AGM# % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f\n"
 			, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
 			, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
 			, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);

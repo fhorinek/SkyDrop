@@ -36,7 +36,7 @@ EEMEM cfg_t config_ee = {
 		//alert_volume
 		100,
 		//number_of_pages
-		MAX_NUMBER_OF_PAGES,
+		5,
 		//silent
 		0b00000000,
 		//hide_label
@@ -72,6 +72,24 @@ EEMEM cfg_t config_ee = {
 				//type
 				LAYOUT_21,
 				{WIDGET_TIME, WIDGET_ALT3, WIDGET_POSITION, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+			},
+			//5
+			{
+				//type
+				LAYOUT_22,
+				{WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+			},
+			//6
+			{
+				//type
+				LAYOUT_22,
+				{WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+			},
+			//7
+			{
+				//type
+				LAYOUT_22,
+				{WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 		},
 
@@ -137,8 +155,10 @@ EEMEM cfg_t config_ee = {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 281, 242, 215, 189, 172, 155, 144, 134, 124, 115, 105, 95, 85, 75, 65, 55, 46, 37, 33, 30},
 		//pause
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 540, 489, 438, 403, 368, 340, 312, 285, 259, 239, 219, 197, 176, 157, 138, 124, 110, 95, 81, 70, 60},
-		//weak_lift_freq
+		//weak_lift_freq_low
 		60,
+		//weak_lift_freq_high
+		400,
 		//lift
 		10,
 		//sink

@@ -15,5 +15,6 @@ extern widget w_gspd;
 extern widget w_gpos;
 extern widget w_ghdg_arrow;
 extern widget w_gcom;
+extern widget w_ghdg_dir;
 
 #endif /* WIDGET_GPS_H_ */

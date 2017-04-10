@@ -459,6 +459,10 @@ void fc_sync_gps_time()
 	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
 
+	//Do not update time during flight
+	if (fc.flight.state == FLIGHT_FLIGHT)
+		return;
+
 	DEBUG("Syncing time\n");
 	DEBUG(" local    %lu\n", time_get_local());
 	DEBUG(" gps + tz %lu\n", fc.gps_data.utc_time + config.system.time_zone * 1800ul);

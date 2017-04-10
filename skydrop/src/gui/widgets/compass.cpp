@@ -28,12 +28,12 @@ void widget_compass_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 }
 void widget_compass_heading_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("Head"), x, y);
+	uint8_t lh = widget_label_P(PSTR("Comp"), x, y);
 
 	float dir = fc.compass.azimuth_filtered;
 	char tmp[5];
 
-	if(22.5 <= dir and dir < 67.5 )
+	if	   ( 22.5 <= dir and dir <  67.5 )
 		strcpy_P(tmp, PSTR("NE"));
 	else if( 67.5 <= dir and dir < 112.5 )
 		strcpy_P(tmp, PSTR("E"));
