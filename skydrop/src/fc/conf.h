@@ -240,9 +240,10 @@ struct debug_info
 };
 
 //0xFF or 0b11111111 is default value
-#define CALIB_ACC_NOT_DONE	0b00000001
-#define CALIB_MAG_NOT_DONE	0b00000010
-#define CALIB_GYRO_NOT_DONE	0b00000100
+#define CALIB_ACC_NOT_DONE		0b00000001
+#define CALIB_MAG_NOT_DONE		0b00000010
+#define CALIB_GYRO_NOT_DONE		0b00000100
+#define CALIB_COMPASS_NOT_DONE	0b00001000
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings

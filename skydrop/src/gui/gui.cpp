@@ -1,3 +1,4 @@
+#include <gui/settings/gui_compass_calib.h>
 #include <gui/settings/gui_flightdetail.h>
 #include <gui/settings/gui_flightlog.h>
 #include "gui.h"
@@ -40,7 +41,6 @@
 #include "settings/gui_accel_calib.h"
 #include "settings/gui_mag_calib.h"
 #include "settings/gui_gyro_calib.h"
-#include "settings/gui_set_compass.h"
 #include "settings/gui_compass_calib.h"
 #include "settings/gui_flightlog.h"
 #include "settings/gui_flightdetail.h"
@@ -63,7 +63,7 @@ void (* gui_init_array[])() =
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_weaklift_init,
 	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init, gui_set_calib_init,
 	gui_accelerometer_calib_init, gui_mag_calib_init, gui_flightlog_init, gui_flightdetail_init,
-	gui_gyro_calib_init, gui_set_compass_init};
+	gui_gyro_calib_init, gui_compass_calib_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -74,7 +74,7 @@ void (* gui_stop_array[])() =
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_weaklift_stop,
 	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
 	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_flightlog_stop, gui_flightdetail_stop,
-	gui_gyro_calib_stop, gui_set_compass_stop};
+	gui_gyro_calib_stop, gui_compass_calib_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -85,7 +85,7 @@ void (* gui_loop_array[])() =
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_weaklift_loop,
 	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
 	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_flightlog_loop, gui_flightdetail_loop,
-	gui_gyro_calib_loop, gui_set_compass_loop};
+	gui_gyro_calib_loop, gui_compass_calib_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -96,7 +96,7 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_weaklift_irqh,
 	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
 	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_flightlog_irqh, gui_flightdetail_irqh,
-	gui_gyro_calib_irqh, gui_set_compass_irqh};
+	gui_gyro_calib_irqh, gui_compass_calib_irqh};
 
 #define GUI_ANIM_STEPS	20
 
