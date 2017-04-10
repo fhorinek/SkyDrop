@@ -48,7 +48,7 @@ void gui_set_compass_action(uint8_t index)
 	case(0):
 		if(fc.compass.declination == 0)
 		{
-			gui_value_conf_P(PSTR("Set declination"), GUI_VAL_NUMBER, PSTR("%d deg"), fc.compass.declination, -180.0, 180.0, 1.0, gui_set_compass_declination);
+			gui_value_conf_P(PSTR("Set declination"), GUI_VAL_NUMBER, PSTR("%0.0f deg"), fc.compass.declination, -180.0, 180.0, 1.0, gui_set_compass_declination);
 			gui_switch_task(GUI_SET_VAL);
 		}
 		else
