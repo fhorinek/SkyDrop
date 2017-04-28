@@ -10,6 +10,7 @@
 #include "../common.h"
 
 #define GYRO_SENS 16.384 // 2^16 / 4000 deg per sec
+//#define GYRO_SENS 1.0/0.070 // value from catalog
 
 void gyro_save_calibration(volatile vector_float_t * bias_vf)
 {
@@ -56,9 +57,10 @@ void gyro_init()
 void gyro_calc_vector()
 {
 	//calc gyro data using bias and sens
-	fc.gyro.vector.x = ( float(fc.gyro.raw.x) - fc.gyro.bias.x ) / GYRO_SENS * 0.01 ;
-	fc.gyro.vector.y = ( float(fc.gyro.raw.y) - fc.gyro.bias.y ) / GYRO_SENS * 0.01 ;
-	fc.gyro.vector.z = ( float(fc.gyro.raw.z) - fc.gyro.bias.z ) / GYRO_SENS * 0.01 ;
+
+	fc.gyro.vector.x = ( float(fc.gyro.raw.x) - fc.gyro.bias.x ) / GYRO_SENS ;
+	fc.gyro.vector.y = ( float(fc.gyro.raw.y) - fc.gyro.bias.y ) / GYRO_SENS ;
+	fc.gyro.vector.z = ( float(fc.gyro.raw.z) - fc.gyro.bias.z ) / GYRO_SENS ;
 
 }
 

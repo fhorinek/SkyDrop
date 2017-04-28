@@ -140,6 +140,13 @@ struct gyro_data_t
 	vector_float_t bias;		//
 };
 
+struct compass_data_t
+{
+	float azimuth;				//in degrees < 0 ; 360 )
+	float azimuth_filtered;
+	int16_t declination;		//magnetic declination offset in degrees +-180
+};
+
 #define FC_TEMP_PERIOD	100
 struct temp_data_t
 {
@@ -225,7 +232,8 @@ struct flight_computer_data_t
 	accel_data_t acc;		//accelerometer data
 	mag_data_t mag;			//magnetometer data
 	gyro_data_t gyro;		//gyroscope data
-	imu_data_t imu;
+	imu_data_t imu;			//imu data
+	compass_data_t compass;	//compass data
 
 	gps_data_t gps_data;
 

@@ -213,6 +213,7 @@ struct cfg_t
 	cfg_autostart autostart;
 	cfg_logger logger;
 	cfg_connectivity connectivity;
+
 };
 
 
@@ -239,9 +240,10 @@ struct debug_info
 };
 
 //0xFF or 0b11111111 is default value
-#define CALIB_ACC_NOT_DONE	0b00000001
-#define CALIB_MAG_NOT_DONE	0b00000010
-#define CALIB_GYRO_NOT_DONE	0b00000100
+#define CALIB_ACC_NOT_DONE		0b00000001
+#define CALIB_MAG_NOT_DONE		0b00000010
+#define CALIB_GYRO_NOT_DONE		0b00000100
+#define CALIB_COMPASS_NOT_DONE	0b00001000
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
@@ -269,9 +271,11 @@ struct cfg_ro_t
 
 	uint8_t calibration_flags;		//+50		1
 
-	vector_i16_t gyro_bias;				//+51		6
+	vector_i16_t gyro_bias;			//+51		6
 
-	uint8_t reserved[72];			//+57		72
+	int16_t	magnetic_declination;	//+57		2
+
+	uint8_t reserved[70];			//+59		70
 };
 
 //configuration in RAM
