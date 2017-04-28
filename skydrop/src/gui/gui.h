@@ -64,45 +64,45 @@ void gui_fit_text(char * in, char * out, uint8_t size);
 
 void gui_statusbar();
 
-#define GUI_NONE			0xFF
-#define GUI_PAGES			0
-#define GUI_SETTINGS		1
-#define GUI_SPLASH			2
-#define GUI_SET_VARIO		3
-#define GUI_SET_VAL			4
-#define GUI_SET_AUDIO		5
-#define GUI_SET_WIDGETS		6
-#define GUI_LAYOUTS			7
-#define GUI_SET_LAYOUT		8
-#define GUI_SET_DISPLAY		9
-#define GUI_USB				10
-#define GUI_FTEST			11
-#define GUI_SET_SYSTEM		12
-#define GUI_SET_AUTOSTART	13
-#define GUI_SET_GPS			14
-#define GUI_SET_GPS_DETAIL	15
-#define GUI_SET_DEBUG		16
-#define GUI_SET_ALTIMETERS	17
-#define GUI_SET_ALTIMETER	18
-#define GUI_SET_TIME		19
-#define GUI_SET_LOGGER		20
-#define GUI_DIALOG			21
-#define GUI_SET_BLUETOOTH	22
-#define GUI_UPDATE			23
-#define GUI_SET_WEEKLIFT	24
-#define GUI_SET_AUDIO_MENU	25
-#define GUI_TEXT			26
-#define GUI_SET_ADVANCED	27
-#define GUI_SET_CALIB		28
-#define GUI_SET_CALIB_ACC	29
-#define GUI_SET_CALIB_MAG	30
-#define GUI_FLIGHTLOG		31
-#define GUI_FLIGHTDETAIL	32
-#define GUI_SET_CALIB_GYRO	33
+#define GUI_NONE				0xFF
+#define GUI_PAGES				0
+#define GUI_SETTINGS			1
+#define GUI_SPLASH				2
+#define GUI_SET_VARIO			3
+#define GUI_SET_VAL				4
+#define GUI_SET_AUDIO			5
+#define GUI_SET_WIDGETS			6
+#define GUI_LAYOUTS				7
+#define GUI_SET_LAYOUT			8
+#define GUI_SET_DISPLAY			9
+#define GUI_USB					10
+#define GUI_FTEST				11
+#define GUI_SET_SYSTEM			12
+#define GUI_SET_AUTOSTART		13
+#define GUI_SET_GPS				14
+#define GUI_SET_GPS_DETAIL		15
+#define GUI_SET_DEBUG			16
+#define GUI_SET_ALTIMETERS		17
+#define GUI_SET_ALTIMETER		18
+#define GUI_SET_TIME			19
+#define GUI_SET_LOGGER			20
+#define GUI_DIALOG				21
+#define GUI_SET_BLUETOOTH		22
+#define GUI_UPDATE				23
+#define GUI_SET_WEEKLIFT		24
+#define GUI_SET_AUDIO_MENU		25
+#define GUI_TEXT				26
+#define GUI_SET_ADVANCED		27
+#define GUI_SET_CALIB			28
+#define GUI_SET_CALIB_ACC		29
+#define GUI_SET_CALIB_MAG		30
+#define GUI_FLIGHTLOG			31
+#define GUI_FLIGHTDETAIL		32
+#define GUI_SET_CALIB_GYRO		33
+#define GUI_SET_COMPASS			34
 
 
-
-#define NUMBER_OF_GUI_TASKS	34
+#define NUMBER_OF_GUI_TASKS		35
 
 #define GUI_LAST_TASK		0xFF
 

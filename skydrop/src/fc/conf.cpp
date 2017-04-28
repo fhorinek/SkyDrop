@@ -299,6 +299,14 @@ void cfg_gyro_write_defaults()
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.gyro_bias, sizeof(vector_i16_t));
 }
 
+void cfg_compass_write_defaults()
+{
+	int16_t tmp = 0;
+	eeprom_busy_wait();
+	eeprom_update_block(&tmp, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+}
+
+
 void cfg_load()
 {
 
@@ -321,6 +329,12 @@ void cfg_load()
 	{
 		cfg_gyro_write_defaults();
 		calib_flags &= ~CALIB_GYRO_NOT_DONE;
+	}
+
+	if (calib_flags & CALIB_COMPASS_NOT_DONE)
+	{
+		cfg_compass_write_defaults();
+		calib_flags &= ~CALIB_COMPASS_NOT_DONE;
 	}
 
 	eeprom_busy_wait();
