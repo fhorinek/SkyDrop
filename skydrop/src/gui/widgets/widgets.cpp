@@ -288,8 +288,8 @@ void widgets_draw(uint8_t page)
  *
  * \param angle the angle of the arrow (0=up, 90=right, 180=down, 270=left) and
  *              anything between.
- * \param x the X position (Todo: Clarify of what? the center? The lower left?)
- * \param y the Y position
+ * \param x the X position of center
+ * \param y the Y position of center
  * \param w the width
  * \param h the height
  */

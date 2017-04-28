@@ -16,7 +16,6 @@
 
 void imu_init()
 {
-
 	fc.imu.quat[0] = 1.0;
 	fc.imu.quat[1] = 0.0;
 	fc.imu.quat[2] = 0.0;
