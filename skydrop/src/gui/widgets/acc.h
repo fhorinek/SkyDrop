@@ -10,6 +10,6 @@
 
 #include "widgets.h"
 
-extern widget w_acc_tot;
+extern widget w_acc_total;
 
 #endif /* WACC_H_ */

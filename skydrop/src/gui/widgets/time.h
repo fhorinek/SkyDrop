@@ -12,7 +12,7 @@
 
 extern widget w_time;
 extern widget w_date;
-extern widget w_ftime;
+extern widget w_flight_time;
 
 void widget_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags);
 

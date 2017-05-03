@@ -5,7 +5,7 @@
 #include "widgets.h"
 
 extern widget w_agl_height;
-extern widget w_agl_level;
+extern widget w_agl_ground_level;
 
 
 #endif /* W_AGL_H_ */

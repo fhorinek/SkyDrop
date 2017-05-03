@@ -14,15 +14,18 @@
          <div class="col-md-6">
             <ctrl-panel name="Screen_layout">
             <div class="row">
-               <div class="col-md-6">
+               <div class="col-md-3">
+                  <ctrl item="list['cfg_gui_number_of_pages']"></ctrl>
+               </div>
+               <div class="col-md-5">
                   <h4>Screen selection</h4>
                   <nav aria-label="Page navigation" class="auto">
                      <ul class="pagination">
-                        <li ng-repeat="page in [0, 1, 2, 3, 4]" ng-class="{active: active_page_number == {{page}}}"><a href ng-click="change_page(page)">{{page + 1}}</a></li>
+                        <li ng-repeat="page in [0, 1, 2, 3, 4, 6, 7]" ng-class="{active: active_page_number == {{page}}}"><a href ng-click="change_page(page)">{{page + 1}}</a></li>
                      </ul>
                   </nav>
                </div>
-               <div class="col-md-6">
+               <div class="col-md-3">
                   <ctrl item="list[active_page_type]"></ctrl>
                </div>
             </div>

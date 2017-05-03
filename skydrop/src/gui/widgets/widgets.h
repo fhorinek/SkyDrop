@@ -95,7 +95,7 @@ extern float widget_menu_fvalue1;
 #define WIDGET_GROUND_SPD		18
 #define WIDGET_POSITION			19
 #define WIDGET_GHEADING_ARROW	20
-#define WIDGET_GCOMPASS			21
+#define WIDGET_GHEADING_POINTS	21
 #include "gps.h"
 
 #define WIDGET_BATTERY			22
@@ -121,20 +121,16 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ODO_BACK			32
 #define WIDGET_ODO_DISTANCE		33
 #define WIDGET_HOME_TIME		34
-
 #include "odometer.h"
 
 #define WIDGET_COMPASS			35
 #define WIDGET_COMPASS_ARROW	36
-#define WIDGET_COMPASS_HEADING	37
-
+#define WIDGET_COMPASS_POINTS	37
 #include "compass.h"
 
-#define WIDGET_GHDG_DIR			38
+#define NUMBER_OF_WIDGETS		38
 
-#define NUMBER_OF_WIDGETS		39
-
-#define NUMBER_OF_SORTED_WIDGETS	37
+#define NUMBER_OF_SORTED_WIDGETS	36
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 

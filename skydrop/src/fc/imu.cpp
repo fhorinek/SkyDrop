@@ -39,7 +39,7 @@ void imu_MadgwickQuaternionUpdate()
 
 	float mx = fc.mag.vector.x;
 	float my = fc.mag.vector.y;
-	float mz = -fc.mag.vector.z;
+	float mz = fc.mag.vector.z;
 
 	float q1 = fc.imu.quat[0];
 	float q2 = fc.imu.quat[1];

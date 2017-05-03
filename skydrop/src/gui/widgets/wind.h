@@ -10,8 +10,8 @@
 
 #include "widgets.h"
 
-extern widget w_wdir;
-extern widget w_wspd;
-extern widget w_wdir_arrow;
+extern widget w_wind_dir;
+extern widget w_wind_speed;
+extern widget w_wind_dir_arrow;
 
 #endif /* WIDGET_WIND_H_ */
