@@ -1,11 +1,23 @@
-Build XXXX - XX. XX. 2017
+Build 3667 - 03. 04. 2017
 ========================================================
+FIX:
+ * Time zone in logger header #255
+ * AGL altitde lookup
+ * silent pages in configurator
+ 
 ADDED:
+ * new layouts 11, 133, 223, 233 #260 #183
+ * upper frequency for weak lift #253
  * new widget "Home (Time)" showing time to home in minutes.
  * added icons to various home widgets to make them different.
+ * more pages #264
+ * magnetic compass
 
 CHANGED:
  * internal optimization (strcpy instead of sprintf) where possible.
+ 
+REMOVED:
+ * GPS compass widget
 
 Build 3466 - 03. 03. 2017
 ========================================================

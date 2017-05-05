@@ -117,4 +117,4 @@ void widget_flight_time_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 
 register_widget1(w_time, "Time", widget_time_draw);
 register_widget1(w_date, "Date", widget_date_draw);
-register_widget2(w_ftime, "Flight time", widget_flight_time_draw, 0, widget_flight_time_irqh);
+register_widget2(w_flight_time, "Flight time", widget_flight_time_draw, 0, widget_flight_time_irqh);

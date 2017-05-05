@@ -179,7 +179,8 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	    var lift = $scope.list["cfg_audio_profile_lift"].value;
 	    var sink = $scope.list["cfg_audio_profile_sink"].value;
 	    var weak_lift = $scope.list["cfg_vario_weak_lift"].value;
-	    var weak_lift_freq = $scope.list["cfg_audio_profile_weak_lift_freq"].value;
+	    var weak_lift_freq_low = $scope.list["cfg_audio_profile_weak_lift_freq_low"].value;
+	    var weak_lift_freq_high = $scope.list["cfg_audio_profile_weak_lift_freq_high"].value;
 	    
 	    if ($scope.list["cfg_vario_weak_lift_enabled"].value)
 	    {
@@ -188,10 +189,10 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	        if (ivario >= buzz_thold && ivario < lift && ivario > sink)
 	        {
         
-	            var beep_freq = get_near(lift / 100.0, $scope.data[0]);
-	            beep_freq -= weak_lift_freq;
+	            var beep_freq = weak_lift_freq_high;
+	            beep_freq -= weak_lift_freq_low;
 	            
-	            var c_freq = weak_lift_freq + (beep_freq * (ivario - buzz_thold)) / weak_lift;
+	            var c_freq = weak_lift_freq_low + (beep_freq * (ivario - buzz_thold)) / weak_lift;
 	            
 	            $scope.c_state = "Weaklift";
 	            $scope.c_freq = Math.round(c_freq) + " Hz";

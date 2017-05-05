@@ -6,56 +6,96 @@ uint8_t widget_menu_param1;
 float widget_menu_fvalue1;
 
 widget widget_array[NUMBER_OF_WIDGETS] = {
+		//debug
 		w_dummy, w_debug_etc, w_debug_imu,
+		//vario
 		w_vario, w_avg_vario, w_vario_bar, w_vario_history,
+		//altitude
 		w_alt1, w_alt2, w_alt3, w_alt4, w_alt5,
-		w_acc_tot,
-		w_time, w_date, w_ftime,
+		//accelerometer
+		w_acc_total,
+		//time date
+		w_time, w_date, w_flight_time,
+		//temperature
 		w_temperature,
-		w_ghdg, w_gspd, w_gpos, w_ghdg_arrow, w_gcom,
+		//gps
+		w_gps_hdg, w_gps_speed, w_gps_position, w_gps_hdg_arrow, w_gps_hdg_points,
+		//battery
 		w_battery,
+		//flight
 		w_glide_ratio,
+		//controls
 		w_ctrl_audio, w_ctrl_wlift,
-		w_wspd, w_wdir, w_wdir_arrow,
-		w_agl_height, w_agl_level,
-		w_odo_meter, w_odo_back, w_odo_distance, w_home_time
+		//wind
+		w_wind_speed, w_wind_dir, w_wind_dir_arrow,
+		//agl
+		w_agl_height, w_agl_ground_level,
+		//odometer
+		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time,
+		//compass
+		w_compass_heading, w_compass_arrow, w_compass_points,
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
 const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 {
+	//vario
 	WIDGET_VARIO_BAR,
 	WIDGET_VARIO,
 	WIDGET_AVG_VARIO,
 	WIDGET_VARIO_HISTORY,
-	WIDGET_CTRL_WLIFT,
-	WIDGET_CTRL_AUDIO,
+
+	//altitude
 	WIDGET_ALT1,
 	WIDGET_ALT2,
 	WIDGET_ALT3,
 	WIDGET_ALT4,
 	WIDGET_ALT5,
+
+	//agl
 	WIDGET_AGL_HEIGHT,
 	WIDGET_AGL_LEVEL,
+
+	//gps
 	WIDGET_GROUND_SPD,
 	WIDGET_GLIDE_RATIO,
 	WIDGET_GHEADING,
 	WIDGET_GHEADING_ARROW,
-	WIDGET_GCOMPASS,
+	WIDGET_GHEADING_POINTS,
 	WIDGET_POSITION,
+
+	//time and date
 	WIDGET_FTIME,
 	WIDGET_TIME,
+	WIDGET_DATE,
+
+	//odometer
 	WIDGET_ODO_METER,
 	WIDGET_ODO_BACK,
 	WIDGET_ODO_DISTANCE,
 	WIDGET_HOME_TIME,
+
+	//wind
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
 	WIDGET_WIND_SPD,
+
+	//acc
 	WIDGET_ACC_TOT,
-	WIDGET_DATE,
+
+	//compass
+	WIDGET_COMPASS,
+	WIDGET_COMPASS_ARROW,
+	WIDGET_COMPASS_POINTS,
+
+	//etc
 	WIDGET_BATTERY,
 	WIDGET_TEMPERATURE,
+
+	//ctrl
+	WIDGET_CTRL_WLIFT,
+	WIDGET_CTRL_AUDIO,
+
 	WIDGET_EMPTY
 };
 
@@ -288,8 +328,8 @@ void widgets_draw(uint8_t page)
  *
  * \param angle the angle of the arrow (0=up, 90=right, 180=down, 270=left) and
  *              anything between.
- * \param x the X position (Todo: Clarify of what? the center? The lower left?)
- * \param y the Y position
+ * \param x the X position of center
+ * \param y the Y position of center
  * \param w the width
  * \param h the height
  */

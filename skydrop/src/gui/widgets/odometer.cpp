@@ -73,7 +73,8 @@ void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 	const char *Home_P = PSTR("Home");
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
-	if ( lh > 0 ) disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
+	if (lh > 0)
+		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
 
 	char text[10];
 
@@ -95,7 +96,8 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	const char *Home_P = PSTR("Home");
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
-	if ( lh > 0 ) disp.DrawImage(img_time, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
+	if (lh > 0)
+		disp.DrawImage(img_time, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
 
 	char text[10];
 
@@ -139,8 +141,8 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 	}
 }
 
-register_widget2(w_odo_meter, 	 "Odometer", 	  widget_odometer_draw, 0, widget_odometer_irqh);
-register_widget1(w_odo_back,     "Home Arrow",    widget_odoback_draw);
-register_widget1(w_odo_distance, "Home Distance", widget_ododistance_draw);
-register_widget1(w_home_time,    "Home Time",     widget_home_time_draw);
+register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odometer_irqh);
+register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
+register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
+register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
 

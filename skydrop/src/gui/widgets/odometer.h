@@ -12,8 +12,8 @@
 #include "../../fc/odometer.h"
 
 extern widget w_odo_meter;
-extern widget w_odo_back;
-extern widget w_odo_distance;
-extern widget w_home_time;
+extern widget w_odo_home_direction;
+extern widget w_odo_home_distance;
+extern widget w_odo_home_time;
 
 #endif /* GUI_WIDGETS_ODOMETER_H_ */

@@ -56,6 +56,7 @@ def parse_layouts(filename, p):
         line = line.split()
         if len(line) == 0:
             continue
+        
         if line[0] == "#include":
             name = line[1].split('"')[1]
             if name[-4:] == ".inc":

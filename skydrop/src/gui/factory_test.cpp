@@ -141,6 +141,12 @@ void gui_factory_test_loop()
 		return;
 	}
 
+	eeprom_busy_wait();
+	eeprom_update_byte(&config_ro.lcd_contrast_max, f_test_lcd_cont_max);
+	eeprom_update_byte(&config_ro.lcd_contrast_min, f_test_lcd_cont_min);
+	eeprom_update_byte(&config_ee.gui.contrast, f_test_lcd_cont);
+	eeprom_busy_wait();
+
 	disp.LoadFont(F_TEXT_S);
 	uint8_t f_h = disp.GetTextHeight();
 
@@ -263,12 +269,7 @@ void gui_factory_test_loop()
 	{
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
-
-		eeprom_update_byte(&config_ro.lcd_contrast_max, f_test_lcd_cont_max);
-		eeprom_update_byte(&config_ro.lcd_contrast_min, f_test_lcd_cont_min);
 		eeprom_update_byte(&config_ro.bt_module_type, bt_get_module_type());
-
-		eeprom_update_byte(&config_ee.gui.contrast, f_test_lcd_cont);
 		eeprom_busy_wait();
 
 		task_set(TASK_POWERDOWN);

@@ -9,6 +9,7 @@
 #include "vario.h"
 #include "agl.h"
 #include "odometer.h"
+#include "compass.h"
 
 #include "protocols/protocol.h"
 
@@ -63,6 +64,7 @@ void fc_init()
 	gyro_init();
 	imu_init();
 	vario_init(ms5611.pressure);
+	compass_init();
 
 	gps_init();
 	if (config.connectivity.use_gps)
@@ -139,7 +141,7 @@ void fc_init()
 	//Gyro
 	l3gd20_settings l3g_cfg;
 	l3g_cfg.enabled = true;
-	l3g_cfg.bw = l3g_50Hz;
+	l3g_cfg.bw = l3g_100Hz;
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
 
@@ -281,11 +283,27 @@ ISR(FC_MEAS_TIMER_CMPA)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadMag(&fc.mag.raw.x, &fc.mag.raw.y, &fc.mag.raw.z);
+	int16_t x, y, z;
+
+	lsm303d.ReadMag(&x, &y, &z);
 	ms5611.ReadTemperature();
 
 	ms5611.StartPressure();
 	lsm303d.StartReadAccStream(16); //it take 1600us to transfer
+
+	if (hw_revision == HW_REW_1504)
+	{
+		fc.mag.raw.x = -x;
+		fc.mag.raw.y = -y;
+		fc.mag.raw.z = z;
+	}
+
+	if (hw_revision == HW_REW_1506)
+	{
+		fc.mag.raw.x = x;
+		fc.mag.raw.y = y;
+		fc.mag.raw.z = -z;
+	}
 
 	ms5611.CompensateTemperature();
 	ms5611.CompensatePressure();
@@ -305,8 +323,25 @@ ISR(FC_MEAS_TIMER_CMPB)
 {
 	BT_SUPRESS_TX
 
-	lsm303d.ReadAccStreamAvg(&fc.acc.raw.x, &fc.acc.raw.y, &fc.acc.raw.z, 16);
+	int16_t x, y, z;
+
+	lsm303d.ReadAccStreamAvg(&x, &y, &z, 16);
 	l3gd20.StartReadGyroStream(7); //it take 1000us to transfer
+
+	if (hw_revision == HW_REW_1504)
+	{
+		fc.acc.raw.x = -x;
+		fc.acc.raw.y = -y;
+		fc.acc.raw.z = z;
+	}
+
+	if (hw_revision == HW_REW_1506)
+	{
+		fc.acc.raw.x = x;
+		fc.acc.raw.y = y;
+		fc.acc.raw.z = z;
+	}
+
 
 	acc_calc_vector(); //calculate actual acceleration as vector
 	acc_calc_total();	//calculate actual total acceleration from vector data
@@ -325,7 +360,23 @@ ISR(FC_MEAS_TIMER_CMPC)
 {
 	BT_SUPRESS_TX
 
-	l3gd20.ReadGyroStreamAvg(&fc.gyro.raw.x, &fc.gyro.raw.y, &fc.gyro.raw.z, 7); //it take 1000us to transfer
+	int16_t x, y, z;
+
+	l3gd20.ReadGyroStreamAvg(&x, &y, &z, 7); //it take 1000us to transfer
+
+	if (hw_revision == HW_REW_1504)
+	{
+		fc.gyro.raw.x = y;
+		fc.gyro.raw.y = x;
+		fc.gyro.raw.z = z;
+	}
+
+	if (hw_revision == HW_REW_1506)
+	{
+		fc.gyro.raw.x = x;
+		fc.gyro.raw.y = y;
+		fc.gyro.raw.z = z;
+	}
 
 	if (fc.temp.cnt >= FC_TEMP_PERIOD)
 	{
@@ -457,6 +508,10 @@ void fc_sync_gps_time()
 	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
 
+	//Do not update time during flight
+	if (fc.flight.state == FLIGHT_FLIGHT)
+		return;
+
 	DEBUG("Syncing time\n");
 	DEBUG(" local    %lu\n", time_get_local());
 	DEBUG(" gps + tz %lu\n", fc.gps_data.utc_time + config.system.time_zone * 1800ul);
@@ -488,6 +543,8 @@ void fc_step()
 	logger_step();
 
 	wind_step();
+
+	compass_step();
 
 	odometer_step();
 

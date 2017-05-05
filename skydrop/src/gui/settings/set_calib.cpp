@@ -12,7 +12,7 @@
 
 void gui_set_calib_init()
 {
-	gui_list_set(gui_set_calib_item, gui_set_calib_action, 3, GUI_SET_ADVANCED);
+	gui_list_set(gui_set_calib_item, gui_set_calib_action, 4, GUI_SET_ADVANCED);
 }
 
 void gui_set_calib_stop() {}
@@ -42,6 +42,7 @@ void gui_set_calib_action_gyro(uint8_t ret)
 	gui_switch_task(GUI_SET_CALIB_GYRO);
 }
 
+
 void gui_set_calib_action(uint8_t index)
 {
 	switch(index)
@@ -59,6 +60,10 @@ void gui_set_calib_action(uint8_t index)
 	case(2):
 		gui_dialog_set_P(PSTR("Leave device"), PSTR("at rest, wait\nuntil calibration\nis done."), GUI_STYLE_OK | GUI_STYLE_NO_TITLE, gui_set_calib_action_gyro);
 		gui_switch_task(GUI_DIALOG);
+	break;
+
+	case(3):
+		gui_switch_task(GUI_SET_COMPASS);
 	break;
 	}
 }
@@ -79,6 +84,11 @@ void gui_set_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 
 		case (2):
 			strcpy_P(text, PSTR("Gyroscope"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (3):
+			strcpy_P(text, PSTR("Compass"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

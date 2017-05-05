@@ -397,7 +397,7 @@ app.service("memory", ["$http", "$q", function($http, $q){
     
     this.value_from_macro = function(macro_name)
     {
-        if (Number.isInteger(macro_name))
+        if (!isNaN(macro_name))
         	return macro_name;
     	
         if (macro_name in this.macros)

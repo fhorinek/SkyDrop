@@ -90,7 +90,7 @@
             "desc": "",
             "mode": "number",
             "min": 1,
-            "max": 5
+            "max": 8
         },
         "cfg_vario_flags" : {
             "name": "Vario Flags",
@@ -107,14 +107,22 @@
             "max": 200,
             "step": 10
         },              
-        "cfg_audio_profile_weak_lift_freq" : {
-            "name": "Weak lift buzzer frequency",
+        "cfg_audio_profile_weak_lift_freq_low" : {
+            "name": "Weak lift buzzer low frequency",
             "desc": "in Hz",
             "mode": "number",
             "min": 10,
             "max": 2000,
             "step": 10
         },
+        "cfg_audio_profile_weak_lift_freq_high" : {
+            "name": "Weak lift buzzer high frequency",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 2000,
+            "step": 10
+        },        
         "cfg_altitude_alt1_flags" :
         {
             "name": "Altimeter 1 flags",
@@ -376,7 +384,10 @@
                 [2, "Screen 2"],
                 [4, "Screen 3"],
                 [8, "Screen 4"],
-                [16, "Screen 5"]
+                [16, "Screen 5"],
+                [32, "Screen 6"],
+                [64, "Screen 7"],
+                [128, "Screen 8"]
             ]
         },         
         "cfg_gui_hide_label" : {
@@ -387,7 +398,10 @@
                 [2, "Screen 2"],
                 [4, "Screen 3"],
                 [8, "Screen 4"],
-                [16, "Screen 5"]
+                [16, "Screen 5"],
+                [32, "Screen 6"],
+                [64, "Screen 7"],
+                [128, "Screen 8"]
             ]
         },
          "cfg_system_record_screen" : {
@@ -419,7 +433,7 @@
     },
     
     "regexp": {
-        "cfg_gui_pages_[0-4]_type" : {
+        "cfg_gui_pages_[0-7]_type" : {
             "name": "Page layout type",
             "mode": "select",
             "options": [
@@ -435,44 +449,60 @@
                 ["LAYOUT_333", "Layout 3 | 3 | 3"]
             ]
         },
-        "cfg_gui_pages_[0-4]_widgets_[0-8]" : {
+        "cfg_gui_pages_[0-7]_widgets_[0-8]" : {
             "name": "Widget type",
             "mode": "select",
             "options": [
-                ["WIDGET_EMPTY", "No widget"],
-                ["WIDGET_DEBUG_ETC", "Debug info"],
-                ["WIDGET_DEBUG_IMU", "Debug info IMU"],
                 ["WIDGET_VARIO", "Digital vario"],
                 ["WIDGET_AVG_VARIO", "Average vario"],
                 ["WIDGET_VARIO_BAR", "Analog vario bar"],
                 ["WIDGET_VARIO_HISTORY", "Vario history"],
+
                 ["WIDGET_ALT1", "Altitude 1"],
                 ["WIDGET_ALT2", "Altitude 2"],
                 ["WIDGET_ALT3", "Altitude 3"],
                 ["WIDGET_ALT4", "Altitude 4"],
                 ["WIDGET_ALT5", "Altitude 5"],
-                ["WIDGET_ACC_TOT", "Total acceleration"],
+
+                ["WIDGET_AGL_HEIGHT", "Altitude abore ground"],
+                ["WIDGET_AGL_LEVEL", "Ground level"],
+
+                ["WIDGET_GROUND_SPD", "Ground speed"],
+                ["WIDGET_GLIDE_RATIO", "Glide ratio"],
+                ["WIDGET_GHEADING", "GPS heading"],
+                ["WIDGET_GHEADING_ARROW", "GPS heading arrow"],
+                ["WIDGET_GHEADING_POINTS", "GPS heading points"],
+                ["WIDGET_POSITION", "GPS position"],
+
+                ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TIME", "Actual time"],
                 ["WIDGET_DATE", "Actual date"],
-                ["WIDGET_FTIME", "Flight time"],
-                ["WIDGET_TEMPERATURE", "Temperature and humidity"],
-                ["WIDGET_GHEADING", "GPS heading"],
-                ["WIDGET_GROUND_SPD", "Ground speed"],
-                ["WIDGET_POSITION", "GPS position"],
-                ["WIDGET_GHEADING_ARROW", "GPS Heading arrow"],
-                ["WIDGET_BATTERY", "Battery status"],
-                ["WIDGET_GLIDE_RATIO", "Glide ratio"],
-                ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
-                ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"],
+
+                ["WIDGET_ODO_METER", "Odometer"],
+                ["WIDGET_ODO_BACK", "Back"],
+                ["WIDGET_ODO_DISTANCE", "Distance"],
+                ["WIDGET_HOME_TIME", "Time to home"],
+
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
                 ["WIDGET_WIND_SPD", "Wind speed"],
-                ["WIDGET_GCOMPASS", "GPS compass"],
-                ["WIDGET_AGL_HEIGHT", "Altitude abore ground"],
-                ["WIDGET_AGL_LEVEL", "Ground level"],
-                ["WIDGET_ODO_METER", "Odometer"],
-                ["WIDGET_ODO_BACK", "Back"],
-                ["WIDGET_ODO_DISTANCE", "Distance"]
+                
+                ["WIDGET_ACC_TOT", "Total acceleration"],
+
+                ["WIDGET_COMPASS", "Compass"],
+                ["WIDGET_COMPASS_ARROW", "Compass arrow"],
+                ["WIDGET_COMPASS_HEADING", "Compas arrow text"],
+                
+                ["WIDGET_BATTERY", "Battery status"],
+                ["WIDGET_TEMPERATURE", "Temperature and humidity"],
+                
+                ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
+                ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"],
+
+                ["WIDGET_EMPTY", "No widget"],
+                
+                ["WIDGET_DEBUG_ETC", "Debug info"],
+                ["WIDGET_DEBUG_IMU", "Debug info IMU"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -591,6 +621,14 @@
 			"label": "GHdg", 
 			"value": "75"
         },
+        "WIDGET_GHEADING_POINTS":
+        {
+         	"type": "value",
+			"name": "Ground heading",
+			"desc": "Actual ground heading based on GPS (N, E, S, W)", 
+			"label": "GHdg", 
+			"value": "NE"
+        },        
         "WIDGET_GROUND_SPD":
         {
          	"type": "value",
@@ -719,13 +757,6 @@
             "desc": "Arrow showing actual wind direction, relative to GPS heading", 
             "label": "WDir" 
         },
-        "WIDGET_GCOMPASS": 
-        {
-            "type": "arrow",
-            "name": "GPS compass arrow",
-            "desc": "Arrow showing north based on GPS, relative to GPS heading", 
-            "label": "GCom" 
-        },
         "WIDGET_WIND_DIR":
         {
             "type": "value",
@@ -788,6 +819,37 @@
             "desc": "Direct distance measured from take-off position",
             "label": "Home",
             "value": "8.1"
-        }
+        },
+        "WIDGET_HOME_TIME":
+        {
+            "type": "value",
+            "name": "Time to home",
+            "desc": "Showing time to home in minutes",
+            "label": "Home",
+            "value": "21"
+        },
+        "WIDGET_COMPASS": 
+        {
+            "type": "value",
+            "name": "Compass heading",
+            "desc": "Heading in degrees from magnetic compass", 
+            "label": "Comp",
+            "value": "10"
+        },        
+        "WIDGET_COMPASS_ARROW": 
+        {
+            "type": "arrow",
+            "name": "Compass arrow",
+            "desc": "Compas readout as arrow pointing to north", 
+            "label": "Comp" 
+        },        
+        "WIDGET_COMPASS_POINTS": 
+        {
+            "type": "value",
+            "name": "Compass heading",
+            "desc": "Compas readout as points", 
+            "label": "Comp",
+            "value": "N"
+        }   
     }
 }            

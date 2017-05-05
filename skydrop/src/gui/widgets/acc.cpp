@@ -12,4 +12,4 @@ void widget_acc_total_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-register_widget1(w_acc_tot, "Accelerometer", widget_acc_total_draw);
+register_widget1(w_acc_total, "Accelerometer", widget_acc_total_draw);

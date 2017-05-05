@@ -64,20 +64,14 @@ void mag_calc_vector()
 {
 	//calc magnetic data using bias and sens
 
-	fc.mag.vector.x = float(fc.mag.raw.x - fc.mag.bias.x) / float(fc.mag.sens.x) ;
-	fc.mag.vector.y = float(fc.mag.raw.y - fc.mag.bias.y) / float(fc.mag.sens.y) ;
-	fc.mag.vector.z = float(fc.mag.raw.z - fc.mag.bias.z) / float(fc.mag.sens.z) ;
-
-/*
 	float x = float(fc.mag.raw.x - fc.mag.bias.x) / float(fc.mag.sens.x) ;
 	float y = float(fc.mag.raw.y - fc.mag.bias.y) / float(fc.mag.sens.y) ;
 	float z = float(fc.mag.raw.z - fc.mag.bias.z) / float(fc.mag.sens.z) ;
-
 
 	//normalize output
 	float size = sqrt( x*x + y*y + z*z );
 	fc.mag.vector.x = x / size;
 	fc.mag.vector.y = y / size;
 	fc.mag.vector.z = z / size;
-*/
+
 }

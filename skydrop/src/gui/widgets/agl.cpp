@@ -41,4 +41,4 @@ void widget_gl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 
 register_widget1(w_agl_height, "Height AGL", widget_agl_draw);
-register_widget1(w_agl_level, "Ground Level", widget_gl_draw);
+register_widget1(w_agl_ground_level, "Ground Level", widget_gl_draw);

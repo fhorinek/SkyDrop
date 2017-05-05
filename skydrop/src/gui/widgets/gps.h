@@ -10,10 +10,10 @@
 
 #include "widgets.h"
 
-extern widget w_ghdg;
-extern widget w_gspd;
-extern widget w_gpos;
-extern widget w_ghdg_arrow;
-extern widget w_gcom;
+extern widget w_gps_hdg;
+extern widget w_gps_speed;
+extern widget w_gps_position;
+extern widget w_gps_hdg_arrow;
+extern widget w_gps_hdg_points;
 
 #endif /* WIDGET_GPS_H_ */

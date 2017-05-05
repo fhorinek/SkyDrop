@@ -59,7 +59,9 @@ void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 	if (fc.wind.valid)
 	{
-		int16_t relative_direction = fc.wind.direction - fc.gps_data.heading;
+		//int16_t relative_direction = fc.wind.direction - fc.gps_data.heading;	//use GPS heading
+		int16_t relative_direction = fc.wind.direction - fc.compass.azimuth;	//use Compass heading
+
 		widget_arrow(relative_direction, x, y, w, h);
 	}
 	else
@@ -71,6 +73,6 @@ void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 }
 
-register_widget1(w_wdir, "Wind Direction", widget_wdir_draw);
-register_widget1(w_wdir_arrow, "Wind DIR Arrow", widget_wdir_arrow_draw);
-register_widget1(w_wspd, "Wind Speed", widget_wspd_draw);
+register_widget1(w_wind_dir, "Wind Direction", widget_wdir_draw);
+register_widget1(w_wind_dir_arrow, "Wind Arrow", widget_wdir_arrow_draw);
+register_widget1(w_wind_speed, "Wind Speed", widget_wspd_draw);

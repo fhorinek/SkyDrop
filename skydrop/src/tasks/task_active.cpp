@@ -43,6 +43,21 @@ void task_active_init()
 			cfg_reset_factory_test();
 		}
 
+		//Override factory test if PASS_FT file found
+		if (f_stat("PASS_FT", &fno) == FR_OK)
+		{
+			f_unlink("PASS_FT");
+
+			eeprom_busy_wait();
+			eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
+			eeprom_busy_wait();
+
+			gui_showmessage_P(PSTR("Factory test\noverride!"));
+
+			gui_splash_set_mode(SPLASH_ON);
+			gui_switch_task(GUI_SPLASH);
+		}
+
 		//Load eeprom update
 		if (LoadEEPROM())
 		{
