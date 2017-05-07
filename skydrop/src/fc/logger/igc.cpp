@@ -123,7 +123,7 @@ bool igc_start(char * path)
 	sprintf_P(line, PSTR("HFALPALTPRESSURE:ISA"));
 	igc_writeline(line);
 	//H F TZN
-	sprintf_P(line, PSTR("HFTZN%f0.1"), config.system.time_zone / 2.0);
+	sprintf_P(line, PSTR("HFTZNTIMEZONE:%+0.1f"), config.system.time_zone / 2.0);
 	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY
