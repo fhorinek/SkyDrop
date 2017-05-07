@@ -262,7 +262,7 @@ void gui_accelerometer_calib_loop()
 
 	//menu
 	disp.LoadFont(F_TEXT_S);
-	gui_caligh_text_P(PSTR("back"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
+	gui_raligh_text_P(PSTR("back"), GUI_DISP_WIDTH - 2, GUI_DIALOG_BOTTOM - 4);
 
 	if(gui_acc_calib.valid == ( VALID_XP | VALID_XN | VALID_YP | VALID_YN | VALID_ZP | VALID_ZN ) )
 	{
@@ -310,8 +310,7 @@ void gui_accelerometer_calib_loop()
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20 , GUI_DIALOG_TOP +  h_t );
 
 		//add menu option
-		disp.GotoXY(GUI_DIALOG_LEFT + 2, GUI_DIALOG_BOTTOM - 4 );
-		fprintf_P(lcd_out, PSTR("save"));
+		gui_caligh_text_P(PSTR("save"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
 
 		//main area values
 		disp.LoadFont(F_TEXT_L);
@@ -328,13 +327,13 @@ void gui_accelerometer_calib_loop()
 
 void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff)
 {
-	if (*buff == BE_CLICK && type == B_MIDDLE)
+	if (*buff == BE_CLICK && type == B_RIGHT)
 		gui_switch_task(GUI_SET_CALIB);
 
 	if (*buff == BE_LONG && type == B_MIDDLE)
 		gui_switch_task(GUI_SET_CALIB);
 
-	if (*buff == BE_CLICK && type == B_LEFT && ( gui_acc_calib.valid & VALID_CALIB ))
+	if (*buff == BE_CLICK && type == B_MIDDLE && ( gui_acc_calib.valid & VALID_CALIB ))
 	{	//if calibration is done
 
 		//apply new settings
