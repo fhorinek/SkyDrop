@@ -165,8 +165,13 @@ void gui_dialog_loop()
 		break;
 
 		case(GUI_STYLE_TIMESET):
-			gui_caligh_text_P(PSTR("Manual"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
-			gui_raligh_text_P(PSTR("GPS"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
+			gui_caligh_text_P(PSTR("GPS"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
+			gui_raligh_text_P(PSTR("Manual"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
+		break;
+
+		case(GUI_STYLE_FORMAT):
+			gui_caligh_text_P(PSTR("No"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
+			gui_raligh_text_P(PSTR("Yes"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
 		break;
 	}
 }

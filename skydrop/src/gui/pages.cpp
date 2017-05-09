@@ -76,11 +76,6 @@ void gui_pages_set_time_cb(uint8_t ret)
 {
 	if (ret == GUI_DIALOG_SET)
 	{
-		gui_value_conf_P(PSTR("Time"), GUI_VAL_TIME, PSTR(""), 0, 0, 0, 1, gui_pages_set_time_manual_cb);
-		gui_switch_task(GUI_SET_VAL);
-	}
-	else
-	{
 		gui_switch_task(GUI_PAGES);
 		config.system.time_flags |= TIME_SYNC;
 		time_wait_for_gps();
@@ -91,6 +86,11 @@ void gui_pages_set_time_cb(uint8_t ret)
 			gps_start();
 			gui_showmessage_P(PSTR("Enabling GPS"));
 		}
+	}
+	else
+	{
+		gui_value_conf_P(PSTR("Time"), GUI_VAL_TIME, PSTR(""), 0, 0, 0, 1, gui_pages_set_time_manual_cb);
+		gui_switch_task(GUI_SET_VAL);
 	}
 }
 

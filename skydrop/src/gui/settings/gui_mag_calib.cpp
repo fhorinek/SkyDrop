@@ -102,20 +102,19 @@ void gui_mag_calib_loop()
 	//DEBUG("mag vector: %f   %f   %f      %f\n", fc.mag_data.x, fc.mag_data.y, fc.mag_data.z, size);
 
 	disp.LoadFont(F_TEXT_S);
-	gui_caligh_text_P(PSTR("back"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
-	disp.GotoXY(GUI_DIALOG_LEFT + 2, GUI_DIALOG_BOTTOM - 4 );
-	fprintf_P(lcd_out, PSTR("save"));
+	gui_raligh_text_P(PSTR("back"), GUI_DISP_WIDTH - 2, GUI_DIALOG_BOTTOM - 4);
+	gui_caligh_text_P(PSTR("save"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
 }
 
 void gui_mag_calib_irqh(uint8_t type, uint8_t * buff)
 {
-	if (*buff == BE_CLICK && type == B_MIDDLE)
+	if (*buff == BE_CLICK && type == B_RIGHT)
 		gui_switch_task(GUI_SET_CALIB);
 
 	if (*buff == BE_LONG && type == B_MIDDLE)
 		gui_switch_task(GUI_SET_CALIB);
 
-	if (*buff == BE_CLICK && type == B_LEFT)
+	if (*buff == BE_CLICK && type == B_MIDDLE)
 	{
 		vector_float_t sens;
 		vector_float_t bias;

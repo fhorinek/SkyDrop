@@ -28,7 +28,7 @@ void gui_set_advanced_irqh(uint8_t type, uint8_t * buff)
 
 void gui_set_advanced_format_cb(uint8_t ret)
 {
-	if (ret == GUI_DIALOG_YES)
+	if (ret == GUI_DIALOG_FORMAT)
 	{
 		gui_format_sd();
 	}
@@ -60,7 +60,7 @@ void gui_set_advanced_action(uint8_t index)
 
 			return;
 		}
-		gui_dialog_set_P(PSTR("Warning"), PSTR("This will erase\nall data from SD\ncard! Continue?"), GUI_STYLE_YESNO, gui_set_advanced_format_cb);
+		gui_dialog_set_P(PSTR("Warning"), PSTR("This will erase\nall data from SD\ncard! Continue?"), GUI_STYLE_FORMAT, gui_set_advanced_format_cb);
 		gui_switch_task(GUI_DIALOG);
 	break;
 

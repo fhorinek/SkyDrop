@@ -440,6 +440,7 @@ void gui_loop()
 				&& gui_task != GUI_TEXT
 				&& gui_task != GUI_SET_CALIB_ACC
 				&& gui_task != GUI_SET_CALIB_MAG
+				&& gui_task != GUI_SET_CALIB_GYRO
 				)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)

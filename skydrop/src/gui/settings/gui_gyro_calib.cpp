@@ -8,6 +8,7 @@
 #include "gui_gyro_calib.h"
 #include "../../fc/gyro.h"
 #include "../gui_dialog.h"
+#include "../../drivers/audio/sequencer.h"
 #include "../../drivers/lcd_disp.h"
 
 
@@ -82,14 +83,13 @@ void gui_gyro_calib_loop()
 
 	//menu
 	disp.LoadFont(F_TEXT_S);
-	gui_caligh_text_P(PSTR("back"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
+	gui_raligh_text_P(PSTR("back"), GUI_DISP_WIDTH - 2, GUI_DIALOG_BOTTOM - 4);
 
 	if(gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES +1))
 	{	//if complete
 
 		//add menu option
-		disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_BOTTOM - 4 );
-		fprintf_P(lcd_out, PSTR("save"));
+		gui_caligh_text_P(PSTR("save"), GUI_DISP_WIDTH / 2, GUI_DIALOG_BOTTOM - 4);
 
 		//print message
 		disp.LoadFont(F_TEXT_M);
@@ -101,13 +101,13 @@ void gui_gyro_calib_loop()
 
 void gui_gyro_calib_irqh(uint8_t type, uint8_t * buff)
 {
-	if (*buff == BE_CLICK && type == B_MIDDLE)
+	if (*buff == BE_CLICK && type == B_RIGHT)
 		gui_switch_task(GUI_SET_CALIB);
 
 	if (*buff == BE_LONG && type == B_MIDDLE)
 		gui_switch_task(GUI_SET_CALIB);
 
-	if (*buff == BE_CLICK && type == B_LEFT && (gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES +1)))
+	if (*buff == BE_CLICK && type == B_MIDDLE && (gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES +1)))
 	{	//if calibration is done
 
 		//apply new settings

@@ -15,6 +15,7 @@
 #define GUI_STYLE_YESNO			2
 #define GUI_STYLE_STATS			3
 #define GUI_STYLE_TIMESET		4
+#define GUI_STYLE_FORMAT		5
 
 #define GUI_STYLE_NO_TITLE		0b10000000
 #define GUI_STYLE_MASK			0b00111111
@@ -25,6 +26,7 @@
 #define GUI_DIALOG_NO			2
 #define GUI_DIALOG_SET			1
 #define GUI_DIALOG_WAIT			2
+#define GUI_DIALOG_FORMAT		2
 
 typedef void uint8_cb(uint8_t val);
 
