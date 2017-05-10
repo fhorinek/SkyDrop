@@ -55,7 +55,7 @@ struct acc_calib_t
 #define LPF_beta 			0.05	//low pass filter setting, for values shown at point of decision
 
 #define calib_samples		100		//n of samples collected for calculating accel calibration
-#define max_err				40		//max variance between samples
+#define max_err				75		//max variance between samples
 
 acc_calib_t gui_acc_calib;
 
@@ -140,7 +140,7 @@ void gui_accelerometer_calib_loop()
 
 	gui_acc_calib.sampling = 0;
 
-	//DEBUG("%d    %d    %d\n", fc.acc_raw.x, fc.acc_raw.y, fc.acc_raw.z);
+	DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
 
 	if(abs(fc.acc.raw.x) > (treshold_lo) )
 	//if(abs(fc.acc_raw.x) > (fc.acc_tot * treshold_percent / 100.0) )
