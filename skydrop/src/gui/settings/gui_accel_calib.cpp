@@ -140,7 +140,7 @@ void gui_accelerometer_calib_loop()
 
 	gui_acc_calib.sampling = 0;
 
-	DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
+	//DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
 
 	if(abs(fc.acc.raw.x) > (treshold_lo) )
 	//if(abs(fc.acc_raw.x) > (fc.acc_tot * treshold_percent / 100.0) )
