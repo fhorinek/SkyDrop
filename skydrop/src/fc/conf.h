@@ -108,7 +108,7 @@ struct cfg_audio_profile
 struct cfg_system
 {
 	uint8_t time_flags;
-	int8_t time_zone;
+	int8_t time_zone;      // number of hours +/- UTC multiplied by 2
 
 	uint8_t debug_log;
 	uint8_t debug_gps;
