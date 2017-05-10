@@ -1,3 +1,13 @@
+Build 3669 - 10. 04. 2017
+========================================================
+FIX:
+ * New layouts in configurator #278
+ * Timezone H record #275 (bubeck)
+
+CHANGED:
+ * GUI Dialog messages #277
+ 
+
 Build 3667 - 03. 04. 2017
 ========================================================
 FIX:
