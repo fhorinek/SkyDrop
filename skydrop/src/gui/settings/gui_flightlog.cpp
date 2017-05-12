@@ -16,21 +16,25 @@
 
 
 char gui_flightlog_path[32];
+char gui_flightlog_name[13];
+
 uint8_t gui_flightlog_level = 0;
+uint8_t file_task;
 
 void gui_flightlog_set_dir(char * path)
 {
 	gui_list_set_index(GUI_FLIGHTLOG, 0);
+	strcpy(gui_flightlog_path, path);
+}
 
-	if (path == NULL)
-	{
-		sprintf_P(gui_flightlog_path, PSTR("/%S"), LOG_DIR_P);
-		gui_flightlog_level = 0;
-	}
-	else
-	{
-		strcpy(gui_flightlog_path, path);
-	}
+/**
+ * The the file manager, which task should be switched to if the user selects a file.
+ * This page typically shows details about the file.
+ *
+ * @param task the next task to switch for file.
+ */
+void gui_flightlog_set_file_task(uint8_t task) {
+	file_task = task;
 }
 
 void gui_flightlog_init()
@@ -74,7 +78,6 @@ void gui_flightlog_irqh(uint8_t type, uint8_t * buff)
 void gui_flightlog_action(uint8_t index)
 {
 	char tmp[44];
-	char name[13];
 	uint8_t flags = 0;
 
 	if (index == 0)
@@ -88,12 +91,12 @@ void gui_flightlog_action(uint8_t index)
 	uint8_t i = 0;
 	do
 	{
-		storage_dir_list(name, &flags);
+		storage_dir_list(gui_flightlog_name, &flags);
 		i++;
 	}
 	while (i <= index - 1);
 
-	sprintf_P(tmp, PSTR("%s/%s"), gui_flightlog_path, name);
+	sprintf_P(tmp, PSTR("%s/%s"), gui_flightlog_path, gui_flightlog_name);
 
 	if (flags & STORAGE_IS_DIR)
 	{
@@ -106,8 +109,7 @@ void gui_flightlog_action(uint8_t index)
 	}
 	else
 	{
-		gui_flightdetail_parse_logfile(tmp);
-		gui_switch_task(GUI_FLIGHTDETAIL);
+		gui_switch_task(file_task);
 	}
 }
 
@@ -119,7 +121,7 @@ void gui_flightlog_item(uint8_t ind, char * text, uint8_t * flags, char * sub_te
 
 		if (gui_flightlog_level == 0)
 		{
-			strcpy_P(text, PSTR("Logs"));
+			strcpy(text, gui_flightlog_path + 1);
 		}
 		else
 		{

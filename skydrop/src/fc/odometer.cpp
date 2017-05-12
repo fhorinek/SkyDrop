@@ -102,8 +102,8 @@ void odometer_step()
 
 	if (fc.flight.home_valid)
 	{
-		fc.flight.home_bearing = gps_bearing(fc.flight.home_lat, fc.flight.home_lon, fc.gps_data.latitude, fc.gps_data.longtitude );
-		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.home_lat, fc.flight.home_lon) / 100000.0;   // cm to km
+		fc.flight.home_bearing = gps_bearing(fc.flight.home.lat, fc.flight.home.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
+		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.home.lat, fc.flight.home.lon) / 100000.0;   // cm to km
 	}
 
 	// Do we already have a previous GPS point?

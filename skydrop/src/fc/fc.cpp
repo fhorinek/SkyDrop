@@ -183,6 +183,8 @@ void fc_init()
 
 	fc_meas_timer.Start();
 
+	fc.flight.home_set_on_autostart = true;
+
 	DEBUG(" *** FC init done ***\n");
 }
 
@@ -439,9 +441,11 @@ void fc_takeoff()
 	//set start position
 	if (fc.gps_data.valid)
 	{
-		fc.flight.home_valid = true;
-		fc.flight.home_lat = fc.gps_data.latitude;
-		fc.flight.home_lon = fc.gps_data.longtitude;
+		if ( fc.flight.home_set_on_autostart) {
+			fc.flight.home_valid = true;
+			fc.flight.home.lat = fc.gps_data.latitude;
+			fc.flight.home.lon = fc.gps_data.longtitude;
+		}
 	}
 	else
 		fc.flight.home_valid = false;

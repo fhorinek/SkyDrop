@@ -100,9 +100,10 @@ void gui_statusbar();
 #define GUI_FLIGHTDETAIL		32
 #define GUI_SET_CALIB_GYRO		33
 #define GUI_SET_COMPASS			34
+#define GUI_HOMEDETAIL			35
+#define GUI_HOME				36
 
-
-#define NUMBER_OF_GUI_TASKS		35
+#define NUMBER_OF_GUI_TASKS		37
 
 #define GUI_LAST_TASK		0xFF
 

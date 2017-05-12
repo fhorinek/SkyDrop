@@ -184,6 +184,16 @@ struct flight_stats_t
 
 };
 
+typedef struct home {
+	int32_t lat;
+	int32_t lon;
+	char name[30];
+    char freq[10];
+    char rwy[20];
+    char traffic_pattern[20];
+    char info[80];
+} home_t;
+
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
@@ -202,8 +212,9 @@ struct flight_data_t
 
 	//takeoff (home) position
 	bool home_valid;
-	int32_t home_lat;
-	int32_t home_lon;
+	bool home_set_on_autostart;
+
+	home_t home;
 
 	//we will cache the bearing and distance to save cpu
 	//computation @ widget_draw ~30Hz
