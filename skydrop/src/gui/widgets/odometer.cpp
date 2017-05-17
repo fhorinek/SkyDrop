@@ -5,6 +5,7 @@
  *      Author: tilmann@bubecks.de
  */
 
+#include <stdio.h>
 #include "odometer.h"
 
 const uint8_t PROGMEM img_home[] = {
@@ -19,6 +20,12 @@ const uint8_t PROGMEM img_distance[] = {
 		9, 8, // width, heigth
 		0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x1F, 0x0E,
 		0x04 };
+
+const uint8_t PROGMEM img_info[] = {
+		7, 8, // width, heigth
+		0x3C, 0x42, 0x81, 0xB5, 0x81, 0x42, 0x3C
+};
+
 
 /**
  * Format a distance in a human readable format.
@@ -120,6 +127,63 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
+void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint32_t oldClip;
+
+	oldClip = disp.clip(x, y, x + w, y + h);
+
+	const char *Home_P = PSTR("Home Info");
+
+	uint8_t lh = widget_label_P(Home_P, x, y);
+	if (lh > 0)
+		disp.DrawImage(img_info, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
+
+	y += lh + 1;
+
+	disp.LoadFont(F_TEXT_M);
+
+	uint8_t text_h = disp.GetTextHeight();
+
+	char tmp[80];
+
+	disp.GotoXY(x, y);
+	if ( fc.flight.home.name[0] == 0 ) {
+		fputs_P(PSTR("---"), lcd_out);
+	} else {
+		fputs((const char *)fc.flight.home.name, lcd_out);
+	}
+	y += text_h + 1;
+
+	disp.GotoXY(x, y);
+	if ( fc.flight.home.freq[0] == 0 ) {
+		fputs_P(PSTR("---"), lcd_out);
+	} else {
+		sprintf_P(tmp, PSTR("Freq: %s"), fc.flight.home.freq);
+		fputs(tmp, lcd_out);
+	}
+	y += text_h + 1;
+
+	if ( fc.flight.home.rwy[0] == 0 ) {
+		disp.GotoXY(x, y);
+		fputs_P(PSTR("---"), lcd_out);
+	} else {
+		sprintf_P(tmp, PSTR("Rwy: %s, %s"), fc.flight.home.rwy, fc.flight.home.traffic_pattern);
+		widget_value_scroll(tmp, x, y, w, h);
+	}
+	y += text_h + 1;
+
+	if ( fc.flight.home.info[0] == 0 ) {
+		disp.GotoXY(x, y);
+		fputs_P(PSTR("---"), lcd_out);
+	} else {
+		widget_value_scroll((char *)fc.flight.home.info, x, y, w, h);
+	}
+	y += text_h + 1;
+
+	disp.clip(oldClip);
+}
+
 void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	const char *Home_P = PSTR("Home");
@@ -145,4 +209,5 @@ register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odomet
 register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
 register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
 register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
+register_widget1(w_home_info, "Home Info", widget_home_info_draw);
 

@@ -19,4 +19,27 @@ void gui_flightlog_action(uint8_t index);
 
 void gui_flightlog_set_dir(char * path);
 
+/**
+ * The the file manager, which task should be switched to if the user selects a file.
+ * This page typically shows details about the file.
+ *
+ * @param task the next task to switch for file.
+ */
+void gui_flightlog_set_file_task(uint8_t task);
+
+/**
+ * The directory level.
+ */
+extern uint8_t gui_flightlog_level;
+
+/**
+ * This holds the directory of the selected file.
+ */
+extern char gui_flightlog_path[32];
+
+/**
+ * This holds the file name of the selected file.
+ */
+extern char gui_flightlog_name[13];
+
 #endif /* gui_flightlog_H_ */

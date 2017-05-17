@@ -2,10 +2,11 @@
 #include "../gui_list.h"
 
 #include "gui_flightlog.h"
+#include "logger.h"
 
 void gui_settings_init()
 {
-	gui_list_set(gui_settings_item, gui_settings_action, 8, GUI_PAGES);
+	gui_list_set(gui_settings_item, gui_settings_action, 9, GUI_PAGES);
 }
 
 void gui_settings_stop() {}
@@ -37,23 +38,29 @@ void gui_settings_action(uint8_t index)
 		break;
 
 		case(3):
-			gui_flightlog_set_dir(NULL);
+			gui_flightlog_set_dir(LOG_DIR_ABS);
+			gui_flightlog_level = 0;
+			gui_flightlog_set_file_task(GUI_FLIGHTDETAIL);
 			gui_switch_task(GUI_FLIGHTLOG);
 		break;
 
 		case(4):
-			gui_switch_task(GUI_SET_GPS);
+			gui_switch_task(GUI_HOME);
 		break;
 
 		case(5):
-			gui_switch_task(GUI_SET_BLUETOOTH);
+			gui_switch_task(GUI_SET_GPS);
 		break;
 
 		case(6):
-			gui_switch_task(GUI_SET_SYSTEM);
+			gui_switch_task(GUI_SET_BLUETOOTH);
 		break;
 
 		case(7):
+			gui_switch_task(GUI_SET_SYSTEM);
+		break;
+
+		case(8):
 			gui_switch_task(GUI_SET_DEBUG);
 		break;
 	}
@@ -84,21 +91,26 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		break;
 
 		case (4):
-			strcpy_P(text, PSTR("GPS"));
+			strcpy_P(text, PSTR("Home Position"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (5):
-			strcpy_P(text, PSTR("Bluetooth"));
+			strcpy_P(text, PSTR("GPS"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
-			strcpy_P(text, PSTR("Settings"));
+			strcpy_P(text, PSTR("Bluetooth"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (7):
+			strcpy_P(text, PSTR("Settings"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (8):
 			strcpy_P(text, PSTR("Debug"));
 			*flags |= GUI_LIST_FOLDER;
 		break;

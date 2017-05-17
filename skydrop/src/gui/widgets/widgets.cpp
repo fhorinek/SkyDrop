@@ -34,6 +34,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time,
 		//compass
 		w_compass_heading, w_compass_arrow, w_compass_points,
+		w_home_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -74,6 +75,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_ODO_BACK,
 	WIDGET_ODO_DISTANCE,
 	WIDGET_HOME_TIME,
+	WIDGET_HOME_INFO,
 
 	//wind
 	WIDGET_WIND_DIR,
@@ -273,6 +275,32 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
 	fprintf_P(lcd_out, PSTR("%s"), value1);
 	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value2);
+}
+
+/**
+ * Prints the text into the given box and scrolls the text if it is too wide.
+ *
+ * \param text the text to be shown.
+ * \param x the X coordinate of the box
+ * \param y the X coordinate of the box
+ * \param w the width of the box
+ * \param h the height of the box
+ */
+void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	uint8_t text_w = disp.GetTextWidth(text);
+	if ( text_w > w ) {
+		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 10);
+		int16_t scroll_x = x - (int16_t)offset;
+		disp.GotoXY(scroll_x, y);
+		fputs(text, lcd_out);
+		scroll_x += text_w + 10;
+		disp.GotoXY(scroll_x, y);
+		fputs(text, lcd_out);
+	} else {
+		disp.GotoXY(x, y);
+		fputs(text, lcd_out);
+	}
 }
 
 uint8_t layout_get_number_of_widgets(uint8_t type)

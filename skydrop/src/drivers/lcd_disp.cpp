@@ -11,10 +11,33 @@ void lcd_display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void lcd_display::GotoXY(uint8_t x, uint16_t y)
+void lcd_display::GotoXY(int16_t x, int16_t y)
 {
 	text_x = x;
 	text_y = y;
+}
+
+uint32_t lcd_display::clip(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
+{
+	uint32_t oldClip = (clip_x1 << 24 | clip_y1 << 16 | clip_x2 << 8 | clip_y2);
+
+	clip_x1 = x1;
+	clip_y1 = y1;
+	clip_x2 = x2;
+	clip_y2 = y2;
+
+	return oldClip;
+}
+
+uint32_t lcd_display::clip(uint32_t x1y1x2y2) {
+	uint32_t oldClip = (clip_x1 << 24 | clip_y1 << 16 | clip_x2 << 8 | clip_y2);
+
+	clip_x1 = (x1y1x2y2 >> 24) & 0xff;
+	clip_y1 = (x1y1x2y2 >> 16) & 0xff;
+	clip_x2 = (x1y1x2y2 >>  8) & 0xff;
+	clip_y2 = (x1y1x2y2 >>  0) & 0xff;
+
+	return oldClip;
 }
 
 /**
@@ -174,6 +197,7 @@ void lcd_display::Init(Spi * spi)
 
 	CreateSinTable();
 
+	clip(0, 0, lcd_width, lcd_height);
 
 	GpioSetDirection(LCD_RST, OUTPUT);
 	GpioSetDirection(LCD_DC, OUTPUT);
@@ -307,11 +331,14 @@ void lcd_display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t c
 /**
  * Put pixel on screen
  *
- * /param val -
+ * /param x the x position in pixel
+ * /param y the y position in pixel
+ * /param color the color which could be either DISP_COLOR_WHITE or "0" for black
  */
-void lcd_display::PutPixel(uint8_t x ,uint16_t  y ,uint8_t color)
+void lcd_display::PutPixel(int16_t x, int16_t  y, uint8_t color)
 {
-	if (x >= lcd_width || y >= lcd_height )
+	if ( x < clip_x1 || y < clip_y1 || x >= clip_x2 || y >= clip_y2
+	  || x < 0 || y < 0 || x >= lcd_width || y >= lcd_height)
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);

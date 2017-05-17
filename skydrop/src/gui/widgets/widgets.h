@@ -128,9 +128,11 @@ extern float widget_menu_fvalue1;
 #define WIDGET_COMPASS_POINTS	37
 #include "compass.h"
 
-#define NUMBER_OF_WIDGETS		38
+#define WIDGET_HOME_INFO		38
 
-#define NUMBER_OF_SORTED_WIDGETS	36
+#define NUMBER_OF_WIDGETS		39
+
+#define NUMBER_OF_SORTED_WIDGETS	37
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 
@@ -144,6 +146,7 @@ void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_
 
 void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
