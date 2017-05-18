@@ -8,6 +8,10 @@ cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 #define bt_link_key_blank	{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define mac_invalid			{0, 0, 0, 0, 0, 0}
 
+#define empty10				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define empty20				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+#define empty80				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+
 volatile cfg_t config;
 
 EEMEM cfg_t config_ee = {
@@ -229,6 +233,25 @@ EEMEM cfg_t config_ee = {
 		UART_FORWARD_OFF,
 		//password
 		{'1', '2', '3', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+	},
+	//Home
+	{
+		//flags
+		HOME_SET_AS_TAKEOFF,
+		//lat
+		0,
+		//lon
+		0,
+		//name
+		empty20,
+		//freq
+		empty10,
+		//rwy
+		empty20,
+		//traffic_pattern
+		empty20,
+		//info
+		empty80
 	}
 };
 

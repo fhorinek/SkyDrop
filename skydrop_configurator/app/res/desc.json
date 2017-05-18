@@ -429,7 +429,44 @@
             "name": "Bluetooth Low energy random MAC address",
             "mode": "readonly",
             "size": 6
-        }            
+        },
+        "cfg_home_flags" : {
+            "name": "Home position navigation flags",
+            "mode": "readonly"
+        }, 
+        "cfg_home_lat" : {
+            "name": "Home position navigation latitude",
+            "mode": "readonly"
+        }, 
+        "cfg_home_lon" : {
+            "name": "Home position navigation longitude",
+            "mode": "readonly"
+        }, 
+        "cfg_home_name" : {
+            "name": "Home position navigation name",
+            "mode": "readonly",
+            "size": 20
+        }, 
+        "cfg_home_freq" : {
+            "name": "Home position navigation freq",
+            "mode": "readonly",
+            "size": 10
+        }, 
+        "cfg_home_rwy" : {
+            "name": "Home position navigation rwy",
+            "mode": "readonly",
+            "size": 20
+        }, 
+        "cfg_home_traffic_pattern" : {
+            "name": "Home position navigation traffic pattern",
+            "mode": "readonly",
+            "size": 20
+        }, 
+        "cfg_home_info" : {
+            "name": "Home position navigation info",
+            "mode": "readonly",
+            "size": 80
+        }
     },
     
     "regexp": {
@@ -486,6 +523,7 @@
                 ["WIDGET_ODO_BACK", "Back"],
                 ["WIDGET_ODO_DISTANCE", "Distance"],
                 ["WIDGET_HOME_TIME", "Time to home"],
+                ["WIDGET_HOME_INFO", "Home info"],
 
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
@@ -832,6 +870,14 @@
             "label": "Home",
             "value": "21"
         },
+        "WIDGET_HOME_INFO":
+        {
+            "type": "text",
+            "name": "Home Information",
+            "desc": "Displaying additional home information",
+            "label": "Home info",
+            "value": "<Load>"
+        },        
         "WIDGET_COMPASS": 
         {
             "type": "value",

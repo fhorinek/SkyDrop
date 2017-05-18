@@ -128,7 +128,7 @@ if __name__ == "__main__":
     to_ui = CommandQuee()
 
     stream = SerialStream(from_ui, to_ui)
-    stream.open("/dev/rfcomm1", 115200)
+    stream.open("/dev/rfcomm0", 115200)
     stream.start()
     
     ui = Interface(to_ui, from_ui)

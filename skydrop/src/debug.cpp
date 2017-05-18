@@ -105,7 +105,7 @@ void debug_timeout_handler()
 }
 
 /**
- * printf-like function to send output to the debug log or UART iff debug is enabled.
+ * printf-like function to send output to the debug log or UART if debug is enabled.
  *
  * \param format a printf-like format string that must reside in PROGMEM.
  *

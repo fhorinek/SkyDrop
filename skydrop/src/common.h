@@ -80,8 +80,6 @@ struct app_info
 extern struct app_info fw_info;
 extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 
-
-
 //PINOUT
 //---------------- GENERAL -------------------
 #define USB_PWR_ON				PR.PRGEN &= 0b10111111;

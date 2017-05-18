@@ -38,7 +38,9 @@
 
 	/* Includes: */
 		#include <avr/io.h>
-		#include <avr/pgmspace.h>
+		#include "../../../../xlib/pgmhack.h"
+
+//		#include <avr/pgmspace.h>
 
 		#include <LUFA/Common/Common.h>
 		#include <LUFA/Drivers/USB/USB.h>

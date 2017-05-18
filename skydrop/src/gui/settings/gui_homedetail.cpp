@@ -5,9 +5,8 @@
  *      Author: tilmann@bubecks.de
  */
 
+#include <gui/settings/gui_filemanager.h>
 #include "gui_homedetail.h"
-
-#include "gui_flightlog.h"
 
 #include "common.h"
 #include "../gui_list.h"
@@ -16,7 +15,7 @@
 #include "../../fc/conf.h"
 #include "../../fc/logger/logger.h"
 
-home_t home_new;
+cfg_home home_new;
 
 /**
  * Return "true" if the string "str" starts with the string "pre".
@@ -31,7 +30,7 @@ bool startsWith_P(const char *pre, const char *str)
     return strncmp_P(str, pre, strlen_P(pre)) == 0;
 }
 
-void read_homefile(const char *filename, home_t *home)
+void read_homefile(const char *filename, cfg_home *home)
 {
 	FIL fp;
 	FRESULT f_r;
@@ -102,10 +101,10 @@ void gui_homedetail_init()
 {
 	char tmp[44];
 
-	sprintf_P(tmp, PSTR("%s/%s"), gui_flightlog_path, gui_flightlog_name);
+	sprintf_P(tmp, PSTR("%s/%s"), gui_filemanager_path, gui_filemanager_name);
 	read_homefile(tmp, &home_new);
 
-	gui_list_set(gui_homedetail_item, gui_homedetail_action, 8, GUI_FLIGHTLOG);
+	gui_list_set(gui_homedetail_item, gui_homedetail_action, 8, GUI_FILEMANAGER);
 }
 
 void gui_homedetail_stop() {}
@@ -120,11 +119,19 @@ void gui_homedetail_irqh(uint8_t type, uint8_t * buff)
 	gui_list_irqh(type, buff);
 }
 
-void gui_homedetail_action(uint8_t index) {
-	if ( index == 0 ) {
+void gui_homedetail_action(uint8_t index)
+{
+	if (index == 0)
+	{
 		gui_showmessage_P(PSTR("Home selected"));
 		gui_switch_task(GUI_PAGES);
-		memcpy((void *)&fc.flight.home, (void *)&home_new, sizeof(home_t));
+
+		memcpy((void *)&config.home, (void *)&home_new, sizeof(cfg_home));
+
+		config.home.flags = HOME_LOADED_FROM_SD;
+		eeprom_busy_wait();
+		eeprom_update_block((void *)&config.home, &config_ee.home, sizeof(config.home));
+
 		fc.flight.home_valid = true;
 	}
 }
@@ -135,7 +142,6 @@ void gui_homedetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub_t
 	{
 		case 0:
 			strcpy_P(text, PSTR("Use this home"));
-			*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
 		case 1:
@@ -163,7 +169,7 @@ void gui_homedetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub_t
 		break;
 
 		case 5:
-			strcpy_P(text, PSTR("runway:"));
+			strcpy_P(text, PSTR("Runway:"));
 			strcpy(sub_text, home_new.rwy);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;

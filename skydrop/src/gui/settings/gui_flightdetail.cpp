@@ -5,9 +5,8 @@
  *      Author: tilmann@bubecks.de
  */
 
+#include <gui/settings/gui_filemanager.h>
 #include "gui_flightdetail.h"
-
-#include "gui_flightlog.h"
 
 #include "../gui_list.h"
 #include "../gui_dialog.h"
@@ -120,10 +119,10 @@ void gui_flightdetail_init()
 {
 	char tmp[44];
 
-	sprintf_P(tmp, PSTR("%s/%s"), gui_flightlog_path, gui_flightlog_name);
+	sprintf_P(tmp, PSTR("%s/%s"), gui_filemanager_path, gui_filemanager_name);
 	gui_flightdetail_parse_logfile(tmp);
 
-	gui_list_set(gui_flightdetail_item, gui_flightdetail_action, 7, GUI_FLIGHTLOG);
+	gui_list_set(gui_flightdetail_item, gui_flightdetail_action, 7, GUI_FILEMANAGER);
 }
 
 void gui_flightdetail_stop() {}

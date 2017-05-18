@@ -10,10 +10,10 @@
 
 
 #define LOG_DIR		"logs"
-#define LOG_DIR_P	PSTR(LOG_DIR)
+#define LOG_DIR_P	PSTR("logs")
 #define LOG_DIR_ABS	 "/"LOG_DIR
 #define LOG_MID		"XSB"
-#define LOG_MID_P	PSTR(LOG_MID)
+#define LOG_MID_P	PSTR("XSB")
 
 
 #include "../../common.h"

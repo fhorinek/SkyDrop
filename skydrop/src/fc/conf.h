@@ -198,6 +198,21 @@ struct cfg_connectivity
 	char password[LOGIN_PASSWORD_LEN];
 };
 
+#define HOME_SET_AS_TAKEOFF		0b00000001
+#define HOME_LOADED_FROM_SD		0b00000010
+
+struct cfg_home
+{
+	uint8_t flags;
+	int32_t lat;
+	int32_t lon;
+	char name[20];
+    char freq[10];
+    char rwy[20];
+    char traffic_pattern[20];
+    char info[80];
+};
+
 //Main user configurations
 //start address				32	0x20
 struct cfg_t
@@ -213,7 +228,7 @@ struct cfg_t
 	cfg_autostart autostart;
 	cfg_logger logger;
 	cfg_connectivity connectivity;
-
+	cfg_home home;
 };
 
 

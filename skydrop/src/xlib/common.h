@@ -3,11 +3,13 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
 #include <util/atomic.h>
 #include <string.h>
+
+#include "pgmhack.h"
+
 
 #ifdef __cplusplus
 	#include "oofix.h"

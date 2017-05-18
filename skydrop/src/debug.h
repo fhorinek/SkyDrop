@@ -16,11 +16,16 @@ void debug(const char *format, ...);
 #define DEBUG(format, ...) debug(PSTR(format), ##__VA_ARGS__)
 
 //assert
+//#define assert
+
 #define assert(cond) \
 	do{ \
 	if (!(cond)) \
-		DEBUG("Assertion failed %S@%d!\n", PSTR(__FILE__), __LINE__); \
-	} while(0); \
+		{\
+			PGM_P __file__ = PSTR(__FILE__); \
+			DEBUG("Assertion failed %S@%d!\n", __file__, __LINE__); \
+		} \
+	} while(0);
 
 extern uint32_t debug_last_pc;
 extern volatile uint16_t debug_min_stack_pointer;

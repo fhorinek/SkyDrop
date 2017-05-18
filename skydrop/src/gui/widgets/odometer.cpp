@@ -5,27 +5,19 @@
  *      Author: tilmann@bubecks.de
  */
 
-#include <stdio.h>
 #include "odometer.h"
 
-const uint8_t PROGMEM img_home[] = {
-		5, 8, // width, heigth
+const uint8_t PROGMEM img_home[] =
+	{5, 8, // width, heigth
 		0x1C, 0x02, 0x19, 0x02, 0x1C };
 
-const uint8_t PROGMEM img_time[] = {
-		5, 8, // width, heigth
+const uint8_t PROGMEM img_time[] =
+	{5, 8, // width, heigth
 		0x0E, 0x11, 0x17, 0x15, 0x0E };
 
-const uint8_t PROGMEM img_distance[] = {
-		9, 8, // width, heigth
-		0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x1F, 0x0E,
-		0x04 };
-
-const uint8_t PROGMEM img_info[] = {
-		7, 8, // width, heigth
-		0x3C, 0x42, 0x81, 0xB5, 0x81, 0x42, 0x3C
-};
-
+const uint8_t PROGMEM img_distance[] =
+	{9, 8, // width, heigth
+		0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x1F, 0x0E, 0x04 };
 
 /**
  * Format a distance in a human readable format.
@@ -37,16 +29,22 @@ void sprintf_distance(char *text, float distance)
 {
 	const char *unit_P;
 
-	if (config.altitude.alt1_flags & ALT_UNIT_I) {
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	{
 		distance *= FC_KM_TO_MILE;
 		unit_P = PSTR("mi");
-	} else {
+	}
+	else
+	{
 		unit_P = PSTR("km");
 	}
 
-	if ( distance < 100.0) {
+	if (distance < 100.0)
+	{
 		sprintf_P(text, PSTR("%.1f %S"), distance, unit_P);
-	} else {
+	}
+	else
+	{
 		sprintf_P(text, PSTR("%.0f %S"), distance, unit_P);
 	}
 }
@@ -133,11 +131,9 @@ void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	oldClip = disp.clip(x, y, x + w, y + h);
 
-	const char *Home_P = PSTR("Home Info");
+	const char *Home_P = PSTR("Home info");
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
-	if (lh > 0)
-		disp.DrawImage(img_info, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
 
 	y += lh + 1;
 
@@ -148,40 +144,58 @@ void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	char tmp[80];
 
 	disp.GotoXY(x, y);
-	if ( fc.flight.home.name[0] == 0 ) {
-		fputs_P(PSTR("---"), lcd_out);
-	} else {
-		fputs((const char *)fc.flight.home.name, lcd_out);
-	}
-	y += text_h + 1;
 
-	disp.GotoXY(x, y);
-	if ( fc.flight.home.freq[0] == 0 ) {
-		fputs_P(PSTR("---"), lcd_out);
-	} else {
-		sprintf_P(tmp, PSTR("Freq: %s"), fc.flight.home.freq);
-		fputs(tmp, lcd_out);
+	if (config.home.flags & HOME_SET_AS_TAKEOFF)
+	{
+		fprintf_P(lcd_out, PSTR("Take-off"));
 	}
-	y += text_h + 1;
+	else
+	{
+		if (config.home.flags & HOME_LOADED_FROM_SD)
+		{
+			if (config.home.name[0])
+			{
+				fputs((const char *) config.home.name, lcd_out);
+				y += text_h + 1;
+				disp.GotoXY(x, y);
+			}
 
-	if ( fc.flight.home.rwy[0] == 0 ) {
-		disp.GotoXY(x, y);
-		fputs_P(PSTR("---"), lcd_out);
-	} else {
-		sprintf_P(tmp, PSTR("Rwy: %s, %s"), fc.flight.home.rwy, fc.flight.home.traffic_pattern);
-		widget_value_scroll(tmp, x, y, w, h);
-	}
-	y += text_h + 1;
+			if (config.home.freq[0])
+			{
+				fprintf_P(lcd_out, PSTR("Freq: %s"), config.home.freq);
+				y += text_h + 1;
+				disp.GotoXY(x, y);
+			}
 
-	if ( fc.flight.home.info[0] == 0 ) {
-		disp.GotoXY(x, y);
-		fputs_P(PSTR("---"), lcd_out);
-	} else {
-		widget_value_scroll((char *)fc.flight.home.info, x, y, w, h);
+			if (config.home.rwy[0])
+			{
+				sprintf_P(tmp, PSTR("Rwy: %s, %s"), config.home.rwy, config.home.traffic_pattern);
+				widget_value_scroll(tmp, x, y, w, h);
+				y += text_h + 1;
+				disp.GotoXY(x, y);
+			}
+
+			if (config.home.info[0])
+			{
+				widget_value_scroll((char *) config.home.info, x, y, w, h);
+			}
+		}
+		else //no home loaded
+		{
+			fprintf_P(lcd_out, PSTR("<Load>"));
+		}
 	}
-	y += text_h + 1;
+
 
 	disp.clip(oldClip);
+}
+
+void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+{
+	if (type == B_MIDDLE && *buff == BE_LONG)
+	{
+		gui_switch_task(GUI_HOME);
+	}
 }
 
 void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -194,7 +208,7 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 
 	if (fc.flight.home_valid && fc.gps_data.valid)
 	{
-		int16_t relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
+		int16_t relative_direction = fc.flight.home_bearing	- fc.gps_data.heading;
 		widget_arrow(relative_direction, x, y, w, h);
 	}
 	else
@@ -209,5 +223,5 @@ register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odomet
 register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
 register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
 register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
-register_widget1(w_home_info, "Home Info", widget_home_info_draw);
+register_widget2(w_home_info, "Home Info", widget_home_info_draw, 0, widget_home_info_irqh);
 

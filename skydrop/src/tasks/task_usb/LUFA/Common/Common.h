@@ -93,7 +93,7 @@
 		#elif (ARCH == ARCH_AVR8)
 			#include <avr/io.h>
 			#include <avr/interrupt.h>
-			#include <avr/pgmspace.h>
+//			#include <avr/pgmspace.h>
 			#include <avr/eeprom.h>
 			#include <avr/boot.h>
 			#include <math.h>
@@ -124,9 +124,11 @@
 
 			#include "Endianness.h"
 		#elif (ARCH == ARCH_XMEGA)
+
 			#include <avr/io.h>
 			#include <avr/interrupt.h>
-			#include <avr/pgmspace.h>
+			#include "../../../../xlib/pgmhack.h"
+//			#include <avr/pgmspace.h>
 			#include <avr/eeprom.h>
 			#include <math.h>
 			#include <util/delay.h>

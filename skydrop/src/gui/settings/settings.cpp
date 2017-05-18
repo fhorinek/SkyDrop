@@ -1,7 +1,7 @@
 #include "settings.h"
-#include "../gui_list.h"
 
-#include "gui_flightlog.h"
+#include "../gui_list.h"
+#include "gui_filemanager.h"
 #include "logger.h"
 
 void gui_settings_init()
@@ -19,51 +19,6 @@ void gui_settings_loop()
 void gui_settings_irqh(uint8_t type, uint8_t * buff)
 {
 	gui_list_irqh(type, buff);
-}
-
-void gui_settings_action(uint8_t index)
-{
-	switch(index)
-	{
-		case(0):
-			gui_switch_task(GUI_SET_VARIO);
-		break;
-
-		case(1):
-			gui_switch_task(GUI_SET_ALTIMETERS);
-		break;
-
-		case(2):
-			gui_switch_task(GUI_SET_LOGGER);
-		break;
-
-		case(3):
-			gui_flightlog_set_dir(LOG_DIR_ABS);
-			gui_flightlog_level = 0;
-			gui_flightlog_set_file_task(GUI_FLIGHTDETAIL);
-			gui_switch_task(GUI_FLIGHTLOG);
-		break;
-
-		case(4):
-			gui_switch_task(GUI_HOME);
-		break;
-
-		case(5):
-			gui_switch_task(GUI_SET_GPS);
-		break;
-
-		case(6):
-			gui_switch_task(GUI_SET_BLUETOOTH);
-		break;
-
-		case(7):
-			gui_switch_task(GUI_SET_SYSTEM);
-		break;
-
-		case(8):
-			gui_switch_task(GUI_SET_DEBUG);
-		break;
-	}
 }
 
 void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
@@ -117,3 +72,48 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 	}
 }
 
+
+void gui_settings_action(uint8_t index)
+{
+	switch (index)
+	{
+	case (0):
+		gui_switch_task(GUI_SET_VARIO);
+		break;
+
+	case (1):
+		gui_switch_task(GUI_SET_ALTIMETERS);
+		break;
+
+	case (2):
+		gui_switch_task(GUI_SET_LOGGER);
+		break;
+
+	case (3):
+		gui_filemanager_set_dir((char *) LOG_DIR_ABS);
+		gui_filemanager_level = 0;
+		gui_filemanager_set_tasks(GUI_FLIGHTDETAIL, GUI_SETTINGS);
+		gui_switch_task(GUI_FILEMANAGER);
+		break;
+
+	case (4):
+		gui_switch_task(GUI_HOME);
+		break;
+
+	case (5):
+		gui_switch_task(GUI_SET_GPS);
+		break;
+
+	case (6):
+		gui_switch_task(GUI_SET_BLUETOOTH);
+		break;
+
+	case (7):
+		gui_switch_task(GUI_SET_SYSTEM);
+		break;
+
+	case (8):
+		gui_switch_task(GUI_SET_DEBUG);
+		break;
+	}
+}

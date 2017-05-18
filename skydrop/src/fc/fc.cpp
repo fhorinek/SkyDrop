@@ -40,6 +40,12 @@ void fc_init()
 	//reset flight status
 	fc_reset();
 
+	//home valid if loaded from SD
+	if (config.home.flags & HOME_LOADED_FROM_SD)
+		fc.flight.home_valid = true;
+	else
+		fc.flight.home_valid = false;
+
 	// Todo: read/write into eeprom
 	fc.odometer = 0;
 
@@ -182,8 +188,6 @@ void fc_init()
 	_delay_ms(1);
 
 	fc_meas_timer.Start();
-
-	fc.flight.home_set_on_autostart = true;
 
 	DEBUG(" *** FC init done ***\n");
 }
@@ -441,14 +445,13 @@ void fc_takeoff()
 	//set start position
 	if (fc.gps_data.valid)
 	{
-		if ( fc.flight.home_set_on_autostart) {
+		if (config.home.flags & HOME_SET_AS_TAKEOFF)
+		{
 			fc.flight.home_valid = true;
-			fc.flight.home.lat = fc.gps_data.latitude;
-			fc.flight.home.lon = fc.gps_data.longtitude;
+			config.home.lat = fc.gps_data.latitude;
+			config.home.lon = fc.gps_data.longtitude;
 		}
 	}
-	else
-		fc.flight.home_valid = false;
 
 	//reset battery info timer
 	fc_log_battery_next = 0;

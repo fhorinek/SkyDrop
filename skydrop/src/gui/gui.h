@@ -96,7 +96,7 @@ void gui_statusbar();
 #define GUI_SET_CALIB			28
 #define GUI_SET_CALIB_ACC		29
 #define GUI_SET_CALIB_MAG		30
-#define GUI_FLIGHTLOG			31
+#define GUI_FILEMANAGER			31
 #define GUI_FLIGHTDETAIL		32
 #define GUI_SET_CALIB_GYRO		33
 #define GUI_SET_COMPASS			34
