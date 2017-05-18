@@ -371,21 +371,21 @@ void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	uint8_t s = min(w, h);
 	uint8_t mx = x + w / 2;
 	uint8_t my = y + h / 2;
-	float fsin = disp.get_sin(angle);
-	float fcos = disp.get_cos(angle);
+	float fsin = sin(angle);
+	float fcos = cos(angle);
 
 	uint8_t x1 = mx + fsin * s / 3;
 	uint8_t y1 = my + fcos * s / 3;
 	uint8_t x2 = mx - fsin * s / 5;
 	uint8_t y2 = my - fcos * s / 5;
 
-	fsin = disp.get_sin(angle + 25);
-	fcos = disp.get_cos(angle + 25);
+	fsin = sin(angle + 25);
+	fcos = cos(angle + 25);
 	uint8_t x3 = mx - fsin * s / 3;
 	uint8_t y3 = my - fcos * s / 3;
 
-	fsin = disp.get_sin(angle + 335);
-	fcos = disp.get_cos(angle + 335);
+	fsin = sin(angle + 335);
+	fcos = cos(angle + 335);
 	uint8_t x4 = mx - fsin * s / 3;
 	uint8_t y4 = my - fcos * s / 3;
 

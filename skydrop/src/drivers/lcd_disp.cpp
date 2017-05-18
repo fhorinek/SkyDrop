@@ -195,8 +195,6 @@ void lcd_display::Init(Spi * spi)
 {
 	this->spi = spi;
 
-	CreateSinTable();
-
 	clip(0, 0, lcd_width, lcd_height);
 
 	GpioSetDirection(LCD_RST, OUTPUT);
@@ -456,8 +454,8 @@ void lcd_display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int
 
 	for (angle=start;angle<=end;angle++)
 	{
-		x = radius * get_sin(angle);
-		y = radius * get_sin(angle+180);
+		x = radius * sin(angle);
+		y = radius * sin(angle+180);
 		PutPixel(cx+x,cy + y,1);
 	}
 }
@@ -654,28 +652,4 @@ void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t co
 			cnt++;
 		}
 	}
-}
-
-void  lcd_display::CreateSinTable(){
-	  for (int16_t i=0; i < 91; i++)
-		  sin_table[i] = sin(((float)i/180.0)*3.142);
-}
-
-float lcd_display::get_sin(uint16_t angle)
-{
-	angle = angle % 360;
-
-	if (angle < 90)
-		return this->sin_table[angle];
-	else if (angle < 180)
-		return this->sin_table[90 - (angle - 90)];
-	else if (angle < 270)
-		return -this->sin_table[angle - 180];
-	else return -this->sin_table[90 - (angle - 270)];
-}
-
-float lcd_display::get_cos(uint16_t angle)
-{
-	angle += 270;
-	return this->get_sin(angle);
 }
