@@ -17,6 +17,7 @@
 
 char gui_filemanager_path[32];
 char gui_filemanager_name[13];
+int16_t direntry_count;
 
 uint8_t gui_filemanager_level = 0;
 uint8_t filemanager_action;
@@ -45,7 +46,8 @@ void gui_filemanager_init()
 {
 	storage_dir_open(gui_filemanager_path);
 
-	gui_list_set(gui_filemanager_item, gui_filemanager_action, storage_get_files() + 1, filemanager_return);
+	direntry_count = storage_dir_get_count();
+	gui_list_set(gui_filemanager_item, gui_filemanager_action, direntry_count + 1, filemanager_return);
 }
 
 void gui_filemanager_stop()
@@ -91,14 +93,7 @@ void gui_filemanager_action(uint8_t index)
 	}
 
 	storage_dir_rewind();
-
-	uint8_t i = 0;
-	do
-	{
-		storage_dir_list(gui_filemanager_name, &flags);
-		i++;
-	}
-	while (i <= index - 1);
+	storage_dir_list_n(gui_filemanager_name, &flags, direntry_count - index + 1);   // Reverse the order
 
 	sprintf_P(tmp, PSTR("%s/%s"), gui_filemanager_path, gui_filemanager_name);
 
@@ -125,21 +120,23 @@ void gui_filemanager_item(uint8_t ind, char * text, uint8_t * flags, char * sub_
 
 		if (gui_filemanager_level == 0)
 		{
+			// Shows the name of the top most dir, e.g. "home" or "logs"
 			strcpy(text, gui_filemanager_path + 1);
 		}
 		else
 		{
+			// Shows the directory names under the top most, excluding the top most
 			char * p = index(gui_filemanager_path + 1, '/');
 			strcpy(text, p);
 		}
 
-		storage_dir_rewind();
 		return;
 	}
 
 	uint8_t f = 0;
 
-	storage_dir_list(text, &f);
+	storage_dir_rewind();
+	storage_dir_list_n(text, &f, direntry_count - ind + 1);   // Reverse the order
 
 	if (f & STORAGE_IS_DIR)
 		*flags |= GUI_LIST_FOLDER;
