@@ -454,8 +454,8 @@ void lcd_display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int
 
 	for (angle=start;angle<=end;angle++)
 	{
-		x = radius * sin(angle);
-		y = radius * sin(angle+180);
+		x = radius * sin(to_radians(angle));
+		y = radius * sin(to_radians(angle+180));
 		PutPixel(cx+x,cy + y,1);
 	}
 }
