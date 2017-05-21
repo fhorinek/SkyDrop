@@ -8,6 +8,8 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
+#include <math.h>
+
 #include <xlib/core/clock.h>
 #include <xlib/core/usart.h>
 #include <xlib/core/spi.h>
@@ -385,5 +387,18 @@ void bat_en_low(uint8_t mask);
 void io_init();
 void io_write(uint8_t io, uint8_t level);
 
+/**
+ * Convert an angle given in degree to radians.
+ */
+inline double to_radians(double degree) {
+    return degree / 180.0 * M_PI;
+}
+
+/**
+ * Convert an angle given in radians to degree.
+ */
+inline double to_degrees(double radians) {
+    return radians * (180.0 / M_PI);
+}
 
 #endif /* COMMON_H_ */

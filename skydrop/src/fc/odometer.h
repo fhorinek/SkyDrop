@@ -9,20 +9,12 @@
 #define FC_ODOMETER_H_
 
 #include <stdint.h>
-#include <math.h>
 
 /**
  * Latitude and longitude are multiplied with GPS_MULT to get fixed point integers.
  * E.g. 48.5 will be 48500000.
  */
 #define GPS_MULT			10000000l
-
-/**
- * Convert an angle given in radians to degree.
- */
-inline double to_degrees(double radians) {
-    return radians * (180.0 / M_PI);
-}
 
 /**
  * Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
