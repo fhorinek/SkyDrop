@@ -116,25 +116,7 @@ void widget_ghdg_dir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 
 	char tmp[5];
 	if (fc.gps_data.valid)
-	{
-		float dir = fc.gps_data.heading;
-		if (22.5 <= dir and dir <  67.5)
-			strcpy_P(tmp, PSTR("NE"));
-		else if( 67.5 <= dir and dir < 112.5)
-			strcpy_P(tmp, PSTR("E"));
-		else if(112.5 <= dir and dir < 157.5)
-			strcpy_P(tmp, PSTR("SE"));
-		else if(157.5 <= dir and dir < 202.5)
-			strcpy_P(tmp, PSTR("S"));
-		else if(202.5 <= dir and dir < 247.5)
-			strcpy_P(tmp, PSTR("SW"));
-		else if(247.5 <= dir and dir < 292.5)
-			strcpy_P(tmp, PSTR("W"));
-		else if(292.5 <= dir and dir < 337.5)
-			strcpy_P(tmp, PSTR("NW"));
-		else
-			strcpy_P(tmp, PSTR("N"));
-	}
+		widget_deg_to_points(fc.gps_data.heading, tmp);
 	else
 		strcpy_P(tmp, PSTR("---"));
 

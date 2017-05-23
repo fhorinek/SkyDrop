@@ -43,6 +43,21 @@ void gui_factory_test_init()
 
 	f_test_lcd = FTEST_LCD_MIN_AUTO;
 
+	if (storage_ready())
+	{
+		FILINFO fno;
+
+		if (f_stat("SET_CONT", &fno) == FR_OK)
+		{
+			f_test_lcd_cont_max = 110;
+			f_test_lcd_cont_min = 70;
+			f_test_lcd_cont = 4;
+
+			f_test_lcd = FTEST_LCD_DONE;
+		}
+	}
+
+
 	disp.SetFlip(false);
 	disp.SetInvert(false);
 }
@@ -130,9 +145,6 @@ void gui_factory_test_loop()
 
 		led_set(0, f_test_lcd_cont / 4, 0);
 
-//		lcd_contrast = f_test_lcd_cont;
-//		gui_change_disp_cfg();
-
 		if (f_test_lcd == FTEST_LCD_MID)
 			disp.SetContrast(lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * f_test_lcd_cont) / GUI_CONTRAST_STEPS);
 		else
@@ -141,11 +153,15 @@ void gui_factory_test_loop()
 		return;
 	}
 
+	//store contrast values
 	eeprom_busy_wait();
 	eeprom_update_byte(&config_ro.lcd_contrast_max, f_test_lcd_cont_max);
 	eeprom_update_byte(&config_ro.lcd_contrast_min, f_test_lcd_cont_min);
 	eeprom_update_byte(&config_ee.gui.contrast, f_test_lcd_cont);
 	eeprom_busy_wait();
+
+	//reload contrast value
+	gui_load_eeprom();
 
 	disp.LoadFont(F_TEXT_S);
 	uint8_t f_h = disp.GetTextHeight();
@@ -279,6 +295,9 @@ void gui_factory_test_loop()
 
 void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 {
+	if (type == TASK_IRQ_USB && *buff)
+		task_set(TASK_USB);
+
 	if (f_test_lcd)
 	{
 		if (*buff == BE_CLICK || *buff == BE_DBL_CLICK)
@@ -295,6 +314,7 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 				else
 					f_test_lcd_cont = (f_test_lcd_cont - 1) % 128;
 			break;
+
 			case (TASK_IRQ_BUTTON_M):
 				switch (f_test_lcd)
 				{
@@ -319,6 +339,7 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 					break;
 				}
 			break;
+
 			case (TASK_IRQ_BUTTON_R):
 				if (f_test_lcd == FTEST_LCD_MIN_AUTO)
 					f_test_lcd = FTEST_LCD_MIN;
@@ -342,12 +363,14 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 				buzzer_set_vol(100);
 				buzzer_set_freq(200);
 			break;
+
 			case (TASK_IRQ_BUTTON_M):
 				f_test_button_test |= (1 << 1);
 				led_set(0x00, 0xFF, 0x00);
 				buzzer_set_vol(100);
 				buzzer_set_freq(300);
 			break;
+
 			case (TASK_IRQ_BUTTON_R):
 				f_test_button_test |= (1 << 2);
 				led_set(0x00, 0x00, 0xFF);

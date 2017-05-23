@@ -106,6 +106,7 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	char text[10];
 
+	//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
 	int16_t relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
 
 	if (fc.flight.home_valid && fc.gps_data.valid && abs(relative_direction) < 45)
@@ -208,7 +209,8 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 
 	if (fc.flight.home_valid && fc.gps_data.valid)
 	{
-		int16_t relative_direction = fc.flight.home_bearing	- fc.gps_data.heading;
+		int16_t relative_direction = fc.flight.home_bearing	- fc.compass.azimuth_filtered;
+//		int16_t relative_direction = fc.flight.home_bearing	- fc.gps_data.heading;
 		widget_arrow(relative_direction, x, y, w, h);
 	}
 	else

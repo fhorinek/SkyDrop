@@ -111,28 +111,28 @@ extern float widget_menu_fvalue1;
 #define WIDGET_WIND_SPD			26
 #define WIDGET_WIND_DIR			27
 #define WIDGET_WIND_DIR_ARROW	28
+#define WIDGET_WIND_DIR_POINTS	29
 #include "wind.h"
 
-#define WIDGET_AGL_HEIGHT		29
-#define WIDGET_AGL_LEVEL		30
+#define WIDGET_AGL_HEIGHT		30
+#define WIDGET_AGL_LEVEL		31
 #include "agl.h"
 
-#define WIDGET_ODO_METER		31
-#define WIDGET_ODO_BACK			32
-#define WIDGET_ODO_DISTANCE		33
-#define WIDGET_HOME_TIME		34
+#define WIDGET_ODO_METER		32
+#define WIDGET_ODO_BACK			33
+#define WIDGET_ODO_DISTANCE		34
+#define WIDGET_HOME_TIME		35
+#define WIDGET_HOME_INFO		36
 #include "odometer.h"
 
-#define WIDGET_COMPASS			35
-#define WIDGET_COMPASS_ARROW	36
-#define WIDGET_COMPASS_POINTS	37
+#define WIDGET_COMPASS			37
+#define WIDGET_COMPASS_ARROW	38
+#define WIDGET_COMPASS_POINTS	39
 #include "compass.h"
 
-#define WIDGET_HOME_INFO		38
+#define NUMBER_OF_WIDGETS		40
 
-#define NUMBER_OF_WIDGETS		39
-
-#define NUMBER_OF_SORTED_WIDGETS	37
+#define NUMBER_OF_SORTED_WIDGETS	38
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 
@@ -154,6 +154,9 @@ uint8_t layout_get_number_of_widgets(uint8_t type);
 void layout_get_widget_rect(uint8_t type, uint8_t widget, uint8_t * x, uint8_t * y, uint8_t * w, uint8_t * h);
 
 uint8_t widget_get_type(uint8_t page, uint8_t widget);
+
+//converts degrees to points N
+void widget_deg_to_points(float deg, char * text);
 
 extern widget widget_array[NUMBER_OF_WIDGETS];
 

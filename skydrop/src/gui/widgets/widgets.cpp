@@ -27,14 +27,13 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//controls
 		w_ctrl_audio, w_ctrl_wlift,
 		//wind
-		w_wind_speed, w_wind_dir, w_wind_dir_arrow,
+		w_wind_speed, w_wind_dir, w_wind_dir_arrow, w_wind_points,
 		//agl
 		w_agl_height, w_agl_ground_level,
 		//odometer
-		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time,
+		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time, w_home_info,
 		//compass
 		w_compass_heading, w_compass_arrow, w_compass_points,
-		w_home_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -80,6 +79,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	//wind
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
+	WIDGET_WIND_DIR_POINTS,
 	WIDGET_WIND_SPD,
 
 	//acc
@@ -393,4 +393,26 @@ void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	disp.DrawLine(x2, y2, x3, y3, 1);
 	disp.DrawLine(x2, y2, x4, y4, 1);
 	disp.DrawLine(x1, y1, x4, y4, 1);
+}
+
+//converts degrees to points N
+void widget_deg_to_points(float deg, char * text)
+{
+	if	( 22.5 <= deg and deg <  67.5 )
+		strcpy_P(text, PSTR("NE"));
+	else if( 67.5 <= deg and deg < 112.5 )
+		strcpy_P(text, PSTR("E"));
+	else if(112.5 <= deg and deg < 157.5 )
+		strcpy_P(text, PSTR("SE"));
+	else if(157.5 <= deg and deg < 202.5 )
+		strcpy_P(text, PSTR("S"));
+	else if(202.5 <= deg and deg < 247.5 )
+		strcpy_P(text, PSTR("SW"));
+	else if(247.5 <= deg and deg < 292.5 )
+		strcpy_P(text, PSTR("W"));
+	else if(292.5 <= deg and deg < 337.5 )
+		strcpy_P(text, PSTR("NW"));
+	else
+		strcpy_P(text, PSTR("N"));
+
 }

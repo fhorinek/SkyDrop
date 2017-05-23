@@ -15,10 +15,6 @@ void print_reset_reason()
 {
 	//Print reset reason
 	DEBUG("Reset reason ... ");
-	DEBUG("Reset reason ... ");
-	DEBUG("Reset reason ... ");
-	DEBUG("Reset reason ... ");
-	DEBUG("Reset reason ... ");
 
 	if (system_rst & 0b00100000)
 		DEBUG("Software ");

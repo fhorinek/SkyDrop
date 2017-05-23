@@ -73,6 +73,21 @@ void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 }
 
-register_widget1(w_wind_dir, "Wind Direction", widget_wdir_draw);
-register_widget1(w_wind_dir_arrow, "Wind Arrow", widget_wdir_arrow_draw);
-register_widget1(w_wind_speed, "Wind Speed", widget_wspd_draw);
+void widget_wdir_points_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
+
+	char tmp[5];
+	if (fc.wind.valid)
+		widget_deg_to_points(fc.wind.direction, tmp);
+	else
+		strcpy_P(tmp, PSTR("---"));
+
+
+	widget_value_int(tmp, x, y + lh, w, h - lh);
+}
+
+register_widget1(w_wind_dir, "Wind direction", widget_wdir_draw);
+register_widget1(w_wind_dir_arrow, "Wind arrow", widget_wdir_arrow_draw);
+register_widget1(w_wind_speed, "Wind speed", widget_wspd_draw);
+register_widget1(w_wind_points, "Wind dir points", widget_wdir_points_draw);

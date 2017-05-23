@@ -527,6 +527,7 @@
 
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
+                ["WIDGET_WIND_DIR_POINTS", "Wind direction points"],
                 ["WIDGET_WIND_SPD", "Wind speed"],
                 
                 ["WIDGET_ACC_TOT", "Total acceleration"],
@@ -807,6 +808,14 @@
             "label": "WDir", 
             "value": "20"
         },
+        "WIDGET_WIND_DIR_POINTS":
+        {
+            "type": "value",
+            "name": "Wind direction points",
+            "desc": "Absolute direction of wind source in points (N, E, S, W)", 
+            "label": "WDir", 
+            "value": "N"
+        },        
         "WIDGET_WIND_SPD":
         {
             "type": "value",

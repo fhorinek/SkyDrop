@@ -30,25 +30,9 @@ void widget_compass_heading_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uin
 {
 	uint8_t lh = widget_label_P(PSTR("Comp"), x, y);
 
-	float dir = fc.compass.azimuth_filtered;
 	char tmp[5];
 
-	if	   ( 22.5 <= dir and dir <  67.5 )
-		strcpy_P(tmp, PSTR("NE"));
-	else if( 67.5 <= dir and dir < 112.5 )
-		strcpy_P(tmp, PSTR("E"));
-	else if(112.5 <= dir and dir < 157.5 )
-		strcpy_P(tmp, PSTR("SE"));
-	else if(157.5 <= dir and dir < 202.5 )
-		strcpy_P(tmp, PSTR("S"));
-	else if(202.5 <= dir and dir < 247.5 )
-		strcpy_P(tmp, PSTR("SW"));
-	else if(247.5 <= dir and dir < 292.5 )
-		strcpy_P(tmp, PSTR("W"));
-	else if(292.5 <= dir and dir < 337.5 )
-		strcpy_P(tmp, PSTR("NW"));
-	else
-		strcpy_P(tmp, PSTR("N"));
+	widget_deg_to_points(fc.compass.azimuth_filtered, tmp);
 
 	widget_value_txt(tmp, x, y + lh, w, h - lh);
 }

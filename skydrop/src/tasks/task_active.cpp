@@ -74,10 +74,10 @@ void task_active_init()
 		}
 	}
 
-	//init flight computer
 	ewdt_reset();
-	fc_init();
 
+	//init flight computer
+	fc_init();
 
 	led_notify_enable();
 }
