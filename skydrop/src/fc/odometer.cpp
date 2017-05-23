@@ -50,7 +50,8 @@ uint32_t gps_distance_2d(int32_t lat1, int32_t lon1,
 	lat = (lat1 + lat2) / 2 / GPS_MULT * (M_PI / 180.0);
 
 	// 111.3 km (in cm) is the width of 1 degree
-	dx = cos(lat) * 11130000 * abs(lon1 - lon2) / GPS_MULT;   // Todo: Use lcd_disp.get_cos()
+	// disp.get_cos() is not usable here, because we deal with fractions of a degree.
+	dx = cos(lat) * 11130000 * abs(lon1 - lon2) / GPS_MULT;
 	dy = 1.0      * 11130000 * abs(lat1 - lat2) / GPS_MULT;
 
 	return (uint32_t)sqrt(dx * dx + dy * dy);
