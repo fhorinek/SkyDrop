@@ -84,7 +84,7 @@ void widget_wdir_points_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 		strcpy_P(tmp, PSTR("---"));
 
 
-	widget_value_int(tmp, x, y + lh, w, h - lh);
+	widget_value_txt(tmp, x, y + lh, w, h - lh);
 }
 
 register_widget1(w_wind_dir, "Wind direction", widget_wdir_draw);
