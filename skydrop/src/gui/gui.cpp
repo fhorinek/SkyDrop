@@ -241,6 +241,11 @@ void gui_showmessage(char * msg)
 	gui_message_end = task_get_ms_tick() + MESSAGE_DURATION * 1000ul;
 }
 
+void gui_messageduration(uint16_t seconds)
+{
+	gui_message_end = task_get_ms_tick() + seconds * 1000ul;
+}
+
 void gui_forcemessage()
 {
 	gui_message_end = MESSAGE_FORCE_ON;

@@ -9,46 +9,10 @@
 #include "fc.h"
 #include "../common.h"
 
-/*		GPS position input mode only
-float atan2(float x, float y)
-{	// calculates atan2, returns: angle in deg, range < 0 ; 360 ), max error 0.162 deg
-	if(x < 0 and y == 0)   	return 270.0;
-    if(x > 0 and y == 0)   	return 90.0;
-    if(x == 0 and y == 0)   return (-1.0);//error condition
-    if(x == 0 and y > 0)    return 0.0;
-    if(x == 0 and y < 0)    return 180.0;
-
-    ///arctan aproximation
-    float fi = fabs( x / y );
-    float fi2 = fi * fi;
-    fi = ((0.596227 * fi + fi2) / (1 + 2 * 0.596227 * fi + fi2 )) * 90;
-
-    /// cover all quadrants
-    if(x >= 0 and y > 0)   	return (fi);
-    if(x < 0 and y > 0)    	return (360.0 - fi);
-    if(x >= 0 and y < 0)   	return (180.0 - fi);
-    if(x < 0 and y < 0)    	return (fi + 180.0);
-//  if(x < 0 and y == 0)   	return (fi - 180.0);
-    return (-1.0); //error condition
-}
-*/
 
 void wind_new_gps_fix()
 {
 	//DEBUG("Wind step #1");
-	/* 	GPS position input
-
-	float currLon = float(fc.gps_data.longtitude) / 10000000.0;
-	float currLat = float(fc.gps_data.latitude) / 10000000.0;
-	float dX = (currLon - fc.wind.old_gps.X);
-	float dY = (currLat  - fc.wind.old_gps.Y);
-	fc.wind.old_gps.X = currLon;
-	fc.wind.old_gps.Y = currLat;
-
-	float speed = sqrt(dX*dX + dY*dY) * 111317.099692198;
-	float angle = atan2(dX,dY);
-	 */
-
 	/*	GPS speed,heading input		*/
 	float speed = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS; // m/s
 	float angle = fc.gps_data.heading;
@@ -110,7 +74,7 @@ void wind_new_gps_fix()
 		if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1 )) and (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1 )))
 		{
 			fc.wind.speed = (fc.wind.spd[max] - fc.wind.spd[min]) / 2;
-			fc.wind.direction = fc.wind.dir[min];
+			fc.wind.direction = fc.wind.dir[max];
         	fc.wind.valid = true;
         	//DEBUG(" #5 wspd=%0.1f wdir=%0.1f", fc.wind.speed, fc.wind.direction);
 		}

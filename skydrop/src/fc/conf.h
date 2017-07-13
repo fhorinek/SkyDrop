@@ -290,7 +290,9 @@ struct cfg_ro_t
 
 	int16_t	magnetic_declination;	//+57		2
 
-	uint8_t reserved[70];			//+59		70
+	uint32_t total_flight_time;		//+59		4
+
+	uint8_t reserved[70];			//+63		64
 };
 
 //configuration in RAM

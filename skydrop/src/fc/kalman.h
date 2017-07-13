@@ -34,6 +34,7 @@ public:
     void Configure(float zVariance, float zAccelVariance, float zAccelBiasVariance, float zInitial, float vInitial, float aBiasInitial);
     void Update(float z, float a, float dt, float* pZ, float* pV);
 
+    void Reset(float abs_value);
 };
 
 

@@ -9,7 +9,7 @@
 
 void gui_set_logger_init()
 {
-	gui_list_set(gui_set_logger_item, gui_set_logger_action, 6, GUI_SETTINGS);
+	gui_list_set(gui_set_logger_item, gui_set_logger_action, 7, GUI_SETTINGS);
 }
 
 void gui_set_logger_stop() {}
@@ -57,6 +57,16 @@ void gui_set_logger_glider_id_cb(uint8_t ret, char * buff)
 	gui_switch_task(GUI_SET_LOGGER);
 }
 
+void gui_set_total_time_cb(float val)
+{
+	fc.flight.total_time = (uint32_t)(val * 3600);
+
+	eeprom_busy_wait();
+	eeprom_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
+
+	gui_switch_task(GUI_SET_LOGGER);
+}
+
 void gui_set_logger_action(uint8_t index)
 {
 	switch(index)
@@ -68,6 +78,11 @@ void gui_set_logger_action(uint8_t index)
 		break;
 
 		case(1):
+			gui_value_conf_P(PSTR("Total time"), GUI_VAL_NUMBER, PSTR("%1.0f hours"), fc.flight.total_time / 3600.0, 0, 876000, 1, gui_set_total_time_cb);
+			gui_switch_task(GUI_SET_VAL);
+		break;
+
+		case(2):
 			if (logger_active())
 			{
 				gui_showmessage_P(PSTR("Cannot change\nin flight!"));
@@ -78,21 +93,21 @@ void gui_set_logger_action(uint8_t index)
 			eeprom_update_byte(&config_ee.logger.format, config.logger.format);
 		break;
 
-		case(2):
+		case(3):
 			gui_switch_task(GUI_SET_AUTOSTART);
 		break;
 
-		case(3):
+		case(4):
 			gui_text_conf((char *)config.logger.pilot, LOG_TEXT_LEN, gui_set_logger_pilot_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
 
-		case(4):
+		case(5):
 			gui_text_conf((char *)config.logger.glider_type, LOG_TEXT_LEN, gui_set_logger_glider_type_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
 
-		case(5):
+		case(6):
 			gui_text_conf((char *)config.logger.glider_id, LOG_TEXT_LEN, gui_set_logger_glider_id_cb);
 			gui_switch_task(GUI_TEXT);
 		break;
@@ -112,6 +127,18 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		break;
 
 		case (1):
+			strcpy_P(text, PSTR("Total time"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			{
+				float tmp = fc.flight.total_time;
+				if (fc.flight.state == FLIGHT_FLIGHT)
+					tmp += (task_get_ms_tick() - fc.flight.timer) / 1000;
+
+				sprintf_P(sub_text, PSTR("%0.1f hours"), tmp  / 3600.0);
+			}
+		break;
+
+		case (2):
 			strcpy_P(text, PSTR("Format"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			switch (config.logger.format)
@@ -134,7 +161,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 			}
 		break;
 
-		case (2):
+		case (3):
 			strcpy_P(text, PSTR("Auto start/land"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
@@ -149,7 +176,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				strcpy_P(sub_text, PSTR("disabled"));
 		break;
 
-		case (3):
+		case (4):
 			strcpy_P(text, PSTR("Pilot name"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
@@ -159,7 +186,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				gui_fit_text((char *)config.logger.pilot, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
-		case (4):
+		case (5):
 			strcpy_P(text, PSTR("Glider type"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
@@ -169,7 +196,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 				gui_fit_text((char *)config.logger.glider_type, sub_text, GUI_DISP_WIDTH - 2);
 		break;
 
-		case (5):
+		case (6):
 			strcpy_P(text, PSTR("Glider id"));
 			*flags |= GUI_LIST_SUB_TEXT;
 

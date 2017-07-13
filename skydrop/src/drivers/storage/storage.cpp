@@ -24,8 +24,8 @@ bool storage_init()
 
 	DEBUG("SD_IN %d\n", GpioRead(SD_IN));
 
-	if (!SD_CARD_DETECT)
-		return false;
+//	if (!SD_CARD_DETECT)
+//		return false;
 
 	//power spi & sdcard
 	SD_EN_ON;
@@ -33,7 +33,7 @@ bool storage_init()
 
 	DEBUG("Mounting SD card ... ");
 
-	for (uint8_t i = 0; i < 5; i++)
+	for (uint8_t i = 0; i < 3; i++)
 	{
 
 		res = f_mount(&FatFs, "", 1);		/* Give a work area to the default drive */
@@ -123,17 +123,17 @@ void storage_deinit()
 
 void storage_step()
 {
-	if (SD_CARD_DETECT)
-	{
-		if (!sd_avalible && !sd_error)
-			storage_init();
-	}
-	else
-	{
-		if (sd_avalible)
-			storage_deinit();
-		sd_error = false;
-	}
+//	if (SD_CARD_DETECT)
+//	{
+//		if (!sd_avalible && !sd_error)
+//			storage_init();
+//	}
+//	else
+//	{
+//		if (sd_avalible)
+//			storage_deinit();
+//		sd_error = false;
+//	}
 }
 
 bool storage_card_in()

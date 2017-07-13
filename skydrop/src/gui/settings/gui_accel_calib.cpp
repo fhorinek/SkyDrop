@@ -46,7 +46,7 @@ struct acc_calib_t
 
 
 //#define treshold_percent	90.0
-#define treshold_lo  		0.75 * default1G
+#define treshold_lo  		0.70 * default1G
 //#define treshold_hi  		1.10 * default1G
 #define default1G			1300
 
@@ -55,7 +55,7 @@ struct acc_calib_t
 #define LPF_beta 			0.05	//low pass filter setting, for values shown at point of decision
 
 #define calib_samples		100		//n of samples collected for calculating accel calibration
-#define max_err				75		//max variance between samples
+#define max_err				150		//max variance between samples
 
 acc_calib_t gui_acc_calib;
 

@@ -1,3 +1,30 @@
+Build 3802 - 13. 07. 2017
+========================================================
+ADDED:
+ * Serial number in menu (Settings->Advanced->Device id) #288
+ * Total flight time (Logger->Total time) #289
+
+CHANGED:
+ * GPS altitude is now using Geoid instead of elipsoid (FAI CIVIL requirement)
+ * SD_IN pin check, the skydrop will allways try to mount SD card
+
+REMOVED:
+ * GPS time sync message
+
+Build 3802 - 26. 06. 2017
+========================================================
+FIX:
+ * Wind estimation direction reversed
+ * gps_normal checksum (might cause gps fix problems)
+ * Auto launch #291
+ * accelerometer calibration #287 (max_err from 75 to 150)
+
+Build 3802 - 24. 04. 2017
+========================================================
+FIX:
+ * Winddirection points widget #285
+
+
 Build 3802 - 24. 04. 2017
 ========================================================
 FIX:

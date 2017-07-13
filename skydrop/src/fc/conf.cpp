@@ -154,11 +154,11 @@ EEMEM cfg_t config_ee = {
 	//audio_profile
 	{
 		//freq
-		{127, 131, 136, 141, 146, 152, 159, 167, 175, 186, 198, 216, 234, 258, 283, 313, 344, 379, 415, 489, 564, 632, 701, 744, 788, 817, 846, 870, 894, 910, 927, 941, 955, 970, 985, 996, 1008, 1022, 1037, 1053, 1070},
+		{90, 91, 93, 96, 100, 105, 111, 118, 126, 135, 145, 156, 168, 181, 195, 210, 226, 243, 261, 280, 300, 325, 360, 405, 460, 525, 600, 685, 780, 875, 960, 1025, 1070, 1105, 1130, 1150, 1165, 1180, 1195, 1210, 1225},
 		//length
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 281, 242, 215, 189, 172, 155, 144, 134, 124, 115, 105, 95, 85, 75, 65, 55, 46, 37, 33, 30},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 480, 370, 288, 233, 192, 163, 142, 128, 120, 112, 105, 98, 91, 84, 78, 72, 66, 60, 54, 48, 42},
 		//pause
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 540, 489, 438, 403, 368, 340, 312, 285, 259, 239, 219, 197, 176, 157, 138, 124, 110, 95, 81, 70, 60},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 265, 215, 180, 150, 125, 108, 97, 90, 83, 77, 72, 67, 62, 57, 52, 47, 42, 37, 32, 27},
 		//weak_lift_freq_low
 		60,
 		//weak_lift_freq_high
@@ -279,16 +279,16 @@ void cfg_acc_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = 89;
-	tmp.y = 107;
-	tmp.z = -240;
+	tmp.x = -112;
+	tmp.y = 73;
+	tmp.z = -108;
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_bias, sizeof(vector_i16_t));
 
 	//sensitivity
-	tmp.x = 2759;
-	tmp.y = 2729;
-	tmp.z = 2686;
+	tmp.x = 2715;
+	tmp.y = 2709;
+	tmp.z = 2723;
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_sensitivity, sizeof(vector_i16_t));
 }
@@ -297,16 +297,16 @@ void cfg_mag_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = 1364;
-	tmp.y = 1752;
-	tmp.z = 2136;
+	tmp.x = -845;
+	tmp.y = -158;
+	tmp.z = 276;
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_bias, sizeof(vector_i16_t));
 
 	//sensitivity
-	tmp.x = 5392;
-	tmp.y = 4780;
-	tmp.z = 5154;
+	tmp.x = 5628;
+	tmp.y = 5497;
+	tmp.z = 5364;
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
 }
@@ -315,9 +315,9 @@ void cfg_gyro_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = 0;
-	tmp.y = 0;
-	tmp.z = 0;
+	tmp.x = -4;
+	tmp.y = 1;
+	tmp.z = 5;
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.gyro_bias, sizeof(vector_i16_t));
 }

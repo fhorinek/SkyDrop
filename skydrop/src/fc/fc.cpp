@@ -49,6 +49,12 @@ void fc_init()
 	// Todo: read/write into eeprom
 	fc.odometer = 0;
 
+	//total time
+	eeprom_busy_wait();
+	fc.flight.total_time = eeprom_read_dword(&config_ro.total_flight_time);
+	if (fc.flight.total_time == 0xFFFFFFFF)
+		fc.flight.total_time = 0;
+
 	//using fake data
 	#ifdef FAKE_ENABLE
 		return;
@@ -481,10 +487,14 @@ void fc_landing()
 
 	audio_off();
 
-
 	fc.flight.state = FLIGHT_LAND;
 	fc.flight.autostart_timer = task_get_ms_tick();
 	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
+
+	fc.flight.total_time += fc.flight.timer / 1000;
+
+	eeprom_busy_wait();
+	eeprom_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
 
 	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
 	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
@@ -525,7 +535,7 @@ void fc_sync_gps_time()
 
 	time_set_utc(fc.gps_data.utc_time);
 
-	gui_showmessage_P(PSTR("GPS Time set"));
+//	gui_showmessage_P(PSTR("GPS Time set"));
 
 	time_set_flags();
 }
@@ -710,7 +720,7 @@ void fc_zero_alt(uint8_t index)
 
 void fc_manual_alt0_change(float val)
 {
-
+	kalmanFilter.Reset(val);
 
     if (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND)
     {

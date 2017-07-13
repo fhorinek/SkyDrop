@@ -41,6 +41,7 @@ void gui_showmessage_P(const char * msg);
 void gui_showmessage(char * msg);
 void gui_forcemessage();
 void gui_hidemessage();
+void gui_messageduration(uint16_t seconds);
 
 void gui_dialog_P(const char * title);
 void gui_dialog(char * title);

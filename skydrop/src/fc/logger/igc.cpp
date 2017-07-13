@@ -87,16 +87,16 @@ bool igc_start(char * path)
 //	sprintf_P(line, PSTR("HFDTEDATE:%02u%02u%02u,%02u"), day, month, year  % 100, logger_flight_number);
 //	igc_writeline(line);
 	//H F PLT PILOT IN CHARGE
-	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE: %s"), config.logger.pilot);
+	sprintf_P(line, PSTR("HFPLTPILOTINCHARGE:%s"), config.logger.pilot);
 	igc_writeline(line);
 	//H F CM2 CREW 2
-	sprintf_P(line, PSTR("HFCM2CREW2:"));
+	sprintf_P(line, PSTR("HFCM2CREW2:NIL"));
 	igc_writeline(line);
 	//H F GTY GLIDER TYPE
-	sprintf_P(line, PSTR("HFGTYGLIDERTYPE: %s"), config.logger.glider_type);
+	sprintf_P(line, PSTR("HFGTYGLIDERTYPE:%s"), config.logger.glider_type);
 	igc_writeline(line);
 	//H F GID GLIDER ID
-	sprintf_P(line, PSTR("HFGIDGLIDERID: %s"), config.logger.glider_id);
+	sprintf_P(line, PSTR("HFGIDGLIDERID:%s"), config.logger.glider_id);
 	igc_writeline(line);
 	//H F DTM GPS DATUM
 	sprintf_P(line, PSTR("HFDTMGPSDATUM:WGS84"));
@@ -176,17 +176,21 @@ void igc_step()
 
 	char c;
 
+	float galt;
+
 	if (fc.gps_data.valid)
 	{
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			fc.logger_state = LOGGER_ACTIVE;
 
-		if (igc_last_timestamp == fc.gps_data.utc_time)
+		if (igc_last_timestamp >= fc.gps_data.utc_time)
 			return;
 
 		igc_last_timestamp = fc.gps_data.utc_time;
 
 		time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
+
+		galt = fc.gps_data.altitude;
 		c = 'A';
 	}
 	else
@@ -194,19 +198,21 @@ void igc_step()
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			return;
 
-		if (igc_last_timestamp == time_get_utc())
+		if (igc_last_timestamp >= time_get_utc())
 			return;
 
 		igc_last_timestamp = time_get_utc();
 
 		time_from_epoch(time_get_utc(), &sec, &min, &hour);
+
+		galt = 0;
 		c = 'V';
 	}
 
 	uint16_t alt = fc_press_to_alt(fc.vario.pressure, 101325);
 
 	//B record
-	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, fc.gps_data.altitude);
+	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, galt);
 	igc_writeline(line);
 	igc_write_grecord();
 }
