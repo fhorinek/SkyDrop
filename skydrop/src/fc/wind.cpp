@@ -74,7 +74,7 @@ void wind_new_gps_fix()
 		if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1 )) and (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1 )))
 		{
 			fc.wind.speed = (fc.wind.spd[max] - fc.wind.spd[min]) / 2;
-			fc.wind.direction = fc.wind.dir[max];
+			fc.wind.direction = fc.wind.dir[min];
         	fc.wind.valid = true;
         	//DEBUG(" #5 wspd=%0.1f wdir=%0.1f", fc.wind.speed, fc.wind.direction);
 		}
