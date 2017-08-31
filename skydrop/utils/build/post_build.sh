@@ -1,6 +1,22 @@
 #!/bin/bash
 
+function size_of()
+{
+    size=$(avr-size --format=avr --mcu=atxmega192a3u skydrop.elf | grep "$1" | grep -oP '\d+\.\d*\%')
+    echo ${size%%.*}
+}
+
 echo " *** POST BUILD ***"
+
+echo " * Checking sizes"
+data_size=$(size_of "^Data:")
+if [ "$data_size" -gt 90 ]; then
+    echo "Data size is $data_size %. This is too much."
+    exit
+else
+	echo "Sizes ok"
+fi
+echo
 
 #create IMAGES
 echo " * Creating application image"
