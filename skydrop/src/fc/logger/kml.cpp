@@ -93,26 +93,28 @@ bool kml_start(char * path)
 	kml_sprintf_P(PSTR("<!--  SW: build %d -->"), BUILD_NUMBER);
 
 	//body
-	kml_sprintf_P(PSTR("<kml xmlns=\"http://earth.google.com/kml/2.0\">"));
+	kml_sprintf_P(PSTR("<kml xmlns=\"http://www.opengis.net/kml/2.2\">"));
 	kml_sprintf_P(PSTR("<Document>"));
 	kml_sprintf_P(PSTR("<name>Flight log from %02d.%02d.%04d @ %02d:%02d</name>"), day, month, year, hour, min);
-	kml_sprintf_P(PSTR("<Placemark>"));
+	kml_sprintf_P(PSTR("<Placemark id=\"%s-%ld\">"), id, time_get_utc());
 	kml_sprintf_P(PSTR("<name>Flight</name>"));
 	kml_sprintf_P(PSTR("<visibility>1</visibility>"));
 	kml_sprintf_P(PSTR("<open>1</open>"));
-	kml_sprintf_P(PSTR("<Style>"));
-	kml_sprintf_P(PSTR("<LineStyle><color>ff00ffff</color></LineStyle>"));
-	kml_sprintf_P(PSTR("<PolyStyle><color>7f0000ff</color></PolyStyle>"));
-	kml_sprintf_P(PSTR("</Style>"));
-	kml_sprintf_P(PSTR("<LineString>"));
-	kml_sprintf_P(PSTR("<altitudeMode>absolute</altitudeMode>"));
-	kml_sprintf_P(PSTR("<extrude>1</extrude>"));
+
 	kml_sprintf_P(PSTR("<TimeSpan>"));
 	kml_now("begin");
 	// Save position of end date, so that we can overwrite on close:
 	filepos_for_end = f_tell(&log_file);
 	kml_now("end");
 	kml_sprintf_P(PSTR("</TimeSpan>"));
+
+	kml_sprintf_P(PSTR("<Style>"));
+	kml_sprintf_P(PSTR("<LineStyle><color>ff00ffff</color></LineStyle>"));
+	kml_sprintf_P(PSTR("<PolyStyle><color>7f0000ff</color></PolyStyle>"));
+	kml_sprintf_P(PSTR("</Style>"));
+	kml_sprintf_P(PSTR("<LineString>"));
+	kml_sprintf_P(PSTR("<extrude>1</extrude>"));
+	kml_sprintf_P(PSTR("<altitudeMode>absolute</altitudeMode>"));
 	kml_sprintf_P(PSTR("<coordinates>"));
 
 	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
