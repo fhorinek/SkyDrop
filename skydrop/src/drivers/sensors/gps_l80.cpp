@@ -151,7 +151,12 @@ void gps_parse_rmc()
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
+#ifdef GPS_SIMULATION
 	if (tlen > 12)
+#else
+	if (tlen != 9)
+#endif
+
 	{
 		if (config.system.debug_gps)
 			DEBUG("GPRMC bad latitude len: %u\n", tlen);
@@ -182,7 +187,11 @@ void gps_parse_rmc()
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
+#ifdef GPS_SIMULATION
 	if (tlen > 12)
+#else
+	if (tlen != 10)
+#endif
 	{
 		if (config.system.debug_gps)
 			DEBUG("GPRMC bad longitude len: %u\n", tlen);
