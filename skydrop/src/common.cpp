@@ -455,6 +455,13 @@ uint8_t hex_to_num(uint8_t c)
 		return c - '0';
 }
 
+/**
+ * Return 10^pow.
+ *
+ * @param pow the number of times, that 10 will be powered.
+ *
+ * @return 10^pow
+ */
 uint32_t pow_ten(uint8_t pow)
 {
 	uint32_t ret = 1;
@@ -466,7 +473,23 @@ uint32_t pow_ten(uint8_t pow)
 	return ret;
 }
 
-
+/**
+ * Build an integer from "str" expected to have "n" digits.
+ * Hitting ',' will stop scanning and return the current result.
+ * Hitting '.' will skip this character and continue scanning,
+ * this does not count as a digit for "n".
+ *
+ * If there are less than "n" digits found, then the result
+ * will still be an integer with "n" digits. E.g. if "n" is 5
+ * but the string is "12", then 12000 will be returned.
+ *
+ * This is usefull to read fixed decimal numbers fractions.
+ *
+ * @param str the string to scan through
+ * @param n the number of digits the integer has
+ *
+ * @return an integer
+ */
 uint32_t atoi_n(char * str, uint8_t n)
 {
 	uint32_t tmp = 0;
@@ -488,6 +511,13 @@ uint32_t atoi_n(char * str, uint8_t n)
 	return tmp;
 }
 
+/**
+ * Build an integer from "str" until either ',' or '*' or '\0'.
+ *
+ * @param str the string to scan through
+ *
+ * @return an integer
+ */
 uint8_t atoi_c(char * str)
 {
 	uint8_t tmp = 0;
