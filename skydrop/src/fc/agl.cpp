@@ -32,11 +32,23 @@ void agl_init()
 
 void agl_get_filename(char * fn, int32_t lat, int32_t lon)
 {
-	char lat_c = (lat >= 0) ? 'N' : 'S';
-	char lon_c = (lon >= 0) ? 'E' : 'W';
+	char lat_c, lon_c;
 
-    uint8_t lat_n = abs(lat / HGT_COORD_MUL);
+	uint8_t lat_n = abs(lat / HGT_COORD_MUL);
 	uint16_t lon_n = abs(lon / HGT_COORD_MUL);
+
+	if ( lat >= 0 ) {
+		lat_c = 'N';
+	} else {
+		lat_c = 'S';
+		lat_n++;
+	}
+	if ( lon >= 0 ) {
+		lon_c = 'E';
+	} else {
+		lon_c = 'W';
+		lon_n++;
+	}
 
 	sprintf_P(fn, PSTR("%c%02u%c%03u"), lat_c, lat_n, lon_c, lon_n);
 }
@@ -56,8 +68,6 @@ void agl_open_file(char * fn)
 
 	uint8_t ret = f_open(&agl_data_file, path, FA_READ);
 
-	DEBUG("ret = %u\n", ret);
-
 	if (ret == FR_OK)
 	{
 		//file is valid
@@ -68,14 +78,42 @@ void agl_open_file(char * fn)
 		//file is not available
 		fc.agl.file_valid = false;
 		fc.agl.ground_level = AGL_INVALID;
+		DEBUG("AGL file not found.\n");
 	}
 
 }
 
+/**
+ * Return the heigth of ground level for the given lat/lon above sea level.
+ *
+ * @param lat the latitude of the point
+ * @param lon the longitude of the point
+ *
+ * @return the height of the ground above sea level in m
+ *
+ * The correctness of this method can be checked with
+ * http://api.geonames.org/srtm1?lat=47.59272333333333333333&lng=7.65589666666666666666&username=demo
+ *
+ * The access to the provided HGT files can be checked with
+ * gdallocationinfo -wgs84 N47E007.HGT 7.65589666666666666666 47.59272333333333333333
+ *   Location: (2361P,1466L), Value: 285
+ */
 int16_t agl_get_alt(int32_t lat, int32_t lon)
 {
 	uint16_t num_points_x;
 	uint16_t num_points_y;
+	int16_t alt;
+
+	if ( lon < 0 ) {
+		// we do not care above degree, only minutes are important
+		// reverse the value, because file goes in opposite direction.
+		lon = (HGT_COORD_MUL - 1) + ( lon % HGT_COORD_MUL );   // lon is negative!
+	}
+	if ( lat < 0 ) {
+		// we do not care above degree, only minutes are important
+		// reverse the value, because file goes in opposite direction.
+		lat = (HGT_COORD_MUL - 1) + ( lat % HGT_COORD_MUL );   // lat is negative!
+	}
 
 	// Check, if we have a 1201x1201 or 3601x3601 tile:
 	switch(f_size(&agl_data_file)) {
@@ -105,7 +143,7 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 
 	//seek to position
 	uint32_t pos = ((uint32_t)x + num_points_x * (uint32_t)((num_points_y - y) - 1)) * 2;
-	DEBUG("agl_get_alt: x=%d, y=%d, pos=%d\n", x, y, pos);
+	DEBUG("agl_get_alt: lat=%ld, lon=%ld; x=%d, y=%d; pos=%ld\n", lat, lon, x, y, pos);
 
 	assert(f_lseek(&agl_data_file, pos) == FR_OK);
 	assert(f_read(&agl_data_file, tmp, 4, &rd) == FR_OK);
@@ -131,8 +169,6 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 	alt22.uint8[0] = tmp[3];
 	alt22.uint8[1] = tmp[2];
 
-	DEBUG("alt11=%d, alt21=%d, alt12=%d, alt22=%d\n", alt11.int16, alt21.int16, alt12.int16, alt22.int16);
-
 	//get point displacement
 	float lat_dr = ((lat % HGT_COORD_MUL) % coord_div_y) / float(coord_div_y);
 	float lon_dr = ((lon % HGT_COORD_MUL) % coord_div_x) / float(coord_div_x);
@@ -141,7 +177,10 @@ int16_t agl_get_alt(int32_t lat, int32_t lon)
 	float alt1 = alt11.int16 + float(alt12.int16 - alt11.int16) * lat_dr;
 	float alt2 = alt21.int16 + float(alt22.int16 - alt21.int16) * lat_dr;
 
-	return alt1 + float(alt2 - alt1) * lon_dr;
+	alt = alt1 + float(alt2 - alt1) * lon_dr;
+	DEBUG("alt11=%d, alt21=%d, alt12=%d, alt22=%d, alt=%d\n", alt11.int16, alt21.int16, alt12.int16, alt22.int16, alt);
+
+	return alt;
 }
 
 void agl_step()
