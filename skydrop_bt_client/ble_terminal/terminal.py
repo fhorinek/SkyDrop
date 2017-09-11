@@ -3,6 +3,7 @@
 import bluepy.btle as ble
 import struct
 import sys
+import time
 
 class Delegate(ble.DefaultDelegate):
     def __init__(self):
@@ -31,7 +32,7 @@ class Delegate(ble.DefaultDelegate):
         ble.DefaultDelegate.handleNotification(self, cHandle, data)
 
 # adr = sys.argv[1]
-adr = "4a:37:61:f0:e6:0e"
+adr = "5e:ab:2b:8a:ce:5f" 
 
 print "Connecting to %s" % adr
 p = ble.Peripheral(adr, ble.ADDR_TYPE_RANDOM).withDelegate(Delegate())
@@ -66,10 +67,12 @@ if False:
 
 # print ">> %04X" % struct.unpack('<h', p.readCharacteristic(0x0212))
 # print p.getCharacteristics(uuid=0x2902)
-#p.writeCharacteristic(0x0211, "test", withResponse=True)
 p.writeCharacteristic(0x0212, struct.pack('<h', 0x001), withResponse=True)
 print ">> %04X" % struct.unpack('<h', p.readCharacteristic(0x0212))
 
+time.sleep(5)
+
+p.writeCharacteristic(0x0211, "hovnaaaa", withResponse=True)
     
 while True:
     p.waitForNotifications(1.0)

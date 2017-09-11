@@ -98,6 +98,7 @@ struct gps_data_t
 
 	uint8_t fix;
 	float altitude;
+	float geoid;
 	float hdop;
 
 	uint8_t sat_used;

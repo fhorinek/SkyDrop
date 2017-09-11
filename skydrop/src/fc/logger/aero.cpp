@@ -21,7 +21,7 @@ bool aero_start(char * path)
 
 	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
 
-	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.AER"), path, logger_flight_number, hour, min);
+	sprintf_P(filename, PSTR("%sAER"), path);
 	DEBUG("RAW filename %s\n", filename);
 
 	uint8_t res = f_open(&log_file, filename, FA_WRITE | FA_CREATE_ALWAYS);

@@ -1,3 +1,14 @@
+Build ???? - 05. 09. 2017
+========================================================
+ADDED:
+
+FIX:
+
+CHANGED:
+ * Log file structure  #303
+ * use geoid based altitude only for IGC #294
+ * Updated KML to version 2.2 (bubek)
+
 Build 3824 - 17. 07. 2017
 ========================================================
 FIX:

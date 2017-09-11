@@ -284,9 +284,9 @@ void gps_parse_gga()
 	//skip M
 	ptr = find_comma(ptr);
 
-	//Geo id
-	float geo_id = atoi_f(ptr);
-	fc.gps_data.altitude -= geo_id;
+	//Geoid
+	float geoid = atoi_f(ptr);
+	fc.gps_data.geoid = geoid;
 
 //	DEBUG("fix %d (%d), hdop: %0.2f\n", fc.gps_data.sat_used, fc.gps_data.sat_total, fc.gps_data.hdop);
 //	DEBUG("alt %0.1fm geo: %0.1fm\n", fc.gps_data.altitude, 0);

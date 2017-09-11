@@ -138,7 +138,7 @@ void KalmanFilter::Update(float z, float a, float dt, float* pZ, float* pV)
 	aBias_ += ka * innov;
 
 	*pZ = z_;
-	*pV = v_ / 2.0;
+	*pV = v_;
 
 	// Update state covariance matrix
 	Pzz_ -= kz * Pzz_;

@@ -63,7 +63,7 @@ bool igc_start(char * path)
 	//XXX
 	#define device_uid "DRP"
 
-	sprintf_P(filename, PSTR("/%s/%02d-%02d%02d.IGC"), path, logger_flight_number, hour, min);
+	sprintf_P(filename, PSTR("%sIGC"), path);
 	DEBUG("IGC filename %s\n", filename);
 
 	uint8_t res = f_open(&log_file, filename, FA_WRITE | FA_CREATE_ALWAYS);
@@ -190,7 +190,8 @@ void igc_step()
 
 		time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
 
-		galt = fc.gps_data.altitude;
+		//New igc specification require altitude above geoid
+		galt = fc.gps_data.altitude - fc.gps_data.geoid;
 		c = 'A';
 	}
 	else

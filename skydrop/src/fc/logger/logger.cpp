@@ -176,7 +176,7 @@ void logger_start()
 	uint8_t month;
 	uint16_t year;
 
-	datetime_from_epoch(time_get_utc(), &sec, &min, &hour, &day, &wday, &month, &year);
+	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 	char path[128];
 
@@ -189,6 +189,10 @@ void logger_start()
 	//month-day
 	sprintf_P(path, PSTR("%S/%04u/%02u-%02u"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
+
+	sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
+	f_mkdir(path);
+
 
 	switch (config.logger.format)
 	{
