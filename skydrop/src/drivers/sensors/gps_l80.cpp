@@ -75,7 +75,7 @@ uint8_t l80_sat_snr[L80_SAT_CNT];
 //        |      | |           |            |   |   |      missleading
 //        |      | |           |            |   |   |
 //        |      | |           |            |   |   Date: 18.11.2002
-//        |      | |           |            |   |b
+//        |      | |           |            |   |
 //        |      | |           |            |   heading of movement in degree
 //        |      | |           |            |
 //        |      | |           |            speed over ground (Knots)
@@ -96,7 +96,9 @@ void gps_parse_rmc()
 
 	gps_init_ok = true;
 
-//	strcpy(gps_parser_buffer, "$GPRMC,044434.000,A,3319.1312,S,14805.03,E,24.00,37.86,090116,,,A*71");
+	// strcpy(gps_parser_buffer, "$GPRMC,191410,A,4735.5634,N,00739.3538,E,0.0,0.0,181102,0.4,E,A*19");
+	// 47° 35.5634' = 47.59272333333333333333°
+	//  7° 39.3538' =  7.65589666666666666666°
 
 	char * ptr = find_comma(gps_parser_buffer);
 	char * old_ptr;

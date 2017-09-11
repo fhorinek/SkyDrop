@@ -205,15 +205,19 @@ void debug_log(char * msg)
 		debug_log_storage.Write(strlen(msg), (uint8_t *)msg);
 }
 
-void debug_end()
+void debug_flush()
 {
 	debug_done = true;
-	DEBUG("=== CLOSING FILE ===\n");
 	while(debug_log_storage.Length())
 		debug_step();
 	debug_done = false;
 }
 
+void debug_end()
+{
+	DEBUG("=== CLOSING FILE ===\n");
+	debug_flush();
+}
 
 void debug_step()
 {

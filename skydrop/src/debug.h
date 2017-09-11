@@ -37,6 +37,7 @@ void debug_timer_init();
 void debug_last_dump();
 void debug_step();
 void debug_end();
+void debug_flush();
 bool debug_disabled();
 
 void ewdt_init();
