@@ -921,7 +921,7 @@ class CParser():
         except:
             if self.verbose:
                 print "Error processing function:", t
-            sys.excepthook(*sys.exc_info())
+                sys.excepthook(*sys.exc_info())
 
 
     def packingAt(self, line):
@@ -979,7 +979,8 @@ class CParser():
             return strTyp+' '+sname
         except:
             #print t
-            sys.excepthook(*sys.exc_info())
+            if self.verbose:
+                sys.excepthook(*sys.exc_info())
 
     def processVariable(self, s, l, t):
         if self.verbose:
@@ -999,7 +1000,8 @@ class CParser():
                     self.addDef('values', name, val)
         except:
             #print t, t[0].name, t.value
-            sys.excepthook(*sys.exc_info())
+            if self.verbose:
+                sys.excepthook(*sys.exc_info())
 
     def processTypedef(self, s, l, t):
         if self.verbose:

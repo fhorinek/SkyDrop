@@ -3,6 +3,25 @@
 
 #include "../../fc/fc.h"
 
+/*
+ * GPS simulation: This driver offers the functionality to simulate
+ * GPS data read from a file instead of the sensor. This allows
+ * various flight simulations and checking, that the widgets (or other
+ * code) behaves as expected.
+ *
+ * To use that feature define the preprocessor constant GPS_SIMULATION
+ * and re-compile the code. Then place a GPS file onto the SD card as
+ * "GPS-SIM.TXT" which contains the GPS data. This file can be generated
+ * in two different ways:
+ *   1. Use SkyDrop and turn on "debug log" and "gps debug", record some
+ *      movements and rename "DEBUG.LOG" into "GPS-SIM.TXT"
+ *   2. Convert an existing IGC file into GPS, e.g.
+ *      gpsbabel -i igc -f existing-flight.igc
+ *               -x track,speed,course,fix=2d
+ *               -o nmea -F GPS-SIM.TXT
+ */
+// #define GPS_SIMULATION
+
 #define GPS_UART_RX_SIZE	250
 #define GPS_UART_TX_SIZE	40
 
@@ -41,14 +60,45 @@ uint8_t l80_sat_id[L80_SAT_CNT];
 uint8_t l80_sat_snr[L80_SAT_CNT];
 
 //132405.000,A,4809.2356,N,01704.4263,E,0.15,317.49,270115,,,A
-//hhmmss.XXX,
+
+// $GPRMC,191410,A,4735.5634,N,00739.3538,E,0.0,0.0,181102,0.4,E,A*19
+//        ^      ^ ^           ^            ^   ^   ^      ^     ^
+//        |      | |           |            |   |   |      |     |
+//        |      | |           |            |   |   |      |     > NMEA 2.3:
+//        |      | |           |            |   |   |      |     Type of fix
+//        |      | |           |            |   |   |      |     A=autonomous
+//        |      | |           |            |   |   |      |     D=differential
+//        |      | |           |            |   |   |      |     E=estimated
+//        |      | |           |            |   |   |      |     N=not valid
+//        |      | |           |            |   |   |      |     S=simulator
+//        |      | |           |            |   |   |      |
+//        |      | |           |            |   |   |      missleading
+//        |      | |           |            |   |   |
+//        |      | |           |            |   |   Date: 18.11.2002
+//        |      | |           |            |   |
+//        |      | |           |            |   heading of movement in degree
+//        |      | |           |            |
+//        |      | |           |            speed over ground (Knots)
+//        |      | |           |
+//        |      | |           longitude (Vorzeichen)-Richtung (E=East, W=West)
+//        |      | |           007° 39.3538' East
+//        |      | |
+//        |      | latitude (Vorzeichen)-Richtung (N=North, S=South)
+//        |      | 47° 35.5634' North
+//        |      |
+//        |      State of fix: A=Active (valid); V=void (invalid)
+//        |
+//        Time of fix: 19:14:10 (UTC-Zeit)
+
 void gps_parse_rmc()
 {
 //	DEBUG("\nRMC\n");
 
 	gps_init_ok = true;
 
-//	strcpy(gps_parser_buffer, "$GPRMC,044434.000,A,3319.1312,S,14805.03,E,24.00,37.86,090116,,,A*71");
+	// strcpy(gps_parser_buffer, "$GPRMC,191410,A,4735.5634,N,00739.3538,E,0.0,0.0,181102,0.4,E,A*19");
+	// 47° 35.5634' = 47.59272333333333333333°
+	//  7° 39.3538' =  7.65589666666666666666°
 
 	char * ptr = find_comma(gps_parser_buffer);
 	char * old_ptr;
@@ -68,7 +118,7 @@ void gps_parse_rmc()
 	if (tlen != 10)
 	{
 		if (config.system.debug_gps)
-			DEBUG("GPRMC timestamp len = %u\n", tlen);
+			DEBUG("GPRMC bad timestamp len: %u\n", tlen);
 		return;
 	}
 
@@ -90,21 +140,28 @@ void gps_parse_rmc()
 	uint32_t loc_deg;
 	uint32_t loc_min;
 
-	//Latitude
-	loc_deg = atoi_n(ptr, 2);
-	loc_min = atoi_n(ptr + 2, 6);
+	//Latitude, e.g. 4843.4437
+	loc_deg = atoi_n(ptr, 2);        // 48
+	loc_min = atoi_n(ptr + 2, 9);    // 434437000
 
-	int32_t latitude = (loc_min * 100ul) / 6;
+	int32_t latitude = loc_min / 60;
 	latitude = loc_deg * 10000000ul + latitude;
+
+	// DEBUG("lat: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
 
 	old_ptr = ptr;
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
+#ifdef GPS_SIMULATION
+	if (tlen > 12)
+#else
 	if (tlen != 9)
+#endif
+
 	{
 		if (config.system.debug_gps)
-			DEBUG("GPRMC latitude len = %u\n", tlen);
+			DEBUG("GPRMC bad latitude len: %u\n", tlen);
 		return;
 	}
 
@@ -119,21 +176,27 @@ void gps_parse_rmc()
 
 	ptr = find_comma(ptr);
 
-	//Longitude
-	loc_deg = atoi_n(ptr, 3);
-	loc_min = atoi_n(ptr + 3, 6);
+	//Longitude, 00909.2085
+	loc_deg = atoi_n(ptr, 3);          // 009
+	loc_min = atoi_n(ptr + 3, 9);      // 092085000
 
-	int32_t longitude = (loc_min * 100ul) / 6;
+	int32_t longitude = loc_min / 60;
 	longitude = loc_deg * 10000000ul + longitude;
+
+	// DEBUG("lon: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
 
 	old_ptr = ptr;
 	ptr = find_comma(ptr);
 	tlen = ptr - old_ptr - 1;
 
+#ifdef GPS_SIMULATION
+	if (tlen > 12)
+#else
 	if (tlen != 10)
+#endif
 	{
 		if (config.system.debug_gps)
-			DEBUG("GPRMC longitude len = %u\n", tlen);
+			DEBUG("GPRMC bad longitude len: %u\n", tlen);
 		return;
 	}
 
@@ -171,7 +234,7 @@ void gps_parse_rmc()
 	if (tlen != 6)
 	{
 		if (config.system.debug_gps)
-			DEBUG("GPRMC date len = %u\n", tlen);
+			DEBUG("GPRMC bad date len: %u\n", tlen);
 		return;
 	}
 
@@ -412,11 +475,51 @@ void gps_parse_sys()
 		gps_normal();
 }
 
+#ifdef GPS_SIMULATION
+uint8_t gps_simulation_next()
+{
+	static FIL gps_data_file;
+	static bool gps_sim_opened = false;
+	uint8_t c = 0;
+	unsigned int br;
+
+	if ( !gps_sim_opened ) {
+		uint8_t ret = f_open(&gps_data_file, "GPS-SIM.TXT", FA_READ);
+		if ( ret == FR_OK ) {
+			gps_sim_opened = true;
+			DEBUG("GPS: reading simulation from \"GPS-SIM.TXT\"\n");
+			gui_showmessage_P(PSTR("GPS Sim"));
+		}
+	}
+
+	if ( gps_sim_opened ) {
+	        // If the GPS parser is in GPS_IDLE, then skip all characters
+	        // until "$" where the next command starts. This allows
+	        // using DEBUG.LOG as a GPS-SIM.TXT
+	        do {
+		        f_read(&gps_data_file, &c, 1, &br);
+		        if ( br != 1 ) {
+			        c = 0;
+				break;
+			}
+		} while ( gps_parser_state == GPS_IDLE && c != '$' );
+	}
+
+	return c;
+}
+#endif
+
 void gps_parse(Usart * c_uart)
 {
 	uint8_t c = c_uart->Read();
 
-//	DEBUG("%c", c);
+#ifdef GPS_SIMULATION
+	// Even during simulation, we read from UART to get a kind of
+	// timing behaviour and speed down the GPS read simulation.
+	c = gps_simulation_next();
+#endif
+
+	// DEBUG("%c", c);
 
 	switch (gps_parser_state)
 	{
@@ -477,7 +580,7 @@ void gps_parse(Usart * c_uart)
 			if (config.system.debug_gps)
 			{
 				gps_parser_buffer[gps_parser_buffer_index + 1] = '\0';
-				DEBUG("GPS:\"%s\"\n", gps_parser_buffer);
+				DEBUG("GPS:\"$%s\"\n", gps_parser_buffer);
 			}
 
 			gps_parser_buffer[gps_parser_buffer_index + 1] = '\n';
@@ -518,7 +621,7 @@ void gps_parse(Usart * c_uart)
 			}
 			else
 			{
-				DEBUG("GPS:\"%s\"\n", gps_parser_buffer);
+				DEBUG("GPS:\"$%s\"\n", gps_parser_buffer);
 				DEBUG("GPS CHECKSUM IS WRONG! %02X %02X\n", gps_rx_checksum, gps_checksum);
 			}
 		break;
