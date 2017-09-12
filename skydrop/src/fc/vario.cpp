@@ -20,7 +20,7 @@ void vario_init(float pressure )
 
 	//kalmanFilter.Configure( 30.0, 1.0, 1.0, 0.0, 0.0, 0.0 );
 	float rawAltitude = fc_press_to_alt(pressure, config.altitude.QNH1);
-	kalmanFilter.Configure(2500.0, 1.0, 1.0, rawAltitude, 0.0, 0.0);
+	kalmanFilter.Configure(2500.0, 100.0, 1.0, rawAltitude, 0.0, 0.0);
 }
 
 void vario_update_history_delay()
