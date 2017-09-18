@@ -191,8 +191,7 @@ void logger_start()
 	f_mkdir(path);
 
 	sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
-	f_mkdir(path);
-
+//	f_mkdir(path);
 
 	switch (config.logger.format)
 	{

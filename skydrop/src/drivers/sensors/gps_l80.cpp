@@ -20,7 +20,7 @@
  *               -x track,speed,course,fix=2d
  *               -o nmea -F GPS-SIM.TXT
  */
-// #define GPS_SIMULATION
+//#define GPS_SIMULATION
 
 #define GPS_UART_RX_SIZE	250
 #define GPS_UART_TX_SIZE	40
@@ -142,9 +142,9 @@ void gps_parse_rmc()
 
 	//Latitude, e.g. 4843.4437
 	loc_deg = atoi_n(ptr, 2);        // 48
-	loc_min = atoi_n(ptr + 2, 9);    // 434437000
+	loc_min = atoi_n(ptr + 2, 6);    // 434437000
 
-	int32_t latitude = loc_min / 60;
+	int32_t latitude = (loc_min * 100ul) / 6;
 	latitude = loc_deg * 10000000ul + latitude;
 
 	// DEBUG("lat: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
@@ -172,15 +172,18 @@ void gps_parse_rmc()
 	fc.gps_data.latitude = latitude;
 
 	if (fc.gps_data.valid)
+	{
 		sprintf_P((char *)fc.gps_data.cache_igc_latitude, PSTR("%02lu%05lu%c"), loc_deg, loc_min / 10, (*ptr));
+	}
+
 
 	ptr = find_comma(ptr);
 
 	//Longitude, 00909.2085
 	loc_deg = atoi_n(ptr, 3);          // 009
-	loc_min = atoi_n(ptr + 3, 9);      // 092085000
+	loc_min = atoi_n(ptr + 3, 6);      // 092085000
 
-	int32_t longitude = loc_min / 60;
+	int32_t longitude = (loc_min * 100ul) / 6;
 	longitude = loc_deg * 10000000ul + longitude;
 
 	// DEBUG("lon: loc_deg=%ld loc_min=%ld, tlen=%d\n", loc_deg, loc_min, tlen);
@@ -207,7 +210,10 @@ void gps_parse_rmc()
 	fc.gps_data.longtitude = longitude;
 
 	if (fc.gps_data.valid)
+	{
 		sprintf_P((char *)fc.gps_data.cache_igc_longtitude, PSTR("%03lu%05lu%c"), loc_deg, loc_min / 10, (*ptr));
+	}
+
 
 	ptr = find_comma(ptr);
 

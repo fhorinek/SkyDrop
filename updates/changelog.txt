@@ -1,7 +1,12 @@
+Build 3850 - 18. 10. 2017
+========================================================
+FIX:
+ * Wrong IGC file #308
+
 Build 3836 - 12. 10. 2017
 ========================================================
 ADDED:
- * Functions fopr development GPS simulation, CParser modification, debug_flush (bubek)
+ * Functions for development GPS simulation, CParser modification, debug_flush (bubek)
 
 FIX:
  * Fix the AGL computation in western or southern hemisphere #305 (bubeck)
