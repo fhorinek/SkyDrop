@@ -24,28 +24,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import PIL
+import PIL.Image
+
 import sys
-import subprocess
-
-def identify(filename, formatFlag):
-    return subprocess.check_output(["identify", "-format", formatFlag, filename])
-
-def getWidth(filename):
-    return int(identify(filename, "%w"))
-
-def getHeight(filename):
-    return int(identify(filename, "%h"))
-
-def getPixel(x, y):
-    output = subprocess.check_output(["convert", sys.argv[1] + "[1x1+" + str(x) + "+" + str(y) + "]", "txt:"])
-    if "#FFFFFF" in output:
-        return 0
-    else:
-        return 1
     
 def putPixel(x, y, color):
     index = ((y / 8) * width) + (x % width)
-    if color != 0:
+    if color != 255:
         img[index] |= (1 << (y % 8));
     else:
 	img[index] &= ~(1 << (y % 8));
@@ -58,9 +44,11 @@ if len(sys.argv) != 2 and len(sys.argv) != 3:
 
 filename = sys.argv[1]
 
-# These are the dimensions of the image (and the LCD):
-width  = getWidth(filename)
-height = getHeight(filename)
+image = PIL.Image.open(filename)
+image_bw = image.convert('1')
+
+# These are the dimensions of the image:
+width, height = image.size
 
 if height % 8 != 0:
     print "Height must be multiple of 8!"
@@ -74,7 +62,8 @@ for i in range(width * height / 8):
 # Fill memory array
 for y in range(height):
     for x in range(width):
-        putPixel(x, y, getPixel(x, y))
+        color = image_bw.getpixel((x, y))
+        putPixel(x, y, color)
 
 if len(sys.argv) == 2:
     # No output file given, print as byte array
