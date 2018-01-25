@@ -24,24 +24,21 @@ import PIL.Image
 import sys
 
 def getPixel(x, y):
-    index = ((y / 8) * width) + (x % width)
+    index = ((y // 8) * width) + (x % width)
     return (img[index] & ( 1 << (y % 8)) > 0)
 
 # Check usage:
 if len(sys.argv) != 3:
-    print "usage: convert-LOGO-to-image.py input-file-of-logo output"
-    print "  convert the LOGO to an standard image file."
-    print "  The output format to use is determined from the filename extension."
-    print "  e.g. convert-LOGO-to-image.py LOGO mylogo.png"
+    print ("usage: convert-LOGO-to-image.py input-file-of-logo output")
+    print ("  convert the LOGO to an standard image file.")
+    print ("  The output format to use is determined from the filename extension.")
+    print ("  e.g. convert-LOGO-to-image.py LOGO mylogo.png")
     sys.exit(1)
 
 # Read image from file
 f = open(sys.argv[1], "rb");
-binary = f.read()
+img = bytearray(f.read())
 f.close()
-
-# convert image into array of integers:
-img = map(ord, binary)
 
 # These are the dimensions of the image (and the LCD):
 width  = 84

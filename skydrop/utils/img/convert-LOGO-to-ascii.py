@@ -22,22 +22,19 @@
 import sys
 
 def getPixel(x, y):
-    index = ((y / 8) * width) + (x % width)
+    index = ((y // 8) * width) + (x % width)
     return (img[index] & ( 1 << (y % 8)) > 0)
 
 # Check usage:
 if len(sys.argv) != 2:
-    print "usage: convert-LOGO-to-ascii.py input-file-of-logo"
-    print "  dump the logo to stdout"
+    print ("usage: convert-LOGO-to-ascii.py input-file-of-logo")
+    print ("  dump the logo to stdout")
     sys.exit(1)
 
 # Read image from file
 f = open(sys.argv[1], "rb");
-binary = f.read()
+img = bytearray(f.read())
 f.close()
-
-# convert image into array of integers:
-img = map(ord, binary)
 
 # These are the dimensions of the image (and the LCD):
 width  = 84
@@ -51,6 +48,3 @@ for y in range(height):
         else:
             sys.stdout.write('.')
     print
-
-
-
