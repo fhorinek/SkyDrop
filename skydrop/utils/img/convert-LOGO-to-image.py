@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Convert a LOGO in SkyDrop format into a PNG file.
+# Convert a LOGO in SkyDrop format into an image file, e.g. a PNG file.
 #
 # Copyright 2017 by Dr. Tilmann Bubeck <tilmann@bubecks.de>
 #
@@ -18,39 +18,41 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import PIL
+import PIL.Image
+
 import sys
-import subprocess
 
 def getPixel(x, y):
-    index = ((y / 8) * width) + (x % width)
+    index = ((y // 8) * width) + (x % width)
     return (img[index] & ( 1 << (y % 8)) > 0)
 
 # Check usage:
 if len(sys.argv) != 3:
-    print "usage: convert-LOGO-to-png.py input-file-of-logo output.png"
-    print "  convert the LOGO to a PNG image"
+    print ("usage: convert-LOGO-to-image.py input-file-of-logo output")
+    print ("  convert the LOGO to an standard image file.")
+    print ("  The output format to use is determined from the filename extension.")
+    print ("  e.g. convert-LOGO-to-image.py LOGO mylogo.png")
     sys.exit(1)
 
 # Read image from file
 f = open(sys.argv[1], "rb");
-binary = f.read()
+img = bytearray(f.read())
 f.close()
-
-# convert image into array of integers:
-img = map(ord, binary)
 
 # These are the dimensions of the image (and the LCD):
 width  = 84
 height = 48
 
-# Create a white PNG file:
-subprocess.call(["convert", "-size", str(width) + "x" + str(height), "xc:#ffffff", sys.argv[2]])
+# Create a white image:
+image = PIL.Image.new("1", (width, height), 255)
 
 # Convert image
 for y in range(height):
     for x in range(width):
         if getPixel(x, y):
             # Set a black pixel
-            subprocess.call(["convert", sys.argv[2], "-fill", "black", "-draw", "color " + str(x) + "," + str(y) + " point", sys.argv[2] ])
+            image.putpixel((x, y), 0)
 
-
+# Save image to a file and choose format based on the filename
+image.save(sys.argv[2])
