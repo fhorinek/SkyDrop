@@ -88,7 +88,7 @@ void logger_step()
 		return;
 
 	//RAW is running as fast as it can!
-	if (config.logger.format != LOGGER_RAW && config.logger.format != LOGGER_AERO)
+	if (config.logger.format != LOGGER_RAW/* && config.logger.format != LOGGER_AERO*/)
 	{
 		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_LOGGER)
 		{
@@ -111,9 +111,9 @@ void logger_step()
 			raw_step();
 		break;
 
-		case(LOGGER_AERO):
-			aero_step();
-		break;
+//		case(LOGGER_AERO):
+//			aero_step();
+//		break;
 	}
 }
 
@@ -146,7 +146,7 @@ void logger_comment(const char *format, ...)
 		break;
 
 		case(LOGGER_RAW):
-		case(LOGGER_AERO):
+//		case(LOGGER_AERO):
 			DEBUG("%s\n", text);
 		break;
 	}
@@ -207,9 +207,9 @@ void logger_start()
 			fc.logger_state = raw_start(path);
 		break;
 
-		case(LOGGER_AERO):
-			fc.logger_state = aero_start(path);
-		break;
+//		case(LOGGER_AERO):
+//			fc.logger_state = aero_start(path);
+//		break;
 	}
 }
 
@@ -250,9 +250,9 @@ void logger_stop()
 			raw_stop();
 		break;
 
-		case(LOGGER_AERO):
-			aero_stop();
-		break;
+//		case(LOGGER_AERO):
+//			aero_stop();
+//		break;
 	}
 }
 

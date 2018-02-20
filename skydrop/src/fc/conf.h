@@ -82,6 +82,11 @@ struct cfg_altitude
 
 	uint8_t alt1_flags;
 	cfg_altimeter altimeter[NUMBER_OF_ALTIMETERS];
+
+	uint8_t alarm_enabled;
+	uint16_t alarm_1;
+	uint16_t alarm_2;
+	uint16_t alarm_reset;
 };
 
 struct cfg_audio_profile
@@ -131,9 +136,9 @@ struct cfg_autostart
 #define LOGGER_IGC	0
 #define LOGGER_KML	1
 #define LOGGER_RAW	2
-#define LOGGER_AERO	3
+//#define LOGGER_AERO	3
 
-#define NUMBER_OF_FORMATS	4
+#define NUMBER_OF_FORMATS	3
 #define LOG_TEXT_LEN		50
 
 struct cfg_logger
@@ -162,9 +167,9 @@ struct cfg_logger
 #define PROTOCOL_DIGIFLY	0
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
-#define PROTOCOL_SKYBEAN	3
+//#define PROTOCOL_SKYBEAN	3
 
-#define NUMBER_OF_PROTOCOLS	4
+#define NUMBER_OF_PROTOCOLS	3
 
 #define UART_FORWARD_DEBUG	0
 #define UART_FORWARD_OFF	1

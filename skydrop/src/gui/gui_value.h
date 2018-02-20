@@ -21,7 +21,7 @@
 
 typedef void float_cb(float val);
 
-void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb);
+void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb, float mul = 1.0);
 
 void gui_value_init();
 void gui_value_stop();

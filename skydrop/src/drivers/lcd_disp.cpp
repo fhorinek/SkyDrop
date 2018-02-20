@@ -342,7 +342,7 @@ void lcd_display::PutPixel(int16_t x, int16_t  y, uint8_t color)
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);
-	if (color == DISP_COLOR_WHITE)
+	if (color == DISP_COLOR_BLACK)
 		active_buffer[index] |= (1 << (y % 8));
 	else {
 		active_buffer[index] &= ~(1 << (y % 8));

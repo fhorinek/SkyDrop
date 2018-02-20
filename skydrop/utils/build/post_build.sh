@@ -1,21 +1,35 @@
 #!/bin/bash
 
-function size_of()
-{
-    size=$(avr-size --format=avr --mcu=atxmega192a3u skydrop.elf | grep "$1" | grep -oP '\d+\.\d*\%')
-    echo ${size%%.*}
-}
-
 echo " *** POST BUILD ***"
+echo
 
 echo " * Checking sizes"
-data_size=$(size_of "^Data:")
-if [ "$data_size" -gt 90 ]; then
-    echo "Data size is $data_size %. This is too much."
+sizes=($(avr-size --format=avr --mcu=atxmega192a3u skydrop.elf | grep bytes | tr -s " " | cut -f2 -d " "))
+
+echo -e "Mem\tsize\tlimit"
+
+flash_limit=196608
+echo -e "Flash\t${sizes[0]}\t$flash_limit"
+if [ "${sizes[0]}" -gt "$flash_limit" ]; then #192kB
+    echo "Program size 192kB exceeded!"
     exit
-else
-	echo "Sizes ok"
 fi
+
+ram_limit=13107
+echo -e "RAM\t${sizes[1]}\t$ram_limit"
+if [ "${sizes[1]}" -gt "$ram_limit" ]; then #80%
+    echo "Data size 80% exceeded!"
+    exit
+fi
+
+eeprom_limit=2048
+echo -e "EEPROM\t${sizes[2]}\t$eeprom_limit"
+if [ "${sizes[2]}" -gt "$eeprom_limit" ]; then #2kB
+    echo "Eeprom size 2kB exceeded!"
+    exit
+fi
+
+echo "Size OK"
 echo
 
 #create IMAGES

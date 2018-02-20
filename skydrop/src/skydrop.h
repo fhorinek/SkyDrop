@@ -1,5 +1,5 @@
 /*
- * psychosonda.h
+ * skydrop.h
  *
  *  Created on: 17.2.2014
  *      Author: horinek
@@ -35,4 +35,4 @@ extern uint8_t system_rst;
 void Setup();
 void Post();
 
-#endif /* PSYCHOSONDA_H_ */
+#endif /* SKYDROP_H_ */

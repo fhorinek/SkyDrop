@@ -13,22 +13,25 @@ float gui_value_min;
 float gui_value_max;
 float gui_value_step;
 volatile float gui_value_tmp;
+float gui_value_mul;
 
 float_cb * gui_value_cb;
 
 MK_SEQ(audio_feedback, ARR({600}), ARR({750}));
 
-void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb)
+void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb, float mul)
 {
 	strcpy_P(gui_value_label, label);
 	gui_value_type = type;
 	strcpy_P(gui_value_format, format);
 
-	gui_value_min = min;
-	gui_value_max = max;
-	gui_value_step = step;
+	gui_value_mul = mul;
 
-	gui_value_tmp = start;
+	gui_value_min = min * mul;
+	gui_value_max = max * mul;
+	gui_value_step = step * mul;
+
+	gui_value_tmp = start * mul;
 	gui_value_cb = cb;
 	gui_value_index = 0;
 }
@@ -174,7 +177,7 @@ void gui_value_number_irqh(uint8_t type, uint8_t * buff)
 
 	case(TASK_IRQ_BUTTON_M):
 		if (*buff == BE_CLICK)
-			gui_value_cb(gui_value_tmp);
+			gui_value_cb(gui_value_tmp / gui_value_mul);
 	break;
 	}
 

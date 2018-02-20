@@ -150,6 +150,14 @@ EEMEM cfg_t config_ee = {
 				0,
 			},
 		},
+		//alarm_enabled
+		false,
+		//alarm_1
+		500,
+		//alarm_2
+		300,
+		//alarm_offset
+		50,
 	},
 	//audio_profile
 	{

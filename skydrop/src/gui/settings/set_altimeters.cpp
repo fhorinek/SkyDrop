@@ -9,7 +9,7 @@
 
 void gui_set_altimeters_init()
 {
-	gui_list_set(gui_set_altimeters_item, gui_set_altimeters_action, 7, GUI_SETTINGS);
+	gui_list_set(gui_set_altimeters_item, gui_set_altimeters_action, 8, GUI_SETTINGS);
 }
 
 void gui_set_altimeters_stop() {}
@@ -58,12 +58,16 @@ void gui_set_altimeters_action(uint8_t index)
 			gui_switch_task(GUI_SET_ALTIMETER);
 		break;
 
-		case(5):
+		case (5):
+			gui_switch_task(GUI_SET_ALT_ALARM);
+		break;
+
+		case(6):
 			gui_value_conf_P(PSTR("QNH1"), GUI_VAL_NUMBER, PSTR("%0.2f hPa"), config.altitude.QNH1 / 100.0, 0, 1500, 0.25, gui_set_altimeters_qnh1_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(6):
+		case(7):
 			gui_value_conf_P(PSTR("QNH2"), GUI_VAL_NUMBER, PSTR("%0.2f hPa"), config.altitude.QNH2 / 100.0, 0, 1500, 0.25, gui_set_altimeters_qnh2_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
@@ -80,12 +84,17 @@ void gui_set_altimeters_item(uint8_t index, char * text, uint8_t * flags, char *
 		break;
 
 		case (5):
+			strcpy_P(text, PSTR("Alarms"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (6):
 			strcpy_P(text, PSTR("QNH1 for Alt 1"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH1 / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (6):
+		case (7):
 			strcpy_P(text, PSTR("QNH2"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH2 / 100.0);
 			*flags |= GUI_LIST_SUB_TEXT;

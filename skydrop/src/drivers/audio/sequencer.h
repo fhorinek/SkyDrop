@@ -24,8 +24,10 @@ struct sequence_t
 	const uint16_t name ## _length[] PROGMEM = length; \
 	const sequence_t name PROGMEM = {name ## _tone, name ## _length, sizeof(name ## _tone) / 2}; \
 
-void seq_start(const sequence_t * seq, uint8_t volume);
+void seq_start(const sequence_t * seq, uint8_t volume, bool loop = false);
 void seq_loop();
+void seq_stop();
+const sequence_t * seq_active();
 
 extern volatile bool seq_enabled;
 

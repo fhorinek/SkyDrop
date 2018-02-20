@@ -7,7 +7,6 @@
 
 #include "compass.h"
 #include "fc.h"
-#include "../common.h"
 #include "math.h"
 
 // Converts degrees to radians.

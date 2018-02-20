@@ -611,6 +611,35 @@
             "min" : 80000,
             "max" : 1050000,
             "step": 1
+        },
+         "cfg_altitude_alarm_enabled" : {
+            "name": "Altitude alarm",
+            "desc": "Enable altitude alarm function",
+            "mode": "bool"
+        },        
+        "cfg_altitude_alarm_1" : {
+            "name": "First altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },
+        "cfg_altitude_alarm_2" : {
+            "name": "Second altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },
+        "cfg_altitude_alarm_reset" : {
+            "name": "Reset alarm confirmation after gaining this height over the alarms",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 10,
+            "max": 1000,
+            "step": 1
         }
     },
     "widgets" :

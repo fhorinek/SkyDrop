@@ -24,32 +24,8 @@ void gui_usb_loop()
 	else
 		led_set(USB_LED_MAX, 0, 0);
 
-	disp.LoadFont(F_TEXT_L);
-	uint8_t f_h = disp.GetTextHeight();
-	if (task_usb_sd_ready)
-	{
-		if (usb_int_state == USB_NOT_RDY)
-		{
-			if (battery_per == BATTERY_FULL)
-				sprintf_P(tmp, PSTR("Battery full"), battery_per);
-			else
-				sprintf_P(tmp, PSTR("Charging"), battery_per);
-		}
-		else
-		{
-			strcpy_P(tmp, PSTR("USB mode"));
-		}
-
-		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h + 2);
-	}
-	else
-	{
-		strcpy_P(tmp, PSTR("No SD card"));
-		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
-	}
-
 	disp.LoadFont(F_TEXT_S);
-	f_h = disp.GetTextHeight();
+	uint8_t f_h = disp.GetTextHeight();
 
 	if (usb_int_state != USB_NOT_RDY)
 	{
@@ -87,6 +63,30 @@ void gui_usb_loop()
 	fprintf_P(lcd_out, PSTR("build %04d"), BUILD_NUMBER);
 	disp.GotoXY(0, 7);
 	fprintf_P(lcd_out, PSTR("rev %04d"), (hw_revision == HW_REW_1504) ? 1504 : 1506);
+
+	disp.LoadFont(F_TEXT_L);
+	f_h = disp.GetTextHeight();
+	if (task_usb_sd_ready)
+	{
+		if (usb_int_state == USB_NOT_RDY)
+		{
+			if (battery_per == BATTERY_FULL)
+				sprintf_P(tmp, PSTR("Battery full"), battery_per);
+			else
+				sprintf_P(tmp, PSTR("Charging"), battery_per);
+		}
+		else
+		{
+			strcpy_P(tmp, PSTR("USB mode"));
+		}
+
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h + 4);
+	}
+	else
+	{
+		strcpy_P(tmp, PSTR("No SD card"));
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT / 2 - f_h / 2);
+	}
 }
 
 void gui_usb_irqh(uint8_t type, uint8_t * buff)

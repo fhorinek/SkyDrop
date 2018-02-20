@@ -5,7 +5,8 @@
 #include "../data/fonts.h"
 #include <math.h>
 
-#define DISP_COLOR_WHITE	1
+#define DISP_COLOR_WHITE	0
+#define DISP_COLOR_BLACK	1
 #define DISP_LAYERS			2
 
 #define lcd_width		84

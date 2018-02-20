@@ -518,6 +518,7 @@ void fc_reset()
 	fc.flight.stats.max_climb = 0;
 	fc.flight.stats.max_sink = 0;
 
+	fc.altitude_alarm_status = 0b00000000;
 }
 
 void fc_sync_gps_time()
@@ -635,7 +636,12 @@ void fc_step()
 		}
 	}
 
-
+	//altitude alarm
+	if (config.altitude.alarm_enabled && fc.flight.state == FLIGHT_FLIGHT)
+	{
+		if (fc_active_alarm())
+			gui_switch_task(GUI_ALARM);
+	}
 
 	//gps time sync
 	if ((config.system.time_flags & TIME_SYNC) && fc.gps_data.fix_cnt == GPS_FIX_TIME_SYNC)
@@ -685,6 +691,24 @@ void fc_step()
 		if (t_vario < fc.flight.stats.max_sink)
 			fc.flight.stats.max_sink = t_vario;
 	}
+}
+
+uint8_t fc_active_alarm()
+{
+	//clear suppress flags if altitude is above the alarms
+	if (fc.altitude1 > config.altitude.alarm_1 + config.altitude.alarm_reset)
+		fc.altitude_alarm_status &= ~FC_ALT_ALARM1_SUPPRESS;
+
+	if (fc.altitude1 > config.altitude.alarm_2 + config.altitude.alarm_reset)
+		fc.altitude_alarm_status &= ~FC_ALT_ALARM2_SUPPRESS;
+
+	if (fc.altitude1 < config.altitude.alarm_2 && !(fc.altitude_alarm_status & FC_ALT_ALARM2_SUPPRESS))
+		return 2;
+
+	if (fc.altitude1 < config.altitude.alarm_1 && !(fc.altitude_alarm_status & FC_ALT_ALARM1_SUPPRESS))
+		return 1;
+
+	return 0;
 }
 
 float fc_alt_to_qnh(float alt, float pressure)

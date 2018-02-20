@@ -228,6 +228,9 @@ struct agl_data_t
 #define FC_ODO_MAX_SPEED_DIFF	(5.39957) 	//10km/h
 #define FC_ODO_MIN_SPEED		(0.539957) //1km/h
 
+#define FC_ALT_ALARM1_SUPPRESS	0b00000001
+#define FC_ALT_ALARM2_SUPPRESS	0b00000010
+
 struct flight_computer_data_t
 {
 	accel_data_t acc;		//accelerometer data
@@ -257,6 +260,8 @@ struct flight_computer_data_t
 
 	float altitude1;
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
+
+	uint8_t altitude_alarm_status;
 };
 
 void fc_init();
@@ -265,6 +270,8 @@ void fc_deinit();
 
 void fc_pause();
 void fc_continue();
+
+uint8_t fc_active_alarm();
 
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);

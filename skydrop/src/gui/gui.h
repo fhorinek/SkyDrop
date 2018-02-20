@@ -18,7 +18,7 @@ extern FILE * lcd_out;
 #define GUI_DISP_WIDTH	lcd_width
 #define GUI_DISP_HEIGHT	lcd_height
 
-#define GUI_BLINK_TGL(PER) (task_get_ms_tick() % PER > (PER / 2))
+#define GUI_BLINK_TGL(PER) (task_get_ms_tick() % (PER) > ((PER) / 2))
 
 #define GUI_CONTRAST_STEPS 	10
 
@@ -103,10 +103,12 @@ void gui_statusbar();
 #define GUI_SET_COMPASS			34
 #define GUI_HOMEDETAIL			35
 #define GUI_HOME				36
+#define GUI_ALARM				37
+#define GUI_SET_ALT_ALARM		38
 
-#define NUMBER_OF_GUI_TASKS		37
+#define NUMBER_OF_GUI_TASKS		39
 
-#define GUI_LAST_TASK		0xFF
+#define GUI_LAST_TASK			0xFF
 
 extern uint8_t lcd_contrast_min;
 extern uint8_t lcd_contrast_max;

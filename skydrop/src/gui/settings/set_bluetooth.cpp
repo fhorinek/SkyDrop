@@ -96,9 +96,9 @@ void gui_set_bluetooth_item(uint8_t index, char * text, uint8_t * flags, char * 
 				case(PROTOCOL_BLUEFLY):
 					strcpy_P(sub_text, PSTR("BlueFly"));
 				break;
-				case(PROTOCOL_SKYBEAN):
-					strcpy_P(sub_text, PSTR("SkyBean"));
-				break;
+//				case(PROTOCOL_SKYBEAN):
+//					strcpy_P(sub_text, PSTR("SkyBean"));
+//				break;
 			}
 		break;
 
