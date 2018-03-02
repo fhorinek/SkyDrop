@@ -74,9 +74,9 @@ void gui_set_alt_alarm_action(uint8_t index)
 
 		case (2):
 			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				gui_value_conf_P(PSTR("Alarm 2"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_2, 0, config.altitude.alarm_2 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb, FC_METER_TO_FEET);
+				gui_value_conf_P(PSTR("Alarm 2"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_2, 0, config.altitude.alarm_1 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb, FC_METER_TO_FEET);
 			else
-				gui_value_conf_P(PSTR("Alarm 2"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_2, 0, config.altitude.alarm_2 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb);
+				gui_value_conf_P(PSTR("Alarm 2"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_2, 0, config.altitude.alarm_1 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb);
 
 			gui_switch_task(GUI_SET_VAL);
 		break;
