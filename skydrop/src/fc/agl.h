@@ -11,6 +11,7 @@
 #include "../common.h"
 
 void agl_init();
+int16_t agl_get_alt(int32_t latitude, int32_t longtitude);
 void agl_step();
 
 #define AGL_INVALID -32767

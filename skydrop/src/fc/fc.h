@@ -43,13 +43,14 @@
 #define ALT_ABS_GPS		0b10000000
 #define ALT_DIFF		0b11000000
 
-#define ALT_REL_MASK	0b00001111
+#define ALT_REL_MASK	0b00000111
 
 //single bit flags
 #define ALT_UNIT_M		0b00000000
 #define ALT_UNIT_I		0b00100000
 
 #define ALT_AUTO_ZERO	0b00010000
+#define ALT_AUTO_GPS	0b00001000
 
 #define GPS_SAT_CNT	12
 #define GPS_FIX_CNT_MAX		200
@@ -68,6 +69,7 @@
 #define FC_GPS_NEW_SAMPLE_WIND			0b00000010
 #define FC_GPS_NEW_SAMPLE_AGL			0b00000100
 #define FC_GPS_NEW_SAMPLE_ODO			0b00001000
+#define FC_GPS_NEW_SAMPLE_ALT			0b00010000
 
 struct gps_data_t
 {
@@ -96,10 +98,12 @@ struct gps_data_t
 	float heading;
 	uint32_t utc_time;
 
-	uint8_t fix;
+	uint8_t fix;        // GPGSA.fix: 1=No Fix, 2=2D fix, 3=3D fix
 	float altitude;
 	float geoid;
 	float hdop;
+	float vdop;
+	float pdop;
 
 	uint8_t sat_used;
 	uint8_t sat_total;
@@ -107,7 +111,7 @@ struct gps_data_t
 	uint8_t sat_id[GPS_SAT_CNT];
 	uint8_t sat_snr[GPS_SAT_CNT];
 
-	uint8_t fix_cnt;
+	uint8_t fix_cnt;     // number of fixes received since the first fix (kind of quality of fix).
 };
 
 struct accel_data_t
@@ -173,6 +177,9 @@ struct vario_data_t
 
 	float digital;
 	float avg;
+
+	uint32_t time_of_last_error_update;        // time in ms since the last error_over_time update
+	float error_over_time;                     // This stores the error asscoiated with altitude1 in m.
 };
 
 struct flight_stats_t
@@ -218,8 +225,9 @@ struct agl_data_t
 	bool valid;
 	bool file_valid;
 
-	char filename[10];
-	int16_t ground_level;
+	char filename[10];        // The filename of the currently opened HAGL file
+	int16_t ground_level;     // The ground level of the current GPS position or "AGL_INVALID".
+	float ground_gradient;    // the gradient of the current GPS position
 };
 
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h

@@ -118,7 +118,7 @@ EEMEM cfg_t config_ee = {
 		//QNH2
 		101325,
 		//atl1_flags
-		ALT_UNIT_M,
+		ALT_UNIT_M | ALT_AUTO_GPS,
 		//altimeter
 		{
 			//altimeter2
@@ -145,7 +145,7 @@ EEMEM cfg_t config_ee = {
 			//altimeter5
 			{
 				//flags
-				ALT_ABS_QNH2,
+				ALT_ABS_QNH2 | ALT_AUTO_GPS,
 				//diff
 				0,
 			},
