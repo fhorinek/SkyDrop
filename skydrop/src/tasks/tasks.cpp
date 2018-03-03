@@ -79,6 +79,7 @@ ISR(USB_CONNECTED_IRQ)
 	//usb_in is checked in main loop
 }
 
+// This variable is monotonically increasing and gives the number of milliseconds since device start.
 uint32_t old_tick = 0;
 
 uint32_t task_get_ms_tick_once()

@@ -539,7 +539,7 @@ float atoi_f(char * str)
 	uint8_t dot = 0;
 	uint8_t i = 0;
 
-	while(str[i] != ',')
+	while(ISDIGIT(str[i]) || str[i] == '.')
 	{
 		if (str[i] == '.')
 		{
