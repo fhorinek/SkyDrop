@@ -287,7 +287,7 @@ void calibrate_alt()
 		height_min_error = fc.vario.error_over_time;
 		best_height_source = BH_ALT1;
 		best_height = fc.altitude1;
-		DEBUG("vario: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
+		DEBUG("calibrate_alt/vario: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
 	}
 
 	// Find the best height, that we have:
@@ -296,14 +296,14 @@ void calibrate_alt()
 		// Option 1: Try ground level
 		//
 		if ( fc.flight.state != FLIGHT_FLIGHT ) {
-			if ( fc.gps_data.ground_speed < FC_GLIDE_MIN_KNOTS ) {
+			if ( fc.gps_data.groud_speed < FC_GLIDE_MIN_KNOTS ) {
 				if ( fc.gps_data.hdop != 0 ) {
 					error = fc.agl.ground_gradient * fc.gps_data.hdop * L80_HACCURACY;
 					if ( error < height_min_error ) {
 						height_min_error = error;
 						best_height_source = BH_HAGL;
 						best_height = fc.agl.ground_level;
-						DEBUG("GL: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
+						DEBUG("calibrate_alt/GL: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
 					}
 				}
 			}
@@ -312,15 +312,16 @@ void calibrate_alt()
 		//
 		// Option 2: Try GPS height
 		//
-		if ( fc.gps_data.vdop != 0 && fc.gps_data.vdop < height_min_error ) {
-			height_min_error = fc.gps_data.vdop * L80_VACCURACY;
+		error = fc.gps_data.vdop * L80_VACCURACY;
+		if ( fc.gps_data.vdop != 0 && error < height_min_error ) {
+			height_min_error = error;
 			best_height_source = BH_GPS;
 			best_height = fc.gps_data.altitude;
-			DEBUG("GPS height: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
+			DEBUG("calibrate_alt/GPS height: best_height=%f, height_min_error=%f\n", best_height, height_min_error);
 		}
 	}
 
-	DEBUG_1("Best altitude: now=%fm previous=%fm source=%d error=%fm\n", best_height, fc.altitude1, best_height_source, height_min_error);
+	DEBUG_1("calibrate_alt/Best altitude: now=%fm previous=%fm source=%d error=%fm\n", best_height, fc.altitude1, best_height_source, height_min_error);
 
 	float height_delta = best_height - fc.altitude1;
 
