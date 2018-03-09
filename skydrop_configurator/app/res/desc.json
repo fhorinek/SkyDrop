@@ -534,7 +534,7 @@
 
                 ["WIDGET_COMPASS", "Compass"],
                 ["WIDGET_COMPASS_ARROW", "Compass arrow"],
-                ["WIDGET_COMPASS_HEADING", "Compas arrow text"],
+                ["WIDGET_COMPASS_POINTS", "Compass heading points"],
                 
                 ["WIDGET_BATTERY", "Battery status"],
                 ["WIDGET_TEMPERATURE", "Temperature and humidity"],
@@ -934,7 +934,7 @@
         "WIDGET_COMPASS_POINTS": 
         {
             "type": "value",
-            "name": "Compass heading",
+            "name": "Compass heading points",
             "desc": "Compas readout as points", 
             "label": "Comp",
             "value": "N"
