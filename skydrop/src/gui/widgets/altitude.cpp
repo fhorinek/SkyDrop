@@ -102,6 +102,8 @@ void widget_alt_menu_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 
 				fc_manual_alt0_change(new_alt);
 				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
+				fc.vario.error_over_time = 0;
+				fc.vario.time_of_last_error_update = task_get_ms_tick();
 			break;
 
 			case(ALT_ABS_QNH2):
@@ -175,6 +177,9 @@ void widget_alt_menu_loop(uint8_t alt_index)
 				fc_manual_alt0_change(new_alt);
 
 				config.altitude.QNH1 = fc_alt_to_qnh(new_alt, fc.vario.pressure);
+				fc.vario.error_over_time = 0;
+				fc.vario.time_of_last_error_update = task_get_ms_tick();
+
 			break;
 
 			case(ALT_ABS_QNH2):

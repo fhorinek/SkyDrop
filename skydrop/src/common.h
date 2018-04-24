@@ -401,4 +401,17 @@ inline double to_degrees(double radians) {
     return radians * (180.0 / M_PI);
 }
 
+/*
+ * 0123456789 ISDIGIT
+ * ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ISALPHA
+ * 0123456789ABCDEF ISCAPITALHEX
+ * 0123456789ABCDEFabcdef ISXDIGIT
+ */
+#define ISDIGIT(c) ((c) - '0' + 0U <= 9U)
+#define ISALPHA(c) (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
+#define ISCAPITALHEX(c) ((((((c) - 48U) & 255) * 23 / 22 + 4) / 7 ^ 1) <= 2U)
+#define ISXDIGIT(c) (((((((((c) - 48U) & 255) * 18 / 17 * 52 / 51 * 58 / 114 \
+     * 13 / 11 * 14 / 13 * 35 + 35) / 36 * 35 / 33 * 34 / 33 * 35 / 170 ^ 4) \
+     - 3) & 255) ^ 1) <= 2U)
+
 #endif /* COMMON_H_ */

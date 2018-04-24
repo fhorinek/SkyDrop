@@ -16,14 +16,16 @@ void gui_set_gps_detail_stop() {}
 void gui_set_gps_detail_loop()
 {
 	disp.LoadFont(F_TEXT_S);
-	uint8_t f_h = disp.GetAHeight();
+	uint8_t f_h = disp.GetAHeight() + 1;
 
-	disp.GotoXY(1, 0);
+	disp.GotoXY(0, 0);
 	fprintf_P(lcd_out, PSTR("Lat: %s"), fc.gps_data.cache_gui_latitude);
 	disp.GotoXY(0, f_h);
 	fprintf_P(lcd_out, PSTR("Lon: %s"), fc.gps_data.cache_gui_longtitude);
 	disp.GotoXY(0, f_h * 2);
-	fprintf_P(lcd_out, PSTR("HDOP: %0.4f"), fc.gps_data.hdop);
+	fprintf_P(lcd_out, PSTR("HDOP: %5.2f     VDOP: %5.2f"), fc.gps_data.hdop, fc.gps_data.vdop);
+	disp.GotoXY(0, f_h * 3);
+	fprintf_P(lcd_out, PSTR("PDOP: %5.2f     Alt: %6.1f"), fc.gps_data.pdop, fc.gps_data.altitude);
 
 	char tmp[10];
 
@@ -42,9 +44,6 @@ void gui_set_gps_detail_loop()
 		break;
 	}
 	gui_raligh_text(tmp, GUI_DISP_WIDTH, f_h);
-
-	sprintf_P(tmp, PSTR("%0.0f"), fc.gps_data.altitude);
-	gui_raligh_text(tmp, GUI_DISP_WIDTH, f_h * 2);
 
 	disp.LoadFont(F_TEXT_S);
 	for (uint8_t i=0; i < GPS_SAT_CNT; i++)

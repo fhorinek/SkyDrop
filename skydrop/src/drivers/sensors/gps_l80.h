@@ -10,6 +10,13 @@
 
 #include "../../common.h"
 
+// The product specifications of the sensor says, that GPS position has a horizontal accuracy of 2.5m.
+// We understand that for a HDOP of 1.0
+#define L80_HACCURACY 2.5
+
+// This is the vertical accuracy in m. It is not found anywhere but estimated by tilmann-at-bubecks.de
+#define L80_VACCURACY 30.0
+
 void gps_init();
 void gps_change_uart_baudrate();
 void gps_start();

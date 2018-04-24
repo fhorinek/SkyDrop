@@ -22,6 +22,8 @@
  */
 //#define GPS_SIMULATION
 
+// A working MTK NMEA checksum calculator can be found at: http://www.hhhh.org/wiml/proj/nmeaxor.html
+
 #define GPS_UART_RX_SIZE	250
 #define GPS_UART_TX_SIZE	40
 
@@ -370,7 +372,7 @@ void gps_parse_gga()
 	}
 }
 
-//
+// $GPGSA,A,3,14,06,16,31,23,,,,,,,,1.66,1.42,0.84*0F<CR><LF>
 void gps_parse_gsa()
 {
 //	DEBUG("\nGSA\n");
@@ -381,6 +383,20 @@ void gps_parse_gsa()
 	ptr = find_comma(ptr);
 	//fix status
 	fc.gps_data.fix = atoi_c(ptr);
+	ptr = find_comma(ptr);
+
+	// Skip all 12 sattelites
+	for ( int sat_no = 0; sat_no < L80_SAT_CNT; sat_no++ ) {
+		ptr = find_comma(ptr);
+	}
+
+	fc.gps_data.pdop = atoi_f(ptr);
+	ptr = find_comma(ptr);
+	fc.gps_data.hdop = atoi_f(ptr);
+	ptr = find_comma(ptr);
+	fc.gps_data.vdop = atoi_f(ptr);
+
+	DEBUG_1("GSA: fix %d, pdop: %0.2f, hdop: %0.2f, vdop: %0.2f\n", fc.gps_data.fix, fc.gps_data.pdop, fc.gps_data.hdop, fc.gps_data.vdop);
 }
 
 void gps_parse_gsv()
@@ -438,15 +454,15 @@ void gps_normal()
 {
 	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
-	//enable RMC, GGA
-	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"));
+	// set GLL=0, RMC=1, VTG=0, GGA=1, GSA=1, GSV=0
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"));
 }
 
 void gps_detail()
 {
 	gps_detail_enabled = true;
 	DEBUG("set_nmea_output - detail\n");
-	//enable RMC, GGA, GSA, GSV
+	// set GLL=0, RMC=1, VTG=0, GGA=1, GSA=1, GSV=1
 	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"));
 }
 
@@ -677,6 +693,8 @@ void gps_start()
 	strcpy_P((char *)fc.gps_data.cache_igc_longtitude, PSTR("00000000E"));
 	strcpy_P((char *)fc.gps_data.cache_gui_latitude, PSTR("---"));
 	strcpy_P((char *)fc.gps_data.cache_gui_longtitude, PSTR("---"));
+
+	fc.gps_data.vdop = fc.gps_data.hdop = fc.gps_data.pdop = 0.0;
 }
 
 void gps_init()

@@ -19,7 +19,7 @@ void lcd_display::GotoXY(int16_t x, int16_t y)
 
 uint32_t lcd_display::clip(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
 {
-	uint32_t oldClip = (clip_x1 << 24 | clip_y1 << 16 | clip_x2 << 8 | clip_y2);
+	uint32_t oldClip = ((uint32_t)clip_x1 << 24 | (uint32_t)clip_y1 << 16 | (uint32_t)clip_x2 << 8 | (uint32_t)clip_y2);
 
 	clip_x1 = x1;
 	clip_y1 = y1;
@@ -30,7 +30,7 @@ uint32_t lcd_display::clip(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
 }
 
 uint32_t lcd_display::clip(uint32_t x1y1x2y2) {
-	uint32_t oldClip = (clip_x1 << 24 | clip_y1 << 16 | clip_x2 << 8 | clip_y2);
+	uint32_t oldClip = ((uint32_t)clip_x1 << 24 | (uint32_t)clip_y1 << 16 | (uint32_t)clip_x2 << 8 | (uint32_t)clip_y2);
 
 	clip_x1 = (x1y1x2y2 >> 24) & 0xff;
 	clip_y1 = (x1y1x2y2 >> 16) & 0xff;
