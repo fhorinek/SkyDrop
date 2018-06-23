@@ -7,7 +7,7 @@ uint32_t aero_last_time = 0;
 							//1.2 * 1316 ^ 2
 #define AERO_G_THOLD_RAW	2493872l
 
-bool aero_start(char * path)
+uint8_t aero_start(char * path)
 {
 	char filename[128];
 

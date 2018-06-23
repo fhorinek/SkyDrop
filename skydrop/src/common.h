@@ -208,11 +208,11 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define DEBUG_TIMER				timerd0
 #define DEBUG_TIMER_PWR_ON		PR.PRPD	&= 0b11111110;
 #define DEBUG_TIMER_PWR_OFF		PR.PRPD	|= 0b00000001;
-#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 
 #define LED_TIMER1				timerd1
 #define LED_TIMER1_PWR_ON		PR.PRPD	&= 0b11111101;
 #define LED_TIMER1_PWR_OFF		PR.PRPD	|= 0b00000010;
+#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 #define LED_TIMER1_OVF			timerd1_overflow_interrupt
 
 //---------------- PORTE ---------------------
@@ -399,6 +399,19 @@ inline double to_radians(double degree) {
  */
 inline double to_degrees(double radians) {
     return radians * (180.0 / M_PI);
+}
+
+/**
+ * Return "true" if the string "str" starts with the string "pre".
+ *
+ * @param pre the string which must be found (must reside in PROGMEM)
+ * @param str the string which is looked at and must contain "pre".
+ *
+ * @return true if "str" starts with "pre".
+ */
+inline bool startsWith_P(const char *pre, const char *str)
+{
+    return strncmp_P(str, pre, strlen_P(pre)) == 0;
 }
 
 /*

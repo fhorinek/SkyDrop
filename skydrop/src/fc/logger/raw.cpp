@@ -2,7 +2,7 @@
 #include "logger.h"
 #include "../../drivers/storage/storage.h"
 
-bool raw_start(char * path)
+uint8_t raw_start(char * path)
 {
 	char filename[128];
 
