@@ -7,7 +7,7 @@
 
 #include <gui/settings/gui_filemanager.h>
 #include "gui_home.h"
-
+#include "../../fc/waypoint.h"
 #include "common.h"
 #include "../gui_list.h"
 #include "../gui_dialog.h"
@@ -16,7 +16,7 @@
 
 void gui_home_init()
 {
-	gui_list_set(gui_home_item, gui_home_action, 2, GUI_SETTINGS);
+	gui_list_set(gui_home_item, gui_home_action, 5, GUI_SETTINGS);
 }
 
 void gui_home_stop() {}
@@ -35,7 +35,7 @@ void gui_home_action(uint8_t index)
 {
 	switch(index)
 	{
-		case(0):
+		case(1):
 			config.home.flags ^= HOME_SET_AS_TAKEOFF;
 			if (config.home.flags & HOME_SET_AS_TAKEOFF)
 			{
@@ -53,7 +53,7 @@ void gui_home_action(uint8_t index)
 
 		break;
 
-		case(1):
+		case(2):
 			if (!(config.home.flags & HOME_SET_AS_TAKEOFF))
 			{
 				gui_filemanager_set_dir((char *)"/HOMES");
@@ -62,6 +62,15 @@ void gui_home_action(uint8_t index)
 				gui_switch_task(GUI_FILEMANAGER);
 			}
 		break;
+
+		case(4):
+				gui_filemanager_set_dir((char *)"/WAYPOINT");
+				gui_filemanager_level = 0;
+				gui_filemanager_set_tasks(GUI_WAYPOINTDETAIL, GUI_HOME);
+				gui_switch_task(GUI_FILEMANAGER);
+
+		break;
+
 	}
 }
 
@@ -70,15 +79,20 @@ void gui_home_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 	switch (index)
 	{
 		case 0:
+			strcpy_P(text, PSTR("Home position:"));
+			*flags |= GUI_LIST_TITLE;
+			break;
+
+		case 1:
 			strcpy_P(text, PSTR("Set as Takeoff"));
 			if (config.home.flags & HOME_SET_AS_TAKEOFF)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
-		break;
+			break;
 
-		case 1:
-			strcpy_P(text, PSTR("From SD"));
+		case 2:
+			strcpy_P(text, PSTR("Load from SD"));
 
 			if (config.home.flags & HOME_SET_AS_TAKEOFF)
 			{
@@ -93,7 +107,22 @@ void gui_home_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 				else
 					strcpy_P(sub_text, PSTR("<Load>"));
 			}
-		break;
+			break;
+
+		case 3:
+			strcpy_P(text, PSTR("Waypoints:"));
+			*flags |= GUI_LIST_TITLE;
+			break;
+
+		case 4:
+			strcpy_P(text, PSTR("Load from SD"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			if (waypoint_filename[0] != 0)
+				strcpy(sub_text, basename(waypoint_filename));
+			else
+				strcpy_P(sub_text, PSTR("<Load>"));
+
+			break;
 	}
 
 }

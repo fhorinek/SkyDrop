@@ -130,9 +130,14 @@ extern float widget_menu_fvalue1;
 #define WIDGET_COMPASS_POINTS	39
 #include "compass.h"
 
-#define NUMBER_OF_WIDGETS		40
+#define WIDGET_WAYPOINT_ARROW   40
+#define WIDGET_WAYPOINT_DISTANCE   41
+#define WIDGET_WAYPOINT_TIME    42
+#define WIDGET_WAYPOINT_INFO    43
 
-#define NUMBER_OF_SORTED_WIDGETS	38
+#define NUMBER_OF_WIDGETS		44
+
+#define NUMBER_OF_SORTED_WIDGETS	42
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);
 

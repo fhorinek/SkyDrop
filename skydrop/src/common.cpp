@@ -602,6 +602,39 @@ char *rindex(char * s, char c)
 }
 
 /**
+ * Return a pointer to the filename part of a full pathname.
+ * e.g. "/directory1/tilmann" will return "tilmann".
+ *
+ * @param a string with a '/' in it.
+ *
+ * @returns the filename part.
+ */
+char *basename(char *s) {
+	char *s2;
+
+	s2 = rindex(s, '/');
+	if ( s2 != NULL ) {
+		return s2 + 1;
+	} else {
+		return NULL;
+	}
+}
+
+
+/**
+ * Advance s until the first non-blank character. This skips over all blanks.
+ *
+ * @param s a pointer to a string
+ *
+ * @return the next character in this string, that is not a blank.
+ */
+char *skip_ws(char *s)
+{
+	while( ISBLANK(*s) ) s++;
+	return s;
+}
+
+/**
  * Find the first character after the ','.
  *
  * @return a pointer to the first character after ','.

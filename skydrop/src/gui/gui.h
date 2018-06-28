@@ -105,8 +105,9 @@ void gui_statusbar();
 #define GUI_HOME				36
 #define GUI_ALARM				37
 #define GUI_SET_ALT_ALARM		38
+#define GUI_WAYPOINTDETAIL		39
 
-#define NUMBER_OF_GUI_TASKS		39
+#define NUMBER_OF_GUI_TASKS		40
 
 #define GUI_LAST_TASK			0xFF
 

@@ -6,6 +6,7 @@
  */
 
 #include "odometer.h"
+#include "waypoint.h"
 #include "fc.h"
 
 /**
@@ -105,6 +106,23 @@ void odometer_step()
 	{
 		fc.flight.home_bearing = gps_bearing(config.home.lat, config.home.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
 		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, config.home.lat, config.home.lon) / 100000.0;   // cm to km
+	}
+
+	if ( fc.flight.waypoint_no != 0 ) {
+		fc.flight.next_waypoint.bearing = gps_bearing(fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
+		fc.flight.next_waypoint.distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon) / 100.0;   // cm to m
+		fc.flight.next_waypoint.distance -= fc.flight.next_waypoint.radius_m;
+		if ( fc.flight.next_waypoint.distance <= 0 ) {
+			// We reached the waypoint. Go to next.
+			if ( !waypoint_goto_next() ) {
+				fc.flight.waypoint_no = 0;
+				fc.flight.next_waypoint.bearing = 0;
+				fc.flight.next_waypoint.distance = 0;
+				fc.flight.next_waypoint.name[0] = 0;
+				gui_showmessage_P(PSTR("Navigation\nfinished."));
+			}
+		}
+		fc.flight.next_waypoint.distance /= 1000;             // m to km.
 	}
 
 	// Do we already have a previous GPS point?
