@@ -28,6 +28,7 @@ struct cfg_gui_layout
 #define CFG_DISP_INVERT			0b00000001
 #define CFG_DISP_FLIP			0b00000010
 #define CFG_DISP_ANIM			0b00000100
+#define CFG_DISP_CYCLE			0b00001000               // Automatically cycle screens
 
 #define CFG_AUDIO_MENU_SPLASH	0b10000000
 #define CFG_AUDIO_MENU_PAGES	0b01000000
