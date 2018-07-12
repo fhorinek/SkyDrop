@@ -17,8 +17,17 @@ extern uint32_t battery_next_meas;
 
 extern uint16_t bat_adc_max;
 
+extern uint8_t battery_calibrating_state;
+
 #define BATTERY_CHARGING	(101)
 #define BATTERY_FULL		(102)
+
+#define BATTERY_CAL_NONE      (0)
+#define BATTERY_CAL_BOOT      (1)
+#define BATTERY_CAL_START     (2)
+#define BATTERY_CAL_CHARGE    (3)
+#define BATTERY_CAL_DISCHARGE (4)
+#define BATTERY_CAL_STOP      (5)
 
 void battery_init();
 bool battery_step();

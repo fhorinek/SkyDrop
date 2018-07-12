@@ -8,11 +8,11 @@
 #include "set_calib.h"
 #include "../gui_list.h"
 #include "../gui_dialog.h"
-
+#include "../../drivers/battery.h"
 
 void gui_set_calib_init()
 {
-	gui_list_set(gui_set_calib_item, gui_set_calib_action, 4, GUI_SET_ADVANCED);
+	gui_list_set(gui_set_calib_item, gui_set_calib_action, 5, GUI_SET_ADVANCED);
 }
 
 void gui_set_calib_stop() {}
@@ -65,6 +65,13 @@ void gui_set_calib_action(uint8_t index)
 	case(3):
 		gui_switch_task(GUI_SET_COMPASS);
 	break;
+
+	case(4):
+		if (battery_calibrating_state == BATTERY_CAL_NONE)
+			battery_calibrating_state = BATTERY_CAL_START;
+		else
+			battery_calibrating_state = BATTERY_CAL_STOP;
+	break;
 	}
 }
 
@@ -90,6 +97,15 @@ void gui_set_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		case (3):
 			strcpy_P(text, PSTR("Compass"));
 			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (4):
+			strcpy_P(text, PSTR("Battery"));
+			if (battery_calibrating_state != BATTERY_CAL_NONE)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+
 		break;
 	}
 }

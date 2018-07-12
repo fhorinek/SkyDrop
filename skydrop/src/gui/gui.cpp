@@ -486,7 +486,7 @@ void gui_loop()
 		if (gui_task == GUI_PAGES)
 		{
 			//Power off if not in flight, auto power off is enabled and bluetooth device is not connected
-			if (fc.flight.state != FLIGHT_FLIGHT && config.system.auto_power_off > 0 && !bt_device_active())
+			if (fc.flight.state != FLIGHT_FLIGHT && config.system.auto_power_off > 0 && !bt_device_active() && battery_calibrating_state == BATTERY_CAL_NONE)
 			{
 				if (task_get_ms_tick() - gui_idle_timer > (uint32_t)config.system.auto_power_off * 60ul * 1000ul)
 				{
@@ -732,17 +732,30 @@ void gui_statusbar()
 		}
 
 	//battery indicator
-	uint8_t a = battery_per / 10;
-
-	if (battery_per == BATTERY_CHARGING)
-	{
-		a = 1 + (task_get_ms_tick() % 2000) / 200;
-	}
-
-	if (battery_per == BATTERY_FULL)
-		a = 10;
-
 	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
 	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
-	disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
+
+	if ( battery_calibrating_state == BATTERY_CAL_NONE) {
+		uint8_t a = battery_per / 10;
+
+		if (battery_per == BATTERY_CHARGING)
+		{
+			a = 1 + (task_get_ms_tick() % 2000) / 200;
+		}
+
+		if (battery_per == BATTERY_FULL)
+			a = 10;
+		disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
+	} else {
+		uint8_t a;
+		uint8_t x1, x2;
+
+		a = (task_get_ms_tick() % 2000) / 250;
+		if ( battery_calibrating_state == BATTERY_CAL_DISCHARGE ) a = 7 - a;
+		x1 = GUI_DISP_WIDTH - 2 - a;
+		x2 = x1 + 3;
+		x1 = max(GUI_DISP_WIDTH - 6, x1);
+		x2 = min(GUI_DISP_WIDTH - 2, x2);
+		disp.DrawRectangle(x1, GUI_DISP_HEIGHT - 12, x2, GUI_DISP_HEIGHT - 2, 1, 1);
+	}
 }
