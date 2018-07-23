@@ -146,27 +146,19 @@ bool storage_ready()
 	return sd_avalible && !sd_error;
 }
 
-uint8_t storage_get_files()
+uint8_t storage_dir_get_count()
 {
-	FILINFO f_info;
-	uint8_t cnt = 0;
+	int16_t count;
+	char name[13];
+	uint8_t flags;
+
+#define MAX_DIRENTRIES 1000
 
 	storage_dir_rewind();
-
-	while(f_readdir(&storage_dir_h, &f_info) == FR_OK)
-	{
-		if (f_info.fname[0] == 0)
-			break;
-
-		if(f_info.fname[0] == 0xFF) //bugs in FatFs?
-			continue;
-
-		cnt++;
-	}
-
+	count = storage_dir_list_n(name, &flags, MAX_DIRENTRIES);
 	storage_dir_rewind();
 
-	return cnt;
+	return MAX_DIRENTRIES - count;
 }
 
 bool storage_dir_open(char * path)
@@ -210,4 +202,38 @@ bool storage_dir_list(char * fname, uint8_t * flags)
 
 	storage_dir_rewind();
 	return false;
+}
+
+/**
+ * Read the "no" directory entry. If count is "1" this is
+ * the next entry. For "2" it is the second entry ....
+ *
+ * @param fname a pointer to memory where the name of the
+ *              directory entry is returned to the caller.
+ * @param flags a pointer to the flags returned to the caller.
+ *              Entries describing a sub directory the flags
+ *              contain STORAGE_IS_DIR.
+ * @param no    the number of the directory entry to read.
+ *
+ * @return the number of remaining entries, after hitting
+ *         the end of the directory. If the entry could be
+ *         read successfully, this is "0". Otherwise something
+ *         between 0 and the number given in. E.g. if the
+ *         directory holds 500 entries and you try to read
+ *         number 600. It will return 100.
+ */
+int16_t storage_dir_list_n(char * fname, uint8_t * flags, int16_t no)
+{
+	bool ret;
+
+	while (no > 0) {
+		ret = storage_dir_list(fname, flags);
+		if ( ret == false ) {
+			// we reached end of directory before count is 0.
+			break;
+		}
+		no--;
+	}
+
+	return no;
 }
