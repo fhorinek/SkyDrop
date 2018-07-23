@@ -325,7 +325,7 @@ void calibrate_alt()
 
 	float height_delta = best_height - fc.altitude1;
 
-	if ( abs(height_delta) > 10 ) {
+	if ( abs(height_delta) > 10 || height_min_error < fc.vario.error_over_time - 10) {
 		DEBUG("Calibrating altitude: now=%fm previous=%fm source=%d error=%fm\n", best_height, fc.altitude1, best_height_source, height_min_error);
 		sprintf_P(message, PSTR("QNH1 cal'ed:\n%0.0fm -> %0.0fm"), fc.altitude1, best_height);
 		gui_showmessage(message);
