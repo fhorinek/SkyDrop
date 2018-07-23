@@ -54,7 +54,7 @@ void kml_now(const char *tag) {
 	kml_sprintf_P(PSTR("<%s>%04d-%02d-%02dT%02d:%02d:%02dZ</%s>"), tag, year, month, day, hour, min, sec, tag);
 }
 
-bool kml_start(char * path)
+uint8_t kml_start(char * path)
 {
 	char filename[128];
 

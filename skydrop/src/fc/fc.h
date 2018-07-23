@@ -57,6 +57,7 @@
 #define GPS_FIX_TIME_SYNC	10
 #define GPS_FIX_ALT_SYNC	50
 
+// The different logger states
 #define LOGGER_IDLE			0
 #define LOGGER_WAIT_FOR_GPS	1
 #define LOGGER_ACTIVE		2
@@ -261,7 +262,7 @@ struct flight_computer_data_t
 
 	uint32_t odometer;              // in cm gives up to 42.000km
 
-	uint8_t logger_state;
+	uint8_t logger_state;           // One of the LOGGER_IDLE, LOGGER_WAIT_FOR_GPS, ...
 
 	bool glide_ratio_valid;
 	float glide_ratio;

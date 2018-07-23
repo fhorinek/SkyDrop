@@ -17,19 +17,6 @@
 
 cfg_home home_new;
 
-/**
- * Return "true" if the string "str" starts with the string "pre".
- *
- * @param pre the string which must be found (must reside in PROGMEM)
- * @param str the string which is looked at and must contain "pre".
- *
- * @return true if "str" starts with "pre".
- */
-bool startsWith_P(const char *pre, const char *str)
-{
-    return strncmp_P(str, pre, strlen_P(pre)) == 0;
-}
-
 void read_homefile(const char *filename, cfg_home *home)
 {
 	FIL fp;

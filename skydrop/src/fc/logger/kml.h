@@ -4,7 +4,7 @@
 #include "../../common.h"
 
 void kml_comment(char * text);
-bool kml_start(char * path);
+uint8_t kml_start(char * path);
 void kml_step();
 void kml_stop();
 

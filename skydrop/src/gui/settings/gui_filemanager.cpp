@@ -29,7 +29,7 @@ void gui_filemanager_set_dir(char * path)
 }
 
 /**
- * The the file manager, which task should be switched to if the user selects a file.
+ * The file manager, which task should be switched to if the user selects a file.
  * This page typically shows details about the file.
  *
  * @param task the next action to switch for file.
