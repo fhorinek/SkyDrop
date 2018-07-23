@@ -18,6 +18,7 @@ void gui_pages_irqh(uint8_t type, uint8_t * buff);
 bool gui_enter_widget_menu();
 void gui_exit_widget_menu();
 void gui_page_power_off();
+void page_switch(bool right);
 
 extern uint8_t active_page;
 

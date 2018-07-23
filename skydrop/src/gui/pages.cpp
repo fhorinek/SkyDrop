@@ -26,6 +26,7 @@ uint8_t active_widget;
 
 #define PAGE_WIDGET_SELECT_DURATION	10
 #define PAGE_WIDGET_MENU_DURATION	15
+#define PAGE_CYCLE_DURATION			10
 
 #define PAGE_MENU_STEPS				5
 #define PAGE_MENU_WAIT				3000
@@ -42,6 +43,7 @@ uint8_t page_state;
 uint8_t page_state_step; //step based animation
 uint8_t page_state_dir;  //direction
 uint32_t page_state_timer; //timer based timeout
+uint32_t page_next_cycle_timer = 0;   // The time, when the next cycle should be done
 
 uint8_t page_change_dir;
 
@@ -149,6 +151,14 @@ void gui_pages_loop()
 		#ifdef FAKE_ENABLE
 			FAKE_DATA
 		#endif
+
+		if (config.gui.disp_flags & CFG_DISP_CYCLE) {
+			uint32_t now = task_get_ms_tick();
+			if ( now > page_next_cycle_timer ) {
+				page_next_cycle_timer = now + PAGE_CYCLE_DURATION * 1000;
+				page_switch(true);
+			}
+		}
 
 		widgets_draw(active_page);
 		gui_statusbar();
