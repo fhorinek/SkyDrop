@@ -208,11 +208,11 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define DEBUG_TIMER				timerd0
 #define DEBUG_TIMER_PWR_ON		PR.PRPD	&= 0b11111110;
 #define DEBUG_TIMER_PWR_OFF		PR.PRPD	|= 0b00000001;
-#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 
 #define LED_TIMER1				timerd1
 #define LED_TIMER1_PWR_ON		PR.PRPD	&= 0b11111101;
 #define LED_TIMER1_PWR_OFF		PR.PRPD	|= 0b00000010;
+#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 #define LED_TIMER1_OVF			timerd1_overflow_interrupt
 
 //---------------- PORTE ---------------------
@@ -400,5 +400,31 @@ inline double to_radians(double degree) {
 inline double to_degrees(double radians) {
     return radians * (180.0 / M_PI);
 }
+
+/**
+ * Return "true" if the string "str" starts with the string "pre".
+ *
+ * @param pre the string which must be found (must reside in PROGMEM)
+ * @param str the string which is looked at and must contain "pre".
+ *
+ * @return true if "str" starts with "pre".
+ */
+inline bool startsWith_P(const char *pre, const char *str)
+{
+    return strncmp_P(str, pre, strlen_P(pre)) == 0;
+}
+
+/*
+ * 0123456789 ISDIGIT
+ * ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ISALPHA
+ * 0123456789ABCDEF ISCAPITALHEX
+ * 0123456789ABCDEFabcdef ISXDIGIT
+ */
+#define ISDIGIT(c) ((c) - '0' + 0U <= 9U)
+#define ISALPHA(c) (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
+#define ISCAPITALHEX(c) ((((((c) - 48U) & 255) * 23 / 22 + 4) / 7 ^ 1) <= 2U)
+#define ISXDIGIT(c) (((((((((c) - 48U) & 255) * 18 / 17 * 52 / 51 * 58 / 114 \
+     * 13 / 11 * 14 / 13 * 35 + 35) / 36 * 35 / 33 * 34 / 33 * 35 / 170 ^ 4) \
+     - 3) & 255) ^ 1) <= 2U)
 
 #endif /* COMMON_H_ */

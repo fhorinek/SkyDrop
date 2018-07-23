@@ -11,6 +11,11 @@ void vario_init(float pressure )
 	fc.vario.avg = 0;
 	fc.vario.digital = 0;
 
+	// This would result in QNH1 (and altitude1) as having an update looong ago, so with a big error.
+	// This would mean, that QNH1 (and altitude1) will be calibrated to GPS on the first fix.
+	fc.vario.time_of_last_error_update = 0;
+	fc.vario.error_over_time = 100;
+
 	for (uint8_t i = 0; i < VARIO_HISTORY_SIZE; i++)
 		fc.vario.history[i] = 0;
 

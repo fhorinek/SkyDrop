@@ -66,8 +66,10 @@ void Stream::Decode(uint8_t data)
 	{
 		case(next_startbyte):
 			if (data == xlib_stream_startbyte)
+			{
 				this->rx_next++;
 				this->buffer->Clear();
+			}
 		return;
 
 		case(next_length_lo):

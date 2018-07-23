@@ -7,7 +7,7 @@ gui_list_act * gui_list_act_f = NULL;
 uint8_t gui_list_size = 0;
 uint8_t gui_list_back = 0;
 int16_t gui_list_y_offset = 0;
-uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];
+uint8_t gui_list_index[NUMBER_OF_GUI_TASKS];      // Stores the cursor position inside each GUI. For "settings" this is the selected list entry.
 uint32_t gui_list_middle_hold;
 
 #include "../../drivers/audio/sequencer.h"
@@ -157,6 +157,11 @@ void gui_list_set(gui_list_gen * f_ptr, gui_list_act * f_act, uint8_t size, uint
 void gui_list_set_index(uint8_t task, uint8_t index)
 {
 	gui_list_index[task] = index;
+}
+
+uint8_t gui_list_get_index(uint8_t task)
+{
+	return gui_list_index[task];
 }
 
 void gui_list_moveup()

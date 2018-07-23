@@ -106,6 +106,8 @@ void gui_set_altimeter_gps_alt(uint8_t ret)
 			if (a_type == ALT_ABS_QNH1)
 			{
 				config.altitude.QNH1 = fc_alt_to_qnh(fc.gps_data.altitude, fc.vario.pressure);
+				fc.vario.error_over_time = 0;
+				fc.vario.time_of_last_error_update = task_get_ms_tick();
 				fc_manual_alt0_change(fc.gps_data.altitude);
 			}
 
@@ -184,6 +186,8 @@ void gui_set_altimeter_action(uint8_t index)
 
 	if ((index == 4 && set_alt_list_num == 5) || index == 2)
 	{
+		set_alt_flags ^= ALT_AUTO_GPS;
+/*
 		if (fc.gps_data.valid)
 		{
 			char tmp_msg[64];
@@ -215,6 +219,7 @@ void gui_set_altimeter_action(uint8_t index)
 		{
 			gui_showmessage_P(PSTR("No GPS fix"));
 		}
+		*/
 	}
 }
 
@@ -276,8 +281,12 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		return;
 	}
 
-	if ((index == 4 && set_alt_list_num == 5) ||index == 2)
-		strcpy_P(text, PSTR("Get from GPS"));
-
+	if ((index == 4 && set_alt_list_num == 5) || index == 2) {
+		strcpy_P(text, PSTR("Auto from GPS"));
+		if (set_alt_flags & ALT_AUTO_GPS)
+			*flags |= GUI_LIST_CHECK_ON;
+		else
+			*flags |= GUI_LIST_CHECK_OFF;
+	}
 }
 

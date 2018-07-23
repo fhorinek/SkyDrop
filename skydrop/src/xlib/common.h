@@ -47,6 +47,8 @@
 #define max(a,b) 	((a)>(b)?(a):(b))
 #define abs(x) 		((x)>0?(x):-(x))
 
+// If "val" if between "min" and "max", then return "val".
+// Otherwise return "min" or "max" depending on where "val" is.
 #define CLAMP(val, min, max)	((val < min) ? (min) : ((val > max) ? max : val))
 
 #ifdef __cplusplus

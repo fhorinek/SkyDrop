@@ -7,7 +7,7 @@
 
 void gui_set_display_init()
 {
-	gui_list_set(gui_set_display_item, gui_set_display_action, 6, GUI_SET_SYSTEM);
+	gui_list_set(gui_set_display_item, gui_set_display_action, 7, GUI_SET_SYSTEM);
 }
 
 void gui_set_display_stop() {}
@@ -87,7 +87,13 @@ void gui_set_display_action(uint8_t index)
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 	break;
-	}
+
+	case(6):
+		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_CYCLE;
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+	break;
+}
 }
 
 void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
@@ -126,6 +132,13 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 		case (5):
 			strcpy_P(text, PSTR("Animation"));
 			if (config.gui.disp_flags & CFG_DISP_ANIM)
+				*flags |= GUI_LIST_CHECK_ON;
+			else
+				*flags |= GUI_LIST_CHECK_OFF;
+		break;
+		case (6):
+			strcpy_P(text, PSTR("Cycle"));
+			if (config.gui.disp_flags & CFG_DISP_CYCLE)
 				*flags |= GUI_LIST_CHECK_ON;
 			else
 				*flags |= GUI_LIST_CHECK_OFF;

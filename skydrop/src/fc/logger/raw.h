@@ -3,7 +3,7 @@
 
 #include "../../common.h"
 
-bool raw_start(char * path);
+uint8_t raw_start(char * path);
 void raw_step();
 void raw_stop();
 

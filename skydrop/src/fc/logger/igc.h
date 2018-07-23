@@ -11,7 +11,7 @@
 #include "../../common.h"
 
 void igc_comment(char * text);
-bool igc_start(char * path);
+uint8_t igc_start(char * path);
 void igc_step();
 void igc_stop();
 

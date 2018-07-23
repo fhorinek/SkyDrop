@@ -39,7 +39,7 @@ void igc_writeline(char * line, bool sign = true)
 
 IGC_PRIVATE_KEY_BODY
 
-bool igc_start(char * path)
+uint8_t igc_start(char * path)
 {
 	char filename[128];
 

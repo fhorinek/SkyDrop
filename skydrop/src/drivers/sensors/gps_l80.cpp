@@ -438,8 +438,10 @@ void gps_normal()
 {
 	gps_detail_enabled = false;
 	DEBUG("set_nmea_output - normal\n");
-	//enable RMC, GGA
-	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"));
+	// set GLL=0, RMC=1, VTG=0, GGA=1, GSA=1, GSV=0
+	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"));
+	//2Hz GPS
+//	fprintf_P(gps_out, PSTR("$PMTK300,500,0,0,0,0*28\r\n"));
 }
 
 void gps_detail()
@@ -589,8 +591,9 @@ void gps_parse(Usart * c_uart)
 				DEBUG("GPS:\"$%s\"\n", gps_parser_buffer);
 			}
 
-			gps_parser_buffer[gps_parser_buffer_index + 1] = '\n';
-			gps_parser_buffer[gps_parser_buffer_index + 2] = '\0';
+			gps_parser_buffer[gps_parser_buffer_index + 1] = '\r';
+			gps_parser_buffer[gps_parser_buffer_index + 2] = '\n';
+			gps_parser_buffer[gps_parser_buffer_index + 3] = '\0';
 
 			gps_parser_buffer_index = 0;
 			gps_parser_state = GPS_IDLE;
