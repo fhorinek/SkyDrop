@@ -216,40 +216,41 @@ void gui_accelerometer_calib_loop()
 
 
 		disp.LoadFont(F_TEXT_M);
+		uint8_t blink = GUI_BLINK_TGL(500);
 		if(gui_acc_calib.sampling == VALID_XP)
 		{
 			strcpy_P(tmp, PSTR("Calibrating X+"));	//status area
-			if(GUI_BLINK_TGL(500))					//blink what is being measured
+			if(blink)					//blink what is being measured
 				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_XN)
 		{
 			strcpy_P(tmp, PSTR("Calibrating X-"));
-			if(GUI_BLINK_TGL(500))
+			if(blink)
 				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_YP)
 		{
 			strcpy_P(tmp, PSTR("Calibrating Y+"));
-			if(GUI_BLINK_TGL(500))
+			if(blink)
 				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_YN)
 		{
 			strcpy_P(tmp, PSTR("Calibrating Y-"));
-			if(GUI_BLINK_TGL(500))
+			if(blink)
 				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_ZP)
 		{
 			strcpy_P(tmp, PSTR("Calibrating Z+"));
-			if(GUI_BLINK_TGL(500))
+			if(blink)
 				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
 		}
 		else if(gui_acc_calib.sampling == VALID_ZN)
 		{
 			strcpy_P(tmp, PSTR("Calibrating Z-"));
-			if(GUI_BLINK_TGL(500))
+			if(blink)
 				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
 		}
 		else

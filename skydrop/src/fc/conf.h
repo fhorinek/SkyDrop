@@ -35,6 +35,15 @@ struct cfg_gui_layout
 #define CFG_AUDIO_MENU_BUTTONS	0b00100000
 #define CFG_AUDIO_MENU_GPS		0b00010000
 
+#define PAGE_NONE               0xFF
+#define PAGE_MODE_PREPARE       0
+#define PAGE_MODE_CIRCLING      1
+#define PAGE_MODE_NORMAL        2
+#define PAGE_MODE_ACRO          3
+#define PAGE_MODE_LANDED        4
+#define NUMBER_OF_PAGE_MODES    5
+
+
 struct cfg_gui
 {
 	uint8_t contrast;
@@ -53,7 +62,12 @@ struct cfg_gui
 	uint8_t number_of_pages;
 	uint8_t silent;
 	uint8_t hide_label;
-	cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
+
+	int8_t page_acro_thold; //*10
+	uint8_t page_cirlcing_thold; //in deg
+	float page_circling_average; //in 1/x
+    uint8_t page_mode[NUMBER_OF_PAGE_MODES];
+    cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };
 
 #define VARIO_UNITS_M		0b00000000

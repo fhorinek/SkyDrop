@@ -10,6 +10,7 @@
 #include "agl.h"
 #include "odometer.h"
 #include "compass.h"
+#include "alt_calibration.h"
 
 #include "protocols/protocol.h"
 
@@ -28,6 +29,8 @@ MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 1
 #define FC_LOG_BATTERY_EVERY	(5 * 60 * 1000ul)
 uint32_t fc_log_battery_next = 0;
 
+#include "../debug_off.h"
+
 void fc_init()
 {
 	DEBUG(" *** Flight computer init ***\n");
@@ -36,6 +39,8 @@ void fc_init()
 	active_page = config.gui.last_page;
 	if (active_page >= config.gui.number_of_pages)
 		active_page = 0;
+
+	gui_page_set_mode(PAGE_MODE_PREPARE);
 
 	//reset flight status
 	fc_reset();
@@ -354,7 +359,6 @@ ISR(FC_MEAS_TIMER_CMPB)
 		fc.acc.raw.z = z;
 	}
 
-
 	acc_calc_vector(); //calculate actual acceleration as vector
 	acc_calc_total();	//calculate actual total acceleration from vector data
 	acc_widget_filter();  //filter total acceleration for widget
@@ -481,6 +485,8 @@ void fc_landing()
 {
 	DEBUG("Landing\n");
 
+	gui_page_set_mode(PAGE_MODE_LANDED);
+
 	gui_dialog_set_P(PSTR("Landing"), PSTR(""), GUI_STYLE_STATS, fc_landing_cb);
 	fc_landing_old_gui_task = gui_task;
 	gui_switch_task(GUI_DIALOG);
@@ -519,6 +525,11 @@ void fc_reset()
 	fc.flight.stats.max_sink = 0;
 
 	fc.altitude_alarm_status = 0b00000000;
+
+    fc.flight.avg_heading_change = 0;
+    fc.flight.last_heading = 0;
+
+    fc.flight.circling_start = 0;
 }
 
 void fc_sync_gps_time()
@@ -549,8 +560,9 @@ void fc_step()
 		return;
 	#endif
 
-
 	agl_step(); //it is before gps_step, so new gps fix will be processed in next loop
+
+	alt_calibration_step();
 
 	gps_step();
 
@@ -691,6 +703,38 @@ void fc_step()
 		if (t_vario < fc.flight.stats.max_sink)
 			fc.flight.stats.max_sink = t_vario;
 	}
+
+	//flight modes
+	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_CIRCLE)
+	{
+	    fc.gps_data.new_sample ^= ~FC_GPS_NEW_SAMPLE_CIRCLE;
+        float heading_change = fc.flight.last_heading - fc.gps_data.heading;
+        fc.flight.last_heading = fc.gps_data.heading;
+
+        fc.flight.avg_heading_change += (fc.flight.avg_heading_change - heading_change) * (config.gui.page_circling_average);
+	}
+
+    if (fc.flight.state == FLIGHT_FLIGHT)
+    {
+        if (fc.vario.avg < config.gui.page_acro_thold)
+        {
+            gui_page_set_mode(PAGE_MODE_ACRO);
+        }
+        else
+        {
+            if (abs(fc.flight.avg_heading_change) > config.gui.page_cirlcing_thold)
+            {
+                gui_page_set_mode(PAGE_MODE_CIRCLING);
+                fc.flight.circling_start = task_get_ms_tick();
+                fc.flight.circling_start_altitude = fc.altitude1;
+            }
+            else
+            {
+                fc.flight.circling_start = 0;
+                gui_page_set_mode(PAGE_MODE_NORMAL);
+            }
+        }
+    }
 }
 
 uint8_t fc_active_alarm()
@@ -745,12 +789,10 @@ void fc_zero_alt(uint8_t index)
 void fc_manual_alt0_change(float val)
 {
 	kalmanFilter.Reset(val);
+	fc.altitude1 = val;
 
     if (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND)
-    {
     	fc.flight.autostart_altitude = val;
-    	fc.altitude1 = val;
-    }
 }
 
 void fc_log_battery()

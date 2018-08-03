@@ -45,6 +45,25 @@ EEMEM cfg_t config_ee = {
 		0b00000000,
 		//hide_label
 		0b00000000,
+	    //page_acro_thold; //*10
+		-3,
+	    //page_cirlcing_thold; //in deg
+		6,
+	    //page_circling_average; //in 1/x s
+		1 / 10.0,
+		//page mode
+		{
+            //prepare
+            PAGE_NONE,
+            //circling
+            PAGE_NONE,
+            //normal
+            PAGE_NONE,
+            //acro
+            PAGE_NONE,
+            //landed
+            PAGE_NONE
+		},
 		//pages
 		{
 			//0
@@ -118,7 +137,7 @@ EEMEM cfg_t config_ee = {
 		//QNH2
 		101325,
 		//atl1_flags
-		ALT_UNIT_M | ALT_AUTO_GPS,
+		ALT_UNIT_M, // | ALT_AUTO_GPS,
 		//altimeter
 		{
 			//altimeter2
@@ -145,7 +164,7 @@ EEMEM cfg_t config_ee = {
 			//altimeter5
 			{
 				//flags
-				ALT_ABS_QNH2 | ALT_AUTO_GPS,
+				ALT_ABS_QNH2, // | ALT_AUTO_GPS,
 				//diff
 				0,
 			},

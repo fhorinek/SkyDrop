@@ -11,6 +11,7 @@
 void debug_log(char * msg);
 void debug(const char *format, ...);
 
+//#define DEBUG(format, ...)
 #define DEBUG(format, ...) debug(PSTR(format), ##__VA_ARGS__)
 
 // Set this to "1" to get additional debug information as DEBUG_1 will be compiled in

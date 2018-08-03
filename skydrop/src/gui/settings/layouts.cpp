@@ -5,12 +5,10 @@
 
 void gui_layouts_init()
 {
-	gui_list_set(gui_layouts_item, gui_layouts_action, 5, GUI_PAGES);
+	gui_list_set(gui_layouts_item, gui_layouts_action, 6, GUI_PAGES);
 }
 
-void gui_layouts_stop()
-{
-}
+void gui_layouts_stop() {}
 
 void gui_layouts_loop()
 {
@@ -65,6 +63,10 @@ void gui_layouts_action(uint8_t index)
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ee.gui.hide_label, config.gui.hide_label);
 	break;
+
+    case(5):
+        gui_switch_task(GUI_SET_AUTOSET);
+    break;
 	}
 }
 
@@ -103,6 +105,11 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			else
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
+
+        case (5):
+            strcpy_P(text, PSTR("Autoset"));
+            *flags |= GUI_LIST_FOLDER;
+        break;
 	}
 }
 

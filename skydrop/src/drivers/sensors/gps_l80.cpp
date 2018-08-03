@@ -3,6 +3,8 @@
 
 #include "../../fc/fc.h"
 
+#include "../../debug_off.h"
+
 /*
  * GPS simulation: This driver offers the functionality to simulate
  * GPS data read from a file instead of the sensor. This allows

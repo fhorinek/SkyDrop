@@ -45,6 +45,8 @@ uint8_t page_state_dir;  //direction
 uint32_t page_state_timer; //timer based timeout
 uint32_t page_next_cycle_timer = 0;   // The time, when the next cycle should be done
 
+uint8_t page_mode = PAGE_NONE;
+
 uint8_t page_change_dir;
 
 const uint8_t PROGMEM img_pwr[26]={12,16,224,248,28,12,0,63,63,0,12,28,248,224,1,7,14,12,24,24,24,24,12,14,7,1};
@@ -61,6 +63,24 @@ MK_SEQ(snd_page_6, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000}), ARR({100, 100
 MK_SEQ(snd_page_7, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000, 2200}), ARR({100, 100, 100, 100, 100, 100, 100, 100, 100}));
 
 const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4, &snd_page_5, &snd_page_6, &snd_page_7};
+
+void gui_page_set_mode(uint8_t new_mode)
+{
+    //still same mode
+    if (new_mode == page_mode)
+        return;
+
+    DEBUG("mode %d new, old %d\n", new_mode, page_mode);
+
+    page_mode = new_mode;
+
+    uint8_t new_page = config.gui.page_mode[new_mode];
+    if (new_page == PAGE_NONE)
+        return;
+
+    DEBUG("new_page %d\n", new_page);
+    page_set(new_page);
+}
 
 void gui_pages_set_date_manual_cb(float ret)
 {
@@ -332,6 +352,34 @@ void gui_pages_loop()
 
 
 	}
+}
+
+void page_set(uint8_t new_page)
+{
+    //page out of range
+    if (config.gui.number_of_pages <= new_page)
+          return;
+
+    old_page = active_page;
+    page_change_dir = old_page < new_page;
+    active_page = new_page;
+
+    if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_PAGES)
+    {
+        seq_start(snd_pages[active_page], config.gui.alert_volume);
+    }
+
+    if (config.gui.disp_flags & CFG_DISP_ANIM)
+    {
+        page_state_step = PAGE_SWITCH_STEPS;
+        page_state = PAGE_CHANGE;
+    }
+    else
+    {
+        page_state_step = PAGE_INFO_STEPS;
+        page_state = PAGE_CHANGE_INFO;
+    }
+
 }
 
 void page_switch(bool right)
