@@ -184,6 +184,18 @@ struct vario_data_t
 	float error_over_time;                     // This stores the error asscoiated with altitude1 in m.
 };
 
+struct waypoint_t
+{
+	uint8_t flags;
+	int32_t lat;
+	int32_t lon;
+	char name[20];
+	uint16_t radius_m;
+	int16_t bearing;
+	float distance;          // in km.
+};
+
+
 struct flight_stats_t
 {
 	int16_t max_alt;	//in m
@@ -221,7 +233,12 @@ struct flight_data_t
 
 	uint32_t total_time; //in seconds
 
-	//last gps heading
+  //waypoints
+	int waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
+	int waypoints_count;			 // The number of waypoints in the file.
+	waypoint_t next_waypoint;        // The next waypoint where we need to fly
+
+  //last gps heading
 	float last_heading;
 	float avg_heading_change;
 

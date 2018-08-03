@@ -413,6 +413,25 @@ inline bool startsWith_P(const char *pre, const char *str)
     return strncmp_P(str, pre, strlen_P(pre)) == 0;
 }
 
+/**
+ * Return a pointer to the filename part of a full pathname.
+ * e.g. "\directory1\tilmann" will return "tilmann".
+ *
+ * @param a string with a '\' in it.
+ *
+ * @returns the filename part.
+ */
+char *basename(char *s);
+
+/**
+ * Advance s until the first non-blank character. This skips over all blanks.
+ *
+ * @param s a pointer to a string
+ *
+ * @return the next character in this string, that is not a blank.
+ */
+char *skip_ws(char *s);
+
 /*
  * 0123456789 ISDIGIT
  * ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ISALPHA
@@ -420,6 +439,7 @@ inline bool startsWith_P(const char *pre, const char *str)
  * 0123456789ABCDEFabcdef ISXDIGIT
  */
 #define ISDIGIT(c) ((c) - '0' + 0U <= 9U)
+#define ISBLANK(c) ((c) == ' ' || (c) == '\t')                     // Todo: Avoid double evaluation in macro!
 #define ISALPHA(c) (((c) | 32) - 'a' + 0U <= 'z' - 'a' + 0U)
 #define ISCAPITALHEX(c) ((((((c) - 48U) & 255) * 23 / 22 + 4) / 7 ^ 1) <= 2U)
 #define ISXDIGIT(c) (((((((((c) - 48U) & 255) * 18 / 17 * 52 / 51 * 58 / 114 \

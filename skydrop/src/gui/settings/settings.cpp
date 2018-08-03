@@ -46,7 +46,7 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		break;
 
 		case (4):
-			strcpy_P(text, PSTR("Home Position"));
+			strcpy_P(text, PSTR("Navigation"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 

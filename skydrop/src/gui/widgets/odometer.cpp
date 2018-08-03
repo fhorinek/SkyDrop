@@ -6,6 +6,9 @@
  */
 
 #include "odometer.h"
+#include "../../fc/waypoint.h"
+
+#include <limits.h>
 
 const uint8_t PROGMEM img_home[] =
 	{5, 8, // width, heigth
@@ -73,19 +76,16 @@ void widget_odometer_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	const char *Home_P = PSTR("Home");
-
-	uint8_t lh = widget_label_P(Home_P, x, y);
+	uint8_t lh = widget_label_P(label_P, x, y);
 	if (lh > 0)
-		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
+		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
 
 	char text[10];
 
-	if (fc.flight.home_valid && fc.gps_data.valid)
+	if (distance != INFINITY)
 	{
-		float distance = fc.flight.home_distance;
 		sprintf_distance(text, distance);
 	}
 	else
@@ -96,26 +96,48 @@ void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
-void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	const char *Home_P = PSTR("Home");
+	float distance;
 
-	uint8_t lh = widget_label_P(Home_P, x, y);
+	if (fc.flight.home_valid && fc.gps_data.valid)
+	{
+		distance = fc.flight.home_distance;
+	}
+	else
+	{
+		distance = INFINITY;
+	}
+
+	widget_distance_draw(PSTR("Home"), distance, x, y, w, h, flags);
+}
+
+void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	float distance;
+
+	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid)
+	{
+		distance = fc.flight.next_waypoint.distance;
+	}
+	else
+	{
+		distance = INFINITY;
+	}
+
+	widget_distance_draw(PSTR("Next WP"), distance, x, y, w, h, flags);
+}
+
+void widget_time_draw(const char *label_P, float min, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(label_P, x, y);
 	if (lh > 0)
-		disp.DrawImage(img_time, x + 1 + disp.GetTextWidth_P(Home_P) + 2, y);
+		disp.DrawImage(img_time, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
 
 	char text[10];
 
-	//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
-	int16_t relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
-
-	if (fc.flight.home_valid && fc.gps_data.valid && abs(relative_direction) < 45)
+	if (min != INFINITY)
 	{
-		// Pilot is heading towards home
-		float min;
-
-		// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-		min = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.groud_speed * FC_KNOTS_TO_MPS)) / 60.0;
 		sprintf_P(text, PSTR("%.0f min"), min);
 	}
 	else
@@ -124,6 +146,40 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	}
 
 	widget_value_txt(text, x, y + lh, w, h - lh);
+}
+
+void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	float min = INFINITY;
+
+	if (fc.flight.home_valid && fc.gps_data.valid) {
+		//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
+		int16_t relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
+		if (abs(relative_direction) < 45) {
+			// Pilot is heading towards home.
+			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
+			min = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.groud_speed * FC_KNOTS_TO_MPS)) / 60.0;
+		}
+	}
+
+	widget_time_draw(PSTR("Home"), min, x, y, w, h ,flags);
+}
+
+void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	float min = INFINITY;
+
+	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid) {
+		//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
+		int16_t relative_direction = fc.flight.next_waypoint.bearing - fc.gps_data.heading;
+		if (abs(relative_direction) < 45) {
+			// Pilot is heading towards home.
+			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
+			min = ((fc.flight.next_waypoint.distance * 1000.0) / (fc.gps_data.groud_speed * FC_KNOTS_TO_MPS)) / 60.0;
+		}
+	}
+
+	widget_time_draw(PSTR("Next WP"), min, x, y, w, h ,flags);
 }
 
 void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -199,19 +255,57 @@ void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
-	const char *Home_P = PSTR("Home");
+	if (type == TASK_IRQ_BUTTON_L || type == TASK_IRQ_BUTTON_R)
+	{
+		if (*buff == BE_CLICK || *buff == BE_DBL_CLICK) {
+			if (type == TASK_IRQ_BUTTON_L) {
+				waypoint_goto_prev();
+			} else {
+				waypoint_goto_next();
+			}
+		}
+	}
+}
+
+void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint32_t oldClip;
+
+	oldClip = disp.clip(x, y, x + w, y + h);
+
+	const char *Home_P = PSTR("WP info");
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
 
+	y += lh + 1;
+
+	disp.LoadFont(F_TEXT_M);
+
+	uint8_t text_h = disp.GetTextHeight();
+
+	char tmp[80];
+
+	disp.GotoXY(x, y);
+
+	fprintf_P(lcd_out, PSTR("%d/%d"), fc.flight.waypoint_no, fc.flight.waypoints_count);
+	y += text_h + 1;
+	disp.GotoXY(x, y);
+	fprintf_P(lcd_out, PSTR("%s"), fc.flight.next_waypoint.name);
+
+	disp.clip(oldClip);
+}
+
+void widget_direction_draw(const char *label_P, int16_t direction, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(label_P, x, y);
+
 	y += lh / 2;
 
-	if (fc.flight.home_valid && fc.gps_data.valid)
+	if (direction != INT_MAX)
 	{
-		int16_t relative_direction = fc.flight.home_bearing	- fc.compass.azimuth_filtered;
-//		int16_t relative_direction = fc.flight.home_bearing	- fc.gps_data.heading;
-		widget_arrow(relative_direction, x, y, w, h);
+		widget_arrow(direction, x, y, w, h);
 	}
 	else
 	{
@@ -221,9 +315,44 @@ void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 	}
 }
 
+void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	int16_t relative_direction;
+
+	if (fc.flight.home_valid && fc.gps_data.valid)
+	{
+		relative_direction = fc.flight.home_bearing	- fc.compass.azimuth_filtered;
+	}
+	else
+	{
+		relative_direction = INT_MAX;
+	}
+
+	widget_direction_draw(PSTR("Home"), relative_direction, x, y, w, h, flags);
+}
+
+void widget_waypoint_direction_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	int16_t relative_direction;
+
+	if (fc.flight.waypoint_no != 0 && fc.gps_data.valid)
+	{
+		relative_direction = fc.flight.next_waypoint.bearing - fc.compass.azimuth_filtered;
+	}
+	else
+	{
+		relative_direction = INT_MAX;
+	}
+	widget_direction_draw(PSTR("Next WP"), relative_direction, x, y, w, h, flags);
+}
+
 register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odometer_irqh);
 register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
 register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
 register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
 register_widget2(w_home_info, "Home Info", widget_home_info_draw, 0, widget_home_info_irqh);
+register_widget1(w_waypoint_direction, "Waypoint Arrow", widget_waypoint_direction_draw);
+register_widget1(w_waypoint_distance, "Waypoint Distance", widget_waypoint_distance_draw);
+register_widget1(w_waypoint_time, "Waypoint Time", widget_waypoint_time_draw);
+register_widget2(w_waypoint_info, "Waypoint Info", widget_waypoint_info_draw, 0, widget_waypoint_info_irqh);
 

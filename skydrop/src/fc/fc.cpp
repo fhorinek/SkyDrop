@@ -10,7 +10,9 @@
 #include "agl.h"
 #include "odometer.h"
 #include "compass.h"
+#include "waypoint.h"
 #include "alt_calibration.h"
+
 
 #include "protocols/protocol.h"
 
@@ -50,6 +52,9 @@ void fc_init()
 		fc.flight.home_valid = true;
 	else
 		fc.flight.home_valid = false;
+
+	// We do not have a valid waypoint
+	set_waypoint_file((const char *)"");
 
 	// Todo: read/write into eeprom
 	fc.odometer = 0;
