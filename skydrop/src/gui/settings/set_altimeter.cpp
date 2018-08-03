@@ -18,9 +18,9 @@ void gui_set_altimeter_index(uint8_t index)
 void gui_set_altimeter_list()
 {
 	set_alt_list_num = 5; //mode, relative to, zero at take off, units, sync with gps
-	if ((set_alt_flags & 0b11000000) != ALT_DIFF)
+	if ((set_alt_flags & ALT_MODE_MASK) != ALT_DIFF)
 		set_alt_list_num = 3; //mode, units, sync with gps
-	if ((set_alt_flags & 0b11000000) == ALT_ABS_GPS)
+	if ((set_alt_flags & ALT_MODE_MASK) == ALT_ABS_GPS)
 		set_alt_list_num = 2; //mode, units
 
 	gui_list_set(gui_set_altimeter_item, gui_set_altimeter_action, set_alt_list_num, GUI_SET_ALTIMETERS);
@@ -101,7 +101,7 @@ void gui_set_altimeter_gps_alt(uint8_t ret)
 	{
 		if (fc.gps_data.valid)
 		{
-			uint8_t a_type  = set_alt_flags & 0b11000000;
+			uint8_t a_type  = set_alt_flags & ALT_MODE_MASK;
 
 			if (a_type == ALT_ABS_QNH1)
 			{
@@ -118,7 +118,7 @@ void gui_set_altimeter_gps_alt(uint8_t ret)
 
 			if (a_type == ALT_DIFF)
 			{
-				uint8_t a_index = set_alt_flags & 0b00001111;
+				uint8_t a_index = set_alt_flags & ALT_REL_MASK;
 				int16_t p_alt;
 
 				if (a_index == 0)

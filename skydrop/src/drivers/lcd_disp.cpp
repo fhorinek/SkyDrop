@@ -273,59 +273,18 @@ void lcd_display::Stop()
  * Draw line (works in any direction)
  *
  */
-void lcd_display::DrawLine(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t color=1){
-	uint8_t deltax,deltay,x,y,xinc1,xinc2,yinc1,yinc2,den,num,numadd,numpixels,curpixel;
-	deltax = abs(x2 - x1);		// The difference between the x's
-	deltay = abs(y2 - y1);		// The difference between the y's
-	x = x1;				   	// Start x off at the first pixel
-	y = y1;				   	// Start y off at the first pixel
+void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color=1) {
+  int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
+  int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
+  int err = dx+dy, e2; // error value e_xy
 
-	if (x2 >= x1){			 	// The x-values are increasing
-	  xinc1 = 1;
-	  xinc2 = 1;
-	}
-	else{						  // The x-values are decreasing
-	  xinc1 = -1;
-	  xinc2 = -1;
-	}
-
-	if (y2 >= y1){			 	// The y-values are increasing
-	  yinc1 = 1;
-	  yinc2 = 1;
-	}
-	else{						  // The y-values are decreasing
-	  yinc1 = -1;
-	  yinc2 = -1;
-	}
-
-	if (deltax >= deltay){	 	// There is at least one x-value for every y-value
-	  xinc1 = 0;				  // Don't change the x when numerator >= denominator
-	  yinc2 = 0;				  // Don't change the y for every iteration
-	  den = deltax;
-	  num = deltax / 2;
-	  numadd = deltay;
-	  numpixels = deltax;	 	// There are more x-values than y-values
-	}
-	else{						  // There is at least one y-value for every x-value
-	  xinc2 = 0;				  // Don't change the x for every iteration
-	  yinc1 = 0;				  // Don't change the y when numerator >= denominator
-	  den = deltay;
-	  num = deltay / 2;
-	  numadd = deltax;
-	  numpixels = deltay;	 	// There are more y-values than x-values
-	}
-
-	for (curpixel = 0; curpixel <= numpixels; curpixel++){
-	  PutPixel(x, y,color);		 	// Draw the current pixel
-	  num += numadd;			  // Increase the numerator by the top of the fraction
-	  if (num >= den){		 	// Check if numerator >= denominator
-		num -= den;		   	// Calculate the new numerator value
-		x += xinc1;		   	// Change the x as appropriate
-		y += yinc1;		   	// Change the y as appropriate
-	  }
-	  x += xinc2;			 	// Change the x as appropriate
-	  y += yinc2;			 	// Change the y as appropriate
-	}
+  while (1) {
+    PutPixel(x0, y0, color);
+    if (x0==x1 && y0==y1) break;
+    e2 = 2*err;
+    if (e2 > dy) { err += dy; x0 += sx; } // e_xy+e_x > 0
+    if (e2 < dx) { err += dx; y0 += sy; } // e_xy+e_y < 0
+  }
 }
 
 /**

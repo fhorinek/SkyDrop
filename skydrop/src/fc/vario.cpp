@@ -23,6 +23,31 @@ void vario_init(float pressure )
 	fc.vario.history_pointer = 0;
 	fc.vario.history_step = 0;
 
+	//prevent freezing if QNH or int. interval is corrupted
+	if (isnan(config.altitude.QNH1))
+	{
+	    eeprom_busy_wait();
+	    eeprom_update_float(&config_ee.altitude.QNH1, 103000);
+	}
+
+    if (isnan(config.altitude.QNH2))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.altitude.QNH2, 101325);
+    }
+
+    if (isnan(config.vario.digital_vario_dampening))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.digital_vario_dampening, 1.0 / 100.0 / 0.3);
+    }
+
+    if (isnan(config.vario.avg_vario_dampening))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.avg_vario_dampening, 1.0 / 100.0 / 10.3);
+    }
+
 	//kalmanFilter.Configure( 30.0, 1.0, 1.0, 0.0, 0.0, 0.0 );
 	float rawAltitude = fc_press_to_alt(pressure, config.altitude.QNH1);
 	kalmanFilter.Configure(2500.0, 100.0, 1.0, rawAltitude, 0.0, 0.0);
@@ -35,7 +60,7 @@ void vario_update_history_delay()
 
 int16_t	vario_get_altitude(uint8_t flags, uint8_t index)
 {
-	switch (flags & 0b11000000)
+	switch (flags & ALT_MODE_MASK)
 	{
 		case(ALT_ABS_QNH1):
 			return fc_press_to_alt(fc.vario.pressure, config.altitude.QNH1);

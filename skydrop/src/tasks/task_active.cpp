@@ -26,52 +26,7 @@ void task_active_init()
 	ewdt_reset();
 	if (storage_init())
 	{
-		//Handle update files
-		FILINFO fno;
-
-		//new way to update FW if SKYDROP.FW file found
-		if (f_stat("SKYDROP.FW", &fno) == FR_OK)
-		{
-			task_set(TASK_UPDATE);
-			return;
-		}
-
-		//Reset factory test if RST_FT file found
-		if (f_stat("RST_FT", &fno) == FR_OK)
-		{
-			f_unlink("RST_FT");
-			cfg_reset_factory_test();
-		}
-
-		//Override factory test if PASS_FT file found
-		if (f_stat("PASS_FT", &fno) == FR_OK)
-		{
-			f_unlink("PASS_FT");
-
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
-			eeprom_busy_wait();
-
-			gui_showmessage_P(PSTR("Factory test\noverride!"));
-
-			gui_splash_set_mode(SPLASH_ON);
-			gui_switch_task(GUI_SPLASH);
-		}
-
-		//Load eeprom update
-		if (LoadEEPROM())
-		{
-			cfg_load();
-			gui_load_eeprom();
-		}
-
-		//preserve EE and FW file if NO_WIPE file found (factory programming)
-		if (f_stat("NO_WIPE", &fno) != FR_OK)
-		{
-			//remove applied update files
-			f_unlink("UPDATE.EE");
-			f_unlink("UPDATE.FW");
-		}
+		task_special_files_handle();
 	}
 
 	ewdt_reset();
@@ -80,6 +35,69 @@ void task_active_init()
 	fc_init();
 
 	led_notify_enable();
+}
+
+void task_special_files_handle()
+{
+	//Handle update files
+	FILINFO fno;
+
+	//new way to update FW if SKYDROP.FW file found
+	if (f_stat("SKYDROP.FW", &fno) == FR_OK)
+	{
+		task_set(TASK_UPDATE);
+		return;
+	}
+
+	//Force bt module type
+	if (f_stat("BT_1026", &fno) == FR_OK)
+	{
+		f_unlink("BT_1026");
+		eeprom_update_byte(&config_ro.bt_module_type, BT_PAN1026);
+	}
+
+	if (f_stat("BT_1322", &fno) == FR_OK)
+	{
+		f_unlink("BT_1322");
+		eeprom_update_byte(&config_ro.bt_module_type, BT_PAN1322);
+	}
+
+	//Reset factory test if RST_FT file found
+	if (f_stat("RST_FT", &fno) == FR_OK)
+	{
+		f_unlink("RST_FT");
+		cfg_reset_factory_test();
+	}
+
+	//Override factory test if PASS_FT file found
+	if (f_stat("PASS_FT", &fno) == FR_OK)
+	{
+		f_unlink("PASS_FT");
+
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
+		eeprom_busy_wait();
+
+		gui_showmessage_P(PSTR("Factory test\noverride!"));
+
+		gui_splash_set_mode(SPLASH_ON);
+		gui_switch_task(GUI_SPLASH);
+	}
+
+	//Load eeprom update
+	if (LoadEEPROM())
+	{
+		cfg_load();
+		gui_load_eeprom();
+	}
+
+	//preserve EE and FW file if NO_WIPE file found (factory programming)
+	if (f_stat("NO_WIPE", &fno) != FR_OK)
+	{
+		//remove applied update files
+		f_unlink("UPDATE.EE");
+		f_unlink("UPDATE.FW");
+	}
 }
 
 void task_active_stop()

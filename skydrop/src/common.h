@@ -9,6 +9,7 @@
 #define COMMON_H_
 
 #include <math.h>
+#include <float.h>
 
 #include <xlib/core/clock.h>
 #include <xlib/core/usart.h>
@@ -29,45 +30,44 @@
 
 union byte8
 {
-	uint64_t uint64;
-	uint32_t uint32[2];
-	uint8_t uint8[4];
+    uint64_t uint64;
+    uint32_t uint32[2];
+    uint8_t uint8[4];
 };
-
 
 union byte4
 {
-	uint32_t uint32;
-	int32_t int32;
-	uint8_t uint8[4];
+    uint32_t uint32;
+    int32_t int32;
+    uint8_t uint8[4];
 };
 
 union byte2
 {
-	uint16_t uint16;
-	int16_t int16;
-	uint8_t uint8[2];
+    uint16_t uint16;
+    int16_t int16;
+    uint8_t uint8[2];
 };
 
 struct vector_i16_t
 {
-	int16_t x;
-	int16_t y;
-	int16_t z;
+    int16_t x;
+    int16_t y;
+    int16_t z;
 };
 
 struct vector_i32_t
 {
-	int32_t x;
-	int32_t y;
-	int32_t z;
+    int32_t x;
+    int32_t y;
+    int32_t z;
 };
 
 struct vector_float_t
 {
-	float x;
-	float y;
-	float z;
+    float x;
+    float y;
+    float z;
 };
 
 #define APP_INFO_EE_offset	32
@@ -75,8 +75,8 @@ struct vector_float_t
 
 struct app_info
 {
-	uint8_t app_name[APP_INFO_NAME_len];
-	uint8_t reserved;
+    uint8_t app_name[APP_INFO_NAME_len];
+    uint8_t reserved;
 };
 
 extern struct app_info fw_info;
@@ -131,7 +131,6 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BUZZER_VOL_DAC			dac_ch1
 #define BUZZER_VOL_DAC_PWR_ON	PR.PRPB &= 0b11111011;
 #define BUZZER_VOL_DAC_PWR_OFF	PR.PRPB |= 0b00000100;
-
 
 #define IO_ADC_PWR_ON			PR.PRPB &= 0b11111101;
 #define IO_ADC_PWR_OFF			PR.PRPB |= 0b00000010;
@@ -208,11 +207,11 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define DEBUG_TIMER				timerd0
 #define DEBUG_TIMER_PWR_ON		PR.PRPD	&= 0b11111110;
 #define DEBUG_TIMER_PWR_OFF		PR.PRPD	|= 0b00000001;
+#define DEBUG_TIMER_OVF         timerd0_overflow_interrupt
 
 #define LED_TIMER1				timerd1
 #define LED_TIMER1_PWR_ON		PR.PRPD	&= 0b11111101;
 #define LED_TIMER1_PWR_OFF		PR.PRPD	|= 0b00000010;
-#define DEBUG_TIMER_OVF			timerd0_overflow_interrupt
 #define LED_TIMER1_OVF			timerd1_overflow_interrupt
 
 //---------------- PORTE ---------------------
@@ -248,7 +247,6 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define LED_TIMER2_PWR_ON		PR.PRPE	&= 0b11111101;
 #define LED_TIMER2_PWR_OFF		PR.PRPE	|= 0b00000010;
 #define LED_TIMER2_OVF			timere1_overflow_interrupt
-
 
 //---------------- PORTF ---------------------
 #define BUZZ					portf0
@@ -299,21 +297,21 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 class DataBuffer
 {
 public:
-	uint8_t * data;
+    uint8_t * data;
 
-	uint16_t size;
-	uint16_t length;
-	uint16_t write_index;
-	uint16_t read_index;
+    uint16_t size;
+    uint16_t length;
+    uint16_t write_index;
+    uint16_t read_index;
 
-	DataBuffer(uint16_t size, uint8_t * buffer);
-	~DataBuffer();
+    DataBuffer(uint16_t size, uint8_t * buffer);
+    ~DataBuffer();
 
-	uint16_t Read(uint16_t len, uint8_t * * data);
-	bool Write(uint16_t len, uint8_t * data);
+    uint16_t Read(uint16_t len, uint8_t * * data);
+    bool Write(uint16_t len, uint8_t * data);
 
-	uint16_t Length();
-	void Clear();
+    uint16_t Length();
+    void Clear();
 };
 
 //--------------------------------------------
@@ -360,7 +358,6 @@ char *rindex(char * s, char c);
 char * find_comma(char * str);
 uint8_t nmea_checksum(char *s);
 
-
 //settings
 bool LoadEEPROM();
 bool StoreEEPROM();
@@ -390,14 +387,16 @@ void io_write(uint8_t io, uint8_t level);
 /**
  * Convert an angle given in degree to radians.
  */
-inline double to_radians(double degree) {
+inline double to_radians(double degree)
+{
     return degree / 180.0 * M_PI;
 }
 
 /**
  * Convert an angle given in radians to degree.
  */
-inline double to_degrees(double radians) {
+inline double to_degrees(double radians)
+{
     return radians * (180.0 / M_PI);
 }
 

@@ -159,6 +159,11 @@ void gui_list_set_index(uint8_t task, uint8_t index)
 	gui_list_index[task] = index;
 }
 
+uint8_t gui_list_get_index(uint8_t task)
+{
+	return gui_list_index[task];
+}
+
 void gui_list_moveup()
 {
 	if (gui_list_index[gui_task] > 0)

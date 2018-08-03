@@ -70,7 +70,8 @@
 #define FC_GPS_NEW_SAMPLE_WIND			0b00000010
 #define FC_GPS_NEW_SAMPLE_AGL			0b00000100
 #define FC_GPS_NEW_SAMPLE_ODO			0b00001000
-#define FC_GPS_NEW_SAMPLE_ALT			0b00010000
+#define FC_GPS_NEW_SAMPLE_ALT           0b00010000
+#define FC_GPS_NEW_SAMPLE_CIRCLE        0b00100000
 
 struct gps_data_t
 {
@@ -232,9 +233,18 @@ struct flight_data_t
 
 	uint32_t total_time; //in seconds
 
+  //waypoints
 	int waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
 	int waypoints_count;			 // The number of waypoints in the file.
 	waypoint_t next_waypoint;        // The next waypoint where we need to fly
+
+  //last gps heading
+	float last_heading;
+	float avg_heading_change;
+
+	//circling
+	float circling_start;
+	float circling_start_altitude;
 };
 
 struct agl_data_t

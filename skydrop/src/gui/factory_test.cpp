@@ -5,6 +5,8 @@
 
 #include "splash.h"
 
+#include "../debug_off.h"
+
 #define FTEST_LCD_DONE		0
 #define FTEST_LCD_MIN_AUTO	1
 #define FTEST_LCD_MIN		2

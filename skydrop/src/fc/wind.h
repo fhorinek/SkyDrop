@@ -29,6 +29,8 @@ struct wind_data_t
 
 	//calculated wind values
 	bool 		valid;		// was wind calculated?
+	uint32_t    valid_from;
+
 	float 		speed;		// m/s
 	float 		direction;	// degrees
 };

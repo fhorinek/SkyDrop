@@ -30,7 +30,7 @@ void gui_set_vario_dig_int_cb(float val)
 
 	config.vario.digital_vario_dampening = sec_to_mul(val);
 	eeprom_busy_wait();
-	eeprom_write_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
+	eeprom_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
 
 }
 
@@ -41,7 +41,7 @@ void gui_set_vario_avg_int_cb(float val)
 	config.vario.avg_vario_dampening = sec_to_mul(val);
 	vario_update_history_delay();
 	eeprom_busy_wait();
-	eeprom_write_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
+	eeprom_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
 }
 
 void gui_set_vario_lift_cb(float val)

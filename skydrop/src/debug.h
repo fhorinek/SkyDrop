@@ -11,6 +11,7 @@
 void debug_log(char * msg);
 void debug(const char *format, ...);
 
+//#define DEBUG(format, ...)
 #define DEBUG(format, ...) debug(PSTR(format), ##__VA_ARGS__)
 #define DEBUG_TRACE()       DEBUG("Executing line %3d in %s\n", __LINE__, __FILE__)
 

@@ -159,12 +159,12 @@ void gui_update_loop()
 			//update files are used only during update
 			//we can "steal" them from other tasks
 			extern FIL log_file;
-			extern FIL skybean_file_handle;
+			extern FIL debug_file;
 
 			assert(f_unlink("UPDATE.FW") == FR_OK);
 
 			update_file = &log_file;				//stolen from IGC/KML logger
-			update_file_out = &skybean_file_handle;	//stolen from Skybean protocol handler
+			update_file_out = &debug_file;	        //stolen from DEBUG
 
 			update_state = UPDATE_CHECK_EE;
 			update_file_pos = 0;
