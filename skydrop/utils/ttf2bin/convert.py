@@ -4,7 +4,7 @@ import PIL.ImageDraw
 import PIL.ImageFont
 
 import os.path
-
+import sys
         
 def u16to8(val):
     b = (val & 0xFF00) >> 8
@@ -19,6 +19,7 @@ class FontChar:
         self.parent = parent
         self.c = c
         self.height = height
+        self.x = self.y = 0
         
         self.size = parent.font.getsize(c)
         if force_width is not False:
@@ -30,8 +31,6 @@ class FontChar:
         self.draw = PIL.ImageDraw.Draw(self.im)
 
         self.draw.text((0,0), c, font = self.parent.font, fill = 1)
-        
-        self.im.save("chr.png", "PNG")
         
         box = self.im.getbbox()
         if (box == None):
@@ -46,12 +45,27 @@ class FontChar:
         self.width = box[2] - box[0]
         print " width", self.width
         
-    def copy(self, x, y, im):
-        box = (x, y)
+    def copy(self, x, im):
+        box = (x, self.y)
         self.x = x
         im.paste(self.im, box)
         return self.width
-    
+
+    def getFilename(self):
+        return "%s-%d" % (self.parent.getFilename(), ord(self.c))
+        
+    def load(self, filename):
+        self.im = PIL.Image.open(filename)
+        
+    def save(self, filename):
+        self.im.save(filename)
+        
+    def setX(self, x):
+        self.x = x
+
+    def setY(self, y):
+        self.y = y
+
     def GetHeight(self):
         box = self.im.getbbox()
         return box[3] - box[1]
@@ -75,21 +89,35 @@ class FontConvertor:
         self.start = start
         self.end = end
         
+    def getFilename(self):
+        filename = os.path.basename(self.fontname).lower()
+        filename = filename.replace(".", "_")
+        filename = filename.replace("-", "_")
+        filename = "font_%s_%d" % (filename, self.fontsize)
+        return filename
+
     def Generate(self, force_size = {}, move_xy = {}):
+        print "generating %s, size %d" % (self.fontname, self.fontsize)
         for i in range(self.start, self.end):
-            print "generating %d %c" % (i, chr(i))
+            print "  generating %d %c" % (i, chr(i)),
+            sys.stdout.flush()
             c = chr(i)
             if i in force_size:
                 item = FontChar(self, c, self.height, force_size[i])
             else:
                 item = FontChar(self, c, self.height)
-                
+
             if i in move_xy:
-                y = move_xy[i][1]
-            else:
-                y = 0
-                
-            self.width += item.copy(self.width, y, self.buffer)
+                item.setY(move_xy[i][1])
+
+            filename = item.getFilename() + ".png"
+            item.save("tmp/" + filename)
+            filename_corrected = "corrected/" + filename
+            if os.path.isfile(filename_corrected):
+                item.load(filename_corrected)
+                    
+            self.width += item.copy(self.width, self.buffer)
+            
             self.chars.append(item)
             
         #get char A height
@@ -102,15 +130,17 @@ class FontConvertor:
         self.w, self.h = self.buffer.size
         if (self.h % 8 <> 0):
             self.h = ((self.h / 8 + 1) * 8) 
-        
+
         self.im = PIL.Image.new('1', (self.w, self.h), 0)
         self.im.paste(self.buffer, (0, 0))
-        self.im.save("generated_%s_%d.png" % (os.path.basename(self.fontname), self.fontsize))
-       
+
         self.n = self.h / 8
         
 
-    def StoreBuffer(self, filename):
+    def StoreBuffer(self, filename = None):
+        if filename == None:
+            filename = "tmp/generated_%s.png" % (self.getFilename())
+            
         im = PIL.Image.new('1', (self.w + len(self.chars), self.h), 0)
         width = 0
         i = 0
@@ -188,10 +218,7 @@ class FontConvertor:
         print "data size", len(data)
 
     def Save(self):
-        filename = os.path.basename(self.fontname).lower()
-        filename = filename.replace(".", "_")
-        filename = filename.replace("-", "_")
-        filename = "font_%s_%d.h" % (filename, self.fontsize)
+        filename = self.getFilename() + ".h"
         
         print "Generating file", filename
         print
@@ -245,31 +272,44 @@ tiny = FontConvertor("source/6px-Normal.ttf", 8, 1, 33, 127)
 tiny.Generate()
 tiny.Convert()
 tiny.Save()
- 
+tiny.StoreBuffer()
+
 values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 42, 59)
 values_36.Generate({49: 17, 52: 17}) #number must have fixed width for values
 values_36.Convert()
 values_36.Save()
+values_36.StoreBuffer()
  
 values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 42, 59)
 values_16.Generate({49: 8}) #number must have fixed width for values
 values_16.Convert()
 values_16.Save()
+values_16.StoreBuffer()
   
 values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 42, 59)
 values_10.Generate({49: 5}) #number must have fixed width for values
 values_10.Convert()
 values_10.Save()
+values_10.StoreBuffer()
 
 text_L = FontConvertor("source/Arial.ttf", 12, 1, 33, 127)
 text_L.Generate({49: 5, 45:3}, {116: [0, 1]})
 text_L.Convert()
 text_L.Save()
+text_L.StoreBuffer()
 
 text_M = FontConvertor("source/Arial.ttf", 10, 1, 33, 127)
 text_M.Generate({49: 5, 45:2, 52: 5}, {81: [0, -1]})
 text_M.Convert()
 text_M.Save()
+text_M.StoreBuffer()
+
+text_M2 = FontConvertor("source/style-7_thin-pixel-7/thin_pixel-7.ttf", 20, 1, 33, 127)
+text_M2.Generate({}, {36: [0, +1]})
+text_M2.Convert()
+text_M2.Save()
+text_M2.StoreBuffer()
+
 
 # data = conv.data
 # 

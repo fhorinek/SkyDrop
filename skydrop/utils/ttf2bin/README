@@ -1,0 +1,27 @@
+This is to create binary fonts for SkyDrop.
+
+USAGE
+=====
+
+Execute "python convert.py" to read various ttf files from directory
+source and create the corresponding "*.h" header files containing the
+fonts. These header files must be copied to src/data and will then be
+used during compilation of the firmware.
+
+CORRECTION
+==========
+
+For some fonts and characters, the generated pixels are not
+optimal. You can correct them manually and use these human corrected
+characters during the above USAGE.
+
+During execution, the directory "tmp" will contain single PNG files
+for each font, size and character. Choose the file, which you would
+like to optimize and copy it to the directory "corrected". Use a pixel
+painting program (like GIMP) to correct the character images.
+
+The convert.py will look for character files in "corrected" and use
+them instead of the automatic generated images. This allows to
+override the automatic generation and use better version from you.
+
+
