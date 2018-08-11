@@ -112,9 +112,9 @@ class FontConvertor:
 
             filename = item.getFilename() + ".png"
             item.save("tmp/" + filename)
-            filename_corrected = "corrected/" + filename
-            if os.path.isfile(filename_corrected):
-                item.load(filename_corrected)
+            filename_improved = "improved/" + filename
+            if os.path.isfile(filename_improved):
+                item.load(filename_improved)
                     
             self.width += item.copy(self.width, self.buffer)
             
