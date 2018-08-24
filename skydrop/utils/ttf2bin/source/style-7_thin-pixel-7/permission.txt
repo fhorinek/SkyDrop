@@ -1,0 +1,96 @@
+Return-Path: <ms-7@styleseven.com>
+Delivered-To: unknown
+Received: from imap.strato.de (81.169.145.103:993) by brain.wid.bubecks.de
+  with IMAP4-SSL; 22 May 2017 13:41:02 -0000
+X-Envelope-From: <ms-7@styleseven.com>
+X-Envelope-To: <tilmann@bubecks.de>
+X-Delivery-Time: 1495460418
+X-UID: 122313
+Authentication-Results: strato.com 1;
+	spf=softfail
+		smtp.mailfrom="ms-7@styleseven.com";
+	dkim=none;
+	domainkeys=none;
+	dkim-adsp=none
+		header.from="ms-7@styleseven.com"
+X-Strato-MessageType: email
+X-RZG-CLASS-ID: mi00
+Received-SPF: softfail
+	client-ip=93.190.40.15;
+	helo="relay.uh.com.ua";
+	envelope-from="ms-7@styleseven.com";
+	receiver=smtp.rzone.de;
+	identity=mailfrom;
+Received: from relay.uh.com.ua ([93.190.40.15])
+	by smtp.rzone.de (RZmta 40.7 REPLY)
+	with ESMTPS id S051fat4MDeISCv
+	(using TLSv1 with cipher AES256-SHA (256 bits))
+	(Client did not present a certificate)
+	for <tilmann@bubecks.de>;
+	Mon, 22 May 2017 15:40:18 +0200 (CEST)
+Received: by relay.uh.com.ua (Postfix, from userid 502)
+	id D952011474CB; Mon, 22 May 2017 16:32:35 +0300 (EEST)
+X-Spam-Checker-Version: SpamAssassin 3.3.2 (2011-06-06) on relay.uh.com.ua
+X-Spam-Level: 
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+	SPF_SOFTFAIL autolearn=no version=3.3.2
+Received: from vs11.ukrdomen.com (vs11.ukrdomen.com [93.190.46.18])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by relay.uh.com.ua (Postfix) with ESMTP id 0B513114731D
+	for <tilmann@bubecks.de>; Mon, 22 May 2017 16:32:28 +0300 (EEST)
+Received: from c3-252.ltk.com.ua ([195.3.135.252] helo=ALEX)
+	by vs11.ukrdomen.com with esmtp (Exim 4.77)
+	(envelope-from <ms-7@styleseven.com>)
+	id 1dCjGZ-0003un-TF
+	for tilmann@bubecks.de; Mon, 22 May 2017 12:04:40 +0300
+From: "Alexander" <ms-7@styleseven.com>
+To: "'Dr. Tilmann Bubeck'" <tilmann@bubecks.de>
+References: <a2a57180-b373-fb38-a179-5d86185ce5c5@bubecks.de>
+In-Reply-To: <a2a57180-b373-fb38-a179-5d86185ce5c5@bubecks.de>
+Subject: RE: Using True Type Font: Thin Pixel-7 version 1.0
+Date: Mon, 22 May 2017 12:04:33 +0300
+Message-ID: <7345A9CAE87B495580907DE74E7C2C01@ALEX>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Office Outlook 11
+X-MimeOLE: Produced By Microsoft MimeOLE
+Thread-Index: AdLSDDD14fgIXnggTW+Y+ZBXZUSR1wAzhjYg
+X-getmail-retrieved-from-mailbox: INBOX
+
+Hello.
+I give you permission.
+Thank you.
+
+-----Original Message-----
+From: Dr. Tilmann Bubeck [mailto:tilmann@bubecks.de]=20
+Sent: Sunday, May 21, 2017 11:28 AM
+To: ms-7@styleseven.com
+Subject: Using True Type Font: Thin Pixel-7 version 1.0
+
+Hello!
+
+I am contributing to https://github.com/fhorinek/SkyDrop, an open source
+software for a vario, which is a small device used by paraglider pilots. =
+The
+software is provided for free and I want to use your font "Thin Pixel-7
+version 1.0" in it. Do you give me permission to do that? This would =
+also
+mean, that we upload your font to github and we will make sure, that =
+your
+readme and all other files are also there. Is this enough or do you want =
+us
+anything else to do?
+
+Thanks!
+
+Kind regards
+  Tilmann=20
+
+//// dr. tilmann bubeck, it professional & geek
+////=20
+//// tilmann@bubecks.de    /  http://www.bubecks.de=20
+
+
