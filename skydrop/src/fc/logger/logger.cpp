@@ -78,10 +78,10 @@ void logger_next_flight()
 
 void logger_step()
 {
-	if (logger_next > task_get_ms_tick())
+	if (!fc.vario.valid)
 		return;
 
-	if (!fc.vario.valid)
+	if (logger_next > task_get_ms_tick())
 		return;
 
 	//RAW is running as fast as it can!
@@ -95,9 +95,12 @@ void logger_step()
 	}
 
 	if (!logger_active())
-		if (config.logger.format != LOGGER_IGC)
+	{
+		if (config.logger.format == LOGGER_IGC)
 			igc_pre_step();
+
 		return;
+	}
 
 	switch (config.logger.format)
 	{

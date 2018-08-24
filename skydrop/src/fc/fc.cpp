@@ -20,6 +20,8 @@
 
 #include "../gui/gui_dialog.h"
 
+//#include "debug_on.h"
+
 volatile flight_computer_data_t fc;
 
 Timer fc_meas_timer;
@@ -532,14 +534,20 @@ void fc_reset()
     fc.flight.avg_heading_change = 0;
     fc.flight.last_heading = 0;
 
-    fc.flight.circling_start = 0;
+    fc.flight.circling = false;
+    fc.flight.circling_time = 0;
+    fc.flight.circling_gain = 0;
 }
 
 void fc_sync_gps_time()
 {
+	DEBUG("fc_sync_gps_time\n");
+
 	//time is already synced
 	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
+
+	DEBUG("asdf\n");
 
 	//Do not update time during flight, except when the time is not valid
 	if (fc.flight.state == FLIGHT_FLIGHT && time_is_set())
@@ -728,14 +736,25 @@ void fc_step()
         {
             if (abs(fc.flight.avg_heading_change) > config.gui.page_cirlcing_thold)
             {
-                gui_page_set_mode(PAGE_MODE_CIRCLING);
-                fc.flight.circling_start = task_get_ms_tick();
-                fc.flight.circling_start_altitude = fc.altitude1;
+                if (!fc.flight.circling)
+                {
+                    gui_page_set_mode(PAGE_MODE_CIRCLING);
+					fc.flight.circling = true;
+					fc.flight.circling_start = task_get_ms_tick();
+					fc.flight.circling_start_altitude = fc.altitude1;
+                }
+
+                fc.flight.circling_time = (task_get_ms_tick() - fc.flight.circling_start) / 1000;
+                fc.flight.circling_gain = fc.altitude1 - fc.flight.circling_start_altitude;
             }
             else
             {
-                fc.flight.circling_start = 0;
-                gui_page_set_mode(PAGE_MODE_NORMAL);
+            	if (fc.flight.circling)
+            	{
+
+					fc.flight.circling = false;
+					gui_page_set_mode(PAGE_MODE_NORMAL);
+            	}
             }
         }
     }

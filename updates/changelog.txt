@@ -1,3 +1,22 @@
+Build 4016 - 24. 07. 2018
+========================================================
+FIX:
+ * IGC altitude bug #346
+ * IGC distinguish between 2D/3D fix recording
+ 
+ADDED:
+ * IGC record 30 fixes before takeoff
+ * Altitude autocalibration #343 (bubeck)
+ * Automatic screen cycling #388 (bubeck)
+ * Conditional screen switching (beta test)
+ * Thermal Time and Gain widgets (beta test)
+ * Waypoint navigation #337 (bubeck, beta test)
+ 
+CHANGED:
+ * Enhanced font #345 (bubeck)
+ * Optimized DrawLine with Bresenham algorithm #338 (bubeck)
+
+
 Build 3909 - 02. 03. 2018
 ========================================================
 FIX:

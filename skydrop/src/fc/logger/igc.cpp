@@ -5,7 +5,7 @@
 
 #include <private_key.h>
 
-#include "debug_on.h"
+//#include "debug_on.h"
 
 Sha256Class sha256;
 
@@ -22,7 +22,7 @@ struct igc_pre_fix
 	int16_t galt;
 };
 
-#define IGC_PRE_START_BUFFER	20
+#define IGC_PRE_START_BUFFER	30
 igc_pre_fix igc_pre_start_cache[IGC_PRE_START_BUFFER];
 uint8_t igc_pre_start_index = 0;
 uint8_t igc_pre_start_len = 0;
@@ -42,7 +42,7 @@ void igc_writeline(char * line, bool sign = true)
 	uint8_t l = strlen(line);
 	uint16_t wl;
 
-	DEBUG("IGC:%s\n", line);
+//	DEBUG("IGC:%s\n", line);
 
 	strcpy_P(line + l, PSTR("\r\n"));
 	l += 2;
@@ -183,14 +183,14 @@ uint8_t igc_start(char * path)
 #endif
 
 	//dump the cache
-	DEBUG("IGC dump len %d\n", igc_pre_start_len);
+//	DEBUG("IGC dump len %d\n", igc_pre_start_len);
 	for (uint8_t i = igc_pre_start_len; i > 0; i--)
 	{
 		int8_t index = igc_pre_start_index - i;
 		if (index < 0)
 			index += IGC_PRE_START_BUFFER;
 
-		DEBUG("IGC dump %d\n", index);
+//		DEBUG("IGC dump %d\n", index);
 
 		igc_pre_fix * pfix = &igc_pre_start_cache[index];
 
@@ -206,6 +206,7 @@ uint8_t igc_start(char * path)
 		sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05d"), pfix->hour, pfix->min, pfix->sec, pfix->cache_igc_latitude, pfix->cache_igc_longtitude, c, pfix->balt, galt);
 		igc_writeline(line);
 	}
+//	igc_comment("End of cache");
 	igc_write_grecord();
 
 	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
@@ -244,7 +245,7 @@ void igc_pre_step()
 	igc_pre_start_cache[igc_pre_start_index].galt = galt;
 
 
-	DEBUG("IGC PRE %d/%d\n", igc_pre_start_index, igc_pre_start_len);
+//	DEBUG("IGC PRE %d/%d\n", igc_pre_start_index, igc_pre_start_len);
 	igc_pre_start_index = (igc_pre_start_index + 1) % IGC_PRE_START_BUFFER;
 	if (igc_pre_start_len < IGC_PRE_START_BUFFER)
 		igc_pre_start_len++;
@@ -262,13 +263,17 @@ void igc_step()
 
 	int16_t galt;
 
+	DEBUG("igc_step %d %d\n", fc.gps_data.valid, fc.gps_data.fix);
 	if (fc.gps_data.valid && fc.gps_data.fix == 3)
 	{
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			fc.logger_state = LOGGER_ACTIVE;
 
 		if (igc_last_timestamp >= fc.gps_data.utc_time)
+		{
+//			DEBUG("igc_last_timestamp >= fc.gps_data.utc_time\n");
 			return;
+		}
 
 		igc_last_timestamp = fc.gps_data.utc_time;
 
@@ -317,5 +322,6 @@ void igc_comment(char * text)
 
 void igc_stop()
 {
+	igc_pre_start_len = 0;
 	assert(f_close(&log_file) == FR_OK);
 }

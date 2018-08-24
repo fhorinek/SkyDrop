@@ -4,7 +4,7 @@ void widget_thermal_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_
 {
 	uint8_t lh = widget_label_P(PSTR("TTime"), x, y);
 
-	uint16_t sec = (task_get_ms_tick() - fc.flight.circling_start) / 1000;
+	uint16_t sec = fc.flight.circling_time;
 
 	char text[10];
 	if (sec < 60)
@@ -19,7 +19,10 @@ void widget_thermal_gain_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_
 {
     uint8_t lh = widget_label_P(PSTR("TGain"), x, y);
 
-    int16_t diff = fc.altitude1 - fc.flight.circling_start_altitude;
+    int16_t diff = fc.flight.circling_gain;
+
+    if (config.altitude.alt1_flags & VARIO_UNITS_I)
+    	diff *= FC_METER_TO_FEET;
 
     char text[10];
     sprintf_P(text, PSTR("%+d"), diff);

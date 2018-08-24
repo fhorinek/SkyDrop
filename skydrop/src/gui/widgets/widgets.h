@@ -129,6 +129,7 @@ extern float widget_menu_fvalue1;
 #define WIDGET_COMPASS_ARROW	38
 #define WIDGET_COMPASS_POINTS	39
 #include "compass.h"
+
 #define WIDGET_THERMAL_TIME     40
 #define WIDGET_THERMAL_GAIN     41
 #include "thermal.h"

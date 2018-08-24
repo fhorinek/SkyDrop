@@ -243,8 +243,11 @@ struct flight_data_t
 	float avg_heading_change;
 
 	//circling
-	float circling_start;
+	bool circling;
+	uint32_t circling_start;
+	uint16_t circling_time; //in sec
 	float circling_start_altitude;
+	float circling_gain; //in m
 };
 
 struct agl_data_t
