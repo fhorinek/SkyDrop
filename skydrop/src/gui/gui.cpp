@@ -110,8 +110,8 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
 	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_filemanager_irqh, gui_flightdetail_irqh,
 	gui_gyro_calib_irqh, gui_compass_calib_irqh, gui_homedetail_irqh, gui_home_irqh,
-	gui_set_alarm_irqh, gui_set_alt_alarm_irqh, gui_set_autoset_irqh, gui_set_autoset_conf_irqh, 
-  gui_waypointdetail_irqh};
+	gui_set_alarm_irqh, gui_set_alt_alarm_irqh, gui_set_autoset_irqh, gui_set_autoset_config_irqh,
+    gui_waypointdetail_irqh};
 
 #define GUI_ANIM_STEPS	20
 

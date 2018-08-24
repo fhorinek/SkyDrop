@@ -5,7 +5,28 @@
 
 #include <private_key.h>
 
+#include "debug_on.h"
+
 Sha256Class sha256;
+
+uint32_t igc_last_timestamp = 0;
+
+struct igc_pre_fix
+{
+	uint8_t hour;
+	uint8_t min;
+	uint8_t sec;
+	char cache_igc_latitude[9];
+	char cache_igc_longtitude[10];
+	int16_t balt;
+	int16_t galt;
+};
+
+#define IGC_PRE_START_BUFFER	20
+igc_pre_fix igc_pre_start_cache[IGC_PRE_START_BUFFER];
+uint8_t igc_pre_start_index = 0;
+uint8_t igc_pre_start_len = 0;
+
 
 char igc_i2c(uint8_t n)
 {
@@ -21,7 +42,7 @@ void igc_writeline(char * line, bool sign = true)
 	uint8_t l = strlen(line);
 	uint16_t wl;
 
-//	DEBUG("IGC:%s\n", line);
+	DEBUG("IGC:%s\n", line);
 
 	strcpy_P(line + l, PSTR("\r\n"));
 	l += 2;
@@ -38,6 +59,33 @@ void igc_writeline(char * line, bool sign = true)
 }
 
 IGC_PRIVATE_KEY_BODY
+
+void igc_write_grecord()
+{
+#ifndef IGC_NO_PRIVATE_KEY
+	char line[79];
+
+	Sha256Class tmp_sha;
+	memcpy(&tmp_sha, &sha256, sizeof(tmp_sha));
+
+	//G record
+	uint8_t * res = tmp_sha.result();
+	strcpy(line, "G");
+	for (uint8_t i = 0; i < 20; i++)
+	{
+		char tmp[3];
+
+		sprintf_P(tmp, PSTR("%02X"), res[i]);
+		strcat(line, tmp);
+	}
+
+	igc_writeline(line, false);
+
+	//rewind pointer
+	uint32_t pos = f_tell(&log_file);
+	assert(f_lseek(&log_file, pos - 43) == FR_OK);
+#endif
+}
 
 uint8_t igc_start(char * path)
 {
@@ -134,37 +182,73 @@ uint8_t igc_start(char * path)
 	igc_writeline(line);
 #endif
 
+	//dump the cache
+	DEBUG("IGC dump len %d\n", igc_pre_start_len);
+	for (uint8_t i = igc_pre_start_len; i > 0; i--)
+	{
+		int8_t index = igc_pre_start_index - i;
+		if (index < 0)
+			index += IGC_PRE_START_BUFFER;
+
+		DEBUG("IGC dump %d\n", index);
+
+		igc_pre_fix * pfix = &igc_pre_start_cache[index];
+
+		int16_t galt = pfix->galt;
+		char c = 'A';
+
+		if (galt == 0x7FFF)
+		{
+			galt = 0;
+			c = 'V';
+		}
+
+		sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05d"), pfix->hour, pfix->min, pfix->sec, pfix->cache_igc_latitude, pfix->cache_igc_longtitude, c, pfix->balt, galt);
+		igc_writeline(line);
+	}
+	igc_write_grecord();
+
 	return (fc.gps_data.valid) ? LOGGER_ACTIVE : LOGGER_WAIT_FOR_GPS;
 }
 
-void igc_write_grecord()
+
+void igc_pre_step()
 {
-#ifndef IGC_NO_PRIVATE_KEY
-	char line[79];
+	int16_t galt;
+	uint8_t sec;
+	uint8_t min;
+	uint8_t hour;
 
-	Sha256Class tmp_sha;
-	memcpy(&tmp_sha, &sha256, sizeof(tmp_sha));
+	if (fc.gps_data.fix < 2) //If there is no 2D or 3D fix
+		return;
 
-	//G record
-	uint8_t * res = tmp_sha.result();
-	strcpy(line, "G");
-	for (uint8_t i = 0; i < 20; i++)
-	{
-		char tmp[3];
+	if (igc_last_timestamp >= fc.gps_data.utc_time)
+		return;
 
-		sprintf_P(tmp, PSTR("%02X"), res[i]);
-		strcat(line, tmp);
-	}
+	igc_last_timestamp = fc.gps_data.utc_time;
 
-	igc_writeline(line, false);
+	time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
 
-	//rewind pointer
-	uint32_t pos = f_tell(&log_file);
-	assert(f_lseek(&log_file, pos - 43) == FR_OK);
-#endif
+	//if there is no 3D fix store INT16_MAX
+	galt = (fc.gps_data.fix == 3) ? fc.gps_data.altitude : 0x7FFF;
+
+	uint16_t alt = fc_press_to_alt(fc.vario.pressure, 101325);
+
+	//record
+	igc_pre_start_cache[igc_pre_start_index].hour = hour;
+	igc_pre_start_cache[igc_pre_start_index].min = min;
+	igc_pre_start_cache[igc_pre_start_index].sec = sec;
+	strcpy(igc_pre_start_cache[igc_pre_start_index].cache_igc_latitude, (char*)fc.gps_data.cache_igc_latitude);
+	strcpy(igc_pre_start_cache[igc_pre_start_index].cache_igc_longtitude, (char*)fc.gps_data.cache_igc_longtitude);
+	igc_pre_start_cache[igc_pre_start_index].balt = alt;
+	igc_pre_start_cache[igc_pre_start_index].galt = galt;
+
+
+	DEBUG("IGC PRE %d/%d\n", igc_pre_start_index, igc_pre_start_len);
+	igc_pre_start_index = (igc_pre_start_index + 1) % IGC_PRE_START_BUFFER;
+	if (igc_pre_start_len < IGC_PRE_START_BUFFER)
+		igc_pre_start_len++;
 }
-
-uint32_t igc_last_timestamp = 0;
 
 void igc_step()
 {
@@ -176,9 +260,9 @@ void igc_step()
 
 	char c;
 
-	float galt;
+	int16_t galt;
 
-	if (fc.gps_data.valid)
+	if (fc.gps_data.valid && fc.gps_data.fix == 3)
 	{
 		if (fc.logger_state == LOGGER_WAIT_FOR_GPS)
 			fc.logger_state = LOGGER_ACTIVE;
@@ -191,7 +275,11 @@ void igc_step()
 		time_from_epoch(fc.gps_data.utc_time, &sec, &min, &hour);
 
 		//New igc specification require altitude above geoid
-		galt = fc.gps_data.altitude - fc.gps_data.geoid;
+		//From L80_GPS_Protocol_Specification_V1.4.pdf
+		//fc.gps_data.altitude 	- Altitude in meters according to WGS84 ellipsoid
+		//fc.gps_data.geoid		- Height of geoid above WGS84 ellipsoid
+		//BUT datasheet is lying !!! fc.gps_data.altitude is MSL !!!
+		galt = fc.gps_data.altitude;
 		c = 'A';
 	}
 	else
@@ -213,7 +301,7 @@ void igc_step()
 	uint16_t alt = fc_press_to_alt(fc.vario.pressure, 101325);
 
 	//B record
-	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05.0f"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, galt);
+	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05d"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, galt);
 	igc_writeline(line);
 	igc_write_grecord();
 }

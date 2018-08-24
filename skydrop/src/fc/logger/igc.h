@@ -14,6 +14,7 @@ void igc_comment(char * text);
 uint8_t igc_start(char * path);
 void igc_step();
 void igc_stop();
+void igc_pre_step();
 
 
 #endif /* IGC_H_ */

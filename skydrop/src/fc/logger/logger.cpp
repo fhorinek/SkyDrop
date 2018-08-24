@@ -78,9 +78,6 @@ void logger_next_flight()
 
 void logger_step()
 {
-	if (!logger_active())
-		return;
-
 	if (logger_next > task_get_ms_tick())
 		return;
 
@@ -96,6 +93,11 @@ void logger_step()
 			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_LOGGER;
 		}
 	}
+
+	if (!logger_active())
+		if (config.logger.format != LOGGER_IGC)
+			igc_pre_step();
+		return;
 
 	switch (config.logger.format)
 	{

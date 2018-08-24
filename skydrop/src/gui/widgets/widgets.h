@@ -133,14 +133,14 @@ extern float widget_menu_fvalue1;
 #define WIDGET_THERMAL_GAIN     41
 #include "thermal.h"
 
-#define WIDGET_WAYPOINT_ARROW   42
-#define WIDGET_WAYPOINT_DISTANCE   43
-#define WIDGET_WAYPOINT_TIME    44
-#define WIDGET_WAYPOINT_INFO    45
+#define WIDGET_WAYPOINT_ARROW       42
+#define WIDGET_WAYPOINT_DISTANCE    43
+#define WIDGET_WAYPOINT_TIME        44
+#define WIDGET_WAYPOINT_INFO        45
 
 #define NUMBER_OF_WIDGETS		46
 
-#define NUMBER_OF_SORTED_WIDGETS	43
+#define NUMBER_OF_SORTED_WIDGETS	44
 
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);

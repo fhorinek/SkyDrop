@@ -10,6 +10,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <stdint.h>
 
 #include <xlib/core/clock.h>
 #include <xlib/core/usart.h>

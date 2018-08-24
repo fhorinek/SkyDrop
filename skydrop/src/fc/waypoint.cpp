@@ -13,21 +13,27 @@ void show_waypoint()
 {
 	char message[50];
 
-	sprintf_P(message, PSTR("Next Waypoint %d/%d\n\"%s\""), fc.flight.waypoint_no, fc.flight.waypoints_count, fc.flight.next_waypoint.name);
+	sprintf_P(message, PSTR("Next Waypoint %d/%d\n\"%s\""),
+			fc.flight.waypoint_no, fc.flight.waypoints_count,
+			fc.flight.next_waypoint.name);
 	gui_showmessage(message);
 }
 
 void set_waypoint_file(const char *filename)
 {
-	if ( strlen(filename) < sizeof(waypoint_filename) - 1 ) {
+	if (strlen(filename) < sizeof(waypoint_filename) - 1)
+	{
 		strcpy(waypoint_filename, filename);
 
 		fc.flight.waypoints_count = count_waypoints();
-		if ( fc.flight.waypoints_count > 0 ) {
+		if (fc.flight.waypoints_count > 0)
+		{
 			fc.flight.waypoint_no = 1;
 			read_waypoint(fc.flight.waypoint_no, &(fc.flight.next_waypoint));
 			show_waypoint();
-		} else {
+		}
+		else
+		{
 			fc.flight.waypoint_no = 0;
 		}
 	}
@@ -49,33 +55,45 @@ int read_waypoint(int num, volatile waypoint_t *wpt)
 	DEBUG("parse_waypoint(%s, %d)\n", waypoint_filename, num);
 
 	f_r = f_open(&fp, waypoint_filename, FA_READ);
-	if ( f_r != FR_OK ) return num;
+	if (f_r != FR_OK)
+		return num;
 
-	while(1) {
-		if ( f_gets(line, sizeof(line), &fp) == NULL ) break;
+	while (1)
+	{
+		if (f_gets(line, sizeof(line), &fp) == NULL)
+			break;
+
 		DEBUG_1("Read line: %s", line);
-		if (line[0] == '#') continue;
-		if (startsWith_P(PSTR("WP "), line)) {
+		if (line[0] == '#')
+			continue;
+
+		if (startsWith_P(PSTR("WP "), line))
+		{
 			start = index(line, '"');
-			if ( start != NULL ) {
+			if (start != NULL)
+			{
 				start++;                           // skip "
 				end = index(start, '"');
-				if ( end != NULL ) {
-					int len = min(sizeof(wpt->name) - 1, (size_t)(end - start));         // Ensure no buffer overflow
+				if (end != NULL)
+				{
+					int len = min(sizeof(wpt->name) - 1, (size_t )(end - start)); // Ensure no buffer overflow
 					*(start + len) = 0;
-					strcpy((char *)wpt->name, start);
+					strcpy((char *) wpt->name, start);
 
 					end = skip_ws(end + 1);
 					wpt->lat = atof(end) * 10000000.0;
 					end = index(end, ' ');
-					if ( end != NULL ) {
+					if (end != NULL)
+					{
 						end = skip_ws(end + 1);
 						wpt->lon = atof(end) * 10000000.0;
 						end = index(end, ' ');
-						if ( end != NULL ) {
+						if (end != NULL)
+						{
 							wpt->radius_m = atoi(end);
 							num--;
-							if ( num == 0 ) break;                       // "num" allows to select a specific waypoint in the file.
+							if (num == 0)
+								break; // "num" allows to select a specific waypoint in the file.
 						}
 					}
 				}
@@ -91,8 +109,7 @@ int read_waypoint(int num, volatile waypoint_t *wpt)
 int count_waypoints()
 {
 	waypoint_t wpt;
-
-#define WAYPOINT_MAX 999
+	#define WAYPOINT_MAX 999
 
 	return WAYPOINT_MAX - read_waypoint(WAYPOINT_MAX, &wpt);
 }
@@ -104,12 +121,15 @@ int count_waypoints()
  */
 bool waypoint_goto_next()
 {
-	if ( fc.flight.waypoint_no < fc.flight.waypoints_count ) {
+	if (fc.flight.waypoint_no < fc.flight.waypoints_count)
+	{
 		fc.flight.waypoint_no++;
 		read_waypoint(fc.flight.waypoint_no, &(fc.flight.next_waypoint));
 		show_waypoint();
 		return true;
-	} else {
+	}
+	else
+	{
 		return false;
 	}
 }
@@ -121,12 +141,15 @@ bool waypoint_goto_next()
  */
 bool waypoint_goto_prev()
 {
-	if ( fc.flight.waypoint_no > 1 ) {
+	if (fc.flight.waypoint_no > 1)
+	{
 		fc.flight.waypoint_no--;
 		read_waypoint(fc.flight.waypoint_no, &(fc.flight.next_waypoint));
 		show_waypoint();
 		return true;
-	} else {
+	}
+	else
+	{
 		return false;
 	}
 }

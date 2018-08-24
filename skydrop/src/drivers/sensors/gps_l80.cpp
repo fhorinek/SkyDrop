@@ -3,7 +3,7 @@
 
 #include "../../fc/fc.h"
 
-#include "../../debug_off.h"
+#include "debug_on.h"
 
 /*
  * GPS simulation: This driver offers the functionality to simulate
@@ -38,7 +38,7 @@ CreateStdOut(gps_out, gps_uart.Write);
 
 ISR(GPS_TIMER_INT)
 {
-	DEBUG("GPS_TIMER_INT\n");
+//	DEBUG("GPS_TIMER_INT\n");
 }
 
 #define GPS_IDLE	0
@@ -358,8 +358,7 @@ void gps_parse_gga()
 	ptr = find_comma(ptr);
 
 	//Geoid
-	float geoid = atoi_f(ptr);
-	fc.gps_data.geoid = geoid;
+	fc.gps_data.geoid = atoi_f(ptr);
 
 //	DEBUG("fix %d (%d), hdop: %0.2f\n", fc.gps_data.sat_used, fc.gps_data.sat_total, fc.gps_data.hdop);
 //	DEBUG("alt %0.1fm geo: %0.1fm\n", fc.gps_data.altitude, 0);

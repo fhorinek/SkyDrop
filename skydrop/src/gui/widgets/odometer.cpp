@@ -259,10 +259,14 @@ void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
 	if (type == TASK_IRQ_BUTTON_L || type == TASK_IRQ_BUTTON_R)
 	{
-		if (*buff == BE_CLICK || *buff == BE_DBL_CLICK) {
-			if (type == TASK_IRQ_BUTTON_L) {
+		if (*buff == BE_CLICK || *buff == BE_DBL_CLICK)
+		{
+			if (type == TASK_IRQ_BUTTON_L)
+			{
 				waypoint_goto_prev();
-			} else {
+			}
+			else
+			{
 				waypoint_goto_next();
 			}
 		}
@@ -350,7 +354,9 @@ register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odomet
 register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
 register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
 register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
+
 register_widget2(w_home_info, "Home Info", widget_home_info_draw, 0, widget_home_info_irqh);
+
 register_widget1(w_waypoint_direction, "Waypoint Arrow", widget_waypoint_direction_draw);
 register_widget1(w_waypoint_distance, "Waypoint Distance", widget_waypoint_distance_draw);
 register_widget1(w_waypoint_time, "Waypoint Time", widget_waypoint_time_draw);

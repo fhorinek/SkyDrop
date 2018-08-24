@@ -65,7 +65,7 @@ struct cfg_gui
 
 	int8_t page_acro_thold; //*10
 	uint8_t page_cirlcing_thold; //in deg
-	float page_circling_average; //in 1/x
+	uint8_t page_circling_average; //in s
     uint8_t page_mode[NUMBER_OF_PAGE_MODES];
     cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };

@@ -25,7 +25,7 @@ void gui_set_gps_detail_loop()
 	disp.GotoXY(0, f_h * 2);
 	fprintf_P(lcd_out, PSTR("HDOP: %5.2f     VDOP: %5.2f"), fc.gps_data.hdop, fc.gps_data.vdop);
 	disp.GotoXY(0, f_h * 3);
-	fprintf_P(lcd_out, PSTR("PDOP: %5.2f     Alt: %6.1f"), fc.gps_data.pdop, fc.gps_data.altitude);
+	fprintf_P(lcd_out, PSTR("geiod: %5.2f    Alt: %6.1f"), fc.gps_data.geoid, fc.gps_data.altitude);
 
 	char tmp[10];
 

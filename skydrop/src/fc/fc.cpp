@@ -31,8 +31,6 @@ MK_SEQ(gps_ready, ARR({750, 0, 750, 0, 750, 0}), ARR({250, 150, 250, 150, 250, 1
 #define FC_LOG_BATTERY_EVERY	(5 * 60 * 1000ul)
 uint32_t fc_log_battery_next = 0;
 
-#include "../debug_off.h"
-
 void fc_init()
 {
 	DEBUG(" *** Flight computer init ***\n");
@@ -539,11 +537,12 @@ void fc_reset()
 
 void fc_sync_gps_time()
 {
+	//time is already synced
 	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
 
-	//Do not update time during flight
-	if (fc.flight.state == FLIGHT_FLIGHT)
+	//Do not update time during flight, except when the time is not valid
+	if (fc.flight.state == FLIGHT_FLIGHT && time_is_set())
 		return;
 
 	DEBUG("Syncing time\n");
@@ -716,7 +715,7 @@ void fc_step()
         float heading_change = fc.flight.last_heading - fc.gps_data.heading;
         fc.flight.last_heading = fc.gps_data.heading;
 
-        fc.flight.avg_heading_change += (fc.flight.avg_heading_change - heading_change) * (config.gui.page_circling_average);
+        fc.flight.avg_heading_change += (fc.flight.avg_heading_change - heading_change) / float(config.gui.page_circling_average);
 	}
 
     if (fc.flight.state == FLIGHT_FLIGHT)

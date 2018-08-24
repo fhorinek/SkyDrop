@@ -49,8 +49,8 @@ EEMEM cfg_t config_ee = {
 		-3,
 	    //page_cirlcing_thold; //in deg
 		6,
-	    //page_circling_average; //in 1/x s
-		1 / 10.0,
+	    //page_circling_average; //in  s
+		10,
 		//page mode
 		{
             //prepare
@@ -359,7 +359,6 @@ void cfg_compass_write_defaults()
 
 void cfg_load()
 {
-
 	eeprom_busy_wait();
 	uint8_t calib_flags = eeprom_read_byte(&config_ro.calibration_flags);
 
@@ -392,4 +391,29 @@ void cfg_load()
 
 	eeprom_busy_wait();
 	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));
+
+	//prevent freezing if QNH or int. interval is corrupted
+	if (isnan(config.altitude.QNH1))
+	{
+	    eeprom_busy_wait();
+	    eeprom_update_float(&config_ee.altitude.QNH1, 103000);
+	}
+
+    if (isnan(config.altitude.QNH2))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.altitude.QNH2, 101325);
+    }
+
+    if (isnan(config.vario.digital_vario_dampening))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.digital_vario_dampening, 1.0 / 100.0 / 0.3);
+    }
+
+    if (isnan(config.vario.avg_vario_dampening))
+    {
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.avg_vario_dampening, 1.0 / 100.0 / 10.3);
+    }
 }

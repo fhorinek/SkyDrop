@@ -139,10 +139,7 @@ void gui_update_loop()
 	uint16_t rd, wr;
 	uint16_t to_read;
 
-	//steal buffer from debug
-	extern uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
-
-	uint8_t * buff = debug_log_buffer;
+	uint8_t buff[UPDATE_CHUNK];
 	uint16_t i;
 
 //	DEBUG(" *** update loop start ***\n");
