@@ -175,6 +175,8 @@ EEMEM cfg_t config_ee = {
 		500,
 		//alarm_2
 		300,
+		//alarm_h1
+		3048,    // FL100 (10000 ft) in m
 		//alarm_offset
 		50,
 	},
