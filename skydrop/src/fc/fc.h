@@ -266,8 +266,9 @@ struct agl_data_t
 #define FC_ODO_MAX_SPEED_DIFF	(5.39957) 	//10km/h
 #define FC_ODO_MIN_SPEED		(0.539957) //1km/h
 
-#define FC_ALT_ALARM1_SUPPRESS	0b00000001
-#define FC_ALT_ALARM2_SUPPRESS	0b00000010
+#define FC_ALT_ALARM1_SUPPRESS		0b00000001
+#define FC_ALT_ALARM2_SUPPRESS		0b00000010
+#define FC_ALT_ALARM_H1_SUPPRESS	0b00000100
 
 struct flight_computer_data_t
 {

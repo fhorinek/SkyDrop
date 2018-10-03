@@ -769,11 +769,17 @@ uint8_t fc_active_alarm()
 	if (fc.altitude1 > config.altitude.alarm_2 + config.altitude.alarm_reset)
 		fc.altitude_alarm_status &= ~FC_ALT_ALARM2_SUPPRESS;
 
+	if (fc.altitude1 < config.altitude.alarm_h1 - config.altitude.alarm_reset)
+		fc.altitude_alarm_status &= ~FC_ALT_ALARM_H1_SUPPRESS;
+
 	if (fc.altitude1 < config.altitude.alarm_2 && !(fc.altitude_alarm_status & FC_ALT_ALARM2_SUPPRESS))
 		return 2;
 
 	if (fc.altitude1 < config.altitude.alarm_1 && !(fc.altitude_alarm_status & FC_ALT_ALARM1_SUPPRESS))
 		return 1;
+
+	if (fc.altitude1 > config.altitude.alarm_h1 && !(fc.altitude_alarm_status & FC_ALT_ALARM_H1_SUPPRESS))
+		return 3;
 
 	return 0;
 }

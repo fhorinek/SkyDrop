@@ -6,21 +6,31 @@
 
 #define GUI_ALARM1_PERIOD	1000
 #define GUI_ALARM2_PERIOD	500
+#define GUI_ALARM_H1_PERIOD	1000
 #define GUI_ALARM_TIMEOUT	5000
 
 uint32_t gui_alarm_switch_back = 0;
 
 MK_SEQ(alarm1, ARR({1000, 750}), ARR({500, 500}));
 MK_SEQ(alarm2, ARR({1000, 750}), ARR({250, 250}));
+MK_SEQ(alarm_h1, ARR({1000, 750}), ARR({500, 500}));
 
 void gui_set_alarm_init()
 {
 	gui_alarm_switch_back = 0;
 
-	if (fc_active_alarm() == 1)
-		seq_start(&alarm1, config.gui.alert_volume, true);
-	else
-		seq_start(&alarm2, config.gui.alert_volume, true);
+	switch (fc_active_alarm())
+	{
+		case (1):
+			seq_start(&alarm1, config.gui.alert_volume, true);
+		break;
+		case (2):
+			seq_start(&alarm2, config.gui.alert_volume, true);
+		break;
+		case (3):
+			seq_start(&alarm_h1, config.gui.alert_volume, true);
+		break;
+	}
 }
 
 void gui_set_alarm_stop()
@@ -68,6 +78,14 @@ void gui_set_alarm_loop()
 			}
 		break;
 
+		case(3):
+			if (&alarm_h1 != seq_active())
+			{
+				seq_start(&alarm_h1, config.gui.alert_volume, true);
+				gui_alarm_switch_back = 0;
+			}
+		break;
+
 	}
 
 	if (n == 0)
@@ -105,10 +123,18 @@ void gui_set_alarm_irqh(uint8_t type, uint8_t * buff)
 		gui_switch_task(GUI_PAGES);
 
 		//Suppress alarm
-		if (fc_active_alarm() == 1)
-			fc.altitude_alarm_status |= 0b00000001;
-		if (fc_active_alarm() == 2)
-			fc.altitude_alarm_status |= 0b00000011;
+		switch (fc_active_alarm())
+		{
+			case (1):
+				fc.altitude_alarm_status |= 0b00000001;
+				break;
+			case (2):
+				fc.altitude_alarm_status |= 0b00000011;
+				break;
+			case (3):
+				fc.altitude_alarm_status |= 0b00000100;
+				break;
+		}
 	}
 }
 
