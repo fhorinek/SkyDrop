@@ -1,8 +1,17 @@
-all: SkyDrop_user_manual_en.pdf
+all: Manual-of-SkyDrop.pdf
 
-SkyDrop_user_manual_en.html: SkyDrop_user_manual_en.md
-	pandoc SkyDrop_user_manual_en.md -o SkyDrop_user_manual_en.html 
+clean:
+	rm -f Manual-of-SkyDrop.html Manual-of-SkyDrop.pdf
 
-SkyDrop_user_manual_en.pdf: SkyDrop_user_manual_en.html
-	wkhtmltopdf --page-size a5 SkyDrop_user_manual_en.html SkyDrop_user_manual_en.pdf
+distclean: clean
+	rm -f Manual-of-SkyDrop.md
+
+Manual-of-SkyDrop.md:
+	wget --quiet https://github.com/fhorinek/SkyDrop/wiki/Manual-of-SkyDrop.md
+
+Manual-of-SkyDrop.html: Manual-of-SkyDrop.md
+	pandoc Manual-of-SkyDrop.md -o Manual-of-SkyDrop.html
+
+Manual-of-SkyDrop.pdf: Manual-of-SkyDrop.html
+	wkhtmltopdf --page-size a5 Manual-of-SkyDrop.html Manual-of-SkyDrop.pdf
 
