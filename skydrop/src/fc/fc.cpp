@@ -8,6 +8,7 @@
 #include "kalman.h"
 #include "vario.h"
 #include "agl.h"
+#include "airspace.h"
 #include "odometer.h"
 #include "compass.h"
 #include "waypoint.h"
@@ -83,6 +84,7 @@ void fc_init()
 	protocol_init();
 	wind_init();
 	agl_init();
+	airspace_init();
 	gyro_init();
 	imu_init();
 	vario_init(ms5611.pressure);
@@ -573,6 +575,8 @@ void fc_step()
 	#endif
 
 	agl_step(); //it is before gps_step, so new gps fix will be processed in next loop
+
+	airspace_step();   // must be after agl_step, because it needs data from there.
 
 	alt_calibration_step();
 

@@ -2,7 +2,10 @@ Build 40XX - XX. XX. 2018
 ========================================================
 ADDED:
  * Alarm 3 as an upper limit #348 (bubeck)
-
+ * First version of CTR handling:
+   - Read AIR files
+   - Widgets: CTR Arrow, CTR distance, CTR height
+   
 Build 4016 - 24. 07. 2018
 ========================================================
 FIX:
