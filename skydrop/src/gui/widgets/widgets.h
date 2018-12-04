@@ -139,9 +139,22 @@ extern float widget_menu_fvalue1;
 #define WIDGET_WAYPOINT_TIME        44
 #define WIDGET_WAYPOINT_INFO        45
 
-#define NUMBER_OF_WIDGETS		46
+#define WIDGET_AIRSPACE_ARROW       46
+#define WIDGET_AIRSPACE_DISTANCE    47
+#define WIDGET_AIRSPACE_MAX_HEIGHT  48
+#include "airspace.h"
 
-#define NUMBER_OF_SORTED_WIDGETS	44
+#define NUMBER_OF_WIDGETS		49
+
+#define NUMBER_OF_SORTED_WIDGETS	47
+
+/**
+ * Format a distance in a human readable format.
+ *
+ * @param text the text buffer to print into.
+ * @param distance the distance in km.
+ */
+extern void sprintf_distance(char *text, float distance);
 
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);

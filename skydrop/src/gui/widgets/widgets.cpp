@@ -38,6 +38,8 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_thermal_time, w_thermal_gain,
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
+		//airspace
+		w_airspace_angle, w_airspace_distance, w_airspace_height,
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -90,6 +92,11 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_WAYPOINT_TIME,
 	WIDGET_WAYPOINT_INFO,
 
+	//airspace
+	WIDGET_AIRSPACE_ARROW,
+	WIDGET_AIRSPACE_DISTANCE,
+	WIDGET_AIRSPACE_MAX_HEIGHT,
+
 	//wind
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
@@ -114,6 +121,36 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 
 	WIDGET_EMPTY
 };
+
+/**
+ * Format a distance in a human readable format.
+ *
+ * @param text the text buffer to print into.
+ * @param distance the distance in km.
+ */
+void sprintf_distance(char *text, float distance)
+{
+	const char *unit_P;
+
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	{
+		distance *= FC_KM_TO_MILE;
+		unit_P = PSTR("mi");
+	}
+	else
+	{
+		unit_P = PSTR("km");
+	}
+
+	if (distance < 100.0)
+	{
+		sprintf_P(text, PSTR("%.1f %S"), distance, unit_P);
+	}
+	else
+	{
+		sprintf_P(text, PSTR("%.0f %S"), distance, unit_P);
+	}
+}
 
 uint8_t widget_sorted_get_index(uint8_t pos)
 {
