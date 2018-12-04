@@ -7,12 +7,18 @@ and how far away he is to help him to avoid the forbidden area.
 This is especially helpful for pilots flying near airports (like me). 
 
 There could be these widgets:
- # An arrow pointing away from the forbidden area. Pilots should follow this
-   direction.
- # A distance (in ft and km) to the border of the forbidden area.
- # A height indicator showing the height, where the forbidden airspace starts.
-   It will flash, if the pilot is too high.
-   
+ 1. An arrow pointing away from the forbidden area. Pilots should follow this
+    direction.
+ 2. A distance (in ft and km) to the border of the forbidden area.
+ 3. A height indicator showing the height, where the forbidden airspace starts.
+    It will flash, if the pilot is too high.
+
+Here are two screenshots taken on the device. The first shows a pilot outside
+of the CTR and the second inside CTR.
+
+![Outside CTR](https://github.com/bubeck/SkyDrop/raw/airspace/skydrop/utils/airspace/airspace-ok.png)
+![Inside CTR](https://github.com/bubeck/SkyDrop/raw/airspace/skydrop/utils/airspace/airspace-forbidden.png)
+
 +++ Implementation +++
 
 The implementation should be fast and compact. To do so, I would propose to 
@@ -28,7 +34,7 @@ point you see an arrow pointing to the forbidden area, which will be
 stored efficiently inside the file. This file will then be stored on
 the SD and used by the code.
 
-![airspace example](http://bubecks.de/public/sky/airspace.png)
+![airspace example](https://github.com/bubeck/SkyDrop/raw/airspace/skydrop/utils/airspace/de-stuttgart.png)
 
 ++++ Data files ++++
 
@@ -40,9 +46,9 @@ However, instead of storing a single 16 bit value for HAGL it contains 5 _slices
 
 Each slice describes a vertical area where the same airspace data is used:
 
-uint16_t up;     // This is the upper ceiling in ft of this "slice". "0" means not used.
-uint8_t dir;     // direction in degree / 3, where 0 is north, if bit 7 is set, this indicates inside CTR
-uint8_t dist;    // distance / 64m
+    uint16_t up;     // This is the upper ceiling in ft of this "slice". "0" means not used.
+    uint8_t dir;     // direction in degree / 3, where 0 is north, if bit 7 is set, this indicates inside CTR
+    uint8_t dist;    // distance / 64m
             
 So in this example, where P1 is the pilot we will have
 
@@ -63,25 +69,25 @@ So in this example, where P1 is the pilot we will have
                            <-----2km-------->
 
 
-500     // 500ft (height)
-158     // 30+128=158, 30*3 = 90 degree = east of pilot, 128 = INSIDE
-16      // ~1km distance
+    500     // 500ft (height)
+    158     // 30+128=158, 30*3 = 90 degree = east of pilot, 128 = INSIDE
+    16      // ~1km distance
 
-1000    // 1000ft (height)
-30      // 90 degree = east of pilot, currently OUTSIDE
-16      // ~1km distance
+    1000    // 1000ft (height)
+    30      // 90 degree = east of pilot, currently OUTSIDE
+    16      // ~1km distance
 
-1500    // 1500ft (height)
-30      // 90 degree = east of pilot, currently OUTSIDE
-31      // ~2km distance
+    1500    // 1500ft (height)
+    30      // 90 degree = east of pilot, currently OUTSIDE
+    31      // ~2km distance
 
-0       // not used
-0
-0
+    0       // not used
+    0
+    0
 
-0       // not used
-0
-0
+    0       // not used
+    0
+    0
 
 The size for 1 point is 5 x 4 bytes = 20 bytes.
 With 1201 x 1201 points, we have a file size of 28848020 bytes = 27 MB.
@@ -90,7 +96,8 @@ With 1201 x 1201 points, we have a file size of 28848020 bytes = 27 MB.
 
 gcc version 7.2.0 (Fedora 7.2.0-1.fc28) 
 
-Mem     size-before  size    incr    limit
-Flash   186514       188604  +2090   196608
-RAM     11922        12027   +105    13107
-EEPROM  773          773     +0      2048
+    Mem     size-before  size    incr    limit
+    Flash   186514       188604  +2090   196608
+    RAM     11922        12027   +105    13107
+    EEPROM  773          773     +0      2048
+
