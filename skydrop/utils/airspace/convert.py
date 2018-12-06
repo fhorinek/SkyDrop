@@ -9,7 +9,7 @@
 # 02.12.2018: tilmann@bubecks.de
 #
 
-from math import sqrt,cos,atan2
+from math import sqrt,cos,atan2,floor
 import numpy
 import sys
 from PIL import Image, ImageDraw
@@ -198,6 +198,15 @@ class Airspace:
     def __repr__(self):
         return "".join(["Polygon(", str(self.points), ")"])
 
+    def getBoundingBox(self):
+        bb = [+100, +200, -100, -200]
+        for p in self.points:
+            bb[0] = min(p[0], bb[0])
+            bb[2] = max(p[0], bb[2])
+            bb[1] = min(p[1], bb[1])
+            bb[3] = max(p[1], bb[3])
+        return bb
+            
     def getAngleAndDistance(self, p, draw=False):
         c = self.closestPointTo(p)
         distance_cm = gps_distance_2d(p,c)
@@ -230,6 +239,17 @@ class Airspace:
         result = [angle_byte, distance_byte]
         return result
 
+
+def getBoundingBox(airspaces):
+        bb = [+100, +200, -100, -200]
+        for airspace in airspaces:
+            bb2 = airspace.getBoundingBox()
+            bb[0] = min(bb[0], bb2[0])
+            bb[1] = min(bb[1], bb2[1])
+            bb[2] = max(bb[2], bb2[2])
+            bb[3] = max(bb[3], bb2[3])
+        return bb
+    
 # Entering a point here, would help debugging stuff inside dump.
 checkpoints = numpy.array([
     [9.375, 48.75],
@@ -255,7 +275,7 @@ def dump(lon, lat, airspaces, draw=False):
                     check = True
                     print (p)
 
-            for airspace_count in range(len(airspaces) - 1):
+            for airspace_count in range(len(airspaces)):
                 height = airspaces[airspace_count].getMax()
                 angleAndDistance = airspaces[airspace_count].getAngleAndDistance(p, draw)
                 f.write(height.to_bytes(2, 'little', signed=False))
@@ -275,24 +295,31 @@ def dump(lon, lat, airspaces, draw=False):
 stuttgart_1 = Airspace()
 stuttgart_1.setPoints(airspaces_data.stuttgart)
 stuttgart_1.setMinMax(0, 3500)
-                        
+
 stuttgart_2 = Airspace()
 stuttgart_2.setPoints(airspaces_data.stuttgart_2)
 stuttgart_2.setMinMax(3500, 4500)
 
-stuttgart_3 = Airspace();
+stuttgart_3 = Airspace()
 stuttgart_3.setPoints(airspaces_data.stuttgart_3)
 stuttgart_3.setMinMax(4500, 5500)
 
-stuttgart_4 = Airspace();
+stuttgart_4 = Airspace()
 stuttgart_4.setPoints(airspaces_data.stuttgart_4)
 stuttgart_4.setMinMax(5500, 7500)
 
-stuttgart_5 = Airspace();
+stuttgart_5 = Airspace()
 stuttgart_5.setPoints(airspaces_data.stuttgart_5)
 stuttgart_5.setMinMax(7500, 10000)
 
-airspaces = [ stuttgart_1, stuttgart_2, stuttgart_3, stuttgart_4, stuttgart_5 ]
+mallorca_1 = Airspace()
+mallorca_1.setPoints(airspaces_data.mallorca)
+mallorca_1.setMinMax(0, 1000)
+
+# airspaces = [ stuttgart_1, stuttgart_2, stuttgart_3, stuttgart_4, stuttgart_5 ]
+airspaces = [ mallorca_1 ]
+
+boundingBox = getBoundingBox(airspaces)
 
 draw = True
 
@@ -303,8 +330,8 @@ if draw:
 if len(sys.argv) > 1:
     dump(int(sys.argv[2]), int(sys.argv[1]))
 else:
-    for lat in numpy.arange(48, 50, +1):
-        for lon in numpy.arange(8, 10, +1):
+    for lat in numpy.arange(floor(boundingBox[1]), floor(boundingBox[3]) + 1, +1):
+        for lon in numpy.arange(floor(boundingBox[0]), floor(boundingBox[2]) + 1, +1):
             dump(lon, lat, airspaces, draw)
 
 if draw:
