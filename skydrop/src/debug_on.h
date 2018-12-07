@@ -8,6 +8,12 @@
 #ifndef DEBUG_ON_H_
 #define DEBUG_ON_H_
 
+#ifdef DEBUG
+#undef DEBUG
+#endif
+#ifdef assert
+#undef assert
+#endif
 
 #define DEBUG(format, ...) debug(PSTR(format), ##__VA_ARGS__)
 #define DEBUG_TRACE()       DEBUG("Executing line %3d in %s\n", __LINE__, __FILE__)

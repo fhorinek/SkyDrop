@@ -122,8 +122,6 @@ void task_active_loop()
 	gui_loop();
 
 	storage_step();
-
-	debug_step();
 }
 
 void task_active_irqh(uint8_t type, uint8_t * buff)

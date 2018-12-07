@@ -295,26 +295,6 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 #define BAT_EN_LED	(1 << 1)
 #define BAT_EN_LCD	(1 << 2)
 
-class DataBuffer
-{
-public:
-    uint8_t * data;
-
-    uint16_t size;
-    uint16_t length;
-    uint16_t write_index;
-    uint16_t read_index;
-
-    DataBuffer(uint16_t size, uint8_t * buffer);
-    ~DataBuffer();
-
-    uint16_t Read(uint16_t len, uint8_t * * data);
-    bool Write(uint16_t len, uint8_t * data);
-
-    uint16_t Length();
-    void Clear();
-};
-
 //--------------------------------------------
 
 //memory

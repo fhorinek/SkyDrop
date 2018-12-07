@@ -10,10 +10,6 @@ volatile uint8_t debug_file_open;
 Timer debug_timer;
 uint32_t debug_last_pc;
 
-uint8_t debug_log_buffer[DEBUG_LOG_BUFFER_SIZE];
-
-DataBuffer debug_log_storage(DEBUG_LOG_BUFFER_SIZE, debug_log_buffer);
-
 volatile uint16_t debug_return_pointer;
 volatile uint16_t debug_min_stack_pointer = 0xFFFF;
 volatile uint16_t debug_max_heap_pointer = 0x0000;
@@ -112,11 +108,19 @@ void debug_timeout_handler()
  */
 void debug(const char *format, ...)
 {
-	va_list arp;
-	char msg_buff[256];
+    // Check "Global Interrupt Enable" bit. If cleared, we are not allowing interupts which means, we are inside
+	// a critical region or inside a running interrupt.
+	//
+	// In that case do not continue as we are calling FILE and other complicated stuff, which will not work
+	// inside interrrupts.
+	if ( (SREG & 0x80) == 0)
+		return;
 
 	if (debug_disabled())
 		return;
+
+	va_list arp;
+	char msg_buff[128];
 
 	va_start(arp, format);
 	vsnprintf_P(msg_buff, sizeof(msg_buff), format, arp);
@@ -199,27 +203,12 @@ void debug_timer_init()
 	debug_timer.Start();
 }
 
-void debug_log(char * msg)
-{
-	if (config.system.debug_log == DEBUG_MAGIC_ON && storage_ready())
-		debug_log_storage.Write(strlen(msg), (uint8_t *)msg);
-}
-
-void debug_flush()
-{
-	debug_done = true;
-	while(debug_log_storage.Length())
-		debug_step();
-	debug_done = false;
-}
-
 void debug_end()
 {
 	DEBUG("=== CLOSING FILE ===\n");
-	debug_flush();
 }
 
-void debug_step()
+void debug_log(char * msg)
 {
 	if (config.system.debug_log != DEBUG_MAGIC_ON)
 		return;
@@ -229,9 +218,6 @@ void debug_step()
 	uint16_t len;
 
 	if (!storage_ready())
-		return;
-
-	if (debug_log_storage.Length() < DEBUG_LOG_BUFFER_CHUNK && !debug_done)
 		return;
 
 	//Append file if not opened
@@ -286,11 +272,9 @@ void debug_step()
 //		DEBUG("=========================================\n");
 	}
 
-	uint8_t * tmp = 0;
-
 	//write content
-	len = debug_log_storage.Read(DEBUG_LOG_BUFFER_CHUNK, &tmp);
-	res = f_write(&debug_file, tmp, len, &wt);
+	len = strlen(msg);
+	res = f_write(&debug_file, msg, len, &wt);
 	if (res != FR_OK || wt != len)
 	{
 		f_close(&debug_file);
