@@ -275,20 +275,22 @@ def dump(lon, lat, airspaces, draw=False):
                     check = True
                     print (p)
 
-            for airspace_count in range(len(airspaces)):
-                height = airspaces[airspace_count].getMax()
-                angleAndDistance = airspaces[airspace_count].getAngleAndDistance(p, draw)
+            airspace_count = 0
+            for airspace in airspaces:
+                airspace_count = airspace_count + 1
+                height = airspace.getMax()
+                angleAndDistance = airspace.getAngleAndDistance(p, draw)
                 f.write(height.to_bytes(2, 'little', signed=False))
                 f.write(bytes(angleAndDistance))
                 if check:
                     print ("Height:  ", height, "Angle,Dist: ", angleAndDistance) 
 
             while airspace_count < 5:
+                airspace_count = airspace_count + 1
                 height = 0
                 angleAndDistance = [0, 0]
                 f.write(height.to_bytes(2, 'little', signed=False))
                 f.write(bytes(angleAndDistance))
-                airspace_count = airspace_count + 1
             
     f.close()
 
