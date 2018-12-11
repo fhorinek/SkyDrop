@@ -14,6 +14,7 @@
 #include "../../fc/logger/logger.h"
 
 uint32_t log_duration;
+uint32_t log_odo;
 uint32_t log_start;
 struct flight_stats_t log_stat;
 
@@ -63,6 +64,7 @@ void gui_flightdetail_parse_logfile(const char *filename)
 	log_stat.min_alt = LOG_NODATA_i16;
 	log_stat.max_climb = LOG_NODATA_i16;
 	log_stat.max_sink = LOG_NODATA_i16;
+	log_odo = LOG_NODATA_u32;
 
 	DEBUG("parse_logfile(%s)\n", filename);
 
@@ -110,6 +112,12 @@ void gui_flightdetail_parse_logfile(const char *filename)
 			log_stat.max_sink = atoi(p + 21);
 			continue;
 		}
+
+		p = strstr_P(line, PSTR("SKYDROP-ODO-cm: "));
+		if ( p != NULL ) {
+			log_odo = atol(p + 16);
+			continue;
+		}
 	}
 
 	DEBUG("closing log file\n");
@@ -123,7 +131,7 @@ void gui_flightdetail_init()
 	sprintf_P(tmp, PSTR("%s/%s"), gui_filemanager_path, gui_filemanager_name);
 	gui_flightdetail_parse_logfile(tmp);
 
-	gui_list_set(gui_flightdetail_item, gui_flightdetail_action, 7, GUI_FILEMANAGER);
+	gui_list_set(gui_flightdetail_item, gui_flightdetail_action, 8, GUI_FILEMANAGER);
 }
 
 void gui_flightdetail_stop() {}
@@ -235,6 +243,16 @@ void gui_flightdetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub
 			}
 
 			sprintf_P(sub_text, PSTR("%0.1fm/s"), log_stat.max_climb / 100.0 );
+		break;
+		case 7:
+			strcpy_P(text, PSTR("Odometer:"));
+			if (log_odo == LOG_NODATA_i16)
+			{
+				sprintf_P(sub_text, PSTR("<no data>"));
+				break;
+			}
+
+			sprintf_P(sub_text, PSTR("%0.1fkm"), log_odo / (100 * 1000.0));
 		break;
 //		case 7:
 //			strcpy_P(text, PSTR("Delete"));
