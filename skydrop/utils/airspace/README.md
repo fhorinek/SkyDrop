@@ -101,3 +101,20 @@ gcc version 7.2.0 (Fedora 7.2.0-1.fc28)
     RAM     11922        12027   +105    13107
     EEPROM  773          773     +0      2048
 
++++ Map generation +++
+
+Use "convert.py" to generate AIR files for a given region. This
+program is used to read a "Open-Airspace-file" containing a number of
+airspaces and then computing a raster of positions around these
+airspaces.  Each raster point has an angle and distance showing to the
+nearest airspace. Open-Airspace files can be downloaded e.g. from http://soaringweb.org/Airspace/
+
+    python3 ./convert.py Germany_CW17_2018.txt
+
+This generates all tiles for germany. A picture of the airspaces based
+upon the Open-Airspace files are e.g.
+
+![Open Airspace of Germany](https://github.com/bubeck/SkyDrop/raw/airspace/skydrop/utils/airspace/germany-airspaces.png)
+
+![Open Airspace of Slovakia](https://github.com/bubeck/SkyDrop/raw/airspace/skydrop/utils/airspace/slovakia-airspaces.png)
+
