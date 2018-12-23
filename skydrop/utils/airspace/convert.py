@@ -1,341 +1,620 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- mode: python-mode; python-indent-offset: 4 -*-
+#*****************************************************************************
+# dnf install python3-shapely python3-gdal
 #
-# This script creates AIR files for SkyDrop. It takes some airspace definitions and iterates over 
-# a given raster to compute angle and distance to the airspace in various heights. This data is stored
-# in the AIR files and copied onto SD card in SkyDrop. The device then simply uses that information to
-# display angle and distance to CTR.
+# This program is used to read a "Open-Airspace-file" containing a number of
+# airspaces and then computing a raster of positions around these airspaces.
+# Each raster point has an angle and distance showing to the nearest airspace.
 #
-# 02.12.2018: tilmann@bubecks.de
+# This can be used to generate AIR files used by SkyDrop variometer to help
+# the pilot avoid flying into forbidden airspaces.
 #
+# 2018-12-23, tilmann@bubecks.de
 
-from math import sqrt,cos,atan2,floor
-import numpy
 import sys
-from PIL import Image, ImageDraw
+import re
+
+from Airspace import Airspace
+from AirspaceVector import AirspaceVector
+from pprint import pprint
+from osgeo import gdal
+from osgeo import ogr
+import shapely
+import shapely.ops
+import shapely.geometry
 import matplotlib.pyplot as plt
-import airspaces_data
+import numpy
+from multiprocessing import Process
 
- #
- # Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
- # must be given as fixed integers multiplied with GPS_MULT.
- #
- # \param lat1 the latitude of the 1st GPS point
- # \param lon1 the longitude of the 1st GPS point
- # \param lat2 the latitude of the 2nd GPS point
- # \param lon2 the longitude of the 2nd GPS point
- #
- # \return the bearing in degrees (0-359, where 0 is north, 90 is east, ...).
- #
-def gps_bearing(P1, P2):
-    d = P2 - P1
-    return (numpy.degrees(atan2(d[0],d[1])) + 360) % 360
+bVerbose = False
+bSummaryOnly = False
+nFetchFID = ogr.NullFID
+papszOptions = None
 
- #
- # Compute the distance between two GPS points in 2 dimensions
- # (without altitude). Latitude and longitude parameters must be given as fixed integers
- # multiplied with GPS_MULT.
- #
- # \param lat1 the latitude of the 1st GPS point
- # \param lon1 the longitude of the 1st GPS point
- # \param lat2 the latitude of the 2nd GPS point
- # \param lon2 the longitude of the 2nd GPS point
- #
- # \return the distance in cm.
- #
-def gps_distance_2d(P1, P2):
+# each point has "levels" elevation levels
+levels = 5
 
-    # Compute the average lat of lat1 and lat2 to get the width of a
-    # 1 degree cell at that position of the earth:
-    lat = (P1[1] + P2[1]) / 2 * (numpy.pi / 180.0)
+# The size of 1 level in bytes in the file
+sizeof_level = 4
 
-    # 111.3 km (in cm) is the width of 1 degree
-    dx = cos(lat) * 11130000 * abs(P1[0] - P2[0])
-    dy = 1.0      * 11130000 * abs(P1[1] - P2[1])
-
-    return sqrt(dx * dx + dy * dy)
-
-def draw_p(p, color="black"):
-    plt.plot(p[0], p[1], '.', color=color)
-
-def draw_vector(p1, p2, color="black", alpha=1.0):
-    plt.arrow(p1[0], p1[1], p2[0] - p1[0], p2[1]-p1[1], length_includes_head=True, color=color, head_width=0.01, alpha=alpha)
-
-def unit_vector(vector):
-    """ Returns the unit vector of the vector.  """
-    return vector / numpy.linalg.norm(vector)
-
-def angle_between(v1, v2):
-    """ Returns the angle in radians between vectors 'v1' and 'v2'::
-
-            >>> angle_between((1, 0, 0), (0, 1, 0))
-            1.5707963267948966
-            >>> angle_between((1, 0, 0), (1, 0, 0))
-            0.0
-            >>> angle_between((1, 0, 0), (-1, 0, 0))
-            3.141592653589793
-    """
-    v1_u = unit_vector(v1)
-    v2_u = unit_vector(v2)
-    return numpy.arccos(numpy.clip(numpy.dot(v1_u, v2_u), -1.0, 1.0))
-
-
-# http://www.uni-protokolle.de/foren/viewt/15542,0.html
-# Bestimme den Lotfusspunkt des Punktes p auf der Geraden durch A und B.
-# Punkt P=(x1, y1) 
-def lotfuss(A, B, P):
-    # u=[(y1-y2)*(y3-y2)+(x2-x1)*(x2-x3)]/[(y3-y2)*(y3-y2)-(x3-x2)*(x2-x3)]
-    u = ((P[1]-A[1])*(B[1]-A[1])+(A[0]-P[0])*(A[0]-B[0]))/((B[1]-A[1])*(B[1]-A[1])-(B[0]-A[0])*(A[0]-B[0]))
-    return numpy.array([A[0]+u*(B[0]-A[0]), A[1]+u*(B[1]-A[1])])
-
-#
-# Return the distance between the line between p1 and p2 and p.
-#http://www.matheboard.de/archive/116361/thread.html
-def distancePointToLine(p1, p2, p):
-    m = (p2[1] - p1[1]) / (p2[0] - p1[0])
-    n = p1[1] - m * p1[0]
-    d = abs((m * p[0] - p[1] + n) / sqrt(m * m + 1))
-    return d
-
-# Bestimme den zu P nächstgelegenen Punkt auf der Linue von A nach B
-def closestPointToLineSegment(A, B, P, debug=False):
-    L = lotfuss(A, B, P)
-    if debug:
-        draw_vector(A, B, "red")
-        draw_p(L, "black")
-        #draw_vector(A, L)
-        #draw_vector(L, P)
-
-        # (1) L ist links von AB
-    AB = unit_vector(B - A)
-    AL = unit_vector(L - A)
-    #if debug:
-    #    print (AB, AL)
-
-    if not numpy.allclose(AB, AL):
-        # L is left of A, therefore A is closest
-        return A
-
-    # (2) L ist rechts von AB
-    BA = unit_vector(A - B)
-    BL = unit_vector(L - B)
-    if not numpy.allclose(BA, BL):
-        # L is right of B, therefore B is closest
-        #return numpy.linalg.norm(P - B)
-        return B
-
-    return L
-
-def meter_to_feet(m):
-    return m * 3.2808399
-
-class Airspace:
-    def __init__(self):
-        self.points = None
-
-    def setPoints(self, p):
-        self.points = p
-        
-    def printReversePoints(self, p):
-        self.points = numpy.array([]);
-        for i in range(0, len(p) - 1, +2):
-            p1 = p[i]
-            p2 = p[i + 1]
-            print ( "[" , p1, ", ", p2, "], ")
-        programmendehier
-
-    def setMinMax(self, minFt, maxFt):
-        self.minFt = minFt
-        self.maxFt = maxFt
-
-    def getMin(self):
-        return self.minFt
-    
-    def getMax(self):
-        return self.maxFt
-    
-    def append(self, p):
-        self.points.append(p)
-
-    def closestPointTo(self, p):
-        closestP = None
-        distanceP = None
-        for i in range(len(self.points) - 1):
-            p1 = self.points[i]
-            p2 = self.points[i + 1]
-            c = closestPointToLineSegment(p1, p2, p, False)
-            distance = numpy.linalg.norm(c - p)
-            if distanceP == None or distance < distanceP:
-                distanceP = distance
-                closestP = c
-
-        return closestP
-    
-    def draw(self):
-        for i in range(len(self.points) - 1):
-            p1 = self.points[i]
-            p2 = self.points[i + 1]
-            draw_vector(p1, p2, "blue")
-            
-    def is_inside(self, p):
-        count = 0
-        for i in range(len(self.points) - 1):
-            p1 = self.points[i]
-            p2 = self.points[i + 1]
-            
-            g = p2 - p1
-            v = p - p1
-#            https://www.c-plusplus.net/forum/266934-full
-#Klar: Sei (g1,g2) der Richtungsvektor der Geraden, (s1,s2) der Stützvektor und (p1,p2) der Punkt. Dann ist g2*(p1-s1)+g1*(p2-s2) entweder positiv oder negativ (oder Null). Null heißt, der Punkt ist auf der Geraden, positiv heißt, er ist in Richtung des Richtungsvektors aus gesehen rechts, negativ heißt links.
-            result = g[1] * (p[0]-p1[0]) - g[0] * (p[1]-p1[1])
-            if result > 0:
-                count = count + 1
-            else:
-                count = count - 1
-
-        return (abs(count) == len(self.points) - 1)
-            
-    def __repr__(self):
-        return "".join(["Polygon(", str(self.points), ")"])
-
-    def getBoundingBox(self):
-        bb = [+100, +200, -100, -200]
-        for p in self.points:
-            bb[0] = min(p[0], bb[0])
-            bb[2] = max(p[0], bb[2])
-            bb[1] = min(p[1], bb[1])
-            bb[3] = max(p[1], bb[3])
-        return bb
-            
-    def getAngleAndDistance(self, p, draw=False):
-        c = self.closestPointTo(p)
-        distance_cm = gps_distance_2d(p,c)
-        angle = gps_bearing(p,c)
-        if self.is_inside(p):
-            forbidden = True
-            if draw:
-                draw_p(p, "red")
-                draw_vector(p, c, "red", 0.2)
-        else:
-            forbidden = False
-            # Show arrow away from airspace
-            angle = angle - 180
-            if angle < 0:
-                angle = angle + 360
-            if draw:
-                draw_p(p, "green")
-                draw_vector(p, c, "black", 0.2)
-                    
-        angle_byte = int(angle / 3)
-        if forbidden:
-            angle_byte = angle_byte + 128;      # highest bit shows FORBIDDEN
-        distance_m = distance_cm / 100
-        distance_byte = int(distance_m / 64)
-        if distance_byte > 255:
-            distance_byte = 255
-        distance_byte = distance_byte.to_bytes(1, 'little', signed=False)[0]
-        angle_byte = angle_byte.to_bytes(1, 'little', signed=False)[0]
-
-        result = [angle_byte, distance_byte]
-        return result
-
+airspaces = []
 
 def getBoundingBox(airspaces):
-        bb = [+100, +200, -100, -200]
-        for airspace in airspaces:
-            bb2 = airspace.getBoundingBox()
-            bb[0] = min(bb[0], bb2[0])
-            bb[1] = min(bb[1], bb2[1])
-            bb[2] = max(bb[2], bb2[2])
-            bb[3] = max(bb[3], bb2[3])
-        return bb
+    bb = [+100, +200, -100, -200]
+    for airspace in airspaces:
+        bb2 = airspace.getBoundingBox()
+        bb[0] = min(bb[0], bb2[0])
+        bb[1] = min(bb[1], bb2[1])
+        bb[2] = max(bb[2], bb2[2])
+        bb[3] = max(bb[3], bb2[3])
+    return bb
     
+def findAirspacesInHeight(airspaceVectors, height):
+    matchingAirspaceVectors = []
+    for airspaceVector in airspaceVectors:
+        if height >= airspaceVector.airspace.getMin() and height < airspaceVector.airspace.getMax():
+            matchingAirspaceVectors.append(airspaceVector)
+
+    return matchingAirspaceVectors
+
+def findAirspacesInside(airspaceVectors):
+    matchingAirspaceVectors = []
+    for airspaceVector in airspaceVectors:
+        if airspaceVector.inside:
+            matchingAirspaceVectors.append(airspaceVector)
+
+    return matchingAirspaceVectors
+
+def findAirspacesNotInside(airspaceVectors):
+    matchingAirspaceVectors = []
+    for airspaceVector in airspaceVectors:
+        if not airspaceVector.inside:
+            matchingAirspaceVectors.append(airspaceVector)
+
+    return matchingAirspaceVectors
+
+def findLowestHeightInAirspaces(airspace_vectors):
+    minHeight = None
+    for airspace_vector in airspace_vectors:
+        if minHeight == None or airspace_vector.airspace.getMin() <= minHeight:
+            minHeight = airspace_vector.airspace.getMin()
+
+    return minHeight
+
+def findHighestHeightInAirspaces(airspace_vectors):
+    maxHeight = None
+    for airspace_vector in airspace_vectors:
+        if maxHeight == None or airspace_vector.airspace.getMax() > maxHeight:
+            maxHeight = airspace_vector.airspace.getMax()
+
+    return maxHeight
+
+# Find the smallest height which is >= h.
+def findNextHeightInAirspaces(airspace_vectors, h):
+    nextHeight = None
+    for airspace_vector in airspace_vectors:
+        newHeight = airspace_vector.airspace.getMin()
+        if newHeight > h:
+            if nextHeight == None:
+                nextHeight = newHeight
+            else:
+                nextHeight = min(nextHeight, newHeight)
+        newHeight = airspace_vector.airspace.getMax()
+        if newHeight > h:
+            if nextHeight == None:
+                nextHeight = newHeight
+            else:
+                nextHeight = min(nextHeight, newHeight)
+
+    return nextHeight
+
+def findNearestAirspace(airspaceVectors):
+    nearestAirspace = None
+    for airspaceVector in airspaceVectors:
+        if nearestAirspace == None or airspaceVector.distance < nearestAirspace.distance:
+            nearestAirspace = airspaceVector
+
+    return nearestAirspace
+
+def findFarestAirspace(airspaceVectors):
+    farestAirspace = None
+    for airspaceVector in airspaceVectors:
+        if farestAirspace == None or airspaceVector.distance > farestAirspace.distance:
+            farestAirspace = airspaceVector
+
+    return farestAirspace
+
 # Entering a point here, would help debugging stuff inside dump.
 checkpoints = numpy.array([
-    [9.375, 48.75],
-    [9.375, 48.625]
+    #[9.0, 48.1],
+    #[8.8, 48.9]
     ])
     
+def dumpPoint(output, offset, p, airspaces, draw=False):
+
+    inside = False
+            
+    #print (p)
+    check = False
+    for c in checkpoints:
+        # print (p[0], c[0], p[1], c[1])
+        if abs(p.x - c[0]) < 0.001 and abs(p.y - c[1]) < 0.001:
+            check = True
+            print (p)
+            
+    avs = []
+    for airspace in airspaces:
+        if airspace.getDistanceToCenter(p) / (100*1000) < 100:
+            av = airspace.getAirspaceVector(p, draw)
+            if not av.isTooFar():
+                avs.append(av)
+
+    if bVerbose:
+        print(p, len(avs), "airspaces here")
+    #pprint ("All airspaces:")
+    #pprint (avs)
+
+    sortedAirspaces = {}
+            
+    # We start at lowest height
+    hMin = findLowestHeightInAirspaces(avs)
+    hMax = findHighestHeightInAirspaces(avs)
+    h = hMin
+    while h != None and h < hMax:
+        if check:
+            print ("Height:", h)
+        nearestAirspace = None
+        airspacesInThisHeight = findAirspacesInHeight(avs, h)
+        if check:
+            print ("airspacesInThisHeight:")
+            print (airspacesInThisHeight)
+        airspacesInside = findAirspacesInside(airspacesInThisHeight)
+        if len(airspacesInside) != 0:
+            inside = True
+            if check:
+                print ("INSIDE:")
+            nearestAirspace = findNearestAirspace(airspacesInside)
+        else:
+            nearestAirspace = findNearestAirspace(airspacesInThisHeight)
+
+        if check:
+            print ("nearestAirspace")
+            print (nearestAirspace)
+
+        # avs.sort(key=lambda x: x.distance, reverse=False)
+
+        #pprint(nearestAirspace)
+
+        if nearestAirspace != None:
+            sortedAirspaces[h] = nearestAirspace
+
+        h = findNextHeightInAirspaces(avs, h)
+
+    if check:
+        print ("\nsortedAirspaces")
+        print (sortedAirspaces)
+
+    if inside:
+        if bVerbose:
+            print ("INSIDE")
+                
+    # Eliminate all subsequent identical airspaces:
+    compactAirspaces = {}
+    heights = sorted(sortedAirspaces.keys())
+    for i in range(len(heights)-1):
+        height1 = heights[i]
+        height2 = heights[i+1]
+        if sortedAirspaces[height1].airspace != sortedAirspaces[height2].airspace:
+            if check:
+                print(sortedAirspaces[height1].getDistanceAsByte(), sortedAirspaces[height2].getDistanceAsByte())
+                print (sortedAirspaces[height1].getAngleAsByte(), sortedAirspaces[height2].getAngleAsByte())
+                        
+            if sortedAirspaces[height1].getDistanceAsByte() != sortedAirspaces[height2].getDistanceAsByte() or abs(sortedAirspaces[height1].getAngleAsByte() - sortedAirspaces[height2].getAngleAsByte()) > 5:
+                compactAirspaces[height1] = sortedAirspaces[height1]
+
+    if len(heights) > 0:
+        height = heights[len(heights)-1]
+        compactAirspaces[height] = sortedAirspaces[height]
+            
+    if check:
+        print ("compactAirspaces")
+        print (compactAirspaces)
+ 
+    # Delete all airspaces which are far away
+    while len(compactAirspaces) > 5:
+                
+        outsideAirspaces = findAirspacesNotInside(compactAirspaces.values())
+        farestAirspace = findFarestAirspace(outsideAirspaces)
+        if farestAirspace == None:
+            print ("Too much airspaces and none is far away at", p)
+            sys.exit(1)
+        if check:
+            print("Deleting ", farestAirspace)
+                
+        compactAirspaces2 = {}
+        for height in compactAirspaces.keys():
+            if compactAirspaces[height] != farestAirspace:
+                compactAirspaces2[height] = compactAirspaces[height]
+            #else:
+            #    print (p, " removed airspace ", farestAirspace)
+
+        compactAirspaces = compactAirspaces2
+
+    #names = []
+    heights = sorted(compactAirspaces.keys())
+    for i in range(len(heights)):
+        height1 = heights[i]
+        if i+1 < len(compactAirspaces):
+            height2 = heights[i+1]
+            name = compactAirspaces[height1].airspace.getName()
+        else:
+            height2 = None
+            name = None
+        #print("Writing up to height: ", height2)
+        for byte in compactAirspaces[height1].getBytes(height2):
+            output[offset] = byte
+            offset = offset + 1
+        #f.write(bytes(compactAirspaces[height1].getBytes(height2)))
+        if bVerbose:
+            print("    up to ",height2, ": ", name)
+                
+    # Fill up with empty Airspaces
+    av = AirspaceVector()
+    for i in range(5 - len(compactAirspaces)):
+        for byte in av.getBytes():
+            output[offset] = byte
+            offset = offset + 1
+        #f.write(bytes(av.getBytes()))
+        
 def dump(lon, lat, airspaces, draw=False):
-    filename = f"N{lat:02d}E{lon:03d}.air"
-    print (filename)
-    f = open(filename, 'wb')
+
+    global levels
+    global sizeof_level
+    
+    filename = f"N{lat:02d}E{lon:03d}-3.air"
+    print (filename, "computing...")
     if draw:
-        numPoints = 8
+        numPoints = 10
     else:
         numPoints = 1200
+        numPoints = 30
     skip = 1/numPoints
-    for y in numpy.arange(lat + 1 + skip, lat, -skip):
-        for x in numpy.arange(lon, lon + 1 + skip, skip):
-            p = numpy.array([x,y])
 
-            check = False
-            for c in checkpoints:
-                if p[0] == c[0] and p[1] == c[1]:
-                    check = True
-                    print (p)
+    output = bytearray(numPoints * numPoints * levels * sizeof_level)
 
-            airspace_count = 0
-            for airspace in airspaces:
-                airspace_count = airspace_count + 1
-                height = airspace.getMax()
-                angleAndDistance = airspace.getAngleAndDistance(p, draw)
-                f.write(height.to_bytes(2, 'little', signed=False))
-                f.write(bytes(angleAndDistance))
-                if check:
-                    print ("Height:  ", height, "Angle,Dist: ", angleAndDistance) 
+    try:
+        for lat_i in numpy.arange(lat + 1 + skip, lat, -skip):
+            for lon_i in numpy.arange(lon, lon + 1 + skip, skip):
+                p = shapely.geometry.Point(lon_i, lat_i)
+                y = (lat_i - lat) * numPoints;
+                x = (lon_i - lon) * numPoints;
+                offset = (int(numPoints - 1 - y) * numPoints + int(x)) * (levels * sizeof_level)
+                dumpPoint(output, offset, p, airspaces, draw)
+    except (KeyboardInterrupt, SystemExit):
+        print("Exiting...")
+        sys.exit(1)
 
-            while airspace_count < 5:
-                airspace_count = airspace_count + 1
-                height = 0
-                angleAndDistance = [0, 0]
-                f.write(height.to_bytes(2, 'little', signed=False))
-                f.write(bytes(angleAndDistance))
+    isEmpty = True
+    for byte in output:
+        if byte != 0:
+            isEmpty = False
+            break
+    if isEmpty:
+        print (filename, "is empty")
+    else:
+        f = open(filename, 'wb')
+        f.write(bytes(output))
+        f.close()
+        print (filename, "saved")
+
+def EQUAL(a, b):
+    return a.lower() == b.lower()
+
+#**********************************************************************
+#                                main()
+#**********************************************************************
+
+def main(argv = None):
+
+    global bVerbose
+    global bSummaryOnly
+    global nFetchFID
+    global papszOptions
+
+    pszWHERE = None
+    pszDataSource = None
+    papszLayers = None
+    poSpatialFilter = None
+    nRepeatCount = 1
+    bAllLayers = False
+    pszSQLStatement = None
+    pszDialect = None
+    options = {}
+    pszGeomField = None
+
+    if argv is None:
+        argv = sys.argv
+
+    argv = ogr.GeneralCmdLineProcessor( argv )
+
+# --------------------------------------------------------------------
+#      Processing command line arguments.
+# --------------------------------------------------------------------
+    if argv is None:
+        return 1
+
+    nArgc = len(argv)
+
+    iArg = 1
+    while iArg < nArgc:
+
+        if EQUAL(argv[iArg],"--utility_version"):
+            print("%s is running against GDAL %s" %
+                   (argv[0], gdal.VersionInfo("RELEASE_NAME")))
+            return 0
+
+        elif EQUAL(argv[iArg],"-q") or EQUAL(argv[iArg],"-quiet"):
+            bVerbose = False
+        elif EQUAL(argv[iArg],"-v") or EQUAL(argv[iArg],"-verbose"):
+            bVerbose = True
+
+        elif argv[iArg][0] == '-':
+            return Usage()
+
+        elif pszDataSource is None:
+            pszDataSource = argv[iArg]
+
+        iArg = iArg + 1
+
+    if pszDataSource is None:
+        return Usage()
+
+# --------------------------------------------------------------------
+#      Open data source.
+# --------------------------------------------------------------------
+    poDS = None
+    poDriver = None
+
+    poDS = ogr.Open( pszDataSource)
+
+# --------------------------------------------------------------------
+#      Report failure.
+# --------------------------------------------------------------------
+    if poDS is None:
+        print( "FAILURE:\n"
+                "Unable to open datasource `%s' with the following drivers." % pszDataSource )
+
+        for iDriver in range(ogr.GetDriverCount()):
+            print( "  -> %s" % ogr.GetDriver(iDriver).GetName() )
+
+        return 1
+
+    poDriver = poDS.GetDriver()
+
+# --------------------------------------------------------------------
+#      Some information messages.
+# --------------------------------------------------------------------
+    if bVerbose:
+        print( "INFO: Open of `%s'\n"
+                "      using driver `%s' successful." % (pszDataSource, poDriver.GetName()) )
+
+    poDS_Name = poDS.GetName()
+    if str(type(pszDataSource)) == "<type 'unicode'>" and str(type(poDS_Name)) == "<type 'str'>":
+        poDS_Name = poDS_Name.decode("utf8")
+    if bVerbose and pszDataSource != poDS_Name:
+        print( "INFO: Internal data source name `%s'\n"
+                "      different from user name `%s'." % (poDS_Name, pszDataSource ))
+
+    #gdal.Debug( "OGR", "GetLayerCount() = %d\n", poDS.GetLayerCount() )
+
+    # --------------------------------------------------------------------
+    #      Process specified data source layers.
+    # --------------------------------------------------------------------
+    poLayer = poDS.GetLayerByName("airspaces")
+
+    if poLayer is None:
+        print( "FAILURE: Couldn't fetch requested layer %s!" % papszIter )
+        return 1
+
+    ReadLayer( poLayer, pszWHERE, pszGeomField, poSpatialFilter, options )
+
+# --------------------------------------------------------------------
+#      Close down.
+# --------------------------------------------------------------------
+    poDS.Destroy()
+
+    boundingBox = getBoundingBox(airspaces)
+    #pprint(boundingBox)
+
+    draw = True
+
+    count = 0
+    if draw:
+        for airspace in airspaces:
+            if True or "Stuttgart" in airspace.getName(): 
+                    airspace.draw()
+        plt.plot(boundingBox[0], boundingBox[1], '.', color="black")
+        plt.plot(boundingBox[2], boundingBox[3], '.', color="black")
+        
+    try:
+        procs = []
+        if False:
+            for lat in range(int(boundingBox[1]),int(boundingBox[3])+1):
+                for lon in range(int(boundingBox[0]),int(boundingBox[2])+1):
+                    p = Process(target=dump, args=(lon,lat,airspaces, draw))
+                    p.start()
+                    procs.append(p)
+
+        for p in procs:
+            p.join()
+
+    except (KeyboardInterrupt, SystemExit):
+        print("Exiting (main)...")
+        sys.exit(1)
             
-    f.close()
+    if draw:
+        plt.axis('equal')
+        plt.show()
 
-stuttgart_1 = Airspace()
-stuttgart_1.setPoints(airspaces_data.stuttgart)
-stuttgart_1.setMinMax(0, 3500)
+    return 0
 
-stuttgart_2 = Airspace()
-stuttgart_2.setPoints(airspaces_data.stuttgart_2)
-stuttgart_2.setMinMax(3500, 4500)
+#**********************************************************************
+#                               Usage()
+#**********************************************************************
 
-stuttgart_3 = Airspace()
-stuttgart_3.setPoints(airspaces_data.stuttgart_3)
-stuttgart_3.setMinMax(4500, 5500)
+def Usage():
 
-stuttgart_4 = Airspace()
-stuttgart_4.setPoints(airspaces_data.stuttgart_4)
-stuttgart_4.setMinMax(5500, 7500)
+    print( "Usage: convert [-q|-v] datasource_name")
+    return 1
 
-stuttgart_5 = Airspace()
-stuttgart_5.setPoints(airspaces_data.stuttgart_5)
-stuttgart_5.setMinMax(7500, 10000)
+#**********************************************************************
+#                           ReadLayer()
+#**********************************************************************
 
-mallorca_1 = Airspace()
-mallorca_1.setPoints(airspaces_data.mallorca)
-mallorca_1.setMinMax(0, 1000)
+def ReadLayer( poLayer, pszWHERE, pszGeomField, poSpatialFilter, options ):
 
-# airspaces = [ stuttgart_1, stuttgart_2, stuttgart_3, stuttgart_4, stuttgart_5 ]
-airspaces = [ mallorca_1 ]
+    poDefn = poLayer.GetLayerDefn()
 
-boundingBox = getBoundingBox(airspaces)
+# --------------------------------------------------------------------
+#      Read, and dump features.
+# --------------------------------------------------------------------
+    poFeature = poLayer.GetNextFeature()
+    while poFeature is not None:
+        ReadFeature(poFeature, options)
+        poFeature = poLayer.GetNextFeature()
+        
+    return
 
-draw = True
+def ReadField(poFeature, fieldName):
+        poDefn = poFeature.GetDefnRef()
+        iField = poDefn.GetFieldIndex(fieldName)
+        poFDefn = poDefn.GetFieldDefn(iField)
+        if poFeature.IsFieldSet( iField ):
+                value = poFeature.GetFieldAsString( iField ).strip();
+        else:
+                value = None
 
-if draw:
-    for airspace in airspaces:
-        airspace.draw()
+        return value
 
-if len(sys.argv) > 1:
-    dump(int(sys.argv[2]), int(sys.argv[1]))
-else:
-    for lat in numpy.arange(floor(boundingBox[1]), floor(boundingBox[3]) + 1, +1):
-        for lon in numpy.arange(floor(boundingBox[0]), floor(boundingBox[2]) + 1, +1):
-            dump(lon, lat, airspaces, draw)
+def ReadAltFt( poFeature, fieldName ):
+    poDefn = poFeature.GetDefnRef()
+    alt = None
+    level = None
+    unit = None
+    iField = poDefn.GetFieldIndex(fieldName)
+    poFDefn = poDefn.GetFieldDefn(iField)
+    if poFeature.IsFieldSet( iField ):
+        value = poFeature.GetFieldAsString( iField ).strip();
+        alt = value
+        if alt == "GND":
+            alt = 0
+            unit = "ft"
+            level = "AGL"
+        else:
+            # "8000 ft AMSL"
+            m = re.match('(\d+)\s+([a-z]+)\s+(\w+)', alt)
+            if m != None:
+                alt = int(m.group(1))
+                unit = m.group(2)
+                level = m.group(3)
+            else:
+                # "2200ft MSL"
+                m = re.match('(\d+)([a-z]+)\s+(\w+)', alt)
+                if m != None:
+                    alt = int(m.group(1))
+                    unit = m.group(2)
+                    level = m.group(3)
+                else:
+                    m = re.match('(\d+)\s*(\w+)', alt)
+                    if m != None:
+                        alt = int(m.group(1))
+                        level = m.group(2)
+                        if level == "ft":
+                            unit = level
+                            level = "MSL"
+                        else:
+                            unit = "ft"
+                    else:
+                        # "FL80"
+                        m = re.match('FL\s*(\d+)', alt)
+                        if m != None:
+                            alt = int(m.group(1)) * 100
+                            level = "MSL"
+                            unit = "ft"
+                        else:
+                            print ("Unknown alt grammar '"+value+"'")
+                            sys.exit(1)
 
-if draw:
-    plt.axis('equal')
-    plt.show()
+        if unit != "ft":
+            print ("Unknown unit", unit)
+            sys.exit(1)
+            
+        if level != "MSL" and level != "GND" and level != "AGL" and level != "AMSL":
+            print("airspace #%ld: %s" % (poFeature.GetFID(), value))
+            print ("Unknown level", level)
+            sys.exit(1)
+
+    return alt
+        
+def ReadFeature( poFeature, options = None ):
+
+    poDefn = poFeature.GetDefnRef()
+    # print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
+
+    classAir = ReadField(poFeature, "CLASS")
+    if classAir in ["RMZ", "TMZ", "Q", "W", "G"]:
+            # R restricted
+            # Q danger
+            # P prohibited
+            # A Class A
+            # B Class B
+            # C Class C
+            # D Class D
+            # GP glider prohibited
+            # CTR CTR
+            # W Wave Window
+            #
+            # These airspaces will be skipped
+            return
+    
+    name = ReadField(poFeature, "NAME")
+    floor = ReadAltFt(poFeature, "FLOOR")
+    ceiling = ReadAltFt(poFeature, "CEILING")
+
+    nGeomFieldCount = poFeature.GetGeomFieldCount()
+    if nGeomFieldCount > 0:
+        for iField in range(nGeomFieldCount):
+            poGeometry = poFeature.GetGeomFieldRef(iField)
+            if poGeometry is not None:
+                geometryName = poGeometry.GetGeometryName()
+                if geometryName != "POLYGON":
+                    print ("Unknown geometry: ", geometryName)
+                    sys.exit(1)
+                geometryCount = poGeometry.GetGeometryCount()
+                if geometryCount != 1:
+                    print("GeometryCount != 1")
+                    sys.exit(1)
+                        
+                ring = poGeometry.GetGeometryRef(0)
+                points = ring.GetPointCount()
+                p = []
+                for i in range(points):
+                    lon, lat, z = ring.GetPoint(i)
+                    p.append((lon, lat))
+                polygon = shapely.geometry.Polygon(p)
+                airspace = Airspace()
+                airspace.setName(name)
+                airspace.setMinMax(floor, ceiling)
+                airspace.setPolygon(polygon)
+                airspaces.append(airspace)
+        
+    return
+
+if __name__ == '__main__':
+    version_num = int(gdal.VersionInfo('VERSION_NUM'))
+    if version_num < 1800: # because of ogr.GetFieldTypeName
+        print('ERROR: Python bindings of GDAL 1.8.0 or later required')
+        sys.exit(1)
+
+    sys.exit(main( sys.argv ))
