@@ -89,13 +89,13 @@ def visualize(filename, level):
 
     skip = 1/numDrawPoints
     line = 0
-    for lat_i in numpy.arange(lat, lat + 1 + skip, skip):
+    for lat_i in numpy.arange(lat, lat + 1, skip):
         line = line + 1
         col = 0
-        for lon_i in numpy.arange(lon, lon + 1 + skip, skip):
+        for lon_i in numpy.arange(lon, lon + 1, skip):
             col = col + 1
-            if lon_i > lon + 1 or lat_i > lat + 1:
-                continue
+            #if lon_i > lon + 1 or lat_i > lat + 1:
+            #    continue
             
             p = numpy.array([lon_i, lat_i])
             #print (p)
@@ -103,7 +103,7 @@ def visualize(filename, level):
             y = (lat_i - lat) * numPoints;
             x = (lon_i - lon) * numPoints;
             
-            offset = (int(numPoints - 1 - y) * numPoints + int(x)) * (levels * sizeof_level) + level * sizeof_level 
+            offset = (int(numPoints - y - 1) * numPoints + int(x)) * (levels * sizeof_level) + level * sizeof_level 
             f.seek(offset, os.SEEK_SET)
             if offset > filesize:
                 print ("Point", p, "x=", x, "y=", y)

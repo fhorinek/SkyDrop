@@ -3,7 +3,7 @@
 
 #include "../drivers/storage/storage.h"
 
-// #include "debug_on.h"
+#include "debug_on.h"
 
 #define NO_OF_AIRSPACE_HEIGHTS 5
 
@@ -28,15 +28,6 @@ FIL airspace_data_file;
 // All lat/lon values are multiplied by HGT_COORD_MUL, so that we can use
 // fixed point integer arithmetic instead of floating points:
 #define HGT_COORD_MUL	10000000l
-
-// Some HGT files contain 1201 x 1201 points (3 arc/90m resolution)
-#define HGT_DATA_WIDTH_3	1201ul
-
-// Some HGT files contain 3601 x 3601 points (1 arc/30m resolution)
-#define HGT_DATA_WIDTH_1	3601ul
-
-// Some HGT files contain 3601 x 1801 points (1 arc/30m resolution)
-#define HGT_DATA_WIDTH_1_HALF	1801ul
 
 void airspace_init()
 {
@@ -103,11 +94,11 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
         lat = (HGT_COORD_MUL - 1) + (lat % HGT_COORD_MUL);   // lat is negative!
     }
 
-    num_points_x = num_points_y = HGT_DATA_WIDTH_3;
+    num_points_x = num_points_y = (int)sqrt((double)(f_size(&airspace_data_file) / sizeof(airspace)));
 
     // "-2" is, because a file has a overlap of 1 point to the next file.
-    uint32_t coord_div_x = HGT_COORD_MUL / (num_points_x - 2);
-    uint32_t coord_div_y = HGT_COORD_MUL / (num_points_y - 2);
+    uint32_t coord_div_x = HGT_COORD_MUL / num_points_x;
+    uint32_t coord_div_y = HGT_COORD_MUL / num_points_y;
     uint16_t y = (lat % HGT_COORD_MUL) / coord_div_y;
     uint16_t x = (lon % HGT_COORD_MUL) / coord_div_x;
 
@@ -115,7 +106,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
     //seek to position
     uint32_t pos = ((uint32_t) x + num_points_x * (uint32_t) ((num_points_y - y) - 1));
-    DEBUG("airspace_get_data_on_opened_file: lat=%ld, lon=%ld; x=%d, y=%d; index=%ld\n", lat, lon, x, y, pos);
+    DEBUG("airspace_get_data_on_opened_file: res=%u, lat=%ld, lon=%ld; x=%d, y=%d; index=%ld\n", num_points_x, lat, lon, x, y, pos);
 
     pos = pos * sizeof(airspace);
 
