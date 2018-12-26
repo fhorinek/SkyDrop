@@ -25,12 +25,14 @@ import shapely.ops
 import shapely.geometry
 import matplotlib.pyplot as plt
 import numpy
-from multiprocessing import Process
+import time
+import multiprocessing
+import getopt
 
+bDraw = False
 bVerbose = False
-bSummaryOnly = False
-nFetchFID = ogr.NullFID
-papszOptions = None
+wantedResolution = 300
+latOnly = lonOnly = None
 
 # each point has "levels" elevation levels
 levels = 5
@@ -132,7 +134,9 @@ checkpoints = numpy.array([
     ])
     
 def dumpPoint(output, offset, p, airspaces, draw=False):
-
+    global bVerbose
+    global bDraw
+    
     inside = False
             
     #print (p)
@@ -251,11 +255,9 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         else:
             height2 = None
             name = None
-        #print("Writing up to height: ", height2)
         for byte in compactAirspaces[height1].getBytes(height2):
             output[offset] = byte
             offset = offset + 1
-        #f.write(bytes(compactAirspaces[height1].getBytes(height2)))
         if bVerbose:
             print("    up to ",height2, ": ", name)
                 
@@ -265,27 +267,26 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         for byte in av.getBytes():
             output[offset] = byte
             offset = offset + 1
-        #f.write(bytes(av.getBytes()))
         
 def dump(lon, lat, airspaces, draw=False):
 
     global levels
     global sizeof_level
+    global wantedResolution
     
-    filename = f"N{lat:02d}E{lon:03d}-3.air"
-    print (filename, "computing...")
+    filename = f"N{lat:02d}E{lon:03d}.air"
     if draw:
         numPoints = 10
     else:
-        numPoints = 1200
-        numPoints = 30
+        numPoints = wantedResolution
     skip = 1/numPoints
+    print (filename, "computing (" + str(numPoints) + "x" + str(numPoints) + ")")
 
     output = bytearray(numPoints * numPoints * levels * sizeof_level)
 
     try:
-        for lat_i in numpy.arange(lat + 1 + skip, lat, -skip):
-            for lon_i in numpy.arange(lon, lon + 1 + skip, skip):
+        for lat_i in numpy.arange(lat, lat + 1, skip):
+            for lon_i in numpy.arange(lon, lon + 1, skip):
                 p = shapely.geometry.Point(lon_i, lat_i)
                 y = (lat_i - lat) * numPoints;
                 x = (lon_i - lon) * numPoints;
@@ -308,68 +309,55 @@ def dump(lon, lat, airspaces, draw=False):
         f.close()
         print (filename, "saved")
 
-def EQUAL(a, b):
-    return a.lower() == b.lower()
-
 #**********************************************************************
 #                                main()
 #**********************************************************************
 
+def usage():
+    print ('convert.py openairspace-file [lat] [lon]')
+    
 def main(argv = None):
 
     global bVerbose
-    global bSummaryOnly
-    global nFetchFID
-    global papszOptions
-
-    pszWHERE = None
-    pszDataSource = None
-    papszLayers = None
-    poSpatialFilter = None
-    nRepeatCount = 1
-    bAllLayers = False
-    pszSQLStatement = None
-    pszDialect = None
-    options = {}
-    pszGeomField = None
-
+    global bDraw
+    global latOnly, lonOnly
+    global wantedResolution
+    
     if argv is None:
         argv = sys.argv
 
-    argv = ogr.GeneralCmdLineProcessor( argv )
-
+    try:
+        opts, args = getopt.getopt(argv,"hvqdr:",["help", "resolution=","quiet","verbose","draw"])
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+      
 # --------------------------------------------------------------------
 #      Processing command line arguments.
 # --------------------------------------------------------------------
-    if argv is None:
-        return 1
-
-    nArgc = len(argv)
-
-    iArg = 1
-    while iArg < nArgc:
-
-        if EQUAL(argv[iArg],"--utility_version"):
-            print("%s is running against GDAL %s" %
-                   (argv[0], gdal.VersionInfo("RELEASE_NAME")))
-            return 0
-
-        elif EQUAL(argv[iArg],"-q") or EQUAL(argv[iArg],"-quiet"):
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit()
+        elif opt in ("-q", "--quiet"):
             bVerbose = False
-        elif EQUAL(argv[iArg],"-v") or EQUAL(argv[iArg],"-verbose"):
+        elif opt in ("-v", "--verbose"):
             bVerbose = True
+        elif opt in ("-d", "--draw"):
+            bDraw = True
+        elif opt in ("-r", "--resolution"):
+            wantedResolution = int(arg)
 
-        elif argv[iArg][0] == '-':
-            return Usage()
-
-        elif pszDataSource is None:
-            pszDataSource = argv[iArg]
-
-        iArg = iArg + 1
-
-    if pszDataSource is None:
-        return Usage()
-
+    if len(args) == 1:
+        pszDataSource = args[0]
+    elif len(args) == 3:
+        pszDataSource = args[0]
+        latOnly = int(args[1])
+        lonOnly = int(args[2])
+    else:
+        usage()
+        sys.exit(1)
+        
 # --------------------------------------------------------------------
 #      Open data source.
 # --------------------------------------------------------------------
@@ -417,7 +405,7 @@ def main(argv = None):
         print( "FAILURE: Couldn't fetch requested layer %s!" % papszIter )
         return 1
 
-    ReadLayer( poLayer, pszWHERE, pszGeomField, poSpatialFilter, options )
+    ReadLayer( poLayer )
 
 # --------------------------------------------------------------------
 #      Close down.
@@ -425,12 +413,11 @@ def main(argv = None):
     poDS.Destroy()
 
     boundingBox = getBoundingBox(airspaces)
-    #pprint(boundingBox)
-
-    draw = True
+    print("BoundingBox:", boundingBox)
 
     count = 0
-    if draw:
+    if bDraw:
+        print ("DRAW")
         for airspace in airspaces:
             if True or "Stuttgart" in airspace.getName(): 
                     airspace.draw()
@@ -439,21 +426,36 @@ def main(argv = None):
         
     try:
         procs = []
-        if False:
-            for lat in range(int(boundingBox[1]),int(boundingBox[3])+1):
-                for lon in range(int(boundingBox[0]),int(boundingBox[2])+1):
-                    p = Process(target=dump, args=(lon,lat,airspaces, draw))
-                    p.start()
+        if latOnly != None and lonOnly != 0:
+            p = multiprocessing.Process(target=dump, args=(lonOnly,latOnly,airspaces, bDraw))
+            procs.append(p)
+        else:
+            for lat in range(int(boundingBox[1])-1,int(boundingBox[3])+2):
+                for lon in range(int(boundingBox[0])-1,int(boundingBox[2])+2):
+                    p = multiprocessing.Process(target=dump, args=(lon,lat,airspaces, bDraw))
                     procs.append(p)
 
-        for p in procs:
-            p.join()
+        running = []
+        parallelism = multiprocessing.cpu_count()    # set to "1" for sequential
+        while len(procs) > 0 or len(running) > 0:
+            # Start as much processes as we have CPUs
+            while len(running) < parallelism and len(procs) > 0:
+                p = procs.pop(0)
+                p.start()
+                running.append(p)
+            for i in range(len(running)):
+                if not running[i].is_alive():
+                    running[i].join()
+                    del running[i]
+                    # "i" is now wrong, break out and restart
+                    break      
+            time.sleep(1)
 
     except (KeyboardInterrupt, SystemExit):
         print("Exiting (main)...")
         sys.exit(1)
             
-    if draw:
+    if bDraw:
         plt.axis('equal')
         plt.show()
 
@@ -472,7 +474,7 @@ def Usage():
 #                           ReadLayer()
 #**********************************************************************
 
-def ReadLayer( poLayer, pszWHERE, pszGeomField, poSpatialFilter, options ):
+def ReadLayer( poLayer ):
 
     poDefn = poLayer.GetLayerDefn()
 
@@ -481,7 +483,7 @@ def ReadLayer( poLayer, pszWHERE, pszGeomField, poSpatialFilter, options ):
 # --------------------------------------------------------------------
     poFeature = poLayer.GetNextFeature()
     while poFeature is not None:
-        ReadFeature(poFeature, options)
+        ReadFeature(poFeature)
         poFeature = poLayer.GetNextFeature()
         
     return
@@ -507,7 +509,7 @@ def ReadAltFt( poFeature, fieldName ):
     if poFeature.IsFieldSet( iField ):
         value = poFeature.GetFieldAsString( iField ).strip();
         alt = value
-        if alt == "GND":
+        if alt == "GND" or alt == "SFC":
             alt = 0
             unit = "ft"
             level = "AGL"
@@ -557,7 +559,7 @@ def ReadAltFt( poFeature, fieldName ):
 
     return alt
         
-def ReadFeature( poFeature, options = None ):
+def ReadFeature( poFeature ):
 
     poDefn = poFeature.GetDefnRef()
     # print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
@@ -617,4 +619,4 @@ if __name__ == '__main__':
         print('ERROR: Python bindings of GDAL 1.8.0 or later required')
         sys.exit(1)
 
-    sys.exit(main( sys.argv ))
+    sys.exit(main(sys.argv[1:]))

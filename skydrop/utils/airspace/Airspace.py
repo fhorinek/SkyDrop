@@ -103,7 +103,7 @@ class Airspace:
         return self.maxFt
     
     def draw(self):
-        print ("draw airspace \"", self.name, "\"")
+        print ("draw airspace \""+self.name+"\"")
         coords = list(self.polygon.exterior.coords)
         for i in range(len(coords)-1):
             p1 = shapely.geometry.Point(coords[i])
