@@ -18,7 +18,6 @@ import numpy
 import sys
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
-import airspaces_data
 
 # Compute a point P2 which is distance_m meter in angle "angle" away from
 # given point P.

@@ -14,6 +14,7 @@
 
 import sys
 import re
+import os
 
 from Airspace import Airspace
 from AirspaceVector import AirspaceVector
@@ -33,6 +34,7 @@ bDraw = False
 bVerbose = False
 wantedResolution = 300
 latOnly = lonOnly = None
+force = False
 
 # each point has "levels" elevation levels
 levels = 5
@@ -275,14 +277,22 @@ def dump(lon, lat, airspaces, draw=False):
     global wantedResolution
     
     filename = f"N{lat:02d}E{lon:03d}.air"
+    
     if draw:
         numPoints = 10
     else:
         numPoints = wantedResolution
     skip = 1/numPoints
+
+    filesize = numPoints * numPoints * levels * sizeof_level
+    if os.path.isfile(filename) and not force:
+        print (filename, "exists, skipping...")
+        return
+    
+    f = open(filename, 'wb')
     print (filename, "computing (" + str(numPoints) + "x" + str(numPoints) + ")")
 
-    output = bytearray(numPoints * numPoints * levels * sizeof_level)
+    output = bytearray(filesize)
 
     try:
         for lat_i in numpy.arange(lat, lat + 1, skip):
@@ -294,6 +304,8 @@ def dump(lon, lat, airspaces, draw=False):
                 dumpPoint(output, offset, p, airspaces, draw)
     except (KeyboardInterrupt, SystemExit):
         print("Exiting...")
+        f.close()
+        os.remove(filename)
         sys.exit(1)
 
     isEmpty = True
@@ -304,10 +316,9 @@ def dump(lon, lat, airspaces, draw=False):
     if isEmpty:
         print (filename, "is empty")
     else:
-        f = open(filename, 'wb')
         f.write(bytes(output))
-        f.close()
         print (filename, "saved")
+    f.close()
 
 #**********************************************************************
 #                                main()
@@ -322,12 +333,13 @@ def main(argv = None):
     global bDraw
     global latOnly, lonOnly
     global wantedResolution
+    global force
     
     if argv is None:
         argv = sys.argv
 
     try:
-        opts, args = getopt.getopt(argv,"hvqdr:",["help", "resolution=","quiet","verbose","draw"])
+        opts, args = getopt.getopt(argv,"hvqdr:f",["help", "resolution=","quiet","verbose","draw", "force"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -347,6 +359,8 @@ def main(argv = None):
             bDraw = True
         elif opt in ("-r", "--resolution"):
             wantedResolution = int(arg)
+        elif opt in ("-f", "--force"):
+            force = True
 
     if len(args) == 1:
         pszDataSource = args[0]
