@@ -31,10 +31,11 @@ import multiprocessing
 import getopt
 
 bDraw = False
-bVerbose = False
+bVerbose = 0
 wantedResolution = 300
 latOnly = lonOnly = None
 force = False
+checkPoint = None
 
 # each point has "levels" elevation levels
 levels = 5
@@ -148,7 +149,10 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         if abs(p.x - c[0]) < 0.001 and abs(p.y - c[1]) < 0.001:
             check = True
             print (p)
-            
+
+    if bVerbose > 1:
+        check = True
+        
     avs = []
     for airspace in airspaces:
         if airspace.getDistanceToCenter(p) / (100*1000) < 100:
@@ -156,7 +160,7 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
             if not av.isTooFar():
                 avs.append(av)
 
-    if bVerbose:
+    if bVerbose > 0:
         print(p, len(avs), "airspaces here")
     #pprint ("All airspaces:")
     #pprint (avs)
@@ -202,29 +206,61 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         print (sortedAirspaces)
 
     if inside:
-        if bVerbose:
+        if bVerbose > 0:
             print ("INSIDE")
                 
     # Eliminate all subsequent identical airspaces:
     compactAirspaces = {}
     heights = sorted(sortedAirspaces.keys())
-    for i in range(len(heights)-1):
-        height1 = heights[i]
-        height2 = heights[i+1]
-        if sortedAirspaces[height1].airspace != sortedAirspaces[height2].airspace:
-            if check:
-                print(sortedAirspaces[height1].getDistanceAsByte(), sortedAirspaces[height2].getDistanceAsByte())
-                print (sortedAirspaces[height1].getAngleAsByte(), sortedAirspaces[height2].getAngleAsByte())
+    if len(heights) > 0:
+        height1 = heights[0]
+        compactAirspaces[height1] = sortedAirspaces[height1]
+
+        for i in range(len(heights)-1):
+            height1 = heights[i]
+            height2 = heights[i+1]
+            if bVerbose > 1:
+                print ("comparing airspace in", height1, "and", height2)
+            if sortedAirspaces[height1].airspace != sortedAirspaces[height2].airspace:
+                if bVerbose > 1:
+                    print("  different airspaces. Adding airspace from", height2)
+                compactAirspaces[height2] = sortedAirspaces[height2]
+            else:
+                if bVerbose > 1:
+                    print ("  identical airspaces. Skipping airspace from", height2)
+    
+    if bVerbose > 1:
+        print ("compactAirspaces(without subsequent identical)")
+        print (compactAirspaces)
+
+    sortedAirspaces = compactAirspaces
+    
+    # Eliminate all subsequent airspaces with same angle/distance:
+    compactAirspaces = sortedAirspaces
+    heights = sorted(sortedAirspaces.keys())
+    if len(heights) > 5:
+        compactAirspaces = {}
+        height1 = heights[0]
+        compactAirspaces[height1] = sortedAirspaces[height1]
+
+        for i in range(len(heights)-1):
+            height1 = heights[i]
+            height2 = heights[i+1]
+            if bVerbose > 1:
+                print ("comparing airspace in", height1, "and", height2, "for identical distance/angle.")
+                print("  distance:", sortedAirspaces[height1].getDistanceAsByte(), sortedAirspaces[height2].getDistanceAsByte())
+                print ("  angle:", sortedAirspaces[height1].getAngleAsByte(), sortedAirspaces[height2].getAngleAsByte())
                         
             if sortedAirspaces[height1].getDistanceAsByte() != sortedAirspaces[height2].getDistanceAsByte() or abs(sortedAirspaces[height1].getAngleAsByte() - sortedAirspaces[height2].getAngleAsByte()) > 5:
-                compactAirspaces[height1] = sortedAirspaces[height1]
-
-    if len(heights) > 0:
-        height = heights[len(heights)-1]
-        compactAirspaces[height] = sortedAirspaces[height]
-            
+                if bVerbose > 1:
+                    print("  different distance/angle. Adding airspace from", height2)
+                compactAirspaces[height2] = sortedAirspaces[height2]
+            else:
+                if bVerbose > 1:
+                    print ("  identical distance/angle. Skipping airspace from", height2)
+    
     if check:
-        print ("compactAirspaces")
+        print ("compactAirspaces (without identical distance/angle)")
         print (compactAirspaces)
  
     # Delete all airspaces which are far away
@@ -260,7 +296,7 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         for byte in compactAirspaces[height1].getBytes(height2):
             output[offset] = byte
             offset = offset + 1
-        if bVerbose:
+        if bVerbose > 0:
             print("    up to ",height2, ": ", name)
                 
     # Fill up with empty Airspaces
@@ -282,7 +318,6 @@ def dump(lon, lat, airspaces, draw=False):
         numPoints = 10
     else:
         numPoints = wantedResolution
-    skip = 1/numPoints
 
     filesize = numPoints * numPoints * levels * sizeof_level
     if os.path.isfile(filename) and not force:
@@ -293,15 +328,28 @@ def dump(lon, lat, airspaces, draw=False):
     print (filename, "computing (" + str(numPoints) + "x" + str(numPoints) + ")")
 
     output = bytearray(filesize)
-
+    
     try:
-        for lat_i in numpy.arange(lat, lat + 1, skip):
-            for lon_i in numpy.arange(lon, lon + 1, skip):
+        # Quickcheck for emptyness
+        isEmpty = True
+        for lat_i in numpy.arange(lat, lat + 1, 1/10):
+            for lon_i in numpy.arange(lon, lon + 1, 1/10):
                 p = shapely.geometry.Point(lon_i, lat_i)
-                y = (lat_i - lat) * numPoints;
-                x = (lon_i - lon) * numPoints;
-                offset = (int(numPoints - 1 - y) * numPoints + int(x)) * (levels * sizeof_level)
-                dumpPoint(output, offset, p, airspaces, draw)
+                offset = 0
+                dumpPoint(output, offset, p, airspaces, False)
+                for offset in range(levels * sizeof_level):
+                    if output[offset] != 0:
+                        isEmpty = False
+
+        if not isEmpty:
+            for lat_i in numpy.arange(lat, lat + 1, 1/numPoints):
+                for lon_i in numpy.arange(lon, lon + 1, 1/numPoints):
+                    p = shapely.geometry.Point(lon_i, lat_i)
+                    y = (lat_i - lat) * numPoints;
+                    x = (lon_i - lon) * numPoints;
+                    offset = (int(numPoints - 1 - y) * numPoints + int(x)) * (levels * sizeof_level)
+                    dumpPoint(output, offset, p, airspaces, draw)
+                    
     except (KeyboardInterrupt, SystemExit):
         print("Exiting...")
         f.close()
@@ -334,12 +382,14 @@ def main(argv = None):
     global latOnly, lonOnly
     global wantedResolution
     global force
+    global checkPoint
+    global levels, sizeof_level
     
     if argv is None:
         argv = sys.argv
 
     try:
-        opts, args = getopt.getopt(argv,"hvqdr:f",["help", "resolution=","quiet","verbose","draw", "force"])
+        opts, args = getopt.getopt(argv,"hvqdr:fc:",["help", "resolution=","quiet","verbose","draw", "force", "check"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -352,16 +402,23 @@ def main(argv = None):
             usage()
             sys.exit()
         elif opt in ("-q", "--quiet"):
-            bVerbose = False
+            bVerbose = 0
         elif opt in ("-v", "--verbose"):
-            bVerbose = True
+            bVerbose = bVerbose + 1
         elif opt in ("-d", "--draw"):
             bDraw = True
         elif opt in ("-r", "--resolution"):
             wantedResolution = int(arg)
         elif opt in ("-f", "--force"):
             force = True
-
+        elif opt in ("-c", "--check"):
+            m = re.match('([-+]?\d*\.\d+|\d+),([-+]?\d*\.\d+|\d+)', arg)
+            if m != None:
+                checkPoint = shapely.geometry.Point(float(m.group(2)), float(m.group(1)))
+            else:
+                print (arg, "is invalid for --check. Use e.g. 48.5,10.2")
+                sys.exit(1)
+                
     if len(args) == 1:
         pszDataSource = args[0]
     elif len(args) == 3:
@@ -397,14 +454,14 @@ def main(argv = None):
 # --------------------------------------------------------------------
 #      Some information messages.
 # --------------------------------------------------------------------
-    if bVerbose:
+    if bVerbose > 0:
         print( "INFO: Open of `%s'\n"
                 "      using driver `%s' successful." % (pszDataSource, poDriver.GetName()) )
 
     poDS_Name = poDS.GetName()
     if str(type(pszDataSource)) == "<type 'unicode'>" and str(type(poDS_Name)) == "<type 'str'>":
         poDS_Name = poDS_Name.decode("utf8")
-    if bVerbose and pszDataSource != poDS_Name:
+    if bVerbose > 0 and pszDataSource != poDS_Name:
         print( "INFO: Internal data source name `%s'\n"
                 "      different from user name `%s'." % (poDS_Name, pszDataSource ))
 
@@ -429,6 +486,18 @@ def main(argv = None):
     boundingBox = getBoundingBox(airspaces)
     print("BoundingBox:", boundingBox)
 
+    if checkPoint != None:
+        output = bytearray(levels * sizeof_level)
+        print (checkPoint)
+        dumpPoint(output, 0, checkPoint, airspaces, False)
+        for level in range(levels):
+            offset = level * sizeof_level
+            height   = int.from_bytes([output[offset], output[offset+1]], 'little', signed=False)
+            angle    = int.from_bytes([output[offset+2]], 'little', signed=False)
+            distance = int.from_bytes([output[offset+3]], 'little', signed=False)
+            print ("  level", level, "height=" + str(height),"angle="+str(angle),"distance="+str(distance))
+        sys.exit(0)
+            
     count = 0
     if bDraw:
         print ("DRAW")
