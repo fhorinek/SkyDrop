@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- mode: python-mode; python-indent-offset: 4 -*-
 #*****************************************************************************
 # dnf install python3-shapely python3-gdal
@@ -10,6 +10,11 @@
 # This can be used to generate AIR files used by SkyDrop variometer to help
 # the pilot avoid flying into forbidden airspaces.
 #
+# Various checkpoints for using with "-c":
+#  * Möhringen: 48.723957,9.153292
+#  * Nabern: 48.614241,9.475000
+#  * Grabenstetten: 48.536363,9.437542
+
 # 2018-12-23, tilmann@bubecks.de
 
 import sys
@@ -54,7 +59,30 @@ def getBoundingBox(airspaces):
         bb[2] = max(bb[2], bb2[2])
         bb[3] = max(bb[3], bb2[3])
     return bb
-    
+
+def printAirspaces(airspaceVectors):
+    heights = sorted(airspaceVectors.keys())
+    for i in range(len(heights)):
+        height = heights[len(heights)-1-i]
+        airspaceVector = airspaceVectors[height]
+        airspace = airspaceVector.airspace
+
+        distance_km = airspaceVector.distance / (100 * 1000)
+        distanceSpace = "     " + ' ' * int(distance_km * 2)
+        distanceString = "{:2.1f}km".format(distance_km)
+        space_len = len(distanceSpace) - len(distanceString)
+        distance = '{:s}{:s}'.format(" " * space_len, distanceString)
+        airspaceName = '"{:s}",{:3.0f}°'.format(airspace.name,airspaceVector.angle)
+        s = ' {:4d}ft '.format(height)
+        if airspaceVector.inside:
+            
+            s = s + "---" + airspaceName + ('-' * (47-len(airspaceName))) + 'X' + ('-' * space_len) + distanceString + "-|"
+            print (s)
+        else:
+            s = s + (' ' * 50)
+            print (s + 'X ' + distance + ' |----------' + airspaceName + "---")
+                
+
 def findAirspacesInHeight(airspaceVectors, height):
     matchingAirspaceVectors = []
     for airspaceVector in airspaceVectors:
@@ -136,23 +164,20 @@ checkpoints = numpy.array([
     #[8.8, 48.9]
     ])
     
-def dumpPoint(output, offset, p, airspaces, draw=False):
+def dumpPoint(output, offset, p, airspaces, draw=False, check=False):
     global bVerbose
     global bDraw
     
     inside = False
             
     #print (p)
-    check = False
     for c in checkpoints:
         # print (p[0], c[0], p[1], c[1])
         if abs(p.x - c[0]) < 0.001 and abs(p.y - c[1]) < 0.001:
             check = True
-            print (p)
+            if bVerbose > 0:
+                print (p)
 
-    if bVerbose > 1:
-        check = True
-        
     avs = []
     for airspace in airspaces:
         if airspace.getDistanceToCenter(p) / (100*1000) < 100:
@@ -160,7 +185,7 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
             if not av.isTooFar():
                 avs.append(av)
 
-    if bVerbose > 0:
+    if check and bVerbose > 1:
         print(p, len(avs), "airspaces here")
     #pprint ("All airspaces:")
     #pprint (avs)
@@ -172,23 +197,23 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
     hMax = findHighestHeightInAirspaces(avs)
     h = hMin
     while h != None and h < hMax:
-        if check:
+        if check and bVerbose > 1:
             print ("Height:", h)
         nearestAirspace = None
         airspacesInThisHeight = findAirspacesInHeight(avs, h)
-        if check:
+        if check and bVerbose > 1:
             print ("airspacesInThisHeight:")
             print (airspacesInThisHeight)
         airspacesInside = findAirspacesInside(airspacesInThisHeight)
         if len(airspacesInside) != 0:
             inside = True
-            if check:
+            if check and bVerbose > 1:
                 print ("INSIDE:")
             nearestAirspace = findNearestAirspace(airspacesInside)
         else:
             nearestAirspace = findNearestAirspace(airspacesInThisHeight)
 
-        if check:
+        if check and bVerbose > 1:
             print ("nearestAirspace")
             print (nearestAirspace)
 
@@ -201,14 +226,10 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
 
         h = findNextHeightInAirspaces(avs, h)
 
-    if check:
-        print ("\nsortedAirspaces")
-        print (sortedAirspaces)
+    if check and bVerbose > 0:
+        print ("\nStep #1: All near airspaces sorted by height")
+        printAirspaces (sortedAirspaces)
 
-    if inside:
-        if bVerbose > 0:
-            print ("INSIDE")
-                
     # Eliminate all subsequent identical airspaces:
     compactAirspaces = {}
     heights = sorted(sortedAirspaces.keys())
@@ -219,26 +240,26 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         for i in range(len(heights)-1):
             height1 = heights[i]
             height2 = heights[i+1]
-            if bVerbose > 1:
+            if check and bVerbose > 1:
                 print ("comparing airspace in", height1, "and", height2)
             if sortedAirspaces[height1].airspace != sortedAirspaces[height2].airspace:
-                if bVerbose > 1:
+                if check and bVerbose > 1:
                     print("  different airspaces. Adding airspace from", height2)
                 compactAirspaces[height2] = sortedAirspaces[height2]
             else:
-                if bVerbose > 1:
+                if check and bVerbose > 1:
                     print ("  identical airspaces. Skipping airspace from", height2)
     
-    if bVerbose > 1:
-        print ("compactAirspaces(without subsequent identical)")
-        print (compactAirspaces)
+    if check and bVerbose > 0:
+        print ("\nStep #2: Only unique airspaces (all duplicates removed)")
+        printAirspaces (compactAirspaces)
 
     sortedAirspaces = compactAirspaces
     
     # Eliminate all subsequent airspaces with same angle/distance:
     compactAirspaces = sortedAirspaces
     heights = sorted(sortedAirspaces.keys())
-    if len(heights) > 5:
+    if len(heights) > levels:
         compactAirspaces = {}
         height1 = heights[0]
         compactAirspaces[height1] = sortedAirspaces[height1]
@@ -246,32 +267,32 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         for i in range(len(heights)-1):
             height1 = heights[i]
             height2 = heights[i+1]
-            if bVerbose > 1:
+            if check and bVerbose > 1:
                 print ("comparing airspace in", height1, "and", height2, "for identical distance/angle.")
                 print("  distance:", sortedAirspaces[height1].getDistanceAsByte(), sortedAirspaces[height2].getDistanceAsByte())
                 print ("  angle:", sortedAirspaces[height1].getAngleAsByte(), sortedAirspaces[height2].getAngleAsByte())
                         
             if sortedAirspaces[height1].getDistanceAsByte() != sortedAirspaces[height2].getDistanceAsByte() or abs(sortedAirspaces[height1].getAngleAsByte() - sortedAirspaces[height2].getAngleAsByte()) > 5:
-                if bVerbose > 1:
+                if check and bVerbose > 1:
                     print("  different distance/angle. Adding airspace from", height2)
                 compactAirspaces[height2] = sortedAirspaces[height2]
             else:
-                if bVerbose > 1:
+                if check and bVerbose > 1:
                     print ("  identical distance/angle. Skipping airspace from", height2)
     
-    if check:
-        print ("compactAirspaces (without identical distance/angle)")
-        print (compactAirspaces)
+    if check and bVerbose > 0:
+        print ("\nStep #3: All different airspaces with identical distance/angle removed")
+        printAirspaces (compactAirspaces)
  
     # Delete all airspaces which are far away
-    while len(compactAirspaces) > 5:
+    while len(compactAirspaces) > levels:
                 
         outsideAirspaces = findAirspacesNotInside(compactAirspaces.values())
         farestAirspace = findFarestAirspace(outsideAirspaces)
         if farestAirspace == None:
             print ("Too much airspaces and none is far away at", p)
             sys.exit(1)
-        if check:
+        if check and bVerbose > 1:
             print("Deleting ", farestAirspace)
                 
         compactAirspaces2 = {}
@@ -283,6 +304,10 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
 
         compactAirspaces = compactAirspaces2
 
+    if check and bVerbose > 0:
+        print ("\nStep #4: Removed distant airspaces to reduce to 5 levels")
+        printAirspaces (compactAirspaces)
+ 
     #names = []
     heights = sorted(compactAirspaces.keys())
     for i in range(len(heights)):
@@ -296,12 +321,12 @@ def dumpPoint(output, offset, p, airspaces, draw=False):
         for byte in compactAirspaces[height1].getBytes(height2):
             output[offset] = byte
             offset = offset + 1
-        if bVerbose > 0:
+        if check and bVerbose > 1:
             print("    up to ",height2, ": ", name)
                 
     # Fill up with empty Airspaces
     av = AirspaceVector()
-    for i in range(5 - len(compactAirspaces)):
+    for i in range(levels - len(compactAirspaces)):
         for byte in av.getBytes():
             output[offset] = byte
             offset = offset + 1
@@ -336,7 +361,7 @@ def dump(lon, lat, airspaces, draw=False):
             for lon_i in numpy.arange(lon, lon + 1, 1/10):
                 p = shapely.geometry.Point(lon_i, lat_i)
                 offset = 0
-                dumpPoint(output, offset, p, airspaces, False)
+                dumpPoint(output, offset, p, airspaces)
                 for offset in range(levels * sizeof_level):
                     if output[offset] != 0:
                         isEmpty = False
@@ -489,7 +514,7 @@ def main(argv = None):
     if checkPoint != None:
         output = bytearray(levels * sizeof_level)
         print (checkPoint)
-        dumpPoint(output, 0, checkPoint, airspaces, False)
+        dumpPoint(output, 0, checkPoint, airspaces, False, True)
         for level in range(levels):
             offset = level * sizeof_level
             height   = int.from_bytes([output[offset], output[offset+1]], 'little', signed=False)
