@@ -1,0 +1,240 @@
+<p style="text-align: center;font-size:36pt; font-weight: bold;">
+<img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/SkyBean_bean_black.png" style="vertical-align: text-bottom;height:1.5cm;" />SkyDrop user guide
+</p>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/skydrop-render-front.png" style="width:70%;display: block; margin-left: auto;margin-right: auto;" /></p>
+<p style="text-align:right;">
+<strong>1701</strong>
+</p>
+<p style="page-break-after: always;" />
+<h2 id="skydrop---combined-variometer">SkyDrop - combined variometer</h2>
+<p><strong>main features</strong></p>
+<ul>
+<li><strong>analog/digital variometer</strong> - 0.1m/s accuracy</li>
+<li><strong>5 altimeters</strong> - 1m accuracy, real time refresh rate</li>
+<li><strong>GPS recording</strong> - 1Hz sampling</li>
+<li><strong>bluetooth &amp; USB connectivity</strong></li>
+<li><strong>motion &amp; environment sensors</strong></li>
+<li><strong>light weight &amp; compact size</strong> - 68g, 98 x 58 x 20 mm</li>
+</ul>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/drop_controls.png" style="width:100%;" /></p>
+<p><strong>RGB LED</strong> - multicolor signal light</p>
+<p><strong>LCD</strong> - main interface display</p>
+<p><strong>buttons</strong> - user controls</p>
+<p><strong>buzzer</strong> - audio transducer</p>
+<p><strong>USB port</strong> - communication &amp; charge interface</p>
+<p><strong>screws</strong> - used for assembly/disassembly</p>
+<p style="page-break-after: always;" />
+<h2 id="buttons">buttons</h2>
+<p><strong>the middle button is used to confirm selection</strong></p>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/button-middle.png" align="left" style="width:2.35cm;" /></p>
+<div style="margin-left: 2cm;">
+<ul>
+<li><p><strong>press &amp; hold for 1s</strong> to turn on, pull up menu bar, move to upper level in menu, toggle widget value, start/stop flight stopwatch</p></li>
+<li><p><strong>short press</strong> to confirm selection, list adjustable widgets on home screen, turn off device, if menu bar is pulled up</p></li>
+<li><strong>press &amp; hold for 5s</strong> to turn device off</li>
+</ul>
+</div>
+<p><strong>the left arrow button is used for left move</strong></p>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/button-left.png" align="left" style="width:2.35cm;" /></p>
+<div style="margin-left: 2cm;">
+<ul>
+<li><p><strong>short press</strong> to scroll between home screens to the left, select widget menu if menu bar is pulled up, scroll up in menu, lower value during setting parameter</p></li>
+<li><strong>press &amp; hold</strong> to rapid value lowering</li>
+</ul>
+</div>
+<p><strong>the right button is used for right move</strong></p>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/button-right.png" align="left" style="width:2.35cm;" /></p>
+<div style="margin-left: 2cm;">
+<ul>
+<li><strong>short press</strong> to scroll between home screens to the right, select settings menu if menu bar is pulled up, scroll down in menu, raise value during setting parameter</li>
+<li><strong>press &amp; hold</strong> to rapid value raising</li>
+</ul>
+</div>
+<h2 id="important-note---please-read">important note - please read</h2>
+<p>SkyDrop is in silent mode after start-up, so if you want to hear acoustic feedback, please blow/suck shortly to/from buzzer grid. This feature will help you to be polite to others before take-off. Of course, sound is enabled automatically just after take-off. To disable this function, please uncheck <strong>Logger suppress audio</strong> checkbox.</p>
+<h2 id="operation-of-the-skydrop-variometer">operation of the SkyDrop variometer</h2>
+<p>During startup animation, firmware version in bottom left and hardware revision in bottom right corner are shown. The device will start on the last used home screen. You can scroll between home screens by pressing the left or the right arrows. If adjustable/switchable widgets are on current home screen, you can press middle button to scroll between them. If adjustable widget is highlighted, you can change its value by arrow buttons. If switchable widget is highlighted, you can toggle its state by long press of the middle button. To enter widget or settings menu, you need to pull up the menu bar from the bottom of any home screen by long press of the middle button, until menu bar appears. After that, you can enter into widget menu by pressing the left arrow button, or enter into settings menu pressing the right arrow button, or you can turn off the device by short press of the middle button again.</p>
+<h2 id="multi-color-light-signalization">multi-color light signalization</h2>
+<ul>
+<li><p><strong>yellow light</strong> - device is flashed with new firmware</p></li>
+<li><p><strong>red light</strong> - device is charging</p></li>
+<li><p><strong>green light</strong> - device is fully charged</p></li>
+<li><p><strong>red flash</strong> - battery is less than 20%</p></li>
+<li><p><strong>yellow flash</strong> - searching for GPS fix</p></li>
+<li><p><strong>green flash</strong> - GPS 3D fix is reached</p></li>
+<li><p><strong>cyan flash</strong> - bluetooth is enabled, but not connected</p></li>
+<li><p><strong>blue flash</strong> - bluetooth is enabled &amp; connected</p></li>
+</ul>
+<h2 id="widget-menu">widget menu</h2>
+<p><strong>Change widgets</strong> selection allow to assign different widget options on current home screen. Use arrow buttons to scroll between fields on the screen, use middle button to select field for widget change, which will be chosen from widget list in next step. Several widgets are adjustable (e.g. altimeter widgets <strong>Alt</strong>) or can enable/disable specific function can be toggled (e.g. <strong>beep</strong> or <strong>weak</strong>).</p>
+<p><strong>You can chose from following widgets:</strong></p>
+<p><strong>Vario bar</strong> shown graphically value of analog vario, each step represents 1m/s. The vario bar increases from middle to top when vario shows 0 to 3 m/s, then decreases from middle to top when vario shows 3 to 6 m/s. The bar shows sinking the same way, so the total range of vario bar is -6 to 6 m/s.</p>
+<p><strong>Vario</strong> shows value of digital variometer.</p>
+<p><strong>AVG vario</strong> (<strong>Avg</strong> on LCD) shows averaged digital variometer during time period set in <strong>Average vario integration int.</strong></p>
+<p><strong>Vario history</strong> shown graphically relative vario value during time period set in <strong>Average vario integration int.</strong></p>
+<p><strong>Altitude 1 to 5</strong> (<strong>Alt</strong> on LCD) shows altimeter (1 - 5) value. This widget can be adjusted.</p>
+<p><strong>Height AGL</strong> shows the height above the ground. This needs HAGL data files stored in SkyDrop. Please follow https://github.com/fhorinek/SkyDrop/wiki/HAGL-data-files for instructions on how to put them onto device.</p>
+<p><strong>Ground Level</strong> shows the height above sea level of the ground at the current position. Taken from HAGL data.</p>
+<p><strong>Ground speed</strong> (<strong>GSpd</strong> on LCD) shows ground speed obtained from GPS receiver.</p>
+<p><strong>Glide ratio</strong> (<strong>Glide</strong> on LCD) shows ratio between actual ground speed and sinking rate.</p>
+<p><strong>GPS heading</strong> (<strong>GHdg</strong> on LCD) shows heading obtained from GPS receiver.</p>
+<p><strong>GPS HDG arrow</strong> shows graphically heading obtained from GPS receiver - north is up.</p>
+<p><strong>GPS HDG points</strong> shows the cardinal direction of the pilots movement as 'N', 'E', 'W', ...</p>
+<p><strong>GPS position</strong> (<strong>GPos</strong> on LCD) shows GPS coordinates obtained from GPS receiver.</p>
+<p><strong>Thermal time</strong> (<strong>TTime</strong> on LCD) shows the time since the pilot started circling.</p>
+<p><strong>Thermal gain</strong> (<strong>TGain</strong> on LCD) shows the meter/feet gained since circling.</p>
+<p><strong>Flight time</strong> (<strong>FTime</strong> on LCD) shows stopwatch of current flight. You can manually start/stop this stopwatch by long press the middle button when highlighted.</p>
+<p><strong>Time</strong> shows actual clock in current time zone.</p>
+<p><strong>Date</strong> shows actual date.</p>
+<p><strong>Odometer</strong> shows the total amount of km/miles flown so far.</p>
+<p><strong>Home Arrow</strong> shows the direction to <em>HOME</em>.</p>
+<p><strong>Home Distance</strong> shows the distance in miles/km to <em>HOME</em>.</p>
+<p><strong>Home Time</strong> shows the time needed to get to <em>HOME</em>. This only shows up, if you fly towards <em>HOME</em>.</p>
+<p><strong>Home Info</strong> Some textual information about <em>HOME</em>, taken from the home data file.</p>
+<p><strong>Waypoint arrow</strong> shows the direction, where the next waypoint is.</p>
+<p><strong>Waypoint distance</strong> shows the distance in miles/km to the next waypoint.</p>
+<p><strong>Waypoint time</strong> shows the time needed to get to the next waypoint. This only shows up, if you fly towards it.</p>
+<p><strong>Waypoint info</strong> shows the number of waypoints and allows to go to previous or next waypoints.</p>
+<p><strong>Wind direction</strong> shows the direction of the wind in degree: 0 is north, 180 is south...</p>
+<p><strong>Wind arrow</strong> shows the direction of the wind relative to the pilot as an arrow.</p>
+<p><strong>Wind dir points</strong> shows the cardinal direction of the wind as 'N', 'E', 'W', ...</p>
+<p><strong>Wind speed</strong> shows the speed of the wind in km/h or mph.</p>
+<p><strong>Accelerometer</strong> shows acceleration of the pilot averaged through all directions</p>
+<p><strong>Compass heading</strong> shows the heading of the pilot in degree: 0 is north, 180 is south...</p>
+<p><strong>Compass arrow</strong> shows the direction of north</p>
+<p><strong>Compass points</strong> shows the cardinal direction of the pilots as 'N', 'E', 'W', ...</p>
+<p><strong>Battery</strong> shows remaining battery power in %.</p>
+<p><strong>Temperature</strong> (<strong>Temp</strong> on LCD) shows air temperature and humidity.</p>
+<p><strong>Weeklift ON/OFF</strong> (<strong>weak</strong> on LCD) switch on/off attention to light thermal (&lt;1m/s) around.</p>
+<p><strong>Audio ON/OFF</strong> (<strong>beep</strong> on LCD) can be toggled by long press to mute/unmute vario sound.</p>
+<p><strong>empty</strong> leaves current field empty.</p>
+<p><strong>Change layout</strong> entry in widget menu allows to change widget layout on current home screen. You can chose from following options.</p>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/01.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/02.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/03.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/04.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/05.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/06.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/07.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/08.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/09.gif" style="width:30%;" /> <img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/10.gif" style="width:30%;" /></p>
+<p><strong>Pages count</strong> entry defines number of home screens (1 to 5).</p>
+<p>You can adjust all screens, layouts and widgets easily through online drag&amp;drop configurator at <a href="http://vps.skybean.eu/configurator">vps.skybean.eu/configurator</a></p>
+<h2 id="description-of-menu-functions">description of menu functions</h2>
+<p>The menu is accessible by long pressing the middle button and the select the right menu entry with the right button. Here is a description of the available menu entries.</p>
+<h3 id="vario">Vario</h3>
+<p><strong>Lift/Sink threshold</strong> defines the vertical speed value when sound is activated (in 0.1m/s steps).</p>
+<p><strong>Weak lift</strong> enables continuous sound before lift threshold is reached to let pilot know &quot;something is in the air&quot; (in 0.1m/s steps). Frequency will change linearly from low to high inside weak range.</p>
+<p><strong>Fluid audio</strong> allows sound tone change during actual beep.</p>
+<p><strong>Digital vario int.</strong> suppress very fast vario changes and makes displayed digital vario value more stable in 0.1s steps (won't affect vario bar graph or sound output).</p>
+<p><strong>Average vario int.</strong> defines time used to compute average vario value, used for overall thermal power overview (in 0.1s steps).</p>
+<p><strong>Units</strong> can by metric or imperial (meters or feets per second).</p>
+<p><strong>Use accel</strong> checkbox allow barometer and motion sensors (9D IMU) signal fusion to accelerate vario response to small quick altitude changes.</p>
+<p><strong>Vario demo</strong> can simulate device behavior to achieve desired settings (in 0.1m/s steps). Frequency, length and pause of beep is displayed.</p>
+<h3 id="altimeters">Altimeters</h3>
+<p><strong>Mode</strong> can by absolute related to QNH1 or QNH2, relative to other altimeter (with offset adjustable though home screen widget), or following GPS altitude.</p>
+<p><strong>Zero at takeoff</strong> checkbox only in altimeter relative mode set altimeter value to zero right after takeoff (automatic or manual).</p>
+<p><strong>Units</strong> can by metric or imperial (meters or feets).</p>
+<p><strong>Get from GPS</strong> set altimeter value equal to actual GPS value. Then is works independently from GPS. If in QNH dependent mode, this choice will change also QNH value. In relative mode QNH value stays, just offset is changed. <strong>Note</strong> : Altimeter value is based on atmospheric pressure, which varies during weather changes, therefore altimeter should be calibrated prior to takeoff. Altimeter calibrating can be done by entering the known altitude of location or setting the known QNH value valid for current area or get from stabilized GPS value (GPS altitude is changing slower within fast altitude changes, so it can take some time for stabilization, usually several minutes). If HAGL data is available it is preferred over GPS height value as long as you are on ground.</p>
+<p><strong>Alarms</strong> Allows you to set various alarms, that will be triggered when the entered height is reached. There is a LOW, LOWEST and HIGH alarm. Lower alarms will be raised when the height of the pilot is lower than the entered value, which is typically used by acro pilots. For high alarms the height must be higher, which can be used if you fly inside restricted areas near airports. The reset value is the distance to the alarm limit, where the alarm will stop.</p>
+<h3 id="logger">Logger</h3>
+<p><strong>Enabled</strong> checkbox enables or disables GPS tracking.</p>
+<p><strong>Total time</strong></p>
+<p><strong>Format</strong> of output file can be chosen IGC, KML or RAW.</p>
+<p><strong>Auto start/land</strong> submenu offers <strong>State</strong> can be waiting for takeoff, flying or landed. <strong>Start/Land threshold</strong> in meters defines altitude change needed for takeoff/landing detection for <strong>Timeout</strong> period (in seconds). Long press of middle button when <strong>FTime</strong> widget is highlighted is used to manual start/stop flight time stopwatch. <strong>Suppress audio</strong> checkbox mutes the device when waiting for takeoff, so launch area is not saturated by random mix of annoying sounds generated by many waiting varios.</p>
+<p><strong>Record always</strong> checkbox disables automatic start/stop of logging. Logger will start recording when device is turned on until it is turned off.</p>
+<p><strong>Pilot name, Glider type</strong> and <strong>Glider id</strong> fields are used to be written in recorded track log.</p>
+<h3 id="flight-logs">Flight logs</h3>
+<p>contains all recorded logs showing basic flight statistics.</p>
+<h3 id="navigation">Navigation</h3>
+<p>There are two different kinds of navigation: HOME and WAYPOINT.</p>
+<p><strong>HOME</strong> Select &quot;Set as Takeoff&quot; to automatically set HOME to the position where you started or load a home file from the SD card. More information here https://github.com/fhorinek/SkyDrop/wiki/Navigation-and-aerodrome-files</p>
+<p><strong>WAYPOINT</strong> You can load a file from SD card which contains a number of waypoints to follow. Use the waypoint widgets to get directions for the next waypoint.</p>
+<h3 id="gps">GPS</h3>
+<p><strong>Enable GPS</strong> checkbox enables/disables onboard GPS receiver (significant for battery power).</p>
+<p><strong>Status</strong> shows ratio of fixed/available satellites.</p>
+<p><strong>GPS time</strong> shows actual GMT time obtained from GPS receiver.</p>
+<p><strong>GPS date</strong> shows actual date obtained from GPS receiver.</p>
+<p><strong>Speed units</strong> , used for ground speed widget <strong>GSpd,</strong> can be chosen from - m/s, km/h, mph or knots.</p>
+<p><strong>Format</strong> of coordinates can be chosen from - DD.dddddd, DDº MM.mmm? or DDº MM? SS?.</p>
+<h3 id="bluetooth">Bluetooth</h3>
+<p><strong>Bluetooth module</strong> shows used type onboard.</p>
+<p><strong>Enabled</strong> checkbox enables/disables bluetooth function (using this function significant for battery power).</p>
+<p><strong>Protocol</strong> selection changes devices communication between protocols (apps) - DigiFly (XCSoar), LK8EX1 (XCtrack), BlueFly (FlyMe) or SkyBean. <strong>SkyDrop SPP</strong> Bluetooth device must be chosen when pairing with your phone or tablet.</p>
+<p><strong>Forward GPS</strong> checkbox will enable forwarding GPS coordinates to connected device, so there is possibility to turn off its internal GPS receiver to save power.</p>
+<h3 id="settings">Settings</h3>
+<p><strong>Time</strong> item in settings menu allow adjust on-board clock.</p>
+<p><strong>Date</strong> item in settings menu allow adjust on-board date.</p>
+<p><strong>Time zone</strong> entry is useful with GMT time obtained from GPS receiver to set correct local time.</p>
+<p><strong>DST</strong> checkbox means daylight saving time option if applicable.</p>
+<p><strong>Sync with GPS</strong> checkbox allows to get accurate time from GPS.</p>
+<p><strong>Display contrast</strong> adjustment tunes LCD screen contrast.</p>
+<p><strong>Display backlight</strong> adjustment controls backlight level (in 20% steps).</p>
+<p><strong>Display backlight timeout</strong> defines time interval after last button press when backlight remains turned on.</p>
+<p><strong>Invert display</strong> checkbox switch dark and empty pixels on LCD.</p>
+<p><strong>Flip orientation</strong> checkbox turn over LCD screen, so SkyDrop can be operated in upside-down position.</p>
+<p><strong>Animation</strong> checkbox enables smooth switching between home screens.</p>
+<p><strong>Vario volume</strong> adjust vario sound level (in 10% steps).</p>
+<p><strong>Vario mute</strong> checkbox switch off beeping of vario. This can be also done by <strong>beep</strong> widget.</p>
+<p><strong>Alert volume</strong> adjustment set sound level of pop-up info messages.</p>
+<p><strong>Menu volume</strong> adjustment set sound levels of menu sounds.</p>
+<p><strong>On/Off sound</strong> checkbox play sound at startup or power off.</p>
+<p><strong>Page sound</strong> checkbox informs which home screen is currently selected by 1 to 5 fast beeps.</p>
+<p><strong>Button sound</strong> checkbox enables beep when any buttons is pressed.</p>
+<p><strong>GPS ready</strong> checkbox play sound when GPS 3D fix is achieved.</p>
+<p><strong>Auto power-off</strong> entry defines time to automatic switch-off of device, if no operation occurred. Auto power-off cannot occur during flight.</p>
+<p><strong>Device id</strong></p>
+<p><strong>Mass storage</strong> checkbox will switch device from active to PC mode after charger connection (do not use while charging during flight).</p>
+<p><strong>Uart function</strong> can be used for data streaming by UART interface. User can choose from several baud rates - 9600, 19200, 38400, 57600 or 115200. UART is using same protocol as Bluetooth. Debug msg. option runs at baud rate 921600 and is used for development.</p>
+<p><strong>Format SD</strong> function will erase and format inserted micro SD card - recommended if any mass storage connection problem occurs.</p>
+<h3 id="calibration">Calibration</h3>
+<p><strong>Reset</strong></p>
+<p><strong>Firmware</strong></p>
+<p><strong>ADC raw</strong></p>
+<p><strong>Board rev.</strong></p>
+<p><strong>Debug log</strong> checkbox activates log records used for debugging and can be checked if technical support ask for it. There are some other service information in debug menu.</p>
+<p><strong>Clear log</strong> This will clear the debug log from previous log messages.</p>
+<p><strong>Debug GPS</strong> All messages received from the GPS receiver will be logged to the debug log.</p>
+<p><strong>WDT last PC</strong></p>
+<p><strong>Record screen</strong> The device will make a dump of the screen every second to the SD card into the directory &quot;REC&quot;. This directory must already exist otherwise no dump will be made. Use https://github.com/fhorinek/SkyDrop/blob/master/skydrop/utils/img/convert-LOGO-to-image.py to convert each dump.</p>
+<p><strong>Acc bias</strong></p>
+<p><strong>Acc sens</strong></p>
+<p><strong>Mag bias</strong></p>
+<p><strong>Mag sens</strong></p>
+<p><strong>Gyro bias</strong></p>
+<h2 id="power-management">power management</h2>
+<p>Since SkyDrop is portable device with rechargeable Li-Poly battery onboard, it needs time to time recharge its battery. You can use any micro USB wall charger or another USB host device, even another portable device with active OTG function.</p>
+<h2 id="technical-specification">technical specification</h2>
+<p><strong>weight &amp; dimensions</strong> - 68g, 98 x 58 x 20 mm (3.8? x 2.3? x 0.8?)</p>
+<p><strong>pressure sensor</strong> - MS5611-01BA03, 10cm resolution, -1400 to 25000 m altitude (-4600 to 82000 feet)</p>
+<p><strong>GPS receiver</strong> - L80M39 22/68 channel, position &amp;lt;2.5m CEP, velocity accuracy &amp;lt;0.1m/s, sensitivity -165dBm</p>
+<p><strong>flight logger memory</strong> - 8 GB flash (58 116 hours of IGC log)</p>
+<p><strong>Bluetooth transceiver</strong> - PAN1026, 2.1 SPP, BLE 4.0</p>
+<p><strong>USB interface</strong> - micro USB 2.0, device only</p>
+<p><strong>battery</strong> - 900 mAh</p>
+<p><strong>buzzer</strong> - magnetic transducer 95 dB @ 10cm</p>
+<p><strong>operation temperature range</strong> - device -40 to 85 ºC (-40 to 185 ºF), battery -40 to 45 ºC (-40 to 113 ºF), LCD -20 to 45 (-4 to 158 ºF)</p>
+<p><strong>power consumption</strong> - depends on activated functions. Several operation modes are listed:</p>
+<p>audio mode only: 13h</p>
+<p>audio + altitude logger, without GPS: 12h</p>
+<p>audio + Bluetooth: 10h</p>
+<p>audio + GPS logger: 9h</p>
+<p>audio + GPS logger + Bluetooth: 7.5h</p>
+<h2 id="package-includes">package includes</h2>
+<p>SkyDrop variometer with strap, raiser mount, USB cable, stickers, user guide.</p>
+<h2 id="device-update-instructions">device update instructions</h2>
+<p>Watch video tutorial on SkyBean YouTube channel <a href="http://www.youtube.com/c/SkyBeanVarios">youtube.com/c/SkyBeanVarios</a> or follow these instructions:</p>
+<ol style="list-style-type: decimal">
+<li>Download update file from SkyBean webpage or repository<a href="http://vps.skybean.eu/repo/updates/">skybean.eu/repo/updates</a> the last folder contains the newest firmware version.</li>
+<li>Connect SkyDrop (powered off) to the computer via micro USB cable.</li>
+<li>Wait until USB mode is enabled and device folder will show in computer.</li>
+<li>Copy file <strong>SKYDROP.FW</strong> to the device. File name must stay exactly the same, so be careful if you download the file multiple times.</li>
+<li>Eject the device from system toolbar or just unplug from PC.</li>
+<li>Follow instruction on LCD and confirm update, SkyDrop LED will lid yellow during the update.</li>
+</ol>
+<p>Please note, this update procedure will reset all settings to default factory state. If you want to save your specific settings, please update through online configurator at <a href="http://vps.skybean.eu/configurator">vps.skybean.eu/configurator</a>. Alternatively you can find other advanced information or recently solved software issues on our GitHub account <a href="https://github.com/fhorinek/SkyDrop">github.com/fhorinek/SkyDrop</a></p>
+<h2 id="important-information">important information</h2>
+<p>By purchasing this device user agrees with terms and conditions of device operation. SkyDrop variometer is not designed for flying under instrument flight rules (IFR) in any case. Manufacturer is not responsible for any accidents or injuries caused by reliance on information provided by SkyDrop variometer. We highly recommend to use both velcro and safety strap when flying with SkyDrop. Security strap is not a regular mount. However we did our best to protect device against destruction during water landing, it is not guaranteed and warranty will void. If device is broken of any reason, do not hesitate and contact us to solve it.</p>
+<h2 id="faq-troubleshooting">FAQ / Troubleshooting</h2>
+<p>If there is something wrong with the device or if you need more detailed explanation of any function, please visit our FAQ section at <a href="http://skybean.eu/page/skydrop-frequently-asked-questions">skybean.eu/page/skydrop-frequently-asked-questions</a></p>
+<p>If you cannot find the answer, do not hesitate to contact us via email or Facebook.</p>
+<h2 id="contact-information">contact information</h2>
+<p><img src="https://github.com/fhorinek/SkyDrop/raw/master/skydrop/doc/manual/images/qr.gif" align="right" style="width:40%;" /></p>
+<p>email:</p>
+<p><a href="mailto:info@skybean.eu">info@skybean.eu</a></p>
+<p>website:</p>
+<p><a href="http://skybean.eu/">skybean.eu</a></p>
+<p>facebook page:</p>
+<p><a href="https://www.facebook.com/varioskybean">facebook.com/varioskybean</a></p>

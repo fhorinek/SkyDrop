@@ -398,6 +398,15 @@ void gps_parse_gsa()
 	fc.gps_data.vdop = atoi_f(ptr);
 
 	DEBUG_1("GSA: fix %d, pdop: %0.2f, hdop: %0.2f, vdop: %0.2f\n", fc.gps_data.fix, fc.gps_data.pdop, fc.gps_data.hdop, fc.gps_data.vdop);
+
+	if (config.connectivity.forward_gps && fc.gps_data.valid)
+	{
+		char tmp[NMEA_MAX_LEN];
+		sprintf(tmp, "$%s", gps_parser_buffer);
+		bt_send(tmp);
+		if (config.connectivity.uart_function > UART_FORWARD_OFF)
+			uart_send(tmp);
+	}
 }
 
 void gps_parse_gsv()
