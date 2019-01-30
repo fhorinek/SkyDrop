@@ -52,6 +52,13 @@
 #include "settings/set_autoset.h"
 #include "settings/set_autoset_config.h"
 
+/**
+ * By defining SHOW_FPS you enable code to show the current
+ * frames per second in the upper left corner of the display.
+ * This can be used to measure, how many display updates 
+ * you get.
+ */
+// #define SHOW_FPS
 
 lcd_display disp;
 CreateStdOut(lcd_out, disp.Write);
@@ -383,10 +390,12 @@ void gui_stop()
 	LCD_SPI_PWR_OFF;
 }
 
+#ifdef SHOW_FPS
 uint8_t fps_counter = 0;
 uint8_t fps_val = 0;
 uint32_t fps_timer = 0;
-
+#endif
+ 
 uint16_t gui_record_cnt;
 
 uint32_t gui_loop_timer = 0;
@@ -552,23 +561,26 @@ void gui_loop()
 		}
 	}
 
+#ifdef SHOW_FPS
 	// FPS counter
 
-//	fps_counter++;
-//
-//	if (fps_timer < task_get_ms_tick())
-//	{
-//		fps_val = fps_counter;
-//		fps_counter = 0;
-//		fps_timer = task_get_ms_tick() + 1000;
-//	}
-//
-//	disp.LoadFont(font_6px_normal_ttf_8);
-//	disp.GotoXY(1, 1);
-//	disp.ClearPart(0, 0, 1, 10);
-//	fprintf_P(lcd_out, PSTR("%d"), fps_val);
+	fps_counter++;
+
+	if (fps_timer < task_get_ms_tick())
+	{
+		fps_val = fps_counter;
+		fps_counter = 0;
+		fps_timer = task_get_ms_tick() + 1000;
+	}
+
+	disp.LoadFont(font_6px_normal_ttf_8);
+	disp.GotoXY(1, 1);
+	disp.ClearPart(0, 0, 1, 10);
+	fprintf_P(lcd_out, PSTR("%d"), fps_val);
 
 	// FPS end
+#endif
+
 	disp.Draw();
 
 	if (config.system.record_screen && storage_ready())
