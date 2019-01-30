@@ -456,6 +456,7 @@ void fc_takeoff()
 	//reset timer and altitude for autoland
 	fc.flight.autostart_altitude = fc.altitude1;
 	fc.flight.autostart_timer = task_get_ms_tick();
+	fc.flight.autostart_odo = fc.odometer;
 
 	//set start position
 	if (fc.gps_data.valid)
@@ -513,6 +514,7 @@ void fc_landing()
 	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);
 	logger_comment(PSTR(" SKYDROP-CLIMB-MAX-cm: %d "), fc.flight.stats.max_climb);
 	logger_comment(PSTR(" SKYDROP-SINK-MAX-cm: %d "), fc.flight.stats.max_sink);
+	logger_comment(PSTR(" SKYDROP-ODO-cm: %lu "), fc.odometer - fc.flight.autostart_odo);
 
 	logger_stop();
 }
