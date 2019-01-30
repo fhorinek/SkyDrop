@@ -1,6 +1,8 @@
+
 Build 40XX - XX. XX. 2018
 ========================================================
 ADDED:
+ * Count odometer during flight, save to log, #357 (bubeck)
  * Alarm 3 as an upper limit #348 (bubeck)
 
 Build 4016 - 24. 07. 2018

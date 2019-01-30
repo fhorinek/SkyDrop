@@ -233,6 +233,8 @@ struct flight_data_t
 
 	uint32_t total_time; //in seconds
 
+	uint32_t autostart_odo;   // odometer at start time.
+
   //waypoints
 	int waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
 	int waypoints_count;			 // The number of waypoints in the file.
