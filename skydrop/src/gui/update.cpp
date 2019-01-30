@@ -21,7 +21,7 @@ uint8_t update_file_crc;
 volatile uint8_t update_eeprom_only = false;
 
 #define UPDATE_CRC 		0x9B
-#define UPDATE_CHUNK	DEBUG_LOG_BUFFER_SIZE
+#define UPDATE_CHUNK	1024
 
 void gui_update_cb(uint8_t ret)
 {

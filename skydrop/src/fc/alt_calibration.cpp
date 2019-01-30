@@ -121,18 +121,6 @@ void alt_calibration_step()
                     case(ALT_ABS_QNH2):
                         config.altitude.QNH2 = fc_alt_to_qnh(best_altitude, fc.vario.pressure);
                     break;
-
-                    case(ALT_DIFF):
-                        uint8_t a_index = (config.altitude.altimeter[i].flags & ALT_REL_MASK) + 1;
-                        if (a_index == 1)
-                        {
-                             config.altitude.altimeter[i].delta = best_altitude - fc.altitude1;
-                        }
-                        else
-                        {
-                             a_index -= 2;
-                             config.altitude.altimeter[i].delta = best_altitude - fc.altitudes[a_index];
-                        }
                 }
             }
         }

@@ -17,7 +17,7 @@ void gui_set_altimeter_index(uint8_t index)
 
 void gui_set_altimeter_list()
 {
-	set_alt_list_num = 5; //mode, relative to, zero at take off, units, sync with gps
+	set_alt_list_num = 4; //mode, relative to, zero at take off, units
 	if ((set_alt_flags & ALT_MODE_MASK) != ALT_DIFF)
 		set_alt_list_num = 3; //mode, units, sync with gps
 	if ((set_alt_flags & ALT_MODE_MASK) == ALT_ABS_GPS)
@@ -155,7 +155,7 @@ void gui_set_altimeter_action(uint8_t index)
 		return;
 	}
 
-	if (set_alt_list_num == 5)
+	if (set_alt_list_num == 4)
 	{
 		if (index == 1)
 		{
@@ -184,42 +184,9 @@ void gui_set_altimeter_action(uint8_t index)
 		return;
 	}
 
-	if ((index == 4 && set_alt_list_num == 5) || index == 2)
+	if (index == 2)
 	{
 		set_alt_flags ^= ALT_AUTO_GPS;
-/*
-		if (fc.gps_data.valid)
-		{
-			char tmp_msg[64];
-			char tmp_tit[16];
-			float alt;
-
-			if (set_alt_index == 0)
-			{
-				alt = fc.altitude1;
-			}
-			else
-				alt = fc.altitudes[set_alt_index - 1];
-
-			if (set_alt_flags & ALT_UNIT_I)
-			{
-				sprintf_P(tmp_msg, PSTR("Set GPS alt?\nGPS: %0.0fft\nALT%d:%0.0fft"), fc.gps_data.altitude * FC_METER_TO_FEET, set_alt_index + 1, alt * FC_METER_TO_FEET);
-			}
-			else
-			{
-				sprintf_P(tmp_msg, PSTR("Set GPS alt?\nGPS: %0.0fm\nALT%d:%0.0fm"), fc.gps_data.altitude, set_alt_index + 1, alt);
-			}
-
-			strcpy_P(tmp_tit, PSTR("Confirmation"));
-
-			gui_dialog_set(tmp_tit, tmp_msg, GUI_STYLE_YESNO, gui_set_altimeter_gps_alt);
-			gui_switch_task(GUI_DIALOG);
-		}
-		else
-		{
-			gui_showmessage_P(PSTR("No GPS fix"));
-		}
-		*/
 	}
 }
 

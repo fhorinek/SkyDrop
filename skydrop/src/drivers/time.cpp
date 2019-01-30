@@ -12,7 +12,7 @@ volatile uint16_t unix_time_set_flag_b __attribute__ ((section (".noinit")));
 
 #define LEAP_YEAR(_year) ((_year%4)==0)
 
-#define TIME_MIN_DATE	(1420113600) //1.1.2015 12:00.00
+#define TIME_MIN_DATE	(1546300800) //1.1.2015 12:00.00
 
 bool time_is_set()
 {

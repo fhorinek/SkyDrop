@@ -92,7 +92,7 @@ uint8_t l80_sat_snr[L80_SAT_CNT];
 //        |      |
 //        |      State of fix: A=Active (valid); V=void (invalid)
 //        |
-//        Time of fix: 19:14:10 (UTC-Zeit)
+//        Time of fix: 19:14:10 (UTC-Time)
 
 void gps_parse_rmc()
 {

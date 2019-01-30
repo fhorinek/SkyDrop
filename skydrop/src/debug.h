@@ -5,8 +5,8 @@
 
 #define DEBUG_FILE	"debug.log"
 
-#define DEBUG_LOG_BUFFER_CHUNK	512
-#define DEBUG_LOG_BUFFER_SIZE	1024
+#define DEBUG_LOG_BUFFER_CHUNK	256
+#define DEBUG_LOG_BUFFER_SIZE	512
 
 void debug_log(char * msg);
 void debug(const char *format, ...);

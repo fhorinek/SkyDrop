@@ -14,8 +14,8 @@ void protocol_step();
 void protocol_set_next_step(uint32_t diff);
 void protocol_rx(char c);
 
-#define PROTOCOL_RX_BUFFER	512
-#define PROTOCOL_TX_BUFFER	512
+#define PROTOCOL_RX_BUFFER	64
+#define PROTOCOL_TX_BUFFER	256
 
 extern uint8_t protocol_rx_buffer[PROTOCOL_RX_BUFFER];
 extern uint8_t protocol_tx_buffer[PROTOCOL_TX_BUFFER];
