@@ -14,7 +14,12 @@
 #  * Möhringen: 48.723957,9.153292
 #  * Nabern: 48.614241,9.475000
 #  * Grabenstetten: 48.536363,9.437542
-
+#  * Bad Urach: 48.490105,9.394959
+#  * Degerloch: 48.745936,9.169557
+#  * Kornwestheim: 48.864396,9.223579
+#  * Markgroenningen: 48.908029,9.085469
+#  * Boenigheim: 49.039651,9.095502
+#
 # 2018-12-23, tilmann@bubecks.de
 
 import sys
@@ -518,9 +523,19 @@ def main(argv = None):
         for level in range(levels):
             offset = level * sizeof_level
             height   = int.from_bytes([output[offset], output[offset+1]], 'little', signed=False)
-            angle    = int.from_bytes([output[offset+2]], 'little', signed=False)
-            distance = int.from_bytes([output[offset+3]], 'little', signed=False)
-            print ("  level", level, "height=" + str(height),"angle="+str(angle),"distance="+str(distance))
+            angle_raw    = int.from_bytes([output[offset+2]], 'little', signed=False)
+            distance_raw = int.from_bytes([output[offset+3]], 'little', signed=False)
+            if angle_raw > 127:
+                angle = angle_raw - 128
+                inside = " INSIDE!"
+            else:
+                angle = angle_raw
+                inside = ""
+
+            angle = angle * 3
+            distance = distance_raw * 64
+            
+            print ("  level", level, "height=" + str(height),"angle(raw)="+str(angle_raw),"distance(raw)="+str(distance_raw)+" angle="+str(angle)+" distance="+str(distance)+inside)
         sys.exit(0)
             
     count = 0
@@ -621,6 +636,10 @@ def ReadAltFt( poFeature, fieldName ):
             alt = 0
             unit = "ft"
             level = "AGL"
+        elif alt == "UNLTD":
+            alt = 99999
+            unit = "ft"
+            level = "MSL"
         else:
             # "8000 ft AMSL"
             m = re.match('(\d+)\s+([a-z]+)\s+(\w+)', alt)
@@ -656,7 +675,12 @@ def ReadAltFt( poFeature, fieldName ):
                             print ("Unknown alt grammar '"+value+"'")
                             sys.exit(1)
 
+        if unit == "m":
+            alt = alt * 3.28084    # convert meter to feet
+            unit = "ft"
+            
         if unit != "ft":
+            print("airspace #%ld: %s" % (poFeature.GetFID(), value))
             print ("Unknown unit", unit)
             sys.exit(1)
             
