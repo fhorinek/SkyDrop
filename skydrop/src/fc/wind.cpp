@@ -9,9 +9,11 @@
 #include "fc.h"
 #include "../common.h"
 
+//#include "../debug_on.h"
+
 void wind_new_gps_fix()
 {
-    //DEBUG("Wind step #1");
+    DEBUG("Wind step #1\n");
     /*	GPS speed,heading input		*/
     float speed = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS; // m/s
     float angle = fc.gps_data.heading;
@@ -21,15 +23,15 @@ void wind_new_gps_fix()
     fc.wind.dir[sector] = angle;
     fc.wind.spd[sector] = speed;
 
-    //DEBUG(" angles: ");
-    //	for(int i = 0; i < WIND_NUM_OF_SECTORS; i++)
-    //		DEBUG(" %.1f", fc.wind.dir[i]);
-    /*DEBUG(" speeds: ");
+    DEBUG(" angles: ");
+    	for(int i = 0; i < WIND_NUM_OF_SECTORS; i++)
+    		DEBUG(" %.1f", fc.wind.dir[i]);
+    DEBUG("\n speeds: ");
      for(int i = 0; i < WIND_NUM_OF_SECTORS; i++)
      DEBUG(" %.1f", fc.wind.spd[i]);
 
-     DEBUG(" #2");
-     */
+     DEBUG("\n #2");
+
     if (sector == (fc.wind.old_sector + 1) % WIND_NUM_OF_SECTORS)
     {	//clockwise move
         if (fc.wind.sectors_cnt >= 0)
@@ -56,7 +58,7 @@ void wind_new_gps_fix()
     }
 
     fc.wind.old_sector = sector;
-    //DEBUG(" #3 cnt=%d sec=%d", fc.wind.sectors_cnt, sector );
+    DEBUG("\n #3 cnt=%d sec=%d\n", fc.wind.sectors_cnt, sector );
 
     int8_t min = 0;
     int8_t max = 0;
@@ -72,19 +74,19 @@ void wind_new_gps_fix()
         }
 
         int8_t sectorDiff = abs(max - min);
-        //DEBUG("min=%d max=%d diff=%d",min, max, sectorDiff);
+        DEBUG(" min=%d max=%d diff=%d\n",min, max, sectorDiff);
         if ((sectorDiff >= ( WIND_NUM_OF_SECTORS / 2 - 1)) and (sectorDiff <= ( WIND_NUM_OF_SECTORS / 2 + 1)))
         {
             fc.wind.speed = (fc.wind.spd[max] - fc.wind.spd[min]) / 2;
             fc.wind.direction = fc.wind.dir[min];
             fc.wind.valid = true;
             fc.wind.valid_from = task_get_ms_tick();
-            //DEBUG(" #5 wspd=%0.1f wdir=%0.1f", fc.wind.speed, fc.wind.direction);
+            DEBUG(" #5 wspd=%0.1f wdir=%0.1f\n", fc.wind.speed, fc.wind.direction);
         }
-        //DEBUG(" #6");
+        DEBUG("#6\n");
     }
 
-    //DEBUG(" end\n");
+    DEBUG(" end\n\n");
 }
 
 void wind_init()

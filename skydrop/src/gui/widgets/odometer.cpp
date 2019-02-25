@@ -7,6 +7,7 @@
 
 #include "odometer.h"
 #include "../../fc/waypoint.h"
+#include "../gui_list.h"
 
 #include <limits.h>
 
@@ -125,7 +126,7 @@ void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 		distance = INFINITY;
 	}
 
-	widget_distance_draw(PSTR("Next WP"), distance, x, y, w, h, flags);
+	widget_distance_draw(PSTR("WP"), distance, x, y, w, h, flags);
 }
 
 void widget_time_draw(const char *label_P, float min, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -179,7 +180,7 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 		}
 	}
 
-	widget_time_draw(PSTR("Next WP"), min, x, y, w, h ,flags);
+	widget_time_draw(PSTR("WP"), min, x, y, w, h ,flags);
 }
 
 void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -192,54 +193,57 @@ void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
 
-	y += lh + 1;
-
 	disp.LoadFont(F_TEXT_M);
 
 	uint8_t text_h = disp.GetTextHeight();
 
 	char tmp[80];
 
-	disp.GotoXY(x, y);
-
 	if (config.home.flags & HOME_SET_AS_TAKEOFF)
 	{
-		fprintf_P(lcd_out, PSTR("Take-off"));
+		sprintf_P(tmp, PSTR("Take-off"));
+		widget_value_txt(tmp, x, y + lh, w, h - lh);
 	}
 	else
 	{
 		if (config.home.flags & HOME_LOADED_FROM_SD)
 		{
+			y += lh + 1;
+
 			if (config.home.name[0])
 			{
+				disp.GotoXY(x, y);
 				fputs((const char *) config.home.name, lcd_out);
 				y += text_h + 1;
-				disp.GotoXY(x, y);
 			}
 
 			if (config.home.freq[0])
 			{
+				disp.GotoXY(x, y);
 				fprintf_P(lcd_out, PSTR("Freq: %s"), config.home.freq);
 				y += text_h + 1;
-				disp.GotoXY(x, y);
 			}
 
 			if (config.home.rwy[0])
 			{
+				disp.GotoXY(x, y);
 				sprintf_P(tmp, PSTR("Rwy: %s, %s"), config.home.rwy, config.home.traffic_pattern);
 				widget_value_scroll(tmp, x, y, w, h);
 				y += text_h + 1;
-				disp.GotoXY(x, y);
 			}
 
 			if (config.home.info[0])
 			{
+				disp.GotoXY(x, y);
 				widget_value_scroll((char *) config.home.info, x, y, w, h);
 			}
 		}
 		else //no home loaded
 		{
-			fprintf_P(lcd_out, PSTR("<Load>"));
+			char text[7];
+			sprintf_P(text, PSTR("Load"));
+
+			widget_value_txt(text, x, y + lh, w, h - lh);
 		}
 	}
 
@@ -252,6 +256,7 @@ void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
 		gui_switch_task(GUI_HOME);
+		gui_list_set_index(GUI_HOME, 2);
 	}
 }
 
@@ -271,6 +276,12 @@ void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 			}
 		}
 	}
+
+	if (type == B_MIDDLE && *buff == BE_LONG)
+	{
+		gui_switch_task(GUI_HOME);
+		gui_list_set_index(GUI_HOME, 4);
+	}
 }
 
 void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
@@ -283,20 +294,37 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
 
-	y += lh + 1;
-
 	disp.LoadFont(F_TEXT_M);
 
-	uint8_t text_h = disp.GetTextHeight();
+	if (fc.flight.waypoints_count)
+	{
+		if (fc.flight.waypoint_no)
+		{
+			char text1[16];
+			char text2[16];
 
-	char tmp[80];
+			sprintf_P(text1, PSTR("%u/%u"), fc.flight.waypoint_no, fc.flight.waypoints_count);
+			sprintf_P(text2, PSTR("%s"), fc.flight.next_waypoint.name);
 
-	disp.GotoXY(x, y);
+			widget_value_int_sub(text1, text2, x, y + lh, w, h - lh);
+		}
+		else
+		{
+			char text[6];
+			sprintf_P(text, PSTR("Done!"));
 
-	fprintf_P(lcd_out, PSTR("%d/%d"), fc.flight.waypoint_no, fc.flight.waypoints_count);
-	y += text_h + 1;
-	disp.GotoXY(x, y);
-	fprintf_P(lcd_out, PSTR("%s"), fc.flight.next_waypoint.name);
+			widget_value_txt(text, x, y + lh, w, h - lh);
+		}
+
+	}
+	else
+	{
+		char text[7];
+		sprintf_P(text, PSTR("Load"));
+
+		widget_value_txt(text, x, y + lh, w, h - lh);
+	}
+
 
 	disp.clip(oldClip);
 }
@@ -305,10 +333,10 @@ void widget_direction_draw(const char *label_P, int16_t direction, uint8_t x, ui
 {
 	uint8_t lh = widget_label_P(label_P, x, y);
 
-	y += lh / 2;
-
 	if (direction != INT_MAX)
 	{
+		y += lh / 2;
+
 		widget_arrow(direction, x, y, w, h);
 	}
 	else
@@ -347,7 +375,7 @@ void widget_waypoint_direction_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
 	{
 		relative_direction = INT_MAX;
 	}
-	widget_direction_draw(PSTR("Next WP"), relative_direction, x, y, w, h, flags);
+	widget_direction_draw(PSTR("WP"), relative_direction, x, y, w, h, flags);
 }
 
 register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odometer_irqh);

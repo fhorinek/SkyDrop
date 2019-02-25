@@ -63,7 +63,7 @@ void gui_set_autoset_config_action(uint8_t index)
         break;
 
         case (1):
-            gui_value_conf_P(PSTR("Circling thold."), GUI_VAL_NUMBER, PSTR("%0.0f deg/s"), config.gui.page_cirlcing_thold, 5, 30, 1, gui_set_autoset_config_circling_thold_cb);
+            gui_value_conf_P(PSTR("Circling thold."), GUI_VAL_NUMBER, PSTR("%0.0f deg/s"), config.gui.page_cirlcing_thold, 2, 30, 1, gui_set_autoset_config_circling_thold_cb);
             gui_switch_task(GUI_SET_VAL);
         break;
 

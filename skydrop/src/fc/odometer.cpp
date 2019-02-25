@@ -9,6 +9,8 @@
 #include "waypoint.h"
 #include "fc.h"
 
+#include "../debug_on.h"
+
 /**
  * Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
  * must be given as fixed integers multiplied with GPS_MULT.
@@ -23,9 +25,9 @@
 int16_t gps_bearing(int32_t lat1, int32_t lon1,
 					int32_t lat2, int32_t lon2)
 {
-	double dX = ((double)lon1 - lon2) / GPS_MULT;
-	double dY = ((double)lat1 - lat2) / GPS_MULT;
-	return ((int16_t)to_degrees(atan2(dX,dY)) + 360) % 360;
+	double dX = ((double)lon2 - lon1) / GPS_MULT;
+	double dY = ((double)lat2 - lat1) / GPS_MULT;
+	return (-(int16_t)to_degrees(atan2(dX, dY)) + 360) % 360;
 }
 
 /**
@@ -108,13 +110,26 @@ void odometer_step()
 		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, config.home.lat, config.home.lon) / 100000.0;   // cm to km
 	}
 
-	if ( fc.flight.waypoint_no != 0 ) {
+	if ( fc.flight.waypoint_no != 0 )
+	{
+//		DEBUG("lat1 %ld\n", fc.flight.next_waypoint.lat);
+//		DEBUG("lon1 %ld\n", fc.flight.next_waypoint.lon);
+//		DEBUG("lat2 %ld\n", fc.gps_data.latitude);
+//		DEBUG("lon2 %ld\n", fc.gps_data.longtitude);
+
+
 		fc.flight.next_waypoint.bearing = gps_bearing(fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
 		fc.flight.next_waypoint.distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon) / 100.0;   // cm to m
 		fc.flight.next_waypoint.distance -= fc.flight.next_waypoint.radius_m;
-		if ( fc.flight.next_waypoint.distance <= 0 ) {
+
+//		DEBUG("ber %d\n", fc.flight.next_waypoint.bearing);
+//		DEBUG("dis %0.2f\n", fc.flight.next_waypoint.distance);
+
+
+		if ( fc.flight.next_waypoint.distance <= 0 )
+		{
 			// We reached the waypoint. Go to next.
-			if ( !waypoint_goto_next() ) {
+			if (!waypoint_goto_next() ) {
 				fc.flight.waypoint_no = 0;
 				fc.flight.next_waypoint.bearing = 0;
 				fc.flight.next_waypoint.distance = 0;
@@ -122,6 +137,7 @@ void odometer_step()
 				gui_showmessage_P(PSTR("Navigation\nfinished."));
 			}
 		}
+
 		fc.flight.next_waypoint.distance /= 1000;             // m to km.
 	}
 
@@ -134,7 +150,7 @@ void odometer_step()
 		uint16_t calc_speed = (v * FC_MPS_TO_KNOTS) / 100;
 
 		//do not add when gps speed is < 1 km/h
-		//do not add when difference between calculated speed and gps speed id > 10 km/h
+		//do not add when difference between calculated speed and gps speed is > 10 km/h
 		if (abs(calc_speed - fc.gps_data.groud_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.groud_speed > FC_ODO_MIN_SPEED)
 			fc.odometer += v;
 	}

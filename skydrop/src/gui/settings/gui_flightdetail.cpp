@@ -18,35 +18,6 @@ uint32_t log_odo;
 uint32_t log_start;
 struct flight_stats_t log_stat;
 
-/*-----------------------------------------------------------------------*/
-/* Get a string from the file                                            */
-/*-----------------------------------------------------------------------*/
-
-TCHAR* f_gets (
-	TCHAR* buff,	/* Pointer to the string buffer to read */
-	int len,		/* Size of string buffer (characters) */
-	FIL* fp			/* Pointer to the file object */
-)
-{
-	int n = 0;
-	TCHAR c, *p = buff;
-	BYTE s[2];
-	UINT rc;
-
-	while (n < len - 1) {	/* Read characters until buffer gets filled */
-		f_read(fp, s, 1, &rc);
-		if (rc != 1) break;
-		c = s[0];
-		*p++ = c;
-		n++;
-		if (c == '\n') break;		/* Break on EOL */
-		if (c == '\r') break;		/* Break on EOL */
-	}
-	*p = 0;
-	return n ? buff : 0;			/* When no data read (eof or error), return with error. */
-}
-
-
 #define LOG_NODATA_u32	(0xFFFFFFFF)
 #define LOG_NODATA_i16	(-32768)
 

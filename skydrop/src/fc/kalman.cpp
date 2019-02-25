@@ -27,20 +27,20 @@ KalmanFilter::KalmanFilter()
 void KalmanFilter::Reset(float abs_value)
 {
 	z_ = abs_value;
-	v_ = 0.0;
-	aBias_ = 0.0;
-	Pzz_ = 1.0f;
-	Pzv_ = 0.0f;
-	Pza_ = 0.0f;
-
-	Pvz_ = 0.0f;
-	Pvv_ = 1.0f;
-	Pva_ = 0.0f;
-
-	Paz_ = 0.0f;
-	Pav_ = 0.0;
-	//Paa_ = 100000.0f;
-	Paa_ = 1.0e10f;
+//	v_ = 0.0;
+//	aBias_ = 0.0;
+//	Pzz_ = 1.0f;
+//	Pzv_ = 0.0f;
+//	Pza_ = 0.0f;
+//
+//	Pvz_ = 0.0f;
+//	Pvv_ = 1.0f;
+//	Pva_ = 0.0f;
+//
+//	Paz_ = 0.0f;
+//	Pav_ = 0.0;
+//	//Paa_ = 100000.0f;
+//	Paa_ = 1.0e10f;
 }
 
 
@@ -80,7 +80,7 @@ void KalmanFilter::Update(float z, float a, float dt, float* pZ, float* pV)
 	z_ += v_ * dt;
 
     zAccelVariance_ = fabs(accel)/50.0f;
-    CLAMP(zAccelVariance_, 1.0f, 50.0f);
+    zAccelVariance_ = CLAMP(zAccelVariance_, 1.0f, 50.0f);
 
     // Predict State Covariance matrix
 	float t00,t01,t02;

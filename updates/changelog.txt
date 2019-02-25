@@ -1,9 +1,18 @@
 
-Build 40XX - XX. XX. 2018
+Build 4084 - 25. 02. 2019
 ========================================================
 ADDED:
  * Count odometer during flight, save to log, #357 (bubeck)
  * Alarm 3 as an upper limit #348 (bubeck)
+
+FIX:
+ * Waypoint and home navigation
+ * Strange buzzing sound
+ * Circling detection
+
+CHANGED:
+ * Waypoint and home widget
+ * Skipped waypoint detail menu
 
 Build 4016 - 24. 07. 2018
 ========================================================

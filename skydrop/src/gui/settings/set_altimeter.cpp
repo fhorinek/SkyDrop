@@ -139,7 +139,7 @@ void gui_set_altimeter_action(uint8_t index)
 {
 	uint8_t tmp;
 
-	if (index == 0)
+	if (index == 0) //Mode
 	{
 		if (set_alt_index != 0)
 		{
@@ -178,7 +178,7 @@ void gui_set_altimeter_action(uint8_t index)
 		}
 	}
 
-	if ((index == 3 && set_alt_list_num == 5) || index == 1)
+	if ((index == 3 && set_alt_list_num == 4) || index == 1)
 	{
 		set_alt_flags ^= ALT_UNIT_I;
 		return;
@@ -187,6 +187,7 @@ void gui_set_altimeter_action(uint8_t index)
 	if (index == 2)
 	{
 		set_alt_flags ^= ALT_AUTO_GPS;
+		return;
 	}
 }
 
@@ -195,7 +196,7 @@ void gui_set_altimeter_action(uint8_t index)
 
 void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
-	if (index == 0)
+	if (index == 0) //Same for every altmeter
 	{
 		strcpy_P(text, PSTR("Mode"));
 		*flags |= GUI_LIST_SUB_TEXT;
@@ -216,7 +217,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		return;
 	}
 
-	if (set_alt_list_num == 5)
+	if (set_alt_list_num == 4) //Relative only
 	{
 		if (index == 1)
 		{
@@ -237,7 +238,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		}
 	}
 
-	if ((index == 3 && set_alt_list_num == 5) || index == 1)
+	if ((index == 3 && set_alt_list_num == 4) || index == 1) //Units
 	{
 		strcpy_P(text, PSTR("Units"));
 		*flags |= GUI_LIST_SUB_TEXT;
@@ -248,12 +249,15 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		return;
 	}
 
-	if ((index == 4 && set_alt_list_num == 5) || index == 2) {
+	if (index == 2) //for QNH only
+	{
 		strcpy_P(text, PSTR("Auto from GPS"));
 		if (set_alt_flags & ALT_AUTO_GPS)
 			*flags |= GUI_LIST_CHECK_ON;
 		else
 			*flags |= GUI_LIST_CHECK_OFF;
+
+		return;
 	}
 }
 

@@ -78,6 +78,9 @@ void gui_page_set_mode(uint8_t new_mode)
     if (new_page == PAGE_NONE)
         return;
 
+    if (new_page == active_page)
+        return;
+
     DEBUG("new_page %d\n", new_page);
     page_set(new_page);
 }

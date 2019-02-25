@@ -74,10 +74,11 @@ void widget_ghdg_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 {
 	uint8_t lh = widget_label_P(PSTR("GHdg"), x, y);
 
-	y += lh / 2;
 
 	if (fc.gps_data.valid)
 	{
+		y += lh / 2;
+
 		widget_arrow(fc.gps_data.heading, x, y, w, h);
 	}
 	else
@@ -93,12 +94,11 @@ void widget_gcompass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 {
 	uint8_t lh = widget_label_P(PSTR("GCom"), x, y);
 
-	y += lh / 2;
-
 	if (fc.gps_data.valid)
 	{
 		int16_t compass = 360 - fc.gps_data.heading;
 
+		y += lh / 2;
 		widget_arrow(compass, x, y, w, h);
 	}
 	else

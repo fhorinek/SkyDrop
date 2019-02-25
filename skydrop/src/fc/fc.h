@@ -97,7 +97,7 @@ struct gps_data_t
 	int32_t longtitude;	//* 10^7
 	float groud_speed; 	//in knots
 
-	float heading;
+	uint16_t heading;
 	uint32_t utc_time;
 
 	uint8_t fix;        // GPGSA.fix: 1=No Fix, 2=2D fix, 3=3D fix
@@ -235,14 +235,16 @@ struct flight_data_t
 
 	uint32_t autostart_odo;   // odometer at start time.
 
-  //waypoints
-	int waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
-	int waypoints_count;			 // The number of waypoints in the file.
+    //waypoints
+	uint8_t waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
+	uint8_t waypoints_count;			 // The number of waypoints in the file.
 	waypoint_t next_waypoint;        // The next waypoint where we need to fly
 
-  //last gps heading
-	float last_heading;
+    //last gps heading
+	int16_t last_heading;
 	float avg_heading_change;
+	int16_t total_heading_change;
+	//uint32_t heading_change_timer;
 
 	//circling
 	bool circling;

@@ -29,7 +29,7 @@
     if (!(cond)) \
         {\
             PGM_P __file__ = PSTR(__FILE__); \
-            DEBUG("Assertion failed %S@%d!\n", __file__, __LINE__); \
+            DEBUG("Assert fail %S@%d!\n", __file__, __LINE__); \
         } \
     } while(0);
 

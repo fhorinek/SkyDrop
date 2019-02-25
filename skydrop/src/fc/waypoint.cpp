@@ -15,7 +15,7 @@ void show_waypoint()
 {
 	char message[50];
 
-	sprintf_P(message, PSTR("Next Waypoint %d/%d\n\"%s\""),
+	sprintf_P(message, PSTR("Next WPT %d/%d\n\"%s\""),
 			fc.flight.waypoint_no, fc.flight.waypoints_count,
 			fc.flight.next_waypoint.name);
 	gui_showmessage(message);

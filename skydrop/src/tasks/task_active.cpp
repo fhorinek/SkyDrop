@@ -108,6 +108,8 @@ void task_active_stop()
 
 	fc_deinit();
 
+	audio_off();
+
 	gui_stop();
 
 	debug_end();

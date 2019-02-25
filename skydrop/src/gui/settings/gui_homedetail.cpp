@@ -15,6 +15,8 @@
 #include "../../fc/conf.h"
 #include "../../fc/logger/logger.h"
 
+#include "../../debug_on.h"
+
 cfg_home home_new;
 
 void read_homefile(const char *filename, cfg_home *home)
@@ -37,44 +39,69 @@ void read_homefile(const char *filename, cfg_home *home)
 	DEBUG("parse_homefile(%s)\n", filename);
 
 	f_r = f_open(&fp, filename, FA_READ);
-	if ( f_r != FR_OK ) return;
+	if (f_r != FR_OK)
+		return;
 
-	while(1) {
-		if ( f_gets(line, sizeof(line), &fp) == NULL ) break;
+	while (1)
+	{
+		if (f_gets(line, sizeof(line), &fp) == NULL)
+			break;
 
-		if (startsWith_P(PSTR("NAME: "), line)) {
+		DEBUG("line '%s'\n", line);
+
+		if (startsWith_P(PSTR("NAME: "), line))
+		{
 			strncpy(home->name, line + 6, sizeof(home->name));
+			DEBUG("home->name %s\n", home->name);
 			continue;
 		}
-		if (startsWith_P(PSTR("LOC: "), line)) {
-			d = atof(line+5) * 10000000.0;
+
+		if (startsWith_P(PSTR("LOC: "), line))
+		{
+			d = atof(line + 5) * 10000000.0;
 			home->lat = d;
 			p = rindex(line, ' ');
-			if ( p != NULL ) {
+			if (p != NULL)
+			{
 				d = atof(p + 1) * 10000000.0;
 				home->lon = d;
 			}
-			if ( strchr(line, 'S') ) {
+			if (strchr(line, 'S'))
+			{
 				home->lat = -home->lat;
 			}
-			if ( strchr(line, 'W') ) {
+			if (strchr(line, 'W'))
+			{
 				home->lon = -home->lon;
 			}
+
+			DEBUG("home->lat %ld\n", home->lat);
+			DEBUG("home->lon %ld\n", home->lon);
+
 			continue;
 		}
-		if (startsWith_P(PSTR("FREQ: "), line)) {
+
+		if (startsWith_P(PSTR("FREQ: "), line))
+		{
 			strncpy(home->freq, line + 6, sizeof(home->freq));
 			continue;
 		}
-		if (startsWith_P(PSTR("RWY: "), line)) {
+
+		if (startsWith_P(PSTR("RWY: "), line))
+		{
 			strncpy(home->rwy, line + 5, sizeof(home->rwy));
 			continue;
 		}
-		if (startsWith_P(PSTR("TRAFFIC PATTERN: "), line)) {
-			strncpy(home->traffic_pattern, line + 17, sizeof(home->traffic_pattern));
+
+		if (startsWith_P(PSTR("TRAFFIC PATTERN: "), line))
+		{
+			strncpy(home->traffic_pattern, line + 17,
+					sizeof(home->traffic_pattern));
 			continue;
 		}
-		if (startsWith_P(PSTR("INFO: "), line)) {
+
+		if (startsWith_P(PSTR("INFO: "), line))
+		{
 			strncpy(home->info, line + 6, sizeof(home->info));
 			continue;
 		}
@@ -91,10 +118,13 @@ void gui_homedetail_init()
 	sprintf_P(tmp, PSTR("%s/%s"), gui_filemanager_path, gui_filemanager_name);
 	read_homefile(tmp, &home_new);
 
-	gui_list_set(gui_homedetail_item, gui_homedetail_action, 8, GUI_FILEMANAGER);
+	gui_list_set(gui_homedetail_item, gui_homedetail_action, 8,
+	GUI_FILEMANAGER);
 }
 
-void gui_homedetail_stop() {}
+void gui_homedetail_stop()
+{
+}
 
 void gui_homedetail_loop()
 {
@@ -113,64 +143,66 @@ void gui_homedetail_action(uint8_t index)
 		gui_showmessage_P(PSTR("Home selected"));
 		gui_switch_task(GUI_PAGES);
 
-		memcpy((void *)&config.home, (void *)&home_new, sizeof(cfg_home));
+		memcpy((void *) &config.home, (void *) &home_new, sizeof(cfg_home));
 
 		config.home.flags = HOME_LOADED_FROM_SD;
 		eeprom_busy_wait();
-		eeprom_update_block((void *)&config.home, &config_ee.home, sizeof(config.home));
+		eeprom_update_block((void *) &config.home, &config_ee.home,
+				sizeof(config.home));
 
 		fc.flight.home_valid = true;
 	}
 }
 
-void gui_homedetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub_text)
+void gui_homedetail_item(uint8_t idx, char * text, uint8_t * flags,
+		char * sub_text)
 {
 	switch (idx)
 	{
-		case 0:
-			strcpy_P(text, PSTR("Use this home"));
+	case 0:
+		strcpy_P(text, PSTR("Use this home"));
 		break;
 
-		case 1:
-			strcpy_P(text, PSTR("Name:"));
-			strcpy(sub_text, home_new.name);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 1:
+		strcpy_P(text, PSTR("Name:"));
+		strcpy(sub_text, home_new.name);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 2:
-			strcpy_P(text, PSTR("Lat:"));
-			sprintf_P(sub_text, PSTR("%2.6f"), home_new.lat / 10000000.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 2:
+		strcpy_P(text, PSTR("Lat:"));
+		sprintf_P(sub_text, PSTR("%2.6f"), home_new.lat / 10000000.0);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 3:
-			strcpy_P(text, PSTR("Lon:"));
-			sprintf_P(sub_text, PSTR("%2.6f"), home_new.lon / 10000000.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 3:
+		strcpy_P(text, PSTR("Lon:"));
+		sprintf_P(sub_text, PSTR("%2.6f"), home_new.lon / 10000000.0);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 4:
-			strcpy_P(text, PSTR("Frequency:"));
-			strcpy(sub_text, home_new.freq);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 4:
+		strcpy_P(text, PSTR("Frequency:"));
+		strcpy(sub_text, home_new.freq);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 5:
-			strcpy_P(text, PSTR("Runway:"));
-			strcpy(sub_text, home_new.rwy);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 5:
+		strcpy_P(text, PSTR("Runway:"));
+		strcpy(sub_text, home_new.rwy);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 6:
-			strcpy_P(text, PSTR("Traffic Pattern:"));
-			strcpy(sub_text, home_new.traffic_pattern);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 6:
+		strcpy_P(text, PSTR("Traffic Pattern:"));
+		strcpy(sub_text, home_new.traffic_pattern);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case 7:
-			strcpy_P(text, PSTR("Info:"));
-			strcpy(sub_text, home_new.info);
-			*flags |= GUI_LIST_SUB_TEXT;
+	case 7:
+		strcpy_P(text, PSTR("Info:"));
+		strcpy(sub_text, home_new.info);
+		*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
 	}

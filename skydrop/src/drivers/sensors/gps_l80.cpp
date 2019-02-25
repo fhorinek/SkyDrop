@@ -228,7 +228,7 @@ void gps_parse_rmc()
 	ptr = find_comma(ptr);
 
 	//Ground course
-	fc.gps_data.heading = atoi_f(ptr);
+	fc.gps_data.heading = (uint16_t)atoi_f(ptr);
 
 	ptr = find_comma(ptr);
 

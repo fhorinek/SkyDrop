@@ -5,14 +5,12 @@
  *      Author: tilmann@bubecks.de
  */
 
-#include <gui/settings/gui_filemanager.h>
 #include "gui_home.h"
-#include "../../fc/waypoint.h"
-#include "common.h"
+
+#include "gui_filemanager.h"
 #include "../gui_list.h"
-#include "../gui_dialog.h"
 #include "../../fc/conf.h"
-#include "../../fc/logger/logger.h"
+#include "../../fc/waypoint.h"
 
 void gui_home_init()
 {

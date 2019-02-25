@@ -20,7 +20,7 @@
 
 #include "../gui/gui_dialog.h"
 
-//#include "debug_on.h"
+#include "debug_on.h"
 
 volatile flight_computer_data_t fc;
 
@@ -450,6 +450,8 @@ void fc_takeoff()
 
 	gui_showmessage_P(PSTR("Take off"));
 
+	gui_page_set_mode(PAGE_MODE_NORMAL);
+
 	fc.flight.state = FLIGHT_FLIGHT;
 	fc.flight.timer = task_get_ms_tick();
 
@@ -533,6 +535,7 @@ void fc_reset()
 
 	fc.altitude_alarm_status = 0b00000000;
 
+    fc.flight.total_heading_change = 0;
     fc.flight.avg_heading_change = 0;
     fc.flight.last_heading = 0;
 
@@ -548,8 +551,6 @@ void fc_sync_gps_time()
 	//time is already synced
 	if (time_get_local() == (fc.gps_data.utc_time + config.system.time_zone * 1800ul))
 		return;
-
-	DEBUG("asdf\n");
 
 	//Do not update time during flight, except when the time is not valid
 	if (fc.flight.state == FLIGHT_FLIGHT && time_is_set())
@@ -721,11 +722,32 @@ void fc_step()
 	//flight modes
 	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_CIRCLE)
 	{
-	    fc.gps_data.new_sample ^= ~FC_GPS_NEW_SAMPLE_CIRCLE;
-        float heading_change = fc.flight.last_heading - fc.gps_data.heading;
+	    fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_CIRCLE;
+
+	    int16_t heading_change = fc.gps_data.heading - fc.flight.last_heading;
+	    if (heading_change > 180)
+	    	heading_change -= 360;
+	    if (heading_change < -180)
+	    	heading_change += 360;
+
         fc.flight.last_heading = fc.gps_data.heading;
 
-        fc.flight.avg_heading_change += (fc.flight.avg_heading_change - heading_change) / float(config.gui.page_circling_average);
+//        DEBUG("\nhch %d\n", heading_change);
+
+
+        fc.flight.avg_heading_change += (heading_change - fc.flight.avg_heading_change) / config.gui.page_circling_average;
+        fc.flight.total_heading_change += heading_change;
+
+        //if avg have different sign than total zero the total
+        if (fc.flight.avg_heading_change > 0 && fc.flight.total_heading_change < 0)
+        	fc.flight.total_heading_change = 0;
+        else if (fc.flight.avg_heading_change < 0 && fc.flight.total_heading_change > 0)
+        	fc.flight.total_heading_change = 0;
+
+        fc.flight.total_heading_change = CLAMP(fc.flight.total_heading_change, -400, 400);
+
+//        DEBUG("ach %0.2f\n", fc.flight.avg_heading_change);
+//        DEBUG("tch %d\n", fc.flight.total_heading_change);
 	}
 
     if (fc.flight.state == FLIGHT_FLIGHT)
@@ -736,7 +758,13 @@ void fc_step()
         }
         else
         {
-            if (abs(fc.flight.avg_heading_change) > config.gui.page_cirlcing_thold)
+        	//if total heading is > 360 : normal -> circling
+        	//if total heading is < 340 : circling -> normal
+        	//			AND
+        	//circl only if avg heading > config thold
+            if (((abs(fc.flight.total_heading_change) > 360 && !fc.flight.circling) ||
+            	(abs(fc.flight.total_heading_change) > 340 && fc.flight.circling)) &&
+            	(abs(fc.flight.avg_heading_change) > config.gui.page_cirlcing_thold))
             {
                 if (!fc.flight.circling)
                 {
@@ -753,8 +781,8 @@ void fc_step()
             {
             	if (fc.flight.circling)
             	{
-
 					fc.flight.circling = false;
+					fc.flight.total_heading_change = 0;
 					gui_page_set_mode(PAGE_MODE_NORMAL);
             	}
             }

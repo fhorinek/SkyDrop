@@ -31,6 +31,9 @@ void Setup()
 	buzzer_init();
 	buttons_init();
 
+	//compensate oscillator drift using dfll with tosc as refernce
+	XMEGACLK_StartDFLL(CLOCK_SRC_INT_RC32MHZ, DFLL_REF_EXT_RC32KHZ, 32000000ul);
+
 	//basic power control
 	mems_power_init();
 	io_init();
