@@ -124,11 +124,13 @@ void gui_factory_test_loop()
 		disp.DrawRectangle(50, 26, 55, 31, 1, 0);
 		disp.DrawRectangle(52, 28, 53, 29, 1, 0);
 
+		/** DrawCircle has been removed to save PROGMEM.
 		disp.DrawCircle(71, 35, 1, 1);
 		disp.DrawCircle(71, 35, 3, 1);
 		disp.DrawCircle(71, 35, 5, 1);
 		disp.DrawCircle(71, 35, 7, 1);
 		disp.DrawCircle(71, 35, 9, 1);
+		 */
 
 		disp.LoadFont(F_TEXT_M);
 		disp.GotoXY(4, 36);

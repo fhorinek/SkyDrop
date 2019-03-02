@@ -408,62 +408,6 @@ void lcd_display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
   }
 }
 
-void lcd_display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end)
-{
-	int16_t angle = 0;
-	int8_t x,y;
-
-	for (angle=start;angle<=end;angle++)
-	{
-		x = radius * get_sin(angle);
-		y = radius * get_sin(angle+180);
-		PutPixel(cx+x,cy + y,1);
-	}
-}
-
-void lcd_display::DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color){
-	 DrawLine(x1, y1, x2,y2,color);
-	 DrawLine(x1,y1,x3,y3,color);
-	 DrawLine(x2,y2,x3,y3,color);
-}
-
-void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,uint8_t color=1)
-{
-	int8_t error = -radius;
-	uint8_t x = radius;
-	uint8_t y = 0;
-
-  while (x >= y)
-  {
-    plot8points(cx, cy, x, y, color);
-
-    error += y;
-    ++y;
-    error += y;
-
-    if (error >= 0)
-    {
-      error -= x;
-      --x;
-      error -= x;
-    }
-  }
-}
-
-void lcd_display::plot8points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
-{
-  plot4points(cx, cy, x, y, color);
-  if (x != y) plot4points(cx, cy, y, x, color);
-}
-
-void lcd_display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
-{
-  PutPixel(cx + x, cy + y,color);
-  if (x != 0) PutPixel(cx - x, cy + y,color);
-  if (y != 0) PutPixel(cx + x, cy - y,color);
-  if (x != 0 && y != 0) PutPixel(cx - x, cy - y,color);
-}
-
 void lcd_display::SetRowCol(unsigned char row, unsigned char col)
 {
 	this->sendcommand(0x80 | col);
