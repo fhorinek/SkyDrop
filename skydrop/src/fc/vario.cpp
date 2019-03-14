@@ -1,9 +1,10 @@
+#include <fc/kalman.h>
 #include "vario.h"
-#include "kalman.h"
 #include "fc.h"
 
 KalmanFilter kalmanFilter;
 
+#include "../debug_on.h"
 
 void vario_init(float pressure )
 {
@@ -23,9 +24,8 @@ void vario_init(float pressure )
 	fc.vario.history_pointer = 0;
 	fc.vario.history_step = 0;
 
-	//kalmanFilter.Configure( 30.0, 1.0, 1.0, 0.0, 0.0, 0.0 );
 	float rawAltitude = fc_press_to_alt(pressure, config.altitude.QNH1);
-	kalmanFilter.Configure(2500.0, 100.0, 1.0, rawAltitude, 0.0, 0.0);
+	kalmanFilter.Configure(30.0f, 4.0f, rawAltitude);
 }
 
 void vario_update_history_delay()
@@ -83,12 +83,14 @@ void vario_calc(float pressure)
 
 	float vario, altitude;
 
-	///DEBUG("#KMF# % 011.5f % 011.5f\n", rawAltitude, fc.acc.zGCA );
+	DEBUG("S;%0.4f;%0.4f;", rawAltitude, fc.acc.zGCA );
 
 	if (config.vario.flags & VARIO_USE_ACC)
-		kalmanFilter.Update(rawAltitude, fc.acc.zGCA, 0.01, &altitude, &vario);
+		kalmanFilter.Update_both(rawAltitude, fc.acc.zGCA, &altitude, &vario);
 	else
-		kalmanFilter.Update(rawAltitude, 0.0, 0.01, &altitude, &vario);
+		kalmanFilter.Update_both(rawAltitude, 0.0, &altitude, &vario);
+
+	DEBUG("%0.4f;%0.4f\n", altitude, vario);
 
 //	DEBUG("%lu;%lu;%0.2f;%ld\n", ms5611.raw_pressure, ms5611.raw_temperature, ms5611.pressure, ms5611.temperature);
 

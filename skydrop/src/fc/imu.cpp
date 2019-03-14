@@ -14,9 +14,12 @@
 // Converts radians to degrees.
 #define radiansToDegrees(angleRadians) (angleRadians * 180.0 / M_PI)
 
-#define dt 1.0
-#define beta (sqrt(3.0 / 4.0) * degreesToRadians(10.0))
-#define bUseAccel true
+#define dt 0.01
+#define beta 0.1
+
+float twoKp = (2.0f * 5.0f) ;											// 2 * proportional gain (Kp)
+float twoKi = (2.0f * 0.0f) ;											// 2 * integral gain (Ki)
+float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f;	// integral error terms scaled by Ki
 
 void imu_init()
 {
@@ -41,108 +44,109 @@ void imu_MadgwickQuaternionUpdate()
 	float my = fc.mag.vector.y;
 	float mz = fc.mag.vector.z;
 
-	float q1 = fc.imu.quat[0];
-	float q2 = fc.imu.quat[1];
-	float q3 = fc.imu.quat[2];
-	float q4 = fc.imu.quat[3];
+	float q0 = fc.imu.quat[0];
+	float q1 = fc.imu.quat[1];
+	float q2 = fc.imu.quat[2];
+	float q3 = fc.imu.quat[3];
 
-	float norm;
-    float hx, hy, _2bx, _2bz;
-    float s1, s2, s3, s4;
-    float qDot1, qDot2, qDot3, qDot4;
+	float invNorm;
+	float q0q0, q0q1, q0q2, q0q3, q1q1, q1q2, q1q3, q2q2, q2q3, q3q3;
+	float hx, hy, bx, bz;
+	float halfvx, halfvy, halfvz, halfwx, halfwy, halfwz;
+	float halfex, halfey, halfez;
+	float qa, qb, qc;
 
-    // Compute rate of change of quaternion
-    qDot1 = 0.5 * (-q2 * gx - q3 * gy - q4 * gz);
-    qDot2 = 0.5 * (q1 * gx + q3 * gz - q4 * gy);
-    qDot3 = 0.5 * (q1 * gy - q2 * gz + q4 * gx);
-    qDot4 = 0.5 * (q1 * gz + q2 * gy - q3 * gx);
+	bool bUseAccel = fc.acc.total > 0.75 && fc.acc.total < 1.25;
 
-    if (bUseAccel)
-    {
-    	// Auxiliary variables to avoid repeated arithmetic
-    	float _2q1mx;
-    	float _2q1my;
-    	float _2q1mz;
-    	float _2q2mx;
-    	float _4bx;
-    	float _4bz;
-    	float _2q1 = 2.0 * q1;
-    	float _2q2 = 2.0 * q2;
-    	float _2q3 = 2.0 * q3;
-    	float _2q4 = 2.0 * q4;
-    	float _2q1q3 = 2.0 * q1 * q3;
-    	float _2q3q4 = 2.0 * q3 * q4;
-    	float q1q1 = q1 * q1;
-    	float q1q2 = q1 * q2;
-    	float q1q3 = q1 * q3;
-    	float q1q4 = q1 * q4;
-    	float q2q2 = q2 * q2;
-    	float q2q3 = q2 * q3;
-    	float q2q4 = q2 * q4;
-    	float q3q3 = q3 * q3;
-    	float q3q4 = q3 * q4;
-    	float q4q4 = q4 * q4;
+	if(bUseAccel) {
+		// Normalise accelerometer measurement
+		invNorm = 1.0f/sqrt(ax * ax + ay * ay + az * az);
+		ax *= invNorm;
+		ay *= invNorm;
+		az *= invNorm;
 
-    	// Normalise accelerometer measurement
-    	norm = sqrt(ax * ax + ay * ay + az * az);
-    	if (norm == 0.0)
-    		return; // handle NaN
-    	norm = 1.0 / norm;
-    	ax *= norm;
-    	ay *= norm;
-    	az *= norm;
+		// Normalise magnetometer measurement
+		invNorm = 1.0f/sqrt(mx * mx + my * my + mz * mz);
+		mx *= invNorm;
+		my *= invNorm;
+		mz *= invNorm;
 
-    	// Normalise magnetometer measurement
-    	norm = sqrt(mx * mx + my * my + mz * mz);
-    	if (norm == 0.0)
-    		return; // handle NaN
-    	norm = 1.0 / norm;
-    	mx *= norm;
-    	my *= norm;
-    	mz *= norm;
+        // Auxiliary variables to avoid repeated arithmetic
+        q0q0 = q0 * q0;
+        q0q1 = q0 * q1;
+        q0q2 = q0 * q2;
+        q0q3 = q0 * q3;
+        q1q1 = q1 * q1;
+        q1q2 = q1 * q2;
+        q1q3 = q1 * q3;
+        q2q2 = q2 * q2;
+        q2q3 = q2 * q3;
+        q3q3 = q3 * q3;
 
-    	// Reference direction of Earth's magnetic field
-    	_2q1mx = 2.0 * q1 * mx;
-    	_2q1my = 2.0 * q1 * my;
-    	_2q1mz = 2.0 * q1 * mz;
-    	_2q2mx = 2.0 * q2 * mx;
-    	hx = mx * q1q1 - _2q1my * q4 + _2q1mz * q3 + mx * q2q2 + _2q2 * my * q3 + _2q2 * mz * q4 - mx * q3q3 - mx * q4q4;
-    	hy = _2q1mx * q4 + my * q1q1 - _2q1mz * q2 + _2q2mx * q3 - my * q2q2 + my * q3q3 + _2q3 * mz * q4 - my * q4q4;
-    	_2bx = sqrt(hx * hx + hy * hy);
-    	_2bz = -_2q1mx * q3 + _2q1my * q2 + mz * q1q1 + _2q2mx * q4 - mz * q2q2 + _2q3 * my * q4 - mz * q3q3 + mz * q4q4;
-    	_4bx = 2.0 * _2bx;
-    	_4bz = 2.0 * _2bz;
+        // Reference direction of Earth's magnetic field
+        hx = 2.0f * (mx * (0.5f - q2q2 - q3q3) + my * (q1q2 - q0q3) + mz * (q1q3 + q0q2));
+        hy = 2.0f * (mx * (q1q2 + q0q3) + my * (0.5f - q1q1 - q3q3) + mz * (q2q3 - q0q1));
+        bx = sqrt(hx * hx + hy * hy);
+        bz = 2.0f * (mx * (q1q3 - q0q2) + my * (q2q3 + q0q1) + mz * (0.5f - q1q1 - q2q2));
 
-    	// Gradient descent algorithm corrective step
-    	s1 = -_2q3 * (2.0 * q2q4 - _2q1q3 - ax) + _2q2 * (2.0 * q1q2 + _2q3q4 - ay) - _2bz * q3 * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q4 + _2bz * q2) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q3 * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz);
-    	s2 = _2q4 * (2.0 * q2q4 - _2q1q3 - ax) + _2q1 * (2.0 * q1q2 + _2q3q4 - ay) - 4.0 * q2 * (1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + _2bz * q4 * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q3 + _2bz * q1) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q4 - _4bz * q2) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz);
-    	s3 = -_2q1 * (2.0 * q2q4 - _2q1q3 - ax) + _2q4 * (2.0 * q1q2 + _2q3q4 - ay) - 4.0 * q3 * (1.0 - 2.0 * q2q2 - 2.0 * q3q3 - az) + (-_4bx * q3 - _2bz * q1) * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (_2bx * q2 + _2bz * q4) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + (_2bx * q1 - _4bz * q3) * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz);
-    	s4 = _2q2 * (2.0 * q2q4 - _2q1q3 - ax) + _2q3 * (2.0 * q1q2 + _2q3q4 - ay) + (-_4bx * q4 + _2bz * q2) * (_2bx * (0.5 - q3q3 - q4q4) + _2bz * (q2q4 - q1q3) - mx) + (-_2bx * q1 + _2bz * q3) * (_2bx * (q2q3 - q1q4) + _2bz * (q1q2 + q3q4) - my) + _2bx * q2 * (_2bx * (q1q3 + q2q4) + _2bz * (0.5 - q2q2 - q3q3) - mz);
-    	norm = sqrt(s1 * s1 + s2 * s2 + s3 * s3 + s4 * s4);    // normalise step magnitude
-    	norm = 1.0 / norm;
-    	s1 *= norm;
-    	s2 *= norm;
-    	s3 *= norm;
-    	s4 *= norm;
+		// Estimated direction of gravity and magnetic field
+		halfvx = q1q3 - q0q2;
+		halfvy = q0q1 + q2q3;
+		halfvz = q0q0 - 0.5f + q3q3;
+        halfwx = bx * (0.5f - q2q2 - q3q3) + bz * (q1q3 - q0q2);
+        halfwy = bx * (q1q2 - q0q3) + bz * (q0q1 + q2q3);
+        halfwz = bx * (q0q2 + q1q3) + bz * (0.5f - q1q1 - q2q2);
 
-    	// Compute rate of change of quaternion
-    	qDot1 -= beta * s1;
-    	qDot2 -= beta * s2;
-    	qDot3 -= beta * s3;
-    	qDot4 -= beta * s4;
-    }
+		// Error is sum of cross product between estimated direction and measured direction of field vectors
+		halfex = (ay * halfvz - az * halfvy) + (my * halfwz - mz * halfwy);
+		halfey = (az * halfvx - ax * halfvz) + (mz * halfwx - mx * halfwz);
+		halfez = (ax * halfvy - ay * halfvx) + (mx * halfwy - my * halfwx);
 
-    // Integrate to yield quaternion
-    q1 += qDot1 * dt;
-    q2 += qDot2 * dt;
-    q3 += qDot3 * dt;
-    q4 += qDot4 * dt;
-    norm = sqrt( q1 * q1 + q2 * q2 + q3 * q3 + q4 * q4 );    // normalise quaternion
-    norm = 1.0 / norm;
-    fc.imu.quat[0] = q1 * norm;
-    fc.imu.quat[1] = q2 * norm;
-    fc.imu.quat[2] = q3 * norm;
-    fc.imu.quat[3] = q4 * norm;
+		// Compute and apply integral feedback if enabled
+		if(twoKi > 0.0f) {
+			integralFBx += twoKi * halfex * dt;	// integral error scaled by Ki
+			integralFBy += twoKi * halfey * dt;
+			integralFBz += twoKi * halfez * dt;
+			gx += integralFBx;	// apply integral feedback
+			gy += integralFBy;
+			gz += integralFBz;
+		}
+		else {
+			integralFBx = 0.0f;	// prevent integral windup
+			integralFBy = 0.0f;
+			integralFBz = 0.0f;
+		}
+
+		// Apply proportional feedback
+		gx += twoKp * halfex;
+		gy += twoKp * halfey;
+		gz += twoKp * halfez;
+	}
+
+	// Integrate rate of change of quaternion
+	gx *= (0.5f * dt);		// pre-multiply common factors
+	gy *= (0.5f * dt);
+	gz *= (0.5f * dt);
+	qa = q0;
+	qb = q1;
+	qc = q2;
+	q0 += (-qb * gx - qc * gy - q3 * gz);
+	q1 += (qa * gx + qc * gz - q3 * gy);
+	q2 += (qa * gy - qb * gz + q3 * gx);
+	q3 += (qa * gz + qb * gy - qc * gx);
+
+	// Normalise quaternion
+	invNorm = 1.0f/sqrt(q0 * q0 + q1 * q1 + q2 * q2 + q3 * q3);
+	q0 *= invNorm;
+	q1 *= invNorm;
+	q2 *= invNorm;
+	q3 *= invNorm;
+
+
+    fc.imu.quat[0] = q0;
+    fc.imu.quat[1] = q1;
+    fc.imu.quat[2] = q2;
+    fc.imu.quat[3] = q3;
 
 }
 
@@ -151,24 +155,74 @@ float imu_GravityCompensatedAccel(float ax, float ay, float az, volatile float* 
 {
 	float za;
 	za = 2.0*(q[1]*q[3] - q[0]*q[2])*ax + 2.0*(q[0]*q[1] + q[2]*q[3])*ay + (q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3])*az - 1.0;
-	return za;
-    }
+	return za * 9.81f;
+}
+
+#include "../../debug_on.h"
+
+uint8_t cnt;
+
+void imu_debug()
+{
+    cnt = (cnt + 1) % 5;
+    if (cnt != 0)
+    	return;
+
+	#define _180_DIV_PI         57.2957795f
+
+	float q0 = fc.imu.quat[0];
+	float q1 = fc.imu.quat[1];
+	float q2 = fc.imu.quat[2];
+	float q3 = fc.imu.quat[3];
+
+	float sinr_cosp = +2.0 * (q0 * q1 + q2 * q3);
+	float cosr_cosp = +1.0 - 2.0 * (q1 * q1 + q2 * q2);
+	float roll = atan2(sinr_cosp, cosr_cosp);
+
+	float pitch;
+
+	// pitch (y-axis rotation)
+	float sinp = +2.0 * (q0 * q2 - q3 * q1);
+	if (fabs(sinp) >= 1)
+		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	else
+		pitch = asin(sinp);
+
+	// yaw (z-axis rotation)
+	float siny_cosp = +2.0 * (q0 * q3 + q1 * q2);
+	float cosy_cosp = +1.0 - 2.0 * (q2 * q2 + q3 * q3);
+	float yaw = atan2(siny_cosp, cosy_cosp);
+
+	yaw *= _180_DIV_PI;
+	pitch *= _180_DIV_PI;
+	roll *= _180_DIV_PI;
+
+//	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
+
+//	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;"
+//				, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
+//				, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
+//				, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
+
+   	DEBUG("%0.1f;%0.1f;%0.1f;", yaw, pitch, roll);
+
+   	DEBUG("%0.3f;", fc.acc.zGCA);
+   	DEBUG("\n");
+}
 
 void imu_step()
 {
 
-	//DEBUG("#QTN# % 03.3f % 03.3f % 03.3f % 03.3f\n", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 
-	/*DEBUG("#AGM# % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f % 011.5f\n"
-			, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
-			, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
-			, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
-	 */
+//	DEBUG("GYRO: %7d %7d %7d\n", fc.gyro.raw.x, fc.gyro.raw.y, fc.gyro.raw.z);
+//	DEBUG("ACC: %7d %7d %7d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
+//	DEBUG("MAG: %7d %7d %7d\n", fc.mag.raw.x, fc.mag.raw.y, fc.mag.raw.z);
+
 
 	imu_MadgwickQuaternionUpdate();
 	fc.acc.zGCA = imu_GravityCompensatedAccel(fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z, fc.imu.quat );
 
-	//DEBUG("#VERT_ACC# % 05.2f\n",fc.acc.zGCA);
+//	imu_debug();
 }
 
 

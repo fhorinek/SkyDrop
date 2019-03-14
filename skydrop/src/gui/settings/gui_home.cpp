@@ -66,7 +66,6 @@ void gui_home_action(uint8_t index)
 				gui_filemanager_level = 0;
 				gui_filemanager_set_tasks(GUI_WAYPOINTDETAIL, GUI_HOME);
 				gui_switch_task(GUI_FILEMANAGER);
-
 		break;
 
 	}

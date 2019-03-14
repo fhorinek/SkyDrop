@@ -22,7 +22,7 @@ void widget_compass_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	y += lh / 2;
 
-	int16_t relative_direction = - int(fc.compass.azimuth);
+	int16_t relative_direction = int(fc.compass.azimuth);
 
 	widget_arrow(relative_direction, x, y, w, h);
 }

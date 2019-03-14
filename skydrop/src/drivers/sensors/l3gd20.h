@@ -13,7 +13,7 @@
 #define L3G_ADDRESS	0x6B
 #define L3G_ID		0b11010100
 
-#define L3GD20_FIFO_TRESHOLD 16
+#define L3GD20_GYRO_FIFO_TRESHOLD 7
 
 class L3gd20;
 

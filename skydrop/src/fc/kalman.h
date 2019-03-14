@@ -1,42 +1,77 @@
-/*
- * kalman.h
+/**
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <robin.lilja@gmail.com> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return. - Robin Lilja
  *
- *  Created on: Mar 2, 2017
+ * @file altitude_kf.h
+ * @author Robin Lilja
+ * @date 23 Jul 2015
  */
 
-#ifndef FC_KALMAN_H_
-#define FC_KALMAN_H_
+#ifndef _ALTITUDE_KF_H_
+#define _ALTITUDE_KF_H_
 
+/**
+ * A linear Kalman filter estimator of altitude and vertical velocity.
+ */
 class KalmanFilter {
+
 public:
 
+	/**
+	 * Constructor.
+	 * @param Q_accel covariance of acceleration input signal (σ^2).
+	 * @param R_altitude covariance of the altitude measurement (σ^2).
+	 */
+	void Configure(float Q_accel, float R_altitude, float alt);
+	void Update_both(float altitude, float accel, float * h, float * v);
+	void Reset(float alt);
 
-	float z_;  		// position
-	float v_;  		// velocity
-	float aBias_; 	// acceleration
+	/**
+	 * Propagate the state.
+	 * @param acceleration vertical acceleration in Earth frame (positive in the zenith direction) [m/s^2].
+	 * @param dt update/sampling period [s].
+	 */
+	void propagate(float acceleration);
 
-    float zAccelBiasVariance_; 	// assumed fixed.
-	float zAccelVariance_;  	// dynamic acceleration variance
-	float zVariance_; 			//  z measurement noise variance fixed
+	/**
+	 * State correction update. Use this method if you use multiple sensors measuring the altitude.
+	 * @param altitude measurement of altitude in Earth frame (positive in the zenith direction) [m].
+	 */
+	void update(float altitude);
 
-	// 3x3 State Covariance matrix
-	float Pzz_;
-	float Pzv_;
-	float Pza_;
-	float Pvz_;
-	float Pvv_;
-	float Pva_;
-	float Paz_;
-	float Pav_;
-	float Paa_;
+	/**
+	 * Estimated vertical height or altitude in Earth frame (positive in the zenith direction) [m].
+	 */
+	float h;
 
-    KalmanFilter();
-    void Configure(float zVariance, float zAccelVariance, float zAccelBiasVariance, float zInitial, float vInitial, float aBiasInitial);
-    void Update(float z, float a, float dt, float* pZ, float* pV);
+	/**
+	 * Estimated vertical velocity (positive in the zenith direction) [m/s].
+	 */
+	float v;
 
-    void Reset(float abs_value);
+	/**
+	 * Accelerometer covariance.
+	 */
+	float Q_accel;
+
+	/**
+	 * Altitude measurement covariance.
+	 */
+	float R_altitude;
+
+private:
+
+	/**
+	 * Predicted covariance matrix 'P'.
+	 */
+	float P[2][2] =
+	{
+		{ 1.0f,     0.0f },
+		{ 0.0f,     1.0f }
+	};
+
 };
 
-
-
-#endif /* FC_KALMAN_H_ */
+#endif /* _ALTITUDE_KF_H_ */

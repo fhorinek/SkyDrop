@@ -17,7 +17,7 @@
 #define SENSOR_TO_COMPASS_OFFSET 90.0
 #define LPF_Beta 0.75
 
-float atan2(float x, float y)
+float compass_atan2(float x, float y)
 {	// calculates atan2, returns: angle in deg, range < 0 ; 360 ), max error 0.162 deg
 	if(x < 0 and y == 0)   	return 270.0;
     if(x > 0 and y == 0)   	return 90.0;
@@ -50,46 +50,40 @@ void compass_init()
 }
 
 
-
 void compass_calc()
 {
 
 	float quat[] = { fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3] };
-	//float pitch;
-	//float roll;
-	float yaw;
+	float azimut = 0;
 
+	if (abs(fc.acc.vector.y + fc.acc.vector.z) * 2 < abs(fc.acc.vector.x)) //riser position
+	{
+		//roll
+		float a31 =   2.0f * (quat[0] * quat[1] + quat[2] * quat[3]);
+		float a33 =   quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2] + quat[3] * quat[3];
+
+		azimut = compass_atan2(a31, a33);
+	}
+
+	//yaw
 	float a12 =   2.0f * (quat[1] * quat[2] + quat[0] * quat[3]);
-    float a22 =   quat[0] * quat[0] + quat[1] *quat [1] - quat[2] * quat[2] - quat[3] * quat[3];
-    //float a31 =   2.0f * (quat[0] * quat[1] + quat[2] * quat[3]);
-    //float a32 =   2.0f * (quat[1] * quat[3] - quat[0] * quat[2]);
-    //float a33 =   quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2] + quat[3] * quat[3];
+	float a22 =   quat[0] * quat[0] + quat[1] *quat [1] - quat[2] * quat[2] - quat[3] * quat[3];
 
-    //pitch = radiansToDegrees(asinf(a32));
-    //yaw   = radiansToDegrees(atan2f(a12, a22));
-    yaw   = atan2(a12, a22);
-    //roll  = radiansToDegrees(-atan2f(a31, a33));
+	azimut -= compass_atan2(a12, a22);
 
-    yaw += fc.compass.declination + SENSOR_TO_COMPASS_OFFSET;
+    azimut += fc.compass.declination;
 
     if( config.gui.disp_flags & CFG_DISP_FLIP ) //correction when device is flipped
-    	yaw += 180.0;
+    	azimut += 180.0;
 
-    yaw = -yaw;
+    while(azimut > 360.0)
+    	azimut -= 360.0;
+    while(azimut < 0.0)
+    	azimut += 360.0;
 
+    fc.compass.azimuth_filtered = fc.compass.azimuth_filtered - (LPF_Beta * (fc.compass.azimuth_filtered - azimut));
 
-    while(yaw > 360.0)
-    	yaw -= 360.0;
-    while(yaw < 0.0)
-    	yaw += 360.0;
-
-
-    fc.compass.azimuth_filtered = fc.compass.azimuth_filtered - (LPF_Beta * (fc.compass.azimuth_filtered - yaw));
-
-    fc.compass.azimuth = yaw;
-
-    //DEBUG("Compass: p %f r %f y %f\n", pitch, roll, -yaw);
-
+    fc.compass.azimuth = azimut;
 }
 
 void compass_step()

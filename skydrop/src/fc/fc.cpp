@@ -1,3 +1,4 @@
+#include <fc/kalman.h.bak>
 #include "fc.h"
 
 #include "../drivers/sensors/devices.h"
@@ -5,7 +6,6 @@
 #include "../drivers/audio/audio.h"
 #include "../drivers/audio/sequencer.h"
 
-#include "kalman.h"
 #include "vario.h"
 #include "agl.h"
 #include "odometer.h"
@@ -147,7 +147,7 @@ void fc_init()
 
 	lsm_cfg.enabled = true;
 	lsm_cfg.accOdr = lsm_acc_1600Hz;
-	lsm_cfg.accScale = lsm_acc_16g;
+	lsm_cfg.accScale = lsm_acc_8g;
 
 	lsm_cfg.magOdr = lsm_mag_100Hz;
 	lsm_cfg.magScale = lsm_mag_4g;
@@ -322,8 +322,11 @@ ISR(FC_MEAS_TIMER_CMPA)
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.mag.raw.x = x;
-		fc.mag.raw.y = y;
+//		fc.mag.raw.x = x;
+//		fc.mag.raw.y = y;
+//		fc.mag.raw.z = -z;
+		fc.mag.raw.x = -y;
+		fc.mag.raw.y = x;
 		fc.mag.raw.z = -z;
 	}
 
@@ -359,9 +362,12 @@ ISR(FC_MEAS_TIMER_CMPB)
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.acc.raw.x = x;
-		fc.acc.raw.y = y;
-		fc.acc.raw.z = z;
+//		fc.acc.raw.x = x;
+//		fc.acc.raw.y = y;
+//		fc.acc.raw.z = z;
+		fc.acc.raw.x = y;
+		fc.acc.raw.y = -x;
+		fc.acc.raw.z = -z;
 	}
 
 	acc_calc_vector(); //calculate actual acceleration as vector
@@ -394,8 +400,11 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.gyro.raw.x = x;
-		fc.gyro.raw.y = y;
+//		fc.gyro.raw.x = x;
+//		fc.gyro.raw.y = y;
+//		fc.gyro.raw.z = z;
+		fc.gyro.raw.x = -y;
+		fc.gyro.raw.y = x;
 		fc.gyro.raw.z = z;
 	}
 
@@ -438,6 +447,7 @@ ISR(FC_MEAS_TIMER_CMPC)
 //	DEBUG(";%d;%d;%d", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
 //	DEBUG(";%0.0f\n", ms5611.pressure);
 
+	gyro_calc_vector();
 	imu_step();
 
 	BT_ALLOW_TX
