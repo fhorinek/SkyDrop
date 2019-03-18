@@ -1,3 +1,16 @@
+Build 4240 - 18. 03. 2019
+========================================================
+FIX:
+ * USB timing bug #366
+ * "Jumpy" vario value #351
+ * GPS Heading invalid value protection
+
+CHANGED:
+ * IMU and Kalman code replaced 
+ * Default sensor calibration values
+
+NOTE:
+ * Need to redo sensor calibration
 
 Build 4084 - 25. 02. 2019
 ========================================================

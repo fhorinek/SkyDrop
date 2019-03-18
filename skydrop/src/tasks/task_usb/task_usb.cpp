@@ -67,8 +67,6 @@ void task_usb_init()
 	gui_switch_task(GUI_USB);
 }
 
-#define RCOSC32MA_offset 0x04
-#define RCOSC32M_offset 0x03
 
 void task_usb_stop()
 {
@@ -82,7 +80,7 @@ void task_usb_stop()
 
 	//Read calibration from signature row
 	DFLLRC32M.CALA = SP_ReadCalibrationByte(PROD_SIGNATURES_START + RCOSC32MA_offset);
-	DFLLRC32M.CALB = SP_ReadCalibrationByte(PROD_SIGNATURES_START + RCOSC32M_offset);
+	DFLLRC32M.CALB = SP_ReadCalibrationByte(PROD_SIGNATURES_START + RCOSC32MB_offset);
 
 	//Start 32MHz OSC
 	assert(XMEGACLK_StartInternalOscillator(CLOCK_SRC_INT_RC32MHZ));
@@ -119,6 +117,7 @@ void task_usb_loop()
 	if (task_usb_gui_timer < task_get_ms_tick())
 	{
 		gui_loop();
+		task_usb_gui_timer = task_get_ms_tick() + 100;
 	}
 
 	uint32_t start = task_get_ms_tick_once();

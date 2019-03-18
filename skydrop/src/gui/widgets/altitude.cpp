@@ -1,5 +1,5 @@
-#include <fc/kalman.h.bak>
 #include "altitude.h"
+#include "../../fc/kalman.h"
 
 
 void widget_alt_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t index)

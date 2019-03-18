@@ -155,7 +155,8 @@ float imu_GravityCompensatedAccel(float ax, float ay, float az, volatile float* 
 {
 	float za;
 	za = 2.0*(q[1]*q[3] - q[0]*q[2])*ax + 2.0*(q[0]*q[1] + q[2]*q[3])*ay + (q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3])*az - 1.0;
-	return za * 9.81f;
+
+	return (abs(za) < 0.1) ? 0 : za * 9.81f;
 }
 
 #include "../../debug_on.h"
@@ -199,6 +200,11 @@ void imu_debug()
 
 //	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
 
+//	DEBUG("GYRO: %7d %7d %7d\n", fc.gyro.raw.x, fc.gyro.raw.y, fc.gyro.raw.z);
+//	DEBUG("ACC: %7d %7d %7d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
+//	DEBUG("MAG: %7d %7d %7d\n", fc.mag.raw.x, fc.mag.raw.y, fc.mag.raw.z);
+
+
 //	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;"
 //				, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
 //				, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
@@ -212,13 +218,6 @@ void imu_debug()
 
 void imu_step()
 {
-
-
-//	DEBUG("GYRO: %7d %7d %7d\n", fc.gyro.raw.x, fc.gyro.raw.y, fc.gyro.raw.z);
-//	DEBUG("ACC: %7d %7d %7d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
-//	DEBUG("MAG: %7d %7d %7d\n", fc.mag.raw.x, fc.mag.raw.y, fc.mag.raw.z);
-
-
 	imu_MadgwickQuaternionUpdate();
 	fc.acc.zGCA = imu_GravityCompensatedAccel(fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z, fc.imu.quat );
 

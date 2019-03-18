@@ -10,6 +10,7 @@
  */
 
 #include "kalman.h"
+#include "../debug_on.h"
 
 void KalmanFilter::Configure(float Q_accel, float R_altitude, float alt)
 {
@@ -105,8 +106,9 @@ void KalmanFilter::update(float altitude)
 	float Sinv = 1.0f / (P[0][0] + R_altitude);
 
 	// Calculate the Kalman gain
-	float K[2] =
-	{ P[0][0] * Sinv, P[1][0] * Sinv };
+	float K[2] = {
+			P[0][0] * Sinv,
+			P[1][0] * Sinv };
 
 	// Update the state estimate
 	h += K[0] * y;
@@ -127,11 +129,16 @@ void KalmanFilter::update(float altitude)
 	P[1][1] = P[1][1] - (K[1] * P[0][1]);
 }
 
-void KalmanFilter::Update_both(float altitude, float accel, float * h, float * v)
+void KalmanFilter::Update_Propagate(float altitude, float accel, float * h, float * v)
 {
     this->update(altitude);
     this->propagate(accel);
 
     *h = this->h;
     *v = this->v;
+}
+
+void KalmanFilter::Debug()
+{
+	DEBUG("P;%0.3f;%0.3f;%0.3f;%0.3f\n", this->P[0][0], this->P[0][1], this->P[1][0], this->P[1][1]);
 }

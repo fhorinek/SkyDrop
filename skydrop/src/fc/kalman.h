@@ -12,6 +12,8 @@
 #ifndef _ALTITUDE_KF_H_
 #define _ALTITUDE_KF_H_
 
+#include "../common.h"
+
 /**
  * A linear Kalman filter estimator of altitude and vertical velocity.
  */
@@ -25,8 +27,9 @@ public:
 	 * @param R_altitude covariance of the altitude measurement (σ^2).
 	 */
 	void Configure(float Q_accel, float R_altitude, float alt);
-	void Update_both(float altitude, float accel, float * h, float * v);
+	void Update_Propagate(float altitude, float accel, float * h, float * v);
 	void Reset(float alt);
+	void Debug();
 
 	/**
 	 * Propagate the state.
@@ -68,8 +71,8 @@ private:
 	 */
 	float P[2][2] =
 	{
-		{ 1.0f,     0.0f },
-		{ 0.0f,     1.0f }
+		{ 1.0f, 0.0f },
+		{ 0.0f, 1.0f }
 	};
 
 };

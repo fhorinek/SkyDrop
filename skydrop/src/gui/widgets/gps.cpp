@@ -6,7 +6,7 @@ void widget_ghdg_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 
 	char tmp[5];
 	if (fc.gps_data.valid)
-		sprintf_P(tmp, PSTR("%0.0f"), fc.gps_data.heading);
+		sprintf_P(tmp, PSTR("%u"), fc.gps_data.heading);
 	else
 		strcpy_P(tmp, PSTR("---"));
 
