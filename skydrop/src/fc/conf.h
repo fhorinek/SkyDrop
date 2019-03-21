@@ -276,10 +276,7 @@ struct debug_info
 };
 
 //0xFF or 0b11111111 is default value
-#define CALIB_ACC_NOT_DONE		0b00000001
-#define CALIB_MAG_NOT_DONE		0b00000010
-#define CALIB_GYRO_NOT_DONE		0b00000100
-#define CALIB_COMPASS_NOT_DONE	0b00001000
+#define CALIB_DEFAULT_LOADED	0x12	//if you need to replace calibration defaults, increase this number
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
@@ -313,7 +310,9 @@ struct cfg_ro_t
 
 	uint32_t total_flight_time;		//+59		4
 
-	uint8_t reserved[70];			//+63		64
+	int16_t baro_offset;			//+61		2
+
+	uint8_t reserved[70];			//+63		62
 };
 
 //configuration in RAM

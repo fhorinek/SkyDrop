@@ -65,11 +65,12 @@ void gui_gyro_calib_loop()
 		gui_gyro_calib.bias.z += (float) fc.gyro.raw.z;
 		gui_gyro_calib.wait_cnt += 1;
 	}
-	else if(gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES))
+	else if(gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES + 1))
 	{
 		gui_gyro_calib.bias.x /= (float) N_OF_SAMPLES;
 		gui_gyro_calib.bias.y /= (float) N_OF_SAMPLES;
 		gui_gyro_calib.bias.z /= (float) N_OF_SAMPLES;
+		gui_gyro_calib.wait_cnt += 1;
 	}
 
 	//draw frame
@@ -85,7 +86,7 @@ void gui_gyro_calib_loop()
 	disp.LoadFont(F_TEXT_S);
 	gui_raligh_text_P(PSTR("back"), GUI_DISP_WIDTH - 2, GUI_DIALOG_BOTTOM - 4);
 
-	if(gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES +1))
+	if(gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES + 2))
 	{	//if complete
 
 		//add menu option
@@ -107,7 +108,7 @@ void gui_gyro_calib_irqh(uint8_t type, uint8_t * buff)
 	if (*buff == BE_LONG && type == B_MIDDLE)
 		gui_switch_task(GUI_SET_CALIB);
 
-	if (*buff == BE_CLICK && type == B_MIDDLE && (gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES +1)))
+	if (*buff == BE_CLICK && type == B_MIDDLE && (gui_gyro_calib.wait_cnt == (WAIT_TIME + N_OF_SAMPLES + 2)))
 	{	//if calibration is done
 
 		//apply new settings

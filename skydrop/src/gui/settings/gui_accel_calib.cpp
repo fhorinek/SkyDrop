@@ -45,17 +45,16 @@ struct acc_calib_t
 };
 
 
-//#define treshold_percent	90.0
-#define treshold_lo  		0.70 * default1G
+#define default1G			4000
+#define treshold_lo  		(0.50 * default1G)
 //#define treshold_hi  		1.10 * default1G
-#define default1G			1300
 
 #define avg_weight_calc 	10		//averaging, weight of old samples - getting values for calculation of bias and sensitivity
 #define avg_weight_flow 	5		//averaging, weight of old samples - decision which axis will be set
 #define LPF_beta 			0.05	//low pass filter setting, for values shown at point of decision
 
 #define calib_samples		100		//n of samples collected for calculating accel calibration
-#define max_err				150		//max variance between samples
+#define max_err				350		//max variance between samples
 
 acc_calib_t gui_acc_calib;
 

@@ -39,6 +39,9 @@
 
 #define BUFFER_SIZE	64
 
+#define RCOSC32MA_offset 0x04
+#define RCOSC32MB_offset 0x03
+
 #ifdef abs
 #undef abs
 #endif

@@ -1,156 +1,144 @@
-/*
- * kalman.cpp
+/**
+ * "THE BEER-WARE LICENSE" (Revision 42):
+ * <robin.lilja@gmail.com> wrote this file. As long as you retain this notice you
+ * can do whatever you want with this stuff. If we meet some day, and you think
+ * this stuff is worth it, you can buy me a beer in return. - Robin Lilja
  *
- *  Created on: Mar 2, 2017
+ * @file altitude_kf.cpp
+ * @author Robin Lilja
+ * @date 23 Jul 2015
  */
 
-
-
-
-#include "common.h"
-#include <math.h>
 #include "kalman.h"
+#include "../debug_on.h"
 
-// Tracks the position z and velocity v of an object moving in a straight line,
-// (here assumed to be vertical) that is perturbed by random accelerations.
-// sensor measurement of z is assumed to have constant measurement noise
-// variance zVariance,
-// This can be calculated offline for the specific sensor, and is supplied
-// as an initialization parameter.
-
-KalmanFilter::KalmanFilter()
+void KalmanFilter::Configure(float Q_accel, float R_altitude, float alt)
 {
+	this->Q_accel = Q_accel;
+	this->R_altitude = R_altitude;
 
+	h = alt;
+	v = 0.0f;
 }
 
-
-void KalmanFilter::Reset(float abs_value)
+void KalmanFilter::Reset(float alt)
 {
-	z_ = abs_value;
-//	v_ = 0.0;
-//	aBias_ = 0.0;
-//	Pzz_ = 1.0f;
-//	Pzv_ = 0.0f;
-//	Pza_ = 0.0f;
-//
-//	Pvz_ = 0.0f;
-//	Pvv_ = 1.0f;
-//	Pva_ = 0.0f;
-//
-//	Paz_ = 0.0f;
-//	Pav_ = 0.0;
-//	//Paa_ = 100000.0f;
-//	Paa_ = 1.0e10f;
+	h = alt;
 }
 
-
-void KalmanFilter::Configure(float zVariance, float zAccelVariance, float zAccelBiasVariance, float zInitial, float vInitial, float aBiasInitial)
+void KalmanFilter::propagate(float acceleration)
 {
-	zAccelVariance_ = zAccelVariance;
-    zAccelBiasVariance_ = zAccelBiasVariance;
-	zVariance_ = zVariance;
+	// Repeated arithmetics
+	#define dt 0.01f
+	#define _dtdt (dt * dt)
 
-	z_ = zInitial;
-	v_ = vInitial;
-	aBias_ = aBiasInitial;
-	Pzz_ = 1.0f;
-	Pzv_ = 0.0f;
-	Pza_ = 0.0f;
+	// The state vector is defined as x = [h v]' where  'h' is altitude above ground and 'v' velocity, both
+	// aligned with the vertical direction of the Earth NED frame, but positive direction being upwards to zenith.
 
-	Pvz_ = 0.0f;
-	Pvv_ = 1.0f;
-	Pva_ = 0.0f;
+	// State-space system model 'x_k = A*x_k-1 + B*u_k is given by:
+	//
+	//	x_k = [ h_k ] = [ 1 dT ] * [ h_k-1 ] + [ 1/2*dT^2 ] * u_k
+	//  	      [ v_k ]   [ 0  1 ]   [ v_k-1 ]   [ dT       ]
+	//
+	//			   A			     B
+	//
+	// where 'u_k' is our acceleration input signal.
 
-	Paz_ = 0.0f;
-	Pav_ = 0.0;
-	//Paa_ = 100000.0f;
-	Paa_ = 1.0e10f;
-	}
+	// Propagation of the state (equation of motion) by Euler integration
+	h = h + v * dt + 0.5f * acceleration * _dtdt;
+	v = v + acceleration * dt;
 
+	// The "a priori" state estimate error covariance 'P_k|k-1 = A * P_k-1 * A' + Q_k' is calculated as follows:
+	//
+	// P_k|k-1 = [ 1 dT ] * P_k-1 * [  1 0 ] + Q_k
+	//	     [ 0  1 ]	        [ dT 1 ]
 
-// Updates state given a sensor measurement of z, acceleration a,
-// and the time in seconds dt since the last measurement.
-// 19uS on Navspark @81.84MHz
-void KalmanFilter::Update(float z, float a, float dt, float* pZ, float* pV)
-{
+	// The process noise covariance matrix 'Q' is a bit trickier to derive, but consider some additive noise 'w_k' perturbing the
+	// true acceleration 'a_k', thus the input signal is 'u_k = a_k + w_k'. The affect of 'w_k' on the state estimate is by linearity
+	// described by [1/2*dT^2 dT]' i.e. the input matrix 'B'. We call this new matrix 'G'.
+	//
+	// Then, by definition* 'Q' equals 'G * G' * σ^2', which in our case translates into:
+	//
+	// Q_k = G_k * G'_k * σ_accelerometer^2 = [(dT^4)/4 (dT^3)/2] * σ_accelerometer^2
+	//					  [(dT^3)/2     dT^2]
+	//
+	// * I only get half of the math showing 'Q = G * G' * σ^2', so I hide myself behind 'by definition'.
 
-	// Predict state
-    float accel = a - aBias_;
-	v_ += accel * dt;
-	z_ += v_ * dt;
-
-    zAccelVariance_ = fabs(accel)/50.0f;
-    zAccelVariance_ = CLAMP(zAccelVariance_, 1.0f, 50.0f);
-
-    // Predict State Covariance matrix
-	float t00,t01,t02;
-    float t10,t11,t12;
-    float t20,t21,t22;
-
-    float dt2div2 = dt*dt/2.0f;
-    float dt3div2 = dt2div2*dt;
-    float dt4div4 = dt2div2*dt2div2;
-
-	t00 = Pzz_ + dt*Pvz_ - dt2div2*Paz_;
-	t01 = Pzv_ + dt*Pvv_ - dt2div2*Pav_;
-	t02 = Pza_ + dt*Pva_ - dt2div2*Paa_;
-
-	t10 = Pvz_ - dt*Paz_;
-	t11 = Pvv_ - dt*Pav_;
-	t12 = Pva_ - dt*Paa_;
-
-	t20 = Paz_;
-	t21 = Pav_;
-	t22 = Paa_;
-
-	Pzz_ = t00 + dt*t01 - dt2div2*t02;
-	Pzv_ = t01 - dt*t02;
-	Pza_ = t02;
-
-	Pvz_ = t10 + dt*t11 - dt2div2*t12;
-	Pvv_ = t11 - dt*t12;
-	Pva_ = t12;
-
-	Paz_ = t20 + dt*t21 - dt2div2*t22;
-	Pav_ = t21 - dt*t22;
-	Paa_ = t22;
-
-    Pzz_ += dt4div4*zAccelVariance_;
-    Pzv_ += dt3div2*zAccelVariance_;
-
-    Pvz_ += dt3div2*zAccelVariance_;
-    Pvv_ += dt*dt*zAccelVariance_;
-
-    Paa_ += zAccelBiasVariance_;
-
-	// Error
-	float innov = z - z_;
-	float sInv = 1.0f / (Pzz_ + zVariance_);
-
-    // Kalman gains
-	float kz = Pzz_ * sInv;
-	float kv = Pvz_ * sInv;
-	float ka = Paz_ * sInv;
-
-	// Update state
-	z_ += kz * innov;
-	v_ += kv * innov;
-	aBias_ += ka * innov;
-
-	*pZ = z_;
-	*pV = v_;
-
-	// Update state covariance matrix
-	Pzz_ -= kz * Pzz_;
-	Pzv_ -= kz * Pzv_;
-	Pza_ -= kz * Pza_;
-
-	Pvz_ -= kv * Pzz_;
-	Pvv_ -= kv * Pzv_;
-	Pva_ -= kv * Pza_;
-
-	Paz_ -= ka * Pzz_;
-	Pav_ -= ka * Pzv_;
-	Paa_ -= ka * Pza_;
+	// Calculate the state estimate covariance
+	//
+	// Repeated arithmetics
+	float _Q_accel_dtdt = Q_accel * _dtdt;
+	//
+	P[0][0] = P[0][0]
+			+ (P[1][0] + P[0][1] + (P[1][1] + 0.25f * _Q_accel_dtdt) * dt) * dt;
+	P[0][1] = P[0][1] + (P[1][1] + 0.5f * _Q_accel_dtdt) * dt;
+	P[1][0] = P[1][0] + (P[1][1] + 0.5f * _Q_accel_dtdt) * dt;
+	P[1][1] = P[1][1] + _Q_accel_dtdt;
 }
 
+void KalmanFilter::update(float altitude)
+{
+
+	// Observation vector 'zhat' from the current state estimate:
+	//
+	// zhat_k = [ 1 0 ] * [ h_k ]
+	//                    [ v_k ]
+	//             H
+
+	// 'H' is constant, so its time instance I'm using below is a bit ambitious.
+
+	// The innovation (or residual) is given by 'y = z - zhat', where 'z' is the actual observation i.e. measured state.
+
+	// Calculate innovation, in this particular case we observe the altitude state directly by an altitude measurement
+	float y = altitude - h;
+
+	// The innovation covariance is defined as 'S_k = H_k * P_k|k-1 * H'_k + R_k', for this particular case
+	// 'H_k * P_k|k-1 * H'_k' is equal to the first row first column element of 'P_k|k-1' i.e. P_00.
+
+	// The Kalman gain equals 'K_k = P_k|k-1 * H'_k * S_k^-1', where
+	//
+	// P_k|k-1 * H'_k = [ P_00 ]
+	//                  [ P_10 ]
+	//
+	// and 'S_k^-1' equals '1/S_k' since 'S_k^-1' is being a scalar (that is a good thing!).
+
+	// Calculate the inverse of the innovation covariance
+	float Sinv = 1.0f / (P[0][0] + R_altitude);
+
+	// Calculate the Kalman gain
+	float K[2] = {
+			P[0][0] * Sinv,
+			P[1][0] * Sinv };
+
+	// Update the state estimate
+	h += K[0] * y;
+	v += K[1] * y;
+
+	// The "a posteriori" state estimate error covariance equals 'P_k|k = (I - K_k * H_k) * P_k|k-1', where
+	//
+	//  (I - K_k * H_k) = ( [ 1 0 ] - [ K_0 ] * [ 1 0 ] ) = [ (1-K_0) 0  ] , thus
+	//                    ( [ 0 1 ]   [ K_1 ]           )   [ -K_1    1  ]
+	//
+	//  P_k|k = (I - K_k * H_k) * P_k+1|k = [ (1-K_0) 0 ] * [ P_00 P_01 ] = [ (1-K_0)*P_00       (1-K_0)*P_01       ]
+	//					[ -K_1    1 ]   [ P_10 P_11 ]   [ (-K_1*P_00 + P_10) (-K_1*P_01 + P_11) ]
+
+	// Calculate the state estimate covariance
+	P[0][0] = P[0][0] - K[0] * P[0][0];
+	P[0][1] = P[0][1] - K[0] * P[0][1];
+	P[1][0] = P[1][0] - (K[1] * P[0][0]);
+	P[1][1] = P[1][1] - (K[1] * P[0][1]);
+}
+
+void KalmanFilter::Update_Propagate(float altitude, float accel, float * h, float * v)
+{
+    this->update(altitude);
+    this->propagate(accel);
+
+    *h = this->h;
+    *v = this->v;
+}
+
+void KalmanFilter::Debug()
+{
+	DEBUG("P;%0.3f;%0.3f;%0.3f;%0.3f\n", this->P[0][0], this->P[0][1], this->P[1][0], this->P[1][1]);
+}
