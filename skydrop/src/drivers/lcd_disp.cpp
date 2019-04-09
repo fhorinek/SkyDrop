@@ -239,8 +239,9 @@ void lcd_display::Init(Spi * spi)
 void lcd_display::SetContrast(uint8_t val) //0-127
 {
 	sendcommand(0x21); //Extended
-	if (val > 81)
-		val = 81;
+
+	if (val > 127)
+		val = 127;
 
 	sendcommand(0x80 | val);
 	sendcommand(0x20); //Basic
