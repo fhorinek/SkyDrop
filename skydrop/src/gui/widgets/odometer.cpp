@@ -117,7 +117,7 @@ void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 {
 	float distance;
 
-	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid)
+	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid && fc.flight.waypoint_no)
 	{
 		distance = fc.flight.next_waypoint.distance;
 	}
