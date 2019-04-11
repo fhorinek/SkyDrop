@@ -525,6 +525,11 @@
                 ["WIDGET_HOME_TIME", "Time to home"],
                 ["WIDGET_HOME_INFO", "Home info"],
 
+                ["WIDGET_WAYPOINT_ARROW", "Waypoint Arrow"],
+                ["WIDGET_WAYPOINT_DISTANCE", "Waypoint Distance"],
+                ["WIDGET_WAYPOINT_TIME", "Waypoint Time"],
+                ["WIDGET_WAYPOINT_INFO", "Waypoint Info"],
+
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
                 ["WIDGET_WIND_DIR_POINTS", "Wind direction points"],
@@ -914,7 +919,7 @@
             "name": "Home Information",
             "desc": "Displaying additional home information",
             "label": "Home info",
-            "value": "<Load>"
+            "value": "Load"
         },        
         "WIDGET_COMPASS": 
         {
@@ -938,6 +943,37 @@
             "desc": "Compas readout as points", 
             "label": "Comp",
             "value": "N"
-        }   
+        },
+        "WIDGET_WAYPOINT_ARROW":
+        {
+            "type": "arrow",
+            "name": "Waypoint Arrow",
+            "desc": "Arrow pointing to next waypoint",
+            "label": "WP"
+        },
+        "WIDGET_WAYPOINT_DISTANCE":
+        {
+            "type": "value",
+            "name": "Waypoint Distance",
+            "desc": "Arrow showing distace to next waypoint",
+            "label": "WP",
+            "value": "32"
+        },
+        "WIDGET_WAYPOINT_TIME":
+        {
+            "type": "value",
+            "name": "Waypoint Time",
+            "desc": "Arrow showing ETA to next waypoint in minutes",
+            "label": "WP",
+            "value": "5"
+        },
+        "WIDGET_WAYPOINT_INFO":
+        {
+            "type": "value",
+            "name": "Waypoint Info",
+            "desc": "Display info about curren waypoint list",
+            "label": "WP",
+            "value": "Load"
+        }
     }
 }            

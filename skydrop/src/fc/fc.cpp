@@ -753,6 +753,7 @@ void fc_step()
 
 //        DEBUG("ach %0.2f\n", fc.flight.avg_heading_change);
 //        DEBUG("tch %d\n", fc.flight.total_heading_change);
+//        DEBUG("cr %d\n", fc.flight.circling);
 	}
 
     if (fc.flight.state == FLIGHT_FLIGHT)

@@ -11,6 +11,11 @@
 
 #include "../debug_on.h"
 
+#include "../drivers/audio/sequencer.h"
+
+MK_SEQ(next_wpt, ARR({750, 0, 1000, 0, 1000, 0}), ARR({250, 150, 250, 150, 250, 150}));
+MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 150}));
+
 /**
  * Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
  * must be given as fixed integers multiplied with GPS_MULT.
@@ -128,13 +133,21 @@ void odometer_step()
 
 		if ( fc.flight.next_waypoint.distance <= 0 )
 		{
+
 			// We reached the waypoint. Go to next.
-			if (!waypoint_goto_next() ) {
+			if (!waypoint_goto_next() )
+			{
 				fc.flight.waypoint_no = 0;
 				fc.flight.next_waypoint.bearing = 0;
 				fc.flight.next_waypoint.distance = 0;
 				fc.flight.next_waypoint.name[0] = 0;
 				gui_showmessage_P(PSTR("Navigation\nfinished."));
+
+				seq_start(&last_wpt, config.gui.alert_volume);
+			}
+			else
+			{
+				seq_start(&next_wpt, config.gui.alert_volume);
 			}
 		}
 

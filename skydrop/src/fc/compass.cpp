@@ -62,14 +62,14 @@ void compass_calc()
 		float a31 =   2.0f * (quat[0] * quat[1] + quat[2] * quat[3]);
 		float a33 =   quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2] + quat[3] * quat[3];
 
-		azimut = compass_atan2(a31, a33);
+		azimut = -compass_atan2(a31, a33);
 	}
 
 	//yaw
 	float a12 =   2.0f * (quat[1] * quat[2] + quat[0] * quat[3]);
 	float a22 =   quat[0] * quat[0] + quat[1] *quat [1] - quat[2] * quat[2] - quat[3] * quat[3];
 
-	azimut -= compass_atan2(a12, a22);
+	azimut += compass_atan2(a12, a22);
 
     azimut += fc.compass.declination;
 
