@@ -72,6 +72,7 @@
 #define FC_GPS_NEW_SAMPLE_ODO			0b00001000
 #define FC_GPS_NEW_SAMPLE_ALT           0b00010000
 #define FC_GPS_NEW_SAMPLE_CIRCLE        0b00100000
+#define FC_GPS_NEW_SAMPLE_AIRSPACE      0b01000000
 
 struct gps_data_t
 {
@@ -264,6 +265,18 @@ struct agl_data_t
 	float ground_gradient;    // the gradient of the current GPS position
 };
 
+struct airspace_data_t
+{
+	bool file_valid;
+
+	char filename[10];        // The filename of the currently opened airspace file
+	int16_t angle;            // The angle out of the airspace or "AGL_INVALID".
+	uint16_t distance_m;      // the distance to the airspace border in meter.
+	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
+	uint16_t max_height_m;    // What is the maximum allowed height to fly?
+};
+
+
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
 
@@ -294,6 +307,8 @@ struct flight_computer_data_t
 
 	agl_data_t agl;
 
+	airspace_data_t airspace;
+
 	uint32_t odometer;              // in cm gives up to 42.000km
 
 	uint8_t logger_state;           // One of the LOGGER_IDLE, LOGGER_WAIT_FOR_GPS, ...
@@ -301,7 +316,7 @@ struct flight_computer_data_t
 	bool glide_ratio_valid;
 	float glide_ratio;
 
-	float altitude1;
+	float altitude1;                // in meter
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
 	uint8_t altitude_alarm_status;

@@ -1,3 +1,11 @@
+
+Build XXXX - XX. XX. 2019
+========================================================
+ADDED:
+ * First version of CTR handling:
+   - Read AIR files
+   - Widgets: CTR Arrow, CTR distance, CTR height
+
 Build 4251 - 10. 04. 2019
 ========================================================
 ADDED:
@@ -6,12 +14,12 @@ ADDED:
 FIX:
  * Corrected compass heading and compass pints sign 
 
-
 Build 4245 - 09. 04. 2019
 ========================================================
 FIX:
  * Added navigation widgets to configurator
  * Adjusted contrast range
+
 
 Build 4240 - 18. 03. 2019
 ========================================================
