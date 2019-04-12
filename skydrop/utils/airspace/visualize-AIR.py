@@ -142,7 +142,7 @@ def visualize(filename, level):
                 if distance == 255:
                     color = "lightgreen"
 
-            plt.plot(p[0], p[1], '.', color=color)
+            plt.plot(p[0], p[1], '.', color=color, markersize=0.5)
             if height == 0:
                 continue
             
@@ -152,7 +152,7 @@ def visualize(filename, level):
                 plt.text(p[0], p[1], str(minHeight) + "-" + str(height) , fontsize=6, rotation=30, verticalalignment='bottom', horizontalalignment='left')
             
             if distance > 0 and distance <= 255:
-                plt.arrow(p[0], p[1], p2[0] - p[0], p2[1]-p[1], length_includes_head=True, color=color, head_width=0.01, alpha=1.0)
+                plt.arrow(p[0], p[1], p2[0] - p[0], p2[1]-p[1], length_includes_head=True, linewidth=0.3, color=color, head_width=0.007, alpha=1.0)
                 
 if len(sys.argv) == 2:
     visualize(sys.argv[1], 0)
@@ -162,7 +162,11 @@ else:
     print ("Usage: visualize-AIR.py AIR-filename [layernum]")
     sys.exit(1)
     
+plt.title(sys.argv[1])
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.axis('equal')
-plt.show()
+plt.savefig(sys.argv[1] + ".png", dpi=300)
+#plt.show()
+
+

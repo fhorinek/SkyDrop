@@ -536,16 +536,21 @@ def main(argv = None):
             distance = distance_raw * 64
             
             print ("  level", level, "height=" + str(height),"angle(raw)="+str(angle_raw),"distance(raw)="+str(distance_raw)+" angle="+str(angle)+" distance="+str(distance)+inside)
-        sys.exit(0)
-            
+
     count = 0
     if bDraw:
         print ("DRAW")
         for airspace in airspaces:
-            if True or "Stuttgart" in airspace.getName(): 
-                    airspace.draw()
+            airspace.draw()
         plt.plot(boundingBox[0], boundingBox[1], '.', color="black")
         plt.plot(boundingBox[2], boundingBox[3], '.', color="black")
+
+        if checkPoint != None:
+            plt.plot(checkPoint.x, checkPoint.y, 'x', color="red")
+        plt.grid(True)
+
+    if checkPoint != None:
+        sys.exit(0)
         
     try:
         procs = []
