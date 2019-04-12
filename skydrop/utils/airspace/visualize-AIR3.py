@@ -18,6 +18,7 @@ import numpy
 import sys
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrow
 
 import shapely
 import shapely.ops
@@ -90,7 +91,7 @@ def visualize(filename, level):
     print (filename, numPoints, "x", numPoints)
 
     # The number of points to draw on screen for 1 line or row
-    numDrawPoints = 30
+    numDrawPoints = 50
 
     skip = 1/numDrawPoints
     line = 0
@@ -160,6 +161,113 @@ def visualize(filename, level):
             if distance > 0 and distance <= 255:
                 plt.arrow(p[0], p[1], p2[0] - p[0], p2[1]-p[1], length_includes_head=True, linewidth=0.3, color=color, head_width=0.007, alpha=1.0)
                 
+
+def get_point(lat, lon):
+    mul = 10000000
+
+    p = [lon, lat]
+
+    lat = int(lat * mul)
+    lon = int(lon * mul)
+
+    print("(lat, lon)", lat, lon)
+
+    if lat >= 0:
+        lat_c = "N"
+    else:
+        lat_c = "S"
+
+    if lon >= 0:
+        lon_c = "E"
+
+    else:
+        lon_c = "W"
+     
+    lat_n = abs(lat / mul)
+    lon_n = abs(lon / mul)
+
+
+    name = "%c%02u%c%03u.air" % (lat_c, lat_n, lon_c, lon_n)
+
+    print("filename is '%s'" % name)
+
+    if not os.path.exists(name):
+        return
+
+    # each point has "levels" elevation levels
+    levels = 5
+
+    # The size of 1 level in bytes in the file
+    sizeof_level = 4
+    
+    filesize = os.path.getsize(name)
+    f = open(name, "rb")
+
+    # The number of points in 1 line or row in the file
+    numPoints = int(sqrt(filesize / (levels * sizeof_level)))
+
+    x = int((lon % mul) * numPoints / mul)
+    y = int((lat % mul) * numPoints / mul)
+    #print(x, y)
+
+    offset = int((x + numPoints * ((numPoints - y) - 1)) * levels * sizeof_level)
+    
+    #print(offset)
+
+    f.seek(offset, os.SEEK_SET)
+    if offset > filesize:
+        print ("Point", p, "x=", x, "y=", y)
+        print ("Unable to seek to", offset, ". File size is", filesize)
+        sys.exit(1)
+
+    global patch
+    global ax        
+
+    for pt in patch:
+        pt.remove()
+
+    patch = []
+
+    for i in range(levels):    
+        height   = int.from_bytes(f.read(2), 'little', signed=False)
+        angle    = int.from_bytes(f.read(1), 'little', signed=False)
+        distance = int.from_bytes(f.read(1), 'little', signed=False)
+
+        distance_m = distance * 64
+        
+        if height == 0:
+            continue
+        
+        print (p, height, angle, distance)
+        
+        if angle >= 128:
+            forbidden = True
+            angle = angle - 128
+        else:
+            forbidden = False
+
+        angle = angle * 3
+
+        if forbidden:
+            color = "red"
+            if distance == 255:
+                color = "darkred"
+        else:
+            color = "green"
+            angle = angle + 180
+            if distance == 255:
+                color = "lightgreen"
+
+        p2 = displacePoint(p, angle, distance_m)
+
+        lwid = 3 - i * 0.5
+        arrow = FancyArrow(p[0], p[1], p2[0] - p[0], p2[1]-p[1], length_includes_head=True, linewidth=lwid, color=color, head_width=0.007, alpha=1.0)
+           
+        patch.append(ax.add_patch(arrow))
+        
+
+    fig.canvas.draw_idle()
+    print()
 
 airspaces = []
 
@@ -381,24 +489,40 @@ def draw_airspace(pszDataSource):
 
         for airspace in airspaces:
             airspace.draw()
+            
+
+def ev(event):
+    lat = event.ydata
+    lon = event.xdata
+    if lat is None or lon is None:
+        return
+    if event.button == 1:
+        get_point(lat, lon)
 
 level = 0
 path = "."
 
-plt.figure(figsize=(60,30))
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+patch = []
 
 draw_airspace(sys.argv[1])
 
-
+'''
 for file in os.scandir(path):
     if file.name[-4:] == ".air":
         visualize(file.name, level)
+'''
     
+a, = plt.plot([], [])
+a.figure.canvas.mpl_connect('motion_notify_event', ev)
+a.figure.canvas.mpl_connect('button_press_event', ev)
+
 plt.title(sys.argv[1])
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 plt.axis('equal')
-plt.savefig(sys.argv[1] + ".png", dpi=300, bbox_inches='tight')
-#plt.show()
+#plt.savefig(sys.argv[1] + ".png", dpi=300, bbox_inches='tight')
+plt.show()
 
 
