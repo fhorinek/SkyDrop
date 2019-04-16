@@ -13,50 +13,75 @@
       <div class="row">
          <div class="col-md-6">
             <ctrl-panel name="Screen_layout">
-            <div class="row">
-               <div class="col-md-3">
-                  <ctrl item="list['cfg_gui_number_of_pages']"></ctrl>
-               </div>
-               <div class="col-md-5">
-                  <h4>Screen selection</h4>
-                  <nav aria-label="Page navigation" class="auto">
-                     <ul class="pagination">
-                        <li ng-repeat="page in [0, 1, 2, 3, 4, 5, 6, 7]" ng-class="{active: active_page_number == {{page}}}"><a href ng-click="change_page(page)">{{page + 1}}</a></li>
-                     </ul>
-                  </nav>
-               </div>
-               <div class="col-md-3">
-                  <ctrl item="list[active_page_type]"></ctrl>
-               </div>
-            </div>
-            <div id="gui_screen" class="gui_screen crisp" ng-style="screen_style">
-               <widget-slot ng-repeat="slot in slots" ng-model="slot"></widget-slot>
-            </div>
-
-
+                <div class="row">
+                   <div class="col-md-3">
+                      <ctrl item="list['cfg_gui_number_of_pages']"></ctrl>
+                   </div>
+                   <div class="col-md-5">
+                      <h4>Screen selection</h4>
+                      <nav aria-label="Page navigation" class="auto">
+                         <ul class="pagination">
+                            <li ng-repeat="page in [0, 1, 2, 3, 4, 5, 6, 7]" ng-class="{active: active_page_number == {{page}}}"><a href ng-click="change_page(page)">{{page + 1}}</a></li>
+                         </ul>
+                      </nav>
+                   </div>
+                   <div class="col-md-3">
+                      <ctrl item="list[active_page_type]"></ctrl>
+                   </div>
+                </div>
+                <div id="gui_screen" class="gui_screen crisp" ng-style="screen_style">
+                   <widget-slot ng-repeat="slot in slots" ng-model="slot"></widget-slot>
+                </div>
             </ctrl-panel>
+            <ctrl-tabs> 
+                <ctrl-tab name="Automatic_screen_switching" open="0">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <ctrl item="list['cfg_gui_page_mode_0']"></ctrl>
+                        </div>
+                        <div class="col-md-2">
+                            <ctrl item="list['cfg_gui_page_mode_1']"></ctrl>
+                        </div>
+                        <div class="col-md-2">
+                            <ctrl item="list['cfg_gui_page_mode_2']"></ctrl>
+                        </div>
+                        <div class="col-md-2">
+                            <ctrl item="list['cfg_gui_page_mode_3']"></ctrl>
+                        </div>
+                        <div class="col-md-2">
+                            <ctrl item="list['cfg_gui_page_mode_4']"></ctrl>
+                        </div>
+                    </div>
+                    <ctrl item="list['cfg_gui_page_acro_thold']"></ctrl>
+                    <ctrl item="list['cfg_gui_page_cirlcing_thold']"></ctrl>
+                    <ctrl item="list['cfg_gui_page_acro_thold']"></ctrl>
+                </ctrl-tab> 
+            </ctrl-tabs>                            
+            
          </div>
 
          <div class="col-md-6">
-            <ctrl-tabs> <ctrl-tab name="Avalible_widgets" open="1">
-            <div class="widget_menu">
-               <ul class="list-group ">
-                  <li class="list-group-item" ng-repeat="(key, widget) in widgets">
-                     <div class="media">
-                        <div class="media-left">
-                           <div class="widget_shelf">
-                              <widget drag="1" ng-model="widget" key="key"></widget>
-                           </div>
-                        </div>
-                        <div class="media-body">
-                           <h4 class="media-heading">{{widget.name}}</h4>
-                           {{widget.desc}}
-                        </div>
-                     </div>
-                  </li>
-               </ul>
-            </div>
-            </ctrl-tab> </ctrl-tabs>
+            <ctrl-tabs> 
+                <ctrl-tab name="Avalible_widgets" open="1">
+                    <div class="widget_menu">
+                       <ul class="list-group ">
+                          <li class="list-group-item" ng-repeat="(key, widget) in widgets">
+                             <div class="media">
+                                <div class="media-left">
+                                   <div class="widget_shelf">
+                                      <widget drag="1" ng-model="widget" key="key"></widget>
+                                   </div>
+                                </div>
+                                <div class="media-body">
+                                   <h4 class="media-heading">{{widget.name}}</h4>
+                                   {{widget.desc}}
+                                </div>
+                             </div>
+                          </li>
+                       </ul>
+                    </div>
+                </ctrl-tab> 
+            </ctrl-tabs>
          </div>
       </div>
    </div>

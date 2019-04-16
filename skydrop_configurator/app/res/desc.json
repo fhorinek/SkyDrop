@@ -96,7 +96,8 @@
             "name": "Vario Flags",
             "mode": "flags",
             "flags": [
-                ["VARIO_UNITS_I", "Use imperial units"]
+                ["VARIO_UNITS_I", "Use imperial units"],
+                ["VARIO_USE_ACC", "Use accelerometer data"]
             ]
         },    
         "cfg_vario_weak_lift" : {
@@ -404,6 +405,105 @@
                 [128, "Screen 8"]
             ]
         },
+        "cfg_gui_page_acro_thold" : {
+            "name": "Acro screen threshold",
+            "desc": "in dm/s",
+            "mode": "number",
+            "min": -100,
+            "max": 0,
+            "step": 5
+        },        
+        "cfg_gui_page_cirlcing_thold" : {
+            "name": "circling screen threshold",
+            "desc": "in deg/s",
+            "mode": "number",
+            "min": 2,
+            "max": 30,
+            "step": 1
+        },        
+        "cfg_gui_page_circling_average" : {
+            "name": "Circling screen averaging time",
+            "desc": "in sec",
+            "mode": "number",
+            "min": 5,
+            "max": 60,
+            "step": 1
+        },        
+        "cfg_gui_page_mode_0" : {
+            "name": "Prepare",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_1" : {
+            "name": "Circling",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_2" : {
+            "name": "Normal",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_3" : {
+            "name": "Acro",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_4" : {
+            "name": "Landing",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
          "cfg_system_record_screen" : {
             "name": "Record screen",
             "desc": "Do NOT enable, for debug and testing only!",
@@ -623,7 +723,7 @@
             "mode": "bool"
         },        
         "cfg_altitude_alarm_1" : {
-            "name": "First altitude alarm",
+            "name": "First lower altitude alarm",
             "desc": "in meters",
             "mode": "number",
             "min": 0,
@@ -631,13 +731,21 @@
             "step": 5
         },
         "cfg_altitude_alarm_2" : {
-            "name": "Second altitude alarm",
+            "name": "Second lower altitude alarm",
             "desc": "in meters",
             "mode": "number",
             "min": 0,
             "max": 10000,
             "step": 5
         },
+        "cfg_altitude_alarm_h1" : {
+            "name": "First higher altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },        
         "cfg_altitude_alarm_reset" : {
             "name": "Reset alarm confirmation after gaining this height over the alarms",
             "desc": "in meters",
