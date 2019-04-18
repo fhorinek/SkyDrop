@@ -90,7 +90,7 @@ void gui_statusbar();
 #define GUI_DIALOG				21
 #define GUI_SET_BLUETOOTH		22
 #define GUI_UPDATE				23
-#define GUI_SET_WEEKLIFT		24
+#define GUI_SET_VARIO_ADVANCED	24
 #define GUI_SET_AUDIO_MENU		25
 #define GUI_TEXT				26
 #define GUI_SET_ADVANCED		27

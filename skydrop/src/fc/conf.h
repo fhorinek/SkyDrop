@@ -80,8 +80,6 @@ struct cfg_vario
 	float avg_vario_dampening;
 
 	uint8_t flags;
-	uint8_t weak_lift_enabled;
-	uint8_t weak_lift;
 };
 
 struct cfg_altimeter
@@ -105,19 +103,24 @@ struct cfg_altitude
 	uint16_t alarm_reset;
 };
 
+#define AUDIO_FLUID		0b00000001
+#define AUDIO_WEAK		0b00000010
+#define AUDIO_BEEP_SINK	0b00000100
+
 struct cfg_audio_profile
 {
 	uint16_t freq[41];	//in Hz
 	uint16_t pause[41];	//in ms
 	uint16_t length[41];//in ms
 
-	uint16_t weak_lift_freq_low; //in Hz
-	uint16_t weak_lift_freq_high; //in Hz
-
 	int16_t lift;		//in cm
 	int16_t sink;		//in cm
+	int16_t weak;		//in cm
 
-	uint8_t	fluid;		//true/false
+	uint8_t	flags;
+
+	uint8_t prebeep_offset; //in Hz
+	uint8_t prebeep_length; //in ms
 };
 
 #define TIME_DST	0b00000001

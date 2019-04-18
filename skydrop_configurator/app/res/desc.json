@@ -132,11 +132,15 @@
                 ["ALT_UNIT_I", "Use imperial units"]
             ]
         },
-        "cfg_audio_profile_fluid" : {
-            "name": "Fluid Audio",
-            "desc": "Enable fluent frequency change",
-            "mode": "bool"
-        },
+        "cfg_audio_profile_flags" : {
+            "name": "Audio vario flags",
+            "mode": "flags",
+            "flags": [
+                ["AUDIO_FLUID", "Enable fluid frequency change"],
+                ["AUDIO_WEAK", "Enable weak lift"],
+                ["AUDIO_PRE_SINK", "Enable sink beep"]
+            ]
+        }, 
         "cfg_audio_profile_lift" : {
             "name": "Lift treshold",
             "desc": "in cm/s",
@@ -152,6 +156,22 @@
             "min": -2000,
             "max": 2000,
             "step": 10
+        },
+        "cfg_audio_profile_prebeep_offset" : {
+            "name": "Prebeep frequency offset",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 250,
+            "step": 1
+        },
+        "cfg_audio_profile_prebeep_length" : {
+            "name": "Prebeep duration",
+            "desc": "in ms",
+            "mode": "number",
+            "min": 10,
+            "max": 250,
+            "step": 1
         },
         "cfg_connectivity_use_gps" : {
             "name": "Enable GPS",

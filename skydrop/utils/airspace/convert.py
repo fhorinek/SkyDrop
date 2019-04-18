@@ -549,39 +549,39 @@ def main(argv = None):
             plt.plot(checkPoint.x, checkPoint.y, 'x', color="red")
         plt.grid(True)
 
-    if checkPoint != None:
-        sys.exit(0)
-        
-    try:
-        procs = []
-        if latOnly != None and lonOnly != 0:
-            p = multiprocessing.Process(target=dump, args=(lonOnly,latOnly,airspaces, bDraw))
-            procs.append(p)
-        else:
-            for lat in range(int(boundingBox[1])-1,int(boundingBox[3])+2):
-                for lon in range(int(boundingBox[0])-1,int(boundingBox[2])+2):
-                    p = multiprocessing.Process(target=dump, args=(lon,lat,airspaces, bDraw))
-                    procs.append(p)
+    #if checkPoint != None:
+    #    sys.exit(0)
+    if checkPoint == None:   
+        try:
+            procs = []
+            if latOnly != None and lonOnly != 0:
+                p = multiprocessing.Process(target=dump, args=(lonOnly,latOnly,airspaces, bDraw))
+                procs.append(p)
+            else:
+                for lat in range(int(boundingBox[1])-1,int(boundingBox[3])+2):
+                    for lon in range(int(boundingBox[0])-1,int(boundingBox[2])+2):
+                        p = multiprocessing.Process(target=dump, args=(lon,lat,airspaces, bDraw))
+                        procs.append(p)
 
-        running = []
-        parallelism = multiprocessing.cpu_count()    # set to "1" for sequential
-        while len(procs) > 0 or len(running) > 0:
-            # Start as much processes as we have CPUs
-            while len(running) < parallelism and len(procs) > 0:
-                p = procs.pop(0)
-                p.start()
-                running.append(p)
-            for i in range(len(running)):
-                if not running[i].is_alive():
-                    running[i].join()
-                    del running[i]
-                    # "i" is now wrong, break out and restart
-                    break      
-            time.sleep(1)
+            running = []
+            parallelism = multiprocessing.cpu_count()    # set to "1" for sequential
+            while len(procs) > 0 or len(running) > 0:
+                # Start as much processes as we have CPUs
+                while len(running) < parallelism and len(procs) > 0:
+                    p = procs.pop(0)
+                    p.start()
+                    running.append(p)
+                for i in range(len(running)):
+                    if not running[i].is_alive():
+                        running[i].join()
+                        del running[i]
+                        # "i" is now wrong, break out and restart
+                        break      
+                time.sleep(1)
 
-    except (KeyboardInterrupt, SystemExit):
-        print("Exiting (main)...")
-        sys.exit(1)
+        except (KeyboardInterrupt, SystemExit):
+            print("Exiting (main)...")
+            sys.exit(1)
             
     if bDraw:
         plt.axis('equal')

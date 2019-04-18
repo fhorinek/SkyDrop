@@ -489,6 +489,7 @@ def draw_airspace(pszDataSource):
 
         for airspace in airspaces:
             airspace.draw()
+        
             
 
 def ev(event):
@@ -498,6 +499,11 @@ def ev(event):
         return
     if event.button == 1:
         get_point(lat, lon)
+        spf.send_point(lat, lon)
+        
+from spoof import GPS_Spoof      
+
+spf = GPS_Spoof("/dev/ttyUSB1")
 
 level = 0
 path = "."

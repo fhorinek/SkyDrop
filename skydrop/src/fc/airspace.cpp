@@ -118,25 +118,20 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 	fc.airspace.angle = AIRSPACE_INVALID;
     for ( i = 0; i < NO_OF_AIRSPACE_HEIGHTS; i++ )
     {
-    	DEBUG("airspace_get_data_on_opened_file: i=%d alt1=%fm up=%dft, angle=%d; dist=%d\n", i, fc.altitude1, airspace.air[i].upper_border, airspace.air[i].angle, airspace.air[i].distance_m);
-
     	if ( airspace.air[i].upper_border == 0 ) break;
+
+    	DEBUG("airspace_get_data_on_opened_file: i=%d alt1=%fm up=%dft, angle=%d; dist=%d\n", i, fc.altitude1, airspace.air[i].upper_border, airspace.air[i].angle, airspace.air[i].distance_m);
 
     	if ( airspace.air[i].angle < 128 )
     	    fc.airspace.max_height_m = airspace.air[i].upper_border / FC_METER_TO_FEET;
+
     	if ( fc.altitude1 * FC_METER_TO_FEET <= airspace.air[i].upper_border )
     	{
     		if ( fc.airspace.angle == AIRSPACE_INVALID )       // Only set the lowest airspace...
     		{
-				if ( airspace.air[i].angle >= 128 )
-				{
-					fc.airspace.forbidden = true;
-					airspace.air[i].angle -= 128;
-				}
-				else
-				{
-					fc.airspace.forbidden = false;
-				}
+				fc.airspace.forbidden = airspace.air[i].angle & 0b10000000;
+				airspace.air[i].angle &= 0b01111111;
+
 				fc.airspace.angle = airspace.air[i].angle * 3;                          // the multiplication is used, because
 				fc.airspace.distance_m = (uint16_t)airspace.air[i].distance_m * 64;     // space in the data file is saved by dividing before.
     		}
