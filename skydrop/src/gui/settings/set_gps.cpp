@@ -8,7 +8,7 @@
 
 void gui_set_gps_init()
 {
-	gui_list_set(gui_set_gps_item, gui_set_gps_action, 6, GUI_SETTINGS);
+	gui_list_set(gui_set_gps_item, gui_set_gps_action, 7, GUI_SETTINGS);
 
 	if (config.connectivity.use_gps)
 		gps_detail();
@@ -93,6 +93,13 @@ void gui_set_gps_action(uint8_t index)
 		tmp = (config.connectivity.gps_format_flags & GPS_FORMAT_MASK) >> 2;
 		tmp = (tmp + 1) % 3;
 		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+	break;
+
+	case(6):
+		tmp = (~config.connectivity.gps_format_flags) & GPS_DIST_UNIT_MASK;
+		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_DIST_UNIT_MASK) | tmp;
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
@@ -221,6 +228,14 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			}
 		break;
 
+		case (6):
+			strcpy_P(text, PSTR("Distance units"));
+			*flags |= GUI_LIST_SUB_TEXT;
+			if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+				strcpy_P(sub_text, PSTR("imperial"));
+			else
+				strcpy_P(sub_text, PSTR("metric"));
+		break;
 	}
 }
 
