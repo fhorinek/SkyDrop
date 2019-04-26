@@ -1,3 +1,10 @@
+Build XXXX - DD. MM. 2019
+========================================================
+ADDED:
+ * New setting "GPS>Distance Units" which can be set to
+   "imperial" or "metric". It is used by all navigation
+   widgets and odometer to correctly format distances.
+
 Build 4251 - 10. 04. 2019
 ========================================================
 ADDED:
@@ -5,7 +12,6 @@ ADDED:
 
 FIX:
  * Corrected compass heading and compass pints sign 
-
 
 Build 4245 - 09. 04. 2019
 ========================================================

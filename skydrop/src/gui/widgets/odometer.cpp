@@ -33,7 +33,7 @@ void sprintf_distance(char *text, float distance)
 {
 	const char *unit_P;
 
-	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
 	{
 		distance *= FC_KM_TO_MILE;
 		unit_P = PSTR("mi");
