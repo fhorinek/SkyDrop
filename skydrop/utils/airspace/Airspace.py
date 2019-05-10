@@ -77,7 +77,9 @@ def draw_line(p1, p2, color="black", alpha=1.0):
 class Airspace:
     def __init__(self):
         self.minFt = None
+        self.minAGL = None
         self.maxFt = None
+        self.maxAGL = None
         self.name = None
         self.polygon = None
         
@@ -92,15 +94,17 @@ class Airspace:
         self.bb = self.polygon.bounds
         self.center = shapely.geometry.Point( (self.bb[0]+self.bb[2])/2, (self.bb[1]+self.bb[3])/2 )
 
-    def setMinMax(self, minFt, maxFt):
+    def setMinMax(self, minFt, minAGL, maxFt, maxAGL):
         self.minFt = minFt
+        self.minAGL = minAGL
         self.maxFt = maxFt
+        self.maxAGL = maxAGL
 
     def getMin(self):
-        return self.minFt
+        return self.minFt, self.minAGL
     
     def getMax(self):
-        return self.maxFt
+        return self.maxFt, self.maxAGL
     
     def draw(self):
         print ("draw airspace \""+self.name+"\"")
@@ -137,6 +141,7 @@ class Airspace:
     def getAirspaceVector(self, point, draw=False):
         av = AirspaceVector()
         av.setAirspace(self)
+        av.setPoint(point)
         av.setInside(point.within(self.polygon))
 
         nearest_points = shapely.ops.nearest_points(self.polygon.boundary, point)

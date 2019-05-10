@@ -21,7 +21,7 @@ void widget_invert_if_forbidden(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 void widget_airspace_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("CTR Dist"), x, y);
+	uint8_t lh = widget_label_P(PSTR("CTR"), x, y);
 
 	char text[10];
 
@@ -46,52 +46,52 @@ void widget_airspace_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 	widget_invert_if_forbidden(x, y, w, h);
 }
 
-void widget_airspace_max_height_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_airspace_limits_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("CTR Height"), x, y);
-	bool flashing = false;
-	char text[15];
+	uint8_t lh = widget_label_P(PSTR("CTR Limit"), x, y);
+	char text1[15];
+	char text2[15];
 
-	if (fc.airspace.angle == AIRSPACE_INVALID) {
-		strcpy_P(text, PSTR("---"));
+	if (fc.airspace.forbidden)
+	{
+		strcpy_P(text1, PSTR("Inside!"));
+		widget_value_txt(text1, x, y + lh, w, h - lh);
+		widget_invert_if_forbidden(x, y, w, h);
+		return;
+	}
+
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	{
+		if (fc.airspace.max_alt == 0)
+			strcpy_P(text1, PSTR("---"));
+		else
+			sprintf_P(text1, PSTR("%u"), airspace_convert_alt_ft(fc.airspace.max_alt));
+
+		if (fc.airspace.min_alt == 0)
+			strcpy_P(text2, PSTR("---"));
+		else
+			sprintf_P(text2, PSTR("%u"), airspace_convert_alt_ft(fc.airspace.min_alt));
 	}
 	else
 	{
-		uint16_t max_height;
-		const char *unit_P;
-
-		if (config.altitude.alt1_flags & ALT_UNIT_I)
-		{
-			max_height = fc.airspace.max_height_m * FC_METER_TO_FEET;
-			unit_P = PSTR("ft");
-		}
+		if (fc.airspace.max_alt == 0)
+			strcpy_P(text1, PSTR("---"));
 		else
-		{
-			max_height = fc.airspace.max_height_m;
-			unit_P = PSTR("m");
-		}
-		sprintf_P(text, PSTR("<%u%S"), max_height, unit_P);
+			sprintf_P(text1, PSTR("%u"), airspace_convert_alt_m(fc.airspace.max_alt));
 
-		if (fc.altitude1 > fc.airspace.max_height_m )
-		{
-			if (GUI_BLINK_TGL(1000))
-			{
-				strcpy_P(text, PSTR("TOO HIGH!"));
-				flashing = true;
-			}
-		}
+		if (fc.airspace.min_alt == 0)
+			strcpy_P(text2, PSTR("---"));
+		else
+			sprintf_P(text2, PSTR("%u"), airspace_convert_alt_m(fc.airspace.min_alt));
 	}
 
-	widget_value_txt(text, x, y + lh, w, h - lh);
-	if ( flashing )
-	{
-		disp.Invert(x, y, x+w-2, y+h-2);
-	}
+	widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+
 }
 
 void widget_airspace_angle_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint8_t lh = widget_label_P(PSTR("CTR Exit"), x, y);
+	uint8_t lh = widget_label_P(PSTR("CTR"), x, y);
 
 	if (fc.airspace.angle == AIRSPACE_INVALID)
 	{
@@ -106,10 +106,41 @@ void widget_airspace_angle_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint
 		relative_direction = fc.airspace.angle	- fc.compass.azimuth_filtered;
 		widget_arrow(relative_direction, x, y, w, h);
 	}
+
+	widget_invert_if_forbidden(x, y, w, h);
+}
+
+void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+{
+	uint8_t lh = widget_label_P(PSTR("CTR Info"), x, y);
+	char text1[15];
+	char text2[15];
+
+	if (fc.airspace.angle == AIRSPACE_INVALID)
+	{
+		strcpy_P(text1, PSTR("---"));
+		widget_value_txt(text1, x, y + lh, w, h - lh);
+	}
+	else
+	{
+		if (config.altitude.alt1_flags & ALT_UNIT_I)
+		{
+			sprintf_P(text1, PSTR("%u"), airspace_convert_alt_ft(fc.airspace.ceiling));
+			sprintf_P(text2, PSTR("%u"), airspace_convert_alt_ft(fc.airspace.floor));
+		}
+		else
+		{
+			sprintf_P(text1, PSTR("%u"), airspace_convert_alt_m(fc.airspace.ceiling));
+			sprintf_P(text2, PSTR("%u"), airspace_convert_alt_m(fc.airspace.floor));
+		}
+
+		widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+	}
+
 	widget_invert_if_forbidden(x, y, w, h);
 }
 
 register_widget1(w_airspace_distance, "CTR Distance", widget_airspace_distance_draw);
 register_widget1(w_airspace_angle,    "CTR Arrow",    widget_airspace_angle_draw);
-register_widget1(w_airspace_height,   "CTR Height",   widget_airspace_max_height_draw);
-
+register_widget1(w_airspace_limits,   "CTR Limits",   widget_airspace_limits_draw);
+register_widget1(w_airspace_info,     "CTR Info",     widget_airspace_info_draw);

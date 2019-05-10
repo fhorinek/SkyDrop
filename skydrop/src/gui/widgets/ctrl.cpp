@@ -40,7 +40,7 @@ void widget_ctrl_wlift_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 	strcpy_P(text, PSTR("weak"));
 	widget_value_txt(text, x, y, w, h);
 
-	if (!config.audio_profile.flags & AUDIO_WEAK)
+	if (!(config.audio_profile.flags & AUDIO_WEAK))
 	{
 		disp.DrawLine(x + 2, y + 1, x + w -4, y + h - 4, 1);
 		disp.DrawLine(x + 2, y + h - 4, x + w -4, y + 1, 1);

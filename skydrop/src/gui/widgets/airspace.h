@@ -12,6 +12,7 @@
 
 extern widget w_airspace_distance;
 extern widget w_airspace_angle;
-extern widget w_airspace_height;
+extern widget w_airspace_limits;
+extern widget w_airspace_info;
 
 #endif /* W_AIRSPACE_H_ */

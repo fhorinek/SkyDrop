@@ -141,12 +141,13 @@ extern float widget_menu_fvalue1;
 
 #define WIDGET_AIRSPACE_ARROW       46
 #define WIDGET_AIRSPACE_DISTANCE    47
-#define WIDGET_AIRSPACE_MAX_HEIGHT  48
+#define WIDGET_AIRSPACE_LIMITS	    48
+#define WIDGET_AIRSPACE_INFO	    49
 #include "airspace.h"
 
-#define NUMBER_OF_WIDGETS		49
+#define NUMBER_OF_WIDGETS			50
 
-#define NUMBER_OF_SORTED_WIDGETS	47
+#define NUMBER_OF_SORTED_WIDGETS	48
 
 /**
  * Format a distance in a human readable format.

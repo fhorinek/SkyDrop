@@ -6,12 +6,15 @@
 #include "debug_on.h"
 
 #define NO_OF_AIRSPACE_HEIGHTS 5
+#define AIR_INSIDE_FLAG 0x80
+
 
 typedef struct airspace_filedata1
 {
-	int16_t upper_border;
+	uint8_t floor;
+	uint8_t ceiling;
 	uint8_t angle;
-	uint8_t  distance_m;
+	uint8_t  distance;
 } airspace_filedata1_t;
 
 typedef struct airspace_filedata
@@ -66,6 +69,46 @@ void airspace_open_file(char * fn)
     }
 }
 
+uint16_t airspace_convert_alt_ft(uint8_t raw_alt)
+{
+	return AIR_250ft_to_m * (0x7F & raw_alt);
+}
+
+uint16_t airspace_convert_alt_m(uint8_t raw_alt)
+{
+	return AIR_250ft_to_m * (0x7F & raw_alt);
+}
+
+//is device altitude below raw_alt?
+bool airspace_alt_is_below(uint8_t raw_alt, uint16_t gps_alt, uint16_t msl_alt)
+{
+	if (airspace_convert_alt_m(raw_alt) > ((raw_alt & AIR_AGL_FLAG) ? gps_alt : msl_alt))
+
+		return true;
+
+	return false;
+}
+
+//is device altitude above raw_alt?
+bool airspace_alt_is_above(uint8_t raw_alt, uint16_t gps_alt, uint16_t msl_alt)
+{
+	if (airspace_convert_alt_m(raw_alt) < ((raw_alt & AIR_AGL_FLAG) ? gps_alt : msl_alt))
+		return true;
+
+	return false;
+}
+
+bool airspace_is_inside(uint8_t raw_min, uint8_t raw_max, uint16_t gps_alt, uint16_t msl_alt)
+{
+	if (airspace_alt_is_below(raw_min, gps_alt, msl_alt))
+		return false;
+
+	if (airspace_alt_is_above(raw_max, gps_alt, msl_alt))
+		return false;
+
+	return true;
+}
+
 /**
  * Read the airspace data for the given lat/lon into fc.airspace.
  * This function assumes, that the right file containing lat/lon is already
@@ -113,38 +156,107 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     assert(f_lseek(&airspace_data_file, pos) == FR_OK);
     assert(f_read(&airspace_data_file, &airspace, sizeof(airspace), &rd) == FR_OK);
     assert(rd == sizeof(airspace));
-    fc.airspace.max_height_m = 0;
+
 	fc.airspace.forbidden = false;
 	fc.airspace.angle = AIRSPACE_INVALID;
-    for ( i = 0; i < NO_OF_AIRSPACE_HEIGHTS; i++ )
+
+	//limits
+	fc.airspace.min_alt = 0;
+	fc.airspace.max_alt = 0;
+
+	//info
+	fc.airspace.floor = 0;
+	fc.airspace.ceiling = 0;
+
+	uint16_t msl_alt = fc_press_to_alt(fc.vario.pressure, 101325);
+	uint16_t gps_alt = fc.gps_data.altitude;
+
+	DEBUG("msl_alt: %d\n", msl_alt);
+	DEBUG("gps_alt: %d\n", gps_alt);
+
+	uint16_t nearest_dist = 0xFFFF;
+	uint8_t nearest_dist_i = 0xFF;
+
+	uint8_t forbiden_i = 0;
+
+	bool have_data = false;
+
+    for (i = 0; i < NO_OF_AIRSPACE_HEIGHTS; i++)
     {
-    	if ( airspace.air[i].upper_border == 0 ) break;
+    	if (airspace.air[i].ceiling == 0) break; //no data
 
-    	DEBUG("airspace_get_data_on_opened_file: i=%d alt1=%fm up=%dft, angle=%d; dist=%d\n", i, fc.altitude1, airspace.air[i].upper_border, airspace.air[i].angle, airspace.air[i].distance_m);
+    	have_data = true;
 
-    	if ( airspace.air[i].angle < 128 )
-    	    fc.airspace.max_height_m = airspace.air[i].upper_border / FC_METER_TO_FEET;
+    	DEBUG("airspace %d f=%d c=%d a=%d d=%d\n", i, airspace.air[i].floor, airspace.air[i].ceiling, airspace.air[i].angle, airspace.air[i].distance);
 
-    	if ( fc.altitude1 * FC_METER_TO_FEET <= airspace.air[i].upper_border )
+    	//is inside the airspace floor and ceil
+    	if (airspace_is_inside(airspace.air[i].floor, airspace.air[i].ceiling, gps_alt, msl_alt))
     	{
-    		if ( fc.airspace.angle == AIRSPACE_INVALID )       // Only set the lowest airspace...
+    		//inside the airspace
+    		if (airspace.air[i].angle & 0x80)
     		{
-				fc.airspace.forbidden = airspace.air[i].angle & 0b10000000;
-				airspace.air[i].angle &= 0b01111111;
-
-				fc.airspace.angle = airspace.air[i].angle * 3;                          // the multiplication is used, because
-				fc.airspace.distance_m = (uint16_t)airspace.air[i].distance_m * 64;     // space in the data file is saved by dividing before.
+    			fc.airspace.forbidden = true;
+    			forbiden_i = i;
     		}
-        }
+    	}
+
+    	//arrow point to nearest or outside of forbidden
+    	if ((i == 0 || nearest_dist > airspace.air[i].distance) && !(airspace.air[i].angle & AIR_INSIDE_FLAG))
+    	{
+    		nearest_dist = airspace.air[i].distance;
+    		nearest_dist_i = i;
+    	}
+
+		//inside the airspace
+		if (airspace.air[i].angle & AIR_INSIDE_FLAG)
+		{
+			if (airspace_alt_is_above(airspace.air[i].floor, gps_alt, msl_alt))
+				fc.airspace.min_alt = airspace.air[i].ceiling;
+
+			if (airspace_alt_is_below(airspace.air[i].ceiling, gps_alt, msl_alt))
+				fc.airspace.max_alt = airspace.air[i].floor;
+		}
     }
-    if ( i == 0 )
+
+    if (have_data)
     {
-    	// No CTR.
-        fc.airspace.max_height_m = 10000 / FC_METER_TO_FEET;    // FL100
-        if ( fc.agl.valid && fc.agl.ground_level != AGL_INVALID )
-        {
-        	fc.airspace.max_height_m = max(fc.airspace.max_height_m, fc.agl.ground_level + 762);     // 762m = 2500 ft
-        }
+		if (fc.airspace.forbidden)
+		{
+			fc.airspace.angle = (airspace.air[forbiden_i].angle & 0b01111111) * 3;
+			fc.airspace.distance_m = (uint16_t)airspace.air[forbiden_i].distance * 64;
+			fc.airspace.ceiling = airspace.air[forbiden_i].ceiling;
+			fc.airspace.floor = airspace.air[forbiden_i].floor;
+		}
+		else
+		{
+			if(nearest_dist_i != 0xFF)
+			{
+				fc.airspace.angle = (airspace.air[nearest_dist_i].angle & 0b01111111) * 3;
+				fc.airspace.distance_m = (uint16_t)airspace.air[nearest_dist_i].distance * 64;
+				fc.airspace.ceiling = airspace.air[nearest_dist_i].ceiling;
+				fc.airspace.floor = airspace.air[nearest_dist_i].floor;
+			}
+		}
+
+		DEBUG("\n");
+
+		DEBUG("nearest_dist_i: %d\n", nearest_dist_i);
+		DEBUG("forbiden_i: %d\n", forbiden_i);
+		DEBUG("\n");
+
+		DEBUG("fc.airspace.forbidden: %d\n", fc.airspace.forbidden);
+		DEBUG("fc.airspace.angle: %d\n", fc.airspace.angle);
+		DEBUG("fc.airspace.distance_m: %d\n", fc.airspace.distance_m);
+		DEBUG("fc.airspace.ceiling: %d\n", fc.airspace.ceiling);
+		DEBUG("fc.airspace.floor: %d\n", fc.airspace.floor);
+		DEBUG("fc.airspace.min_alt: %d\n", fc.airspace.min_alt);
+		DEBUG("fc.airspace.max_alt: %d\n", fc.airspace.max_alt);
+		DEBUG("\n");
+    }
+    else
+    {
+		DEBUG("fc.airspace.angle: AIRSPACE_INVALID\n");
+		DEBUG("\n");
     }
 }
 

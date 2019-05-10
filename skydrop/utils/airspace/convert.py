@@ -76,9 +76,14 @@ def printAirspaces(airspaceVectors):
         distanceSpace = "     " + ' ' * int(distance_km * 2)
         distanceString = "{:2.1f}km".format(distance_km)
         space_len = len(distanceSpace) - len(distanceString)
-        distance = '{:s}{:s}'.format(" " * space_len, distanceString)
+        distance = '{:s}{:s}'.format(" " * (space_len - 1), distanceString)
         airspaceName = '"{:s}",{:3.0f}°'.format(airspace.name,airspaceVector.angle)
-        s = ' {:4d}ft '.format(height)
+
+        floor = airspace.getMin()
+        ceil = airspace.getMax()
+
+        s = ' {:5d}ft '.format(floor[0]) + ("AGL" if floor[1] else "MSL") + ' '
+        s += ' {:5d}ft '.format(ceil[0]) + ("AGL" if ceil[1] else "MSL") + ' '
         if airspaceVector.inside:
             
             s = s + "---" + airspaceName + ('-' * (47-len(airspaceName))) + 'X' + ('-' * space_len) + distanceString + "-|"
@@ -317,17 +322,11 @@ def dumpPoint(output, offset, p, airspaces, draw=False, check=False):
     heights = sorted(compactAirspaces.keys())
     for i in range(len(heights)):
         height1 = heights[i]
-        if i+1 < len(compactAirspaces):
-            height2 = heights[i+1]
-            name = compactAirspaces[height1].airspace.getName()
-        else:
-            height2 = None
-            name = None
-        for byte in compactAirspaces[height1].getBytes(height2):
+        for byte in compactAirspaces[height1].getBytes():
             output[offset] = byte
             offset = offset + 1
-        if check and bVerbose > 1:
-            print("    up to ",height2, ": ", name)
+#        if check and bVerbose > 1:
+#           print("    up to ",height2, ": ", name)
                 
     # Fill up with empty Airspaces
     av = AirspaceVector()
@@ -354,10 +353,11 @@ def dump(lon, lat, airspaces, draw=False):
         print (filename, "exists, skipping...")
         return
     
-    f = open(filename, 'wb')
     print (filename, "computing (" + str(numPoints) + "x" + str(numPoints) + ")")
 
     output = bytearray(filesize)
+    
+    f = None
     
     try:
         # Quickcheck for emptyness
@@ -372,7 +372,11 @@ def dump(lon, lat, airspaces, draw=False):
                         isEmpty = False
 
         if not isEmpty:
+            pos = 0
+            f = open(filename, 'wb')
             for lat_i in numpy.arange(lat, lat + 1, 1/numPoints):
+                pos += 1
+                print ("%s: %u %%" % (filename, (pos * 100)/numPoints))
                 for lon_i in numpy.arange(lon, lon + 1, 1/numPoints):
                     p = shapely.geometry.Point(lon_i, lat_i)
                     y = (lat_i - lat) * numPoints;
@@ -382,21 +386,22 @@ def dump(lon, lat, airspaces, draw=False):
                     
     except (KeyboardInterrupt, SystemExit):
         print("Exiting...")
-        f.close()
-        os.remove(filename)
+        if f:
+            f.close()
+            os.remove(filename)
         sys.exit(1)
 
     isEmpty = True
     for byte in output:
         if byte != 0:
             isEmpty = False
-            break
+            break   
     if isEmpty:
         print (filename, "is empty")
     else:
         f.write(bytes(output))
         print (filename, "saved")
-    f.close()
+        f.close()
 
 #**********************************************************************
 #                                main()
@@ -520,11 +525,32 @@ def main(argv = None):
         output = bytearray(levels * sizeof_level)
         print (checkPoint)
         dumpPoint(output, 0, checkPoint, airspaces, False, True)
+        
+        print()
         for level in range(levels):
             offset = level * sizeof_level
-            height   = int.from_bytes([output[offset], output[offset+1]], 'little', signed=False)
+            floor_raw    = int.from_bytes([output[offset+0]], 'little', signed=False)
+            ceil_raw     = int.from_bytes([output[offset+1]], 'little', signed=False)
             angle_raw    = int.from_bytes([output[offset+2]], 'little', signed=False)
             distance_raw = int.from_bytes([output[offset+3]], 'little', signed=False)
+            floorAGL = floor_raw > 127
+            floor = floor_raw
+            if floorAGL:
+                floor -= 128
+                floor_mode = "AGL"
+            else:
+                floor_mode = "MSL"
+            floor *= 250
+
+            ceilAGL = ceil_raw > 127
+            ceil = ceil_raw
+            if ceilAGL:
+                ceil -= 128
+                ceil_mode = "AGL"
+            else:
+                ceil_mode = "MSL"
+            ceil *= 250
+            
             if angle_raw > 127:
                 angle = angle_raw - 128
                 inside = " INSIDE!"
@@ -535,7 +561,14 @@ def main(argv = None):
             angle = angle * 3
             distance = distance_raw * 64
             
-            print ("  level", level, "height=" + str(height),"angle(raw)="+str(angle_raw),"distance(raw)="+str(distance_raw)+" angle="+str(angle)+" distance="+str(distance)+inside)
+            if ceil == 0:
+                print ("  level", level, "---")
+                continue
+            
+            if ceil_raw & 0x7F == 0x7F:
+                ceil = "MAX"
+            
+            print ("  level", level, "floor=" + str(floor), floor_mode, "ceil=" + str(ceil), ceil_mode, " angle="+str(angle)+" distance="+str(distance)+inside)
 
     count = 0
     if bDraw:
@@ -564,7 +597,7 @@ def main(argv = None):
                         procs.append(p)
 
             running = []
-            parallelism = multiprocessing.cpu_count()    # set to "1" for sequential
+            parallelism = multiprocessing.cpu_count() * 2    # set to "1" for sequential
             while len(procs) > 0 or len(running) > 0:
                 # Start as much processes as we have CPUs
                 while len(running) < parallelism and len(procs) > 0:
@@ -689,12 +722,15 @@ def ReadAltFt( poFeature, fieldName ):
             print ("Unknown unit", unit)
             sys.exit(1)
             
-        if level != "MSL" and level != "GND" and level != "AGL" and level != "AMSL":
+        if level == "AMSL":
+            level = "MSL"
+            
+        if level != "MSL" and level != "AGL":
             print("airspace #%ld: %s" % (poFeature.GetFID(), value))
             print ("Unknown level", level)
             sys.exit(1)
 
-    return alt
+    return alt, (level == "AGL")
         
 def ReadFeature( poFeature ):
 
@@ -702,6 +738,7 @@ def ReadFeature( poFeature ):
     # print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
 
     classAir = ReadField(poFeature, "CLASS")
+    
     if classAir in ["RMZ", "TMZ", "Q", "W", "G"]:
             # R restricted
             # Q danger
@@ -718,8 +755,8 @@ def ReadFeature( poFeature ):
             return
     
     name = ReadField(poFeature, "NAME")
-    floor = ReadAltFt(poFeature, "FLOOR")
-    ceiling = ReadAltFt(poFeature, "CEILING")
+    floor, floorAGL = ReadAltFt(poFeature, "FLOOR")
+    ceiling, ceilingAGL = ReadAltFt(poFeature, "CEILING")
 
     nGeomFieldCount = poFeature.GetGeomFieldCount()
     if nGeomFieldCount > 0:
@@ -744,7 +781,7 @@ def ReadFeature( poFeature ):
                 polygon = shapely.geometry.Polygon(p)
                 airspace = Airspace()
                 airspace.setName(name)
-                airspace.setMinMax(floor, ceiling)
+                airspace.setMinMax(floor, floorAGL, ceiling, ceilingAGL)
                 airspace.setPolygon(polygon)
                 airspaces.append(airspace)
         

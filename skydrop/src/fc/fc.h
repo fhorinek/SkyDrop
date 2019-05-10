@@ -270,10 +270,15 @@ struct airspace_data_t
 	bool file_valid;
 
 	char filename[10];        // The filename of the currently opened airspace file
-	int16_t angle;            // The angle out of the airspace or "AGL_INVALID".
-	uint16_t distance_m;      // the distance to the airspace border in meter.
+
 	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
-	uint16_t max_height_m;    // What is the maximum allowed height to fly?
+	int16_t angle;            // The angle out of the airspace or "AGL_INVALID".
+	uint16_t distance_m;
+	uint8_t ceiling;
+	uint8_t floor;
+
+	uint8_t min_alt;
+	uint8_t max_alt;
 };
 
 

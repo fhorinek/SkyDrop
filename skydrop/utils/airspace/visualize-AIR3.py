@@ -25,6 +25,7 @@ import shapely.ops
 import shapely.geometry
 from osgeo import ogr
 from Airspace import Airspace
+from agl import get_alt
 
 # Compute a point P2 which is distance_m meter in angle "angle" away from
 # given point P.
@@ -55,112 +56,6 @@ def displacePoint(P, angle, distance_m):
 
     p2 = numpy.array([newLon, newLat])
     return p2
-
-# Visualize the given file and the given elevation level.
-#
-# @param filename the name of the file to show
-# @param the level inside that file (0-4)
-#
-def visualize(filename, level):
-
-    basename = os.path.basename(filename)
-    m = re.search('(N|S)(\d\d)([EW])(\d\d\d)', basename)
-    if m != None:
-        lat = int(m.group(2))
-        lon = int(m.group(4))
-        if m.group(1) == "S":
-            lat = -lat
-        if m.group(3) == "W":
-            lon = -lon
-    else:
-        print ("Filename ", basename, "is invalid")
-        sys.exit(1)
-        
-    f = open(filename, 'rb')
-
-    # each point has "levels" elevation levels
-    levels = 5
-
-    # The size of 1 level in bytes in the file
-    sizeof_level = 4
-    
-    filesize = os.path.getsize(filename)
-
-    # The number of points in 1 line or row in the file
-    numPoints = int(sqrt(filesize / (levels * sizeof_level)))
-    print (filename, numPoints, "x", numPoints)
-
-    # The number of points to draw on screen for 1 line or row
-    numDrawPoints = 50
-
-    skip = 1/numDrawPoints
-    line = 0
-    for lat_i in numpy.arange(lat, lat + 1, skip):
-        line = line + 1
-        col = 0
-        for lon_i in numpy.arange(lon, lon + 1, skip):
-            col = col + 1
-            #if lon_i > lon + 1 or lat_i > lat + 1:
-            #    continue
-            
-            p = numpy.array([lon_i, lat_i])
-            #print (p)
-            
-            y = (lat_i - lat) * numPoints;
-            x = (lon_i - lon) * numPoints;
-            
-            offset = (int(numPoints - y - 1) * numPoints + int(x)) * (levels * sizeof_level) + level * sizeof_level 
-            f.seek(offset, os.SEEK_SET)
-            if offset > filesize:
-                print ("Point", p, "x=", x, "y=", y)
-                print ("Unable to seek to", offset, ". File size is", filesize)
-                sys.exit(1)
-                
-            height   = int.from_bytes(f.read(2), 'little', signed=False)
-            angle    = int.from_bytes(f.read(1), 'little', signed=False)
-            distance = int.from_bytes(f.read(1), 'little', signed=False)
-
-            if level == 0:
-                minHeight = 0
-            else:
-                # read lower height:
-                f.seek(- 2 * sizeof_level, os.SEEK_CUR)
-                minHeight = int.from_bytes(f.read(2), 'little', signed=False)
-            
-            distance_m = distance * 64
-            
-            #print (p, height, angle, distance)
-            
-            if angle >= 128:
-                forbidden = True
-                angle = angle - 128
-            else:
-                forbidden = False
-
-            angle = angle * 3
-
-            if forbidden:
-                color = "red"
-                if distance == 255:
-                    color = "darkred"
-            else:
-                color = "green"
-                angle = angle + 180
-                if distance == 255:
-                    color = "lightgreen"
-
-            plt.plot(p[0], p[1], '.', color=color, markersize=0.5)
-            if height == 0:
-                continue
-            
-            p2 = displacePoint(p, angle, distance_m)
-
-            if line % 2 == 0 and col % 2 == 0:
-                plt.text(p[0], p[1], str(minHeight) + "-" + str(height) , fontsize=6, rotation=30, verticalalignment='bottom', horizontalalignment='left')
-            
-            if distance > 0 and distance <= 255:
-                plt.arrow(p[0], p[1], p2[0] - p[0], p2[1]-p[1], length_includes_head=True, linewidth=0.3, color=color, head_width=0.007, alpha=1.0)
-                
 
 def get_point(lat, lon):
     mul = 10000000
@@ -227,19 +122,39 @@ def get_point(lat, lon):
         pt.remove()
 
     patch = []
+    agl = get_alt(lat, lon)
+    print ("AGL: %0.1fm %0.1fft" % (agl, agl / 3.28084))
 
     for i in range(levels):    
-        height   = int.from_bytes(f.read(2), 'little', signed=False)
-        angle    = int.from_bytes(f.read(1), 'little', signed=False)
-        distance = int.from_bytes(f.read(1), 'little', signed=False)
+        floor_raw    = int.from_bytes(f.read(1), 'little', signed=False)
+        ceil_raw     = int.from_bytes(f.read(1), 'little', signed=False)
+        angle_raw    = int.from_bytes(f.read(1), 'little', signed=False)
+        distance_raw = int.from_bytes(f.read(1), 'little', signed=False)
 
-        distance_m = distance * 64
+        distance_m = distance_raw * 64
         
-        if height == 0:
+        if ceil_raw == 0:
             continue
         
-        print (p, height, angle, distance)
+        floorAGL = floor_raw > 127
+        floor = floor_raw
+        if floorAGL:
+            floor -= 128
+            floor_mode = "AGL"
+        else:
+            floor_mode = "MSL"
+        floor *= 250
+
+        ceilAGL = ceil_raw > 127
+        ceil = ceil_raw
+        if ceilAGL:
+            ceil -= 128
+            ceil_mode = "AGL"
+        else:
+            ceil_mode = "MSL"
+        ceil *= 250        
         
+        angle = angle_raw
         if angle >= 128:
             forbidden = True
             angle = angle - 128
@@ -250,13 +165,16 @@ def get_point(lat, lon):
 
         if forbidden:
             color = "red"
-            if distance == 255:
+            if distance_raw == 255:
                 color = "darkred"
         else:
             color = "green"
             angle = angle + 180
-            if distance == 255:
+            if distance_raw == 255:
                 color = "lightgreen"
+
+        #print ("RAW:", floor_raw, ceil_raw, angle_raw, distance_raw)
+        print (floor, floor_mode, ceil, ceil_mode, angle, "deg", distance_m, "m", "INSIDE" if forbidden else "")
 
         p2 = displacePoint(p, angle, distance_m)
 
@@ -372,12 +290,15 @@ def ReadAltFt( poFeature, fieldName ):
             print ("Unknown unit", unit)
             sys.exit(1)
             
-        if level != "MSL" and level != "GND" and level != "AGL" and level != "AMSL":
+        if level == "AMSL":
+            level = "MSL"
+            
+        if level != "MSL" and level != "AGL":
             print("airspace #%ld: %s" % (poFeature.GetFID(), value))
             print ("Unknown level", level)
             sys.exit(1)
 
-    return alt
+    return alt, (level == "AGL")
         
 def ReadFeature( poFeature ):
 
@@ -401,8 +322,8 @@ def ReadFeature( poFeature ):
             return
     
     name = ReadField(poFeature, "NAME")
-    floor = ReadAltFt(poFeature, "FLOOR")
-    ceiling = ReadAltFt(poFeature, "CEILING")
+    floor, floorAGL = ReadAltFt(poFeature, "FLOOR")
+    ceiling, ceilingAGL = ReadAltFt(poFeature, "CEILING")
 
     nGeomFieldCount = poFeature.GetGeomFieldCount()
     if nGeomFieldCount > 0:
@@ -427,7 +348,7 @@ def ReadFeature( poFeature ):
                 polygon = shapely.geometry.Polygon(p)
                 airspace = Airspace()
                 airspace.setName(name)
-                airspace.setMinMax(floor, ceiling)
+                airspace.setMinMax(floor, floorAGL, ceiling, ceilingAGL)
                 airspace.setPolygon(polygon)
                 airspaces.append(airspace)
         
@@ -489,8 +410,9 @@ def draw_airspace(pszDataSource):
 
         for airspace in airspaces:
             airspace.draw()
-        
             
+        
+galt = 200            
 
 def ev(event):
     lat = event.ydata
@@ -499,7 +421,7 @@ def ev(event):
         return
     if event.button == 1:
         get_point(lat, lon)
-        spf.send_point(lat, lon)
+        spf.send_point(lat, lon, galt)
         
 from spoof import GPS_Spoof      
 
@@ -514,12 +436,7 @@ patch = []
 
 draw_airspace(sys.argv[1])
 
-'''
-for file in os.scandir(path):
-    if file.name[-4:] == ".air":
-        visualize(file.name, level)
-'''
-    
+
 a, = plt.plot([], [])
 a.figure.canvas.mpl_connect('motion_notify_event', ev)
 a.figure.canvas.mpl_connect('button_press_event', ev)

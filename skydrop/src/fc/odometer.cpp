@@ -30,9 +30,9 @@ MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 
 int16_t gps_bearing(int32_t lat1, int32_t lon1,
 					int32_t lat2, int32_t lon2)
 {
-	double dX = ((double)lon2 - lon1) / GPS_MULT;
-	double dY = ((double)lat2 - lat1) / GPS_MULT;
-	return (-(int16_t)to_degrees(atan2(dX, dY)) + 360) % 360;
+	double dX = ((double)lon1 - lon2) / GPS_MULT;
+	double dY = ((double)lat1 - lat2) / GPS_MULT;
+	return ((int16_t)to_degrees(atan2(dX, dY)) + 360) % 360;
 }
 
 /**

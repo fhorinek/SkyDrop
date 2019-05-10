@@ -39,7 +39,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
-		w_airspace_angle, w_airspace_distance, w_airspace_height,
+		w_airspace_angle, w_airspace_distance, w_airspace_limits, w_airspace_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -95,7 +95,8 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	//airspace
 	WIDGET_AIRSPACE_ARROW,
 	WIDGET_AIRSPACE_DISTANCE,
-	WIDGET_AIRSPACE_MAX_HEIGHT,
+	WIDGET_AIRSPACE_LIMITS,
+	WIDGET_AIRSPACE_INFO,
 
 	//wind
 	WIDGET_WIND_DIR,
@@ -304,7 +305,9 @@ void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	disp.LoadFont(F_TEXT_L);
-	uint8_t text_w = disp.GetTextWidth(value1);
+	uint8_t text_w1 = disp.GetTextWidth(value1);
+	uint8_t text_w2 = disp.GetTextWidth(value2);
+	uint8_t text_w = max(text_w1, text_w2);
 	uint8_t text_h = disp.GetTextHeight() * 2;
 
 	if (w < text_w || h < text_h)
@@ -322,9 +325,9 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
 		}
 	}
 
-	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
+	disp.GotoXY(x + w / 2 - text_w1 / 2, y + h / 2 - text_h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value1);
-	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2);
+	disp.GotoXY(x + w / 2 - text_w2 / 2, y + h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value2);
 }
 

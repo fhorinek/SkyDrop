@@ -1,8 +1,13 @@
 import sys
+from agl import get_alt_point
 
 # This describes the distance from an airspace to a point.
 # It mainly contains a distance and a angle.
 #
+
+FEET_STEP = 250
+FEET_STEP_in_M = 76.196281622
+
 class AirspaceVector:
 
     def __init__(self):
@@ -10,11 +15,17 @@ class AirspaceVector:
         self.angle = 0
         self.airspace = None
         self.inside = False
+        self.point = None
+
+    def setPoint(self, point):
+        self.point = point
 
     def setDistance(self, distance):
         self.distance = distance
 
     def isTooFar(self):
+        if self.inside:
+            return False
         return self.distance / (100*1000) > 20     # 20 km
 
     def getDistanceAsByte(self):
@@ -29,6 +40,9 @@ class AirspaceVector:
 
     def getAngleAsByte(self):
         a = self.angle
+        if not self.inside:
+            a += 180
+            a %= 360
                     
         angle_byte = int(a / 3)
         if self.inside:
@@ -49,21 +63,41 @@ class AirspaceVector:
         from pprint import pformat
         return pformat(vars(self))
     
-    def getBytes(self, height = None):
+    def getBytes(self):
         angle_byte = self.getAngleAsByte()
         distance_byte = self.getDistanceAsByte()
 
-        if height == None:
-            if self.airspace != None:
-                height = self.airspace.getMax()
-            else:
-                height = 0
-
-        if height > 65535:
-            height = 65535
+        if self.airspace != None:
+            agl = None
             
-        bytes = height.to_bytes(2, 'little', signed=False)
+            hfloor, hfloorAGL = self.airspace.getMin()
+            hfloor /= FEET_STEP
+            
+            hfloor = min(hfloor, 127)
+            
+            if hfloorAGL:
+                if hfloor > 0:
+                    agl = get_alt_point(self.point) / FEET_STEP_in_M
+                    hfloor += agl
+                    
+                    
+                hfloor = int(hfloor) + 0x80
+            
+            hceil, hceilAGL =  self.airspace.getMax()
+            hceil /= FEET_STEP
 
-        result = [bytes[0], bytes[1], angle_byte, distance_byte]
+            hceil = min(hceil, 127)            
+
+            if hceilAGL:
+                if not agl:
+                    agl = get_alt_point(self.point) / FEET_STEP_in_M
+                hceil = int(hceil + agl) + 0x80
+        else:
+            hfloor = 0
+            hceil = 0
+         
+
+            
+        result = [int(hfloor), int(hceil), angle_byte, distance_byte]
         return result
 
