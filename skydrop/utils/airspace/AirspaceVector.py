@@ -1,60 +1,27 @@
 import sys
 from agl import get_alt_point
 
-# This describes the distance from an airspace to a point.
-# It mainly contains a distance and a angle.
-#
+import struct
 
-FEET_STEP = 250
-FEET_STEP_in_M = 76.196281622
+from const import *
+from gps_calc import *
+
+from math import sqrt
+
 
 class AirspaceVector:
 
-    def __init__(self):
-        self.distance = 0
-        self.angle = 0
-        self.airspace = None
-        self.inside = False
-        self.point = None
-
-    def setPoint(self, point):
-        self.point = point
-
-    def setDistance(self, distance):
-        self.distance = distance
-
-    def isTooFar(self):
-        if self.inside:
-            return False
-        return self.distance / (100*1000) > 20     # 20 km
-
-    def getDistanceAsByte(self):
-        distance_m = self.distance / 100
-        distance_byte = int(distance_m / 64)
-        if distance_byte > 255:
-            distance_byte = 255
-        return distance_byte
-    
-    def setAngle(self, angle):
-        self.angle = angle
-
-    def getAngleAsByte(self):
-        a = self.angle
-        if not self.inside:
-            a += 180
-            a %= 360
-                    
-        angle_byte = int(a / 3)
-        if self.inside:
-            angle_byte = angle_byte + 128;      # highest bit shows FORBIDDEN
-
-        return angle_byte
-    
-    def setAirspace(self, airspace):
+    def __init__(self, airspace = None, point = None, target = None):
         self.airspace = airspace
+        self.point = point
+        self.target = target
 
-    def setInside(self, inside):
-        self.inside = inside
+        if self.airspace:
+            self.inside = point.within(self.airspace.polygon)
+            self.distance_km = gps_distance_2d_shapely(self.point, self.target) / (100 * 1000)
+
+    def getDistance(self):
+        return self.distance_km
 
     def isInside(self):
         return self.inside
@@ -64,40 +31,93 @@ class AirspaceVector:
         return pformat(vars(self))
     
     def getBytes(self):
-        angle_byte = self.getAngleAsByte()
-        distance_byte = self.getDistanceAsByte()
-
         if self.airspace != None:
-            agl = None
-            
-            hfloor, hfloorAGL = self.airspace.getMin()
-            hfloor /= FEET_STEP
-            
-            hfloor = min(hfloor, 127)
-            
-            if hfloorAGL:
-                if hfloor > 0:
-                    agl = get_alt_point(self.point) / FEET_STEP_in_M
-                    hfloor += agl
-                    
-                    
-                hfloor = int(hfloor) + 0x80
-            
-            hceil, hceilAGL =  self.airspace.getMax()
-            hceil /= FEET_STEP
-
-            hceil = min(hceil, 127)            
-
-            if hceilAGL:
-                if not agl:
-                    agl = get_alt_point(self.point) / FEET_STEP_in_M
-                hceil = int(hceil + agl) + 0x80
+            index = self.airspace.getIndex()
         else:
-            hfloor = 0
-            hceil = 0
-         
-
+            return struct.pack("BBB", 0x7F, 0, 0)      
             
-        result = [int(hfloor), int(hceil), angle_byte, distance_byte]
-        return result
+        
+        if self.inside:
+            index |= 0x80
+            
+        #index
+        #   1000 0000 - inside (128, 0x80)
+        #   -III IIII - 0 - 125 index
+        #             - 126 no airspace (126, 0x7F)  
+        #a  1000 0000 - mode A
+        #b  1000 0000 - mode B
+        
+        # A B  
+        # 0 0 Angle mode
+        # 1 0 offset with mul 0.001         ~111m
+        # 0 1 offset with mul 0.0001        ~11m
+        # 1 1 offset with normalised vector +/- 22m
+
+        # Offset mode
+        #a  -LLL LLLL - latitude offset  
+        #b  -LLL LLLL - longitude offset 
+
+        # Angle mode
+        #a  -DDD DDDD - distance *500m
+        #b  -AAA AAAA - angle / 3
+            
+        offset_long = round((self.target.x - self.point.x) / OFFSET_MUL)
+        offset_lat = round((self.target.y - self.point.y) / OFFSET_MUL)
+
+        if (abs(offset_lat) > 63 or abs(offset_long) > 63):
+            angle = gps_bearing_shapely(self.point, self.target)
+
+            a = min(int(self.distance_km * 2), 127)
+            b = int(angle / 3)
+            
+            bytes = struct.pack("BBB", index, a, b)      
+        else:
+            too_close = (abs(offset_long) < 6 and abs(offset_lat) < 6)
+
+            if too_close:
+                offset_long = round((self.target.x - self.point.x) / OFFSET_MUL_FINE)
+                offset_lat = round((self.target.y - self.point.y) / OFFSET_MUL_FINE)            
+        
+            assert abs(offset_long) <= 64, "offset_long %f" % offset_long
+            assert abs(offset_lat) <= 64,  "offset_lat %f" % offset_lat
+        
+            still_too_close = abs(offset_long) < 3 and abs(offset_long) < 3
+        
+            if still_too_close:
+            
+                off_x = self.target.x - self.point.x
+                off_y = self.target.y - self.point.y
+                dist = sqrt(off_x ** 2 + off_y ** 2)
+                
+                mul = 60 / dist
+                
+                offset_long = round(off_x * mul)
+                offset_lat = round(off_y * mul)      
+                
+                assert abs(offset_long) <= 64, "%f %f %f %f %f %f" % (off_x, off_y, dist, mul, offset_long, offset_lat)
+                assert abs(offset_lat) <= 64, "%f %f %f %f %f %f" % (off_x, off_y, dist, mul, offset_long, offset_lat)
+        
+            a = int(abs(offset_lat))
+            b = int(abs(offset_long))
+            
+            assert not (a == 0 and b == 0), "A,B == 0" + str(self.target) + str(self.point)
+            
+            if offset_lat < 0:
+                a |= 0x40
+            if offset_long < 0:
+                b |= 0x40
+                
+            if still_too_close:
+                a |= 0x80
+                b |= 0x80   
+            elif too_close:                            
+                a |= 0
+                b |= 0x80
+            else:
+                a |= 0x80
+                b |= 0
+                
+            bytes = struct.pack("BBB", index, a, b)      
+            
+        return bytes
 

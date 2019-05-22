@@ -39,19 +39,19 @@ import numpy
 import time
 import multiprocessing
 import getopt
+import struct
 
-bDraw = False
+import cProfile
+
+from const import *
+from gps_calc import *
+
 bVerbose = 0
 wantedResolution = 300
 latOnly = lonOnly = None
 force = False
 checkPoint = None
 
-# each point has "levels" elevation levels
-levels = 5
-
-# The size of 1 level in bytes in the file
-sizeof_level = 4
 
 airspaces = []
 
@@ -65,290 +65,192 @@ def getBoundingBox(airspaces):
         bb[3] = max(bb[3], bb2[3])
     return bb
 
-def printAirspaces(airspaceVectors):
-    heights = sorted(airspaceVectors.keys())
-    for i in range(len(heights)):
-        height = heights[len(heights)-1-i]
-        airspaceVector = airspaceVectors[height]
-        airspace = airspaceVector.airspace
-
-        distance_km = airspaceVector.distance / (100 * 1000)
-        distanceSpace = "     " + ' ' * int(distance_km * 2)
-        distanceString = "{:2.1f}km".format(distance_km)
-        space_len = len(distanceSpace) - len(distanceString)
-        distance = '{:s}{:s}'.format(" " * (space_len - 1), distanceString)
-        airspaceName = '"{:s}",{:3.0f}°'.format(airspace.name,airspaceVector.angle)
-
-        floor = airspace.getMin()
-        ceil = airspace.getMax()
-
-        s = ' {:5d}ft '.format(floor[0]) + ("AGL" if floor[1] else "MSL") + ' '
-        s += ' {:5d}ft '.format(ceil[0]) + ("AGL" if ceil[1] else "MSL") + ' '
-        if airspaceVector.inside:
-            
-            s = s + "---" + airspaceName + ('-' * (47-len(airspaceName))) + 'X' + ('-' * space_len) + distanceString + "-|"
-            print (s)
-        else:
-            s = s + (' ' * 50)
-            print (s + 'X ' + distance + ' |----------' + airspaceName + "---")
-                
-
-def findAirspacesInHeight(airspaceVectors, height):
-    matchingAirspaceVectors = []
-    for airspaceVector in airspaceVectors:
-        if height >= airspaceVector.airspace.getMin() and height < airspaceVector.airspace.getMax():
-            matchingAirspaceVectors.append(airspaceVector)
-
-    return matchingAirspaceVectors
-
-def findAirspacesInside(airspaceVectors):
-    matchingAirspaceVectors = []
-    for airspaceVector in airspaceVectors:
-        if airspaceVector.inside:
-            matchingAirspaceVectors.append(airspaceVector)
-
-    return matchingAirspaceVectors
-
-def findAirspacesNotInside(airspaceVectors):
-    matchingAirspaceVectors = []
-    for airspaceVector in airspaceVectors:
-        if not airspaceVector.inside:
-            matchingAirspaceVectors.append(airspaceVector)
-
-    return matchingAirspaceVectors
-
-def findLowestHeightInAirspaces(airspace_vectors):
-    minHeight = None
-    for airspace_vector in airspace_vectors:
-        if minHeight == None or airspace_vector.airspace.getMin() <= minHeight:
-            minHeight = airspace_vector.airspace.getMin()
-
-    return minHeight
-
-def findHighestHeightInAirspaces(airspace_vectors):
-    maxHeight = None
-    for airspace_vector in airspace_vectors:
-        if maxHeight == None or airspace_vector.airspace.getMax() > maxHeight:
-            maxHeight = airspace_vector.airspace.getMax()
-
-    return maxHeight
-
-# Find the smallest height which is >= h.
-def findNextHeightInAirspaces(airspace_vectors, h):
-    nextHeight = None
-    for airspace_vector in airspace_vectors:
-        newHeight = airspace_vector.airspace.getMin()
-        if newHeight > h:
-            if nextHeight == None:
-                nextHeight = newHeight
-            else:
-                nextHeight = min(nextHeight, newHeight)
-        newHeight = airspace_vector.airspace.getMax()
-        if newHeight > h:
-            if nextHeight == None:
-                nextHeight = newHeight
-            else:
-                nextHeight = min(nextHeight, newHeight)
-
-    return nextHeight
-
-def findNearestAirspace(airspaceVectors):
-    nearestAirspace = None
-    for airspaceVector in airspaceVectors:
-        if nearestAirspace == None or airspaceVector.distance < nearestAirspace.distance:
-            nearestAirspace = airspaceVector
-
-    return nearestAirspace
-
-def findFarestAirspace(airspaceVectors):
-    farestAirspace = None
-    for airspaceVector in airspaceVectors:
-        if farestAirspace == None or airspaceVector.distance > farestAirspace.distance:
-            farestAirspace = airspaceVector
-
-    return farestAirspace
-
 # Entering a point here, would help debugging stuff inside dump.
 checkpoints = numpy.array([
     #[9.0, 48.1],
     #[8.8, 48.9]
     ])
     
-def dumpPoint(output, offset, p, airspaces, draw=False, check=False):
+    
+def dumpPoint(output, offset, p, airspaces, check=False):
+
+    def av_score(av):
+        class_dict = {
+            "A" : 1,    # Class A
+            "B" : 1,    # Class B
+            "C" : 1,    # Class C
+            "D" : 1,    # Class D 
+            "CTR" : 1,  # CTR
+            "Q" : 1,    # danger
+            "P" : 1,    # prohibited
+            "R" : 0.5,    #restricted
+            "GP" : 0.25,   # glider prohibited 
+            "W" : 0.25    # Wave Window
+        }      
+    
+        score = 0
+        
+        if av.isInside():
+            dist_score = 1
+        else:
+            dist_score = 1 - min(av.getDistance() / (33.0), 1)
+
+        score += dist_score * 10000   
+            
+        alt_score = 1 - min(av.airspace.getMin()[0] / 10000, 1)            
+        score += alt_score * 1000
+        
+        class_score = class_dict[av.airspace.getClass()]
+        score += class_score * 100
+        
+        av.scores = {}
+        av.scores["D"] = dist_score
+        av.scores["A"] = alt_score
+        av.scores["C"] = class_score
+        av.scores["T"] = score
+        
+        return score
+
     global bVerbose
-    global bDraw
     
     inside = False
-            
-    #print (p)
-    for c in checkpoints:
-        # print (p[0], c[0], p[1], c[1])
-        if abs(p.x - c[0]) < 0.001 and abs(p.y - c[1]) < 0.001:
-            check = True
-            if bVerbose > 0:
-                print (p)
 
     avs = []
+    
+    #get all airspaces in proximity
     for airspace in airspaces:
-        if airspace.getDistanceToCenter(p) / (100*1000) < 100:
-            av = airspace.getAirspaceVector(p, draw)
-            if not av.isTooFar():
-                avs.append(av)
+        if airspace.isNear(p):
+            av = airspace.getAirspaceVector(p)
+            avs.append(av)
+
+    #sort by importance
+    avs.sort(key = av_score, reverse = True)
 
     if check and bVerbose > 1:
-        print(p, len(avs), "airspaces here")
-    #pprint ("All airspaces:")
-    #pprint (avs)
-
-    sortedAirspaces = {}
+        print ("Airspaces here:")
+        i = 0
+        for av in avs:
+            air = av.airspace
+            if i == DATA_LEVELS:
+                print("-" * 120)
+            i += 1
             
-    # We start at lowest height
-    hMin = findLowestHeightInAirspaces(avs)
-    hMax = findHighestHeightInAirspaces(avs)
-    h = hMin
-    while h != None and h < hMax:
-        if check and bVerbose > 1:
-            print ("Height:", h)
-        nearestAirspace = None
-        airspacesInThisHeight = findAirspacesInHeight(avs, h)
-        if check and bVerbose > 1:
-            print ("airspacesInThisHeight:")
-            print (airspacesInThisHeight)
-        airspacesInside = findAirspacesInside(airspacesInThisHeight)
-        if len(airspacesInside) != 0:
-            inside = True
-            if check and bVerbose > 1:
-                print ("INSIDE:")
-            nearestAirspace = findNearestAirspace(airspacesInside)
-        else:
-            nearestAirspace = findNearestAirspace(airspacesInThisHeight)
-
-        if check and bVerbose > 1:
-            print ("nearestAirspace")
-            print (nearestAirspace)
-
-        # avs.sort(key=lambda x: x.distance, reverse=False)
-
-        #pprint(nearestAirspace)
-
-        if nearestAirspace != None:
-            sortedAirspaces[h] = nearestAirspace
-
-        h = findNextHeightInAirspaces(avs, h)
-
-    if check and bVerbose > 0:
-        print ("\nStep #1: All near airspaces sorted by height")
-        printAirspaces (sortedAirspaces)
-
-    # Eliminate all subsequent identical airspaces:
-    compactAirspaces = {}
-    heights = sorted(sortedAirspaces.keys())
-    if len(heights) > 0:
-        height1 = heights[0]
-        compactAirspaces[height1] = sortedAirspaces[height1]
-
-        for i in range(len(heights)-1):
-            height1 = heights[i]
-            height2 = heights[i+1]
-            if check and bVerbose > 1:
-                print ("comparing airspace in", height1, "and", height2)
-            if sortedAirspaces[height1].airspace != sortedAirspaces[height2].airspace:
-                if check and bVerbose > 1:
-                    print("  different airspaces. Adding airspace from", height2)
-                compactAirspaces[height2] = sortedAirspaces[height2]
-            else:
-                if check and bVerbose > 1:
-                    print ("  identical airspaces. Skipping airspace from", height2)
-    
-    if check and bVerbose > 0:
-        print ("\nStep #2: Only unique airspaces (all duplicates removed)")
-        printAirspaces (compactAirspaces)
-
-    sortedAirspaces = compactAirspaces
-    
-    # Eliminate all subsequent airspaces with same angle/distance:
-    compactAirspaces = sortedAirspaces
-    heights = sorted(sortedAirspaces.keys())
-    if len(heights) > levels:
-        compactAirspaces = {}
-        height1 = heights[0]
-        compactAirspaces[height1] = sortedAirspaces[height1]
-
-        for i in range(len(heights)-1):
-            height1 = heights[i]
-            height2 = heights[i+1]
-            if check and bVerbose > 1:
-                print ("comparing airspace in", height1, "and", height2, "for identical distance/angle.")
-                print("  distance:", sortedAirspaces[height1].getDistanceAsByte(), sortedAirspaces[height2].getDistanceAsByte())
-                print ("  angle:", sortedAirspaces[height1].getAngleAsByte(), sortedAirspaces[height2].getAngleAsByte())
-                        
-            if sortedAirspaces[height1].getDistanceAsByte() != sortedAirspaces[height2].getDistanceAsByte() or abs(sortedAirspaces[height1].getAngleAsByte() - sortedAirspaces[height2].getAngleAsByte()) > 5:
-                if check and bVerbose > 1:
-                    print("  different distance/angle. Adding airspace from", height2)
-                compactAirspaces[height2] = sortedAirspaces[height2]
-            else:
-                if check and bVerbose > 1:
-                    print ("  identical distance/angle. Skipping airspace from", height2)
-    
-    if check and bVerbose > 0:
-        print ("\nStep #3: All different airspaces with identical distance/angle removed")
-        printAirspaces (compactAirspaces)
+            str_score = ""
+            for key in av.scores:
+                str_score += "%s %0.3f " % (key, av.scores[key])            
+            str_score = str_score[:-1]
+            
+            print("%50s %5u - %-5u %2s %5.2fkm %4s  %s" % 
+                (air.getName(), air.getMin()[0], air.getMax()[0], "IN" if av.isInside() else "", av.getDistance(), air.getClass(), str_score))
  
-    # Delete all airspaces which are far away
-    while len(compactAirspaces) > levels:
-                
-        outsideAirspaces = findAirspacesNotInside(compactAirspaces.values())
-        farestAirspace = findFarestAirspace(outsideAirspaces)
-        if farestAirspace == None:
-            print ("Too much airspaces and none is far away at", p)
-            sys.exit(1)
-        if check and bVerbose > 1:
-            print("Deleting ", farestAirspace)
-                
-        compactAirspaces2 = {}
-        for height in compactAirspaces.keys():
-            if compactAirspaces[height] != farestAirspace:
-                compactAirspaces2[height] = compactAirspaces[height]
-            #else:
-            #    print (p, " removed airspace ", farestAirspace)
+    #cut to max levels
+    avs = avs[:DATA_LEVELS]
 
-        compactAirspaces = compactAirspaces2
+    #sort by min alt
+    avs.sort(key = lambda av: av.airspace.getMin())
 
-    if check and bVerbose > 0:
-        print ("\nStep #4: Removed distant airspaces to reduce to 5 levels")
-        printAirspaces (compactAirspaces)
- 
-    #names = []
-    heights = sorted(compactAirspaces.keys())
-    for i in range(len(heights)):
-        height1 = heights[i]
-        for byte in compactAirspaces[height1].getBytes():
-            output[offset] = byte
-            offset = offset + 1
-#        if check and bVerbose > 1:
-#           print("    up to ",height2, ": ", name)
+    if output is not None:
+        #store to data file
+        for av in avs:
+            for byte in av.getBytes():
+                output[offset] = byte
+                offset += 1
+                    
+        # Fill up with empty Airspaces
+        av = AirspaceVector()
+        for i in range(DATA_LEVELS - len(avs)):
+            for byte in av.getBytes():
+                output[offset] = byte
+                offset += 1
                 
-    # Fill up with empty Airspaces
-    av = AirspaceVector()
-    for i in range(levels - len(compactAirspaces)):
-        for byte in av.getBytes():
-            output[offset] = byte
-            offset = offset + 1
+    return len(avs)
+      
+class Indexer(object):
+    def __init__(self):
+        self.num = 0
+        self.list = {}
         
-def dump(lon, lat, airspaces, draw=False):
+    def getNext(self, airspace):
+        old = self.num
+        self.num += 1
+        
+        #print("Indexing: %3u" % old, airspace.getName())
+        
+        self.list[old] = airspace
+        
+        return old
+        
+    def printIndex(self, index):  
+        airspace = self.list[index]
+        hmin, hmin_agl = airspace.getMin()
+        hmax, hmax_agl = airspace.getMax()
+        class_name = airspace.getClass()
+        name = airspace.getName()    
+        
+        hmin_mode = "AGL" if hmin_agl else "MSL"
+        hmax_mode = "AGL" if hmax_agl else "MSL"
+        
+        print("   i =%3u %6u %s - %6u %s [%4s] %s" % (index, hmin, hmin_mode, hmax, hmax_mode, class_name, name))    
+        
+    def dumpIndex(self):
+        buff = bytes()
+        
+    
+        for i in self.list:
+            airspace = self.list[i]
+            hmin, hmin_agl = airspace.getMin()
+            hmax, hmax_agl = airspace.getMax()
+            class_name = airspace.getClass()
+            name = airspace.getName()
+                        
+            hmin = min(hmin, 0x8FFF) + (0x8000 if hmin_agl else 0)
+            hmax = min(hmax, 0x8FFF) + (0x8000 if hmax_agl else 0)
+                        
+            class_dict = {
+                "R" : 0,    #restricted
+                "Q" : 1,    # danger
+                "P" : 2,    # prohibited
+                "A" : 3,    # Class A
+                "B" : 4,    # Class B
+                "C" : 5,    # Class C
+                "D" : 6,    # Class D 
+                "GP" : 7,   # glider prohibited 
+                "CTR" : 8,  # CTR
+                "W" : 9    # Wave Window
+            }          
+            
+            class_index = class_dict[class_name]
+            if len(name) > 49:
+                name = name[:49]
+                
+            name += '\0'
+            #floor      2   0
+            #ceil       2   2
+            #class      1   4
+            #name       50  5                       
+            #reserved   9   55
+                        
+            line = (struct.pack("HHB", hmin, hmax, class_index) + bytes(name, "ascii"))
+            buff += line + bytes('\0', "ascii") * (64 - len(line))
+            
+        return buff
+    
+        
+def dump(lon, lat, airspaces):
 
-    global levels
-    global sizeof_level
     global wantedResolution
+    
+    profile = False
+    
+    if profile:
+        pr = cProfile.Profile()
+        pr.enable() 
     
     filename = f"N{lat:02d}E{lon:03d}.air"
     
-    if draw:
-        numPoints = 10
-    else:
-        numPoints = wantedResolution
+    numPoints = wantedResolution
 
-    filesize = numPoints * numPoints * levels * sizeof_level
+    filesize = numPoints * numPoints * DATA_LEVELS * DATA_LEVEL_SIZE
     if os.path.isfile(filename) and not force:
         print (filename, "exists, skipping...")
         return
@@ -359,30 +261,49 @@ def dump(lon, lat, airspaces, draw=False):
     
     f = None
     
+    indexer = Indexer()
+    
+    for airspace in airspaces:
+        airspace.setIndexer(indexer)
+    
     try:
         # Quickcheck for emptyness
         isEmpty = True
-        for lat_i in numpy.arange(lat, lat + 1, 1/10):
-            for lon_i in numpy.arange(lon, lon + 1, 1/10):
+        for lat_i in numpy.arange(lat, lat + 1, 1/4):
+            for lon_i in numpy.arange(lon, lon + 1, 1/4):
                 p = shapely.geometry.Point(lon_i, lat_i)
-                offset = 0
-                dumpPoint(output, offset, p, airspaces)
-                for offset in range(levels * sizeof_level):
-                    if output[offset] != 0:
-                        isEmpty = False
+                if dumpPoint(None, 0, p, airspaces) > 0:
+                    isEmpty = False
+                if not isEmpty:
+                    break
+            if not isEmpty:
+                break
+                    
 
         if not isEmpty:
             pos = 0
             f = open(filename, 'wb')
-            for lat_i in numpy.arange(lat, lat + 1, 1/numPoints):
+            last_per = 999
+            
+            for lat_i in numpy.arange(lat, lat + 1, 1 / numPoints):
                 pos += 1
-                print ("%s: %u %%" % (filename, (pos * 100)/numPoints))
-                for lon_i in numpy.arange(lon, lon + 1, 1/numPoints):
-                    p = shapely.geometry.Point(lon_i, lat_i)
-                    y = (lat_i - lat) * numPoints;
-                    x = (lon_i - lon) * numPoints;
-                    offset = (int(numPoints - 1 - y) * numPoints + int(x)) * (levels * sizeof_level)
-                    dumpPoint(output, offset, p, airspaces, draw)
+                per = int((pos * 100) / numPoints)
+                if per != last_per:
+                    print ("%s: %u %%" % (filename, per))
+                    last_per = per
+                    
+                for lon_i in numpy.arange(lon, lon + 1, 1 / numPoints):
+                    off = (1 / numPoints) * 0.5
+                    p = shapely.geometry.Point(lon_i + off, lat_i + off)
+                    
+                    mul = 10000000
+                    x = round((lon_i * mul % mul) * numPoints / mul)
+                    y = round((lat_i * mul % mul) * numPoints / mul)
+                    x = int(x)
+                    y = int(y)
+                    
+                    offset = int((x * numPoints + y) * DATA_LEVELS * DATA_LEVEL_SIZE)
+                    dumpPoint(output, offset, p, airspaces)
                     
     except (KeyboardInterrupt, SystemExit):
         print("Exiting...")
@@ -399,9 +320,16 @@ def dump(lon, lat, airspaces, draw=False):
     if isEmpty:
         print (filename, "is empty")
     else:
+        f.write(struct.pack("H", numPoints))
         f.write(bytes(output))
+        f.write(bytes(indexer.dumpIndex()))
+               
         print (filename, "saved")
         f.close()
+        
+    if profile:        
+        pr.disable()
+        pr.print_stats(sort = "cumtime")
 
 #**********************************************************************
 #                                main()
@@ -413,18 +341,16 @@ def usage():
 def main(argv = None):
 
     global bVerbose
-    global bDraw
     global latOnly, lonOnly
     global wantedResolution
     global force
     global checkPoint
-    global levels, sizeof_level
     
     if argv is None:
         argv = sys.argv
 
     try:
-        opts, args = getopt.getopt(argv,"hvqdr:fc:",["help", "resolution=","quiet","verbose","draw", "force", "check"])
+        opts, args = getopt.getopt(argv,"hvqdr:fc:",["help", "resolution=","quiet","verbose", "force", "check"])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -440,8 +366,6 @@ def main(argv = None):
             bVerbose = 0
         elif opt in ("-v", "--verbose"):
             bVerbose = bVerbose + 1
-        elif opt in ("-d", "--draw"):
-            bDraw = True
         elif opt in ("-r", "--resolution"):
             wantedResolution = int(arg)
         elif opt in ("-f", "--force"):
@@ -522,82 +446,68 @@ def main(argv = None):
     print("BoundingBox:", boundingBox)
 
     if checkPoint != None:
-        output = bytearray(levels * sizeof_level)
-        print (checkPoint)
-        dumpPoint(output, 0, checkPoint, airspaces, False, True)
+    
+        indexer = Indexer()
+        
+        for airspace in airspaces:
+            airspace.setIndexer(indexer)    
+    
+        output = bytearray(DATA_LEVELS * DATA_LEVEL_SIZE)
+        dumpPoint(output, 0, checkPoint, airspaces, True)
         
         print()
-        for level in range(levels):
-            offset = level * sizeof_level
-            floor_raw    = int.from_bytes([output[offset+0]], 'little', signed=False)
-            ceil_raw     = int.from_bytes([output[offset+1]], 'little', signed=False)
-            angle_raw    = int.from_bytes([output[offset+2]], 'little', signed=False)
-            distance_raw = int.from_bytes([output[offset+3]], 'little', signed=False)
-            floorAGL = floor_raw > 127
-            floor = floor_raw
-            if floorAGL:
-                floor -= 128
-                floor_mode = "AGL"
-            else:
-                floor_mode = "MSL"
-            floor *= 250
+        for level in range(DATA_LEVELS):
+            offset = level * DATA_LEVEL_SIZE
+            index = int.from_bytes([output[offset+0]], 'little', signed=False)
+            a = output[offset+1]
+            b = output[offset+2]
 
-            ceilAGL = ceil_raw > 127
-            ceil = ceil_raw
-            if ceilAGL:
-                ceil -= 128
-                ceil_mode = "AGL"
-            else:
-                ceil_mode = "MSL"
-            ceil *= 250
+            inside = bool(index & 0x80)
+            index &= 0x7F
             
-            if angle_raw > 127:
-                angle = angle_raw - 128
-                inside = " INSIDE!"
+            
+            if a & 0x80: #angle mode
+                a &= 0x7F
+                distance_km = int.from_bytes([a], 'little', signed=False) / 2.0
+                angle = int.from_bytes([b], 'little', signed=False) * 2
+                
+                mode = "angle"
             else:
-                angle = angle_raw
-                inside = ""
+                lat_offset = int.from_bytes([a], 'little', signed=True) 
+                long_offset = int.from_bytes([b], 'little', signed=True) 
 
-            angle = angle * 3
-            distance = distance_raw * 64
+                point = checkPoint
+                target = shapely.geometry.Point(point.x + lat_offset * OFFSET_MUL, point.y + long_offset * OFFSET_MUL)
+                
+                distance_km = gps_distance_2d_shapely(point, target) / (100 * 1000)
+                angle = gps_bearing_shapely(point, target)
+                
+                mode = "offset"                
             
-            if ceil == 0:
+            if index == 0x7F:
                 print ("  level", level, "---")
                 continue
             
-            if ceil_raw & 0x7F == 0x7F:
-                ceil = "MAX"
+            print ("  %u %3udeg %8.2fkm %2s %s" % (level, angle, distance_km, "IN" if inside else "", mode))
+            indexer.printIndex(index)
             
-            print ("  level", level, "floor=" + str(floor), floor_mode, "ceil=" + str(ceil), ceil_mode, " angle="+str(angle)+" distance="+str(distance)+inside)
 
     count = 0
-    if bDraw:
-        print ("DRAW")
-        for airspace in airspaces:
-            airspace.draw()
-        plt.plot(boundingBox[0], boundingBox[1], '.', color="black")
-        plt.plot(boundingBox[2], boundingBox[3], '.', color="black")
 
-        if checkPoint != None:
-            plt.plot(checkPoint.x, checkPoint.y, 'x', color="red")
-        plt.grid(True)
-
-    #if checkPoint != None:
-    #    sys.exit(0)
     if checkPoint == None:   
         try:
             procs = []
             if latOnly != None and lonOnly != 0:
-                p = multiprocessing.Process(target=dump, args=(lonOnly,latOnly,airspaces, bDraw))
+                p = multiprocessing.Process(target=dump, args=(lonOnly,latOnly,airspaces))
                 procs.append(p)
             else:
                 for lat in range(int(boundingBox[1])-1,int(boundingBox[3])+2):
                     for lon in range(int(boundingBox[0])-1,int(boundingBox[2])+2):
-                        p = multiprocessing.Process(target=dump, args=(lon,lat,airspaces, bDraw))
+                        p = multiprocessing.Process(target=dump, args=(lon,lat,airspaces))
                         procs.append(p)
 
             running = []
-            parallelism = multiprocessing.cpu_count() * 2    # set to "1" for sequential
+            parallelism = multiprocessing.cpu_count()    # set to "1" for sequential
             while len(procs) > 0 or len(running) > 0:
                 # Start as much processes as we have CPUs
                 while len(running) < parallelism and len(procs) > 0:
@@ -615,10 +525,6 @@ def main(argv = None):
         except (KeyboardInterrupt, SystemExit):
             print("Exiting (main)...")
             sys.exit(1)
-            
-    if bDraw:
-        plt.axis('equal')
-        plt.show()
 
     return 0
 
@@ -735,7 +641,7 @@ def ReadAltFt( poFeature, fieldName ):
 def ReadFeature( poFeature ):
 
     poDefn = poFeature.GetDefnRef()
-    # print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
+    #print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
 
     classAir = ReadField(poFeature, "CLASS")
     
@@ -783,6 +689,7 @@ def ReadFeature( poFeature ):
                 airspace.setName(name)
                 airspace.setMinMax(floor, floorAGL, ceiling, ceilingAGL)
                 airspace.setPolygon(polygon)
+                airspace.setClass(classAir)
                 airspaces.append(airspace)
         
     return

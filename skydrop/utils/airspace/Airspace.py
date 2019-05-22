@@ -9,53 +9,7 @@ from math import sqrt,cos,atan2,floor
 from AirspaceVector import AirspaceVector
 
 
-def gps_bearing_shapely(P1, P2):
-    p1 = numpy.array([P1.x,P1.y])
-    p2 = numpy.array([P2.x,P2.y])
-
-    return gps_bearing(p1,p2)
-
- #
- # Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
- # must be given as fixed integers multiplied with GPS_MULT.
- #
- # \param lat1 the latitude of the 1st GPS point
- # \param lon1 the longitude of the 1st GPS point
- # \param lat2 the latitude of the 2nd GPS point
- # \param lon2 the longitude of the 2nd GPS point
- #
- # \return the bearing in degrees (0-359, where 0 is north, 90 is east, ...).
- #
-def gps_bearing(P1, P2):
-    d = P2 - P1
-    return (numpy.degrees(atan2(d[0],d[1])) + 360) % 360
-
-def gps_distance_2d_shapely(P1, P2):
-    return gps_distance_2d([P1.x, P1.y], [P2.x, P2.y])
-
- #
- # Compute the distance between two GPS points in 2 dimensions
- # (without altitude). Latitude and longitude parameters must be given as fixed integers
- # multiplied with GPS_MULT.
- #
- # \param lat1 the latitude of the 1st GPS point
- # \param lon1 the longitude of the 1st GPS point
- # \param lat2 the latitude of the 2nd GPS point
- # \param lon2 the longitude of the 2nd GPS point
- #
- # \return the distance in cm.
- #
-def gps_distance_2d(P1, P2):
-
-    # Compute the average lat of lat1 and lat2 to get the width of a
-    # 1 degree cell at that position of the earth:
-    lat = (P1[1] + P2[1]) / 2 * (numpy.pi / 180.0)
-
-    # 111.3 km (in cm) is the width of 1 degree
-    dx = cos(lat) * 11130000 * abs(P1[0] - P2[0])
-    dy = 1.0      * 11130000 * abs(P1[1] - P2[1])
-
-    return sqrt(dx * dx + dy * dy)
+from const import *
 
 def draw_p(p, color="black"):
     plt.plot(p.x, p.y, '.', color=color)
@@ -78,21 +32,41 @@ class Airspace:
     def __init__(self):
         self.minFt = None
         self.minAGL = None
-        self.maxFt = None
         self.maxAGL = None
         self.name = None
         self.polygon = None
+        self.index = None
+        self.indexer = None
+        self.class_name = None
         
+    def setIndexer(self, indexer):
+        self.indexer = indexer
+        
+    def getIndex(self):
+        if self.index == None:
+            self.index = self.indexer.getNext(self)
+            
+        return self.index
+
     def setName(self, name):
         self.name = name
+
+    def setClass(self, class_name):
+        self.class_name = class_name
         
+    def getClass(self):
+        return self.class_name
+                
     def getName(self):
         return self.name
         
     def setPolygon(self, polygon):
         self.polygon = polygon
         self.bb = self.polygon.bounds
-        self.center = shapely.geometry.Point( (self.bb[0]+self.bb[2])/2, (self.bb[1]+self.bb[3])/2 )
+        
+        ex = AIRSPACE_BORDER      
+        self.near_box = shapely.geometry.box(self.bb[0] - ex, self.bb[1] - ex, self.bb[2] + ex, self.bb[3] + ex)
+
 
     def setMinMax(self, minFt, minAGL, maxFt, maxAGL):
         self.minFt = minFt
@@ -114,22 +88,16 @@ class Airspace:
             p2 = shapely.geometry.Point(coords[i+1])
             draw_line(p1, p2, "blue")
 
-    def is_inside(self, p):
-        return 
-
     def __repr__(self):
         from pprint import pformat
-        #return pformat(vars(self))
-        return self.name+" BB: "+pformat(self.getBoundingBox())+", min: "+pformat(self.minFt)+", max: "+pformat(self.maxFt)
+        return self.name+" BB: "+pformat(self.getBoundingBox())+", min: "+pformat(self.minFt)+", max: "+pformat(self.maxFt)+", class: "+ self.class_name
 
     def getBoundingBox(self):
         return self.bb
 
-    def getCenter(self):
-        return self.center
+    def isNear(self, point):
+        return point.within(self.near_box)
 
-    def getDistanceToCenter(self, point):
-        return gps_distance_2d_shapely(point, self.center)
         
     # Compute a vector from the given point to this airspace.
     # The point is meant as the pilots position and the vector
@@ -138,39 +106,16 @@ class Airspace:
     # So this is used to compute the angle and distance of the
     # pilot to get into or out of the airspace.
     #
-    def getAirspaceVector(self, point, draw=False):
-        av = AirspaceVector()
-        av.setAirspace(self)
-        av.setPoint(point)
-        av.setInside(point.within(self.polygon))
-
+    def getAirspaceVector(self, point):
+    
         nearest_points = shapely.ops.nearest_points(self.polygon.boundary, point)
         if len(nearest_points) != 2:
             print(len(nearest_points),"nearest points to",p)
             for np in nearest_points:
                 pprint(np.wkt)
             sys.exit(1)
-        c = nearest_points[0]
-        
-        distance_cm = gps_distance_2d_shapely(point,c)
-        angle = gps_bearing_shapely(point,c)
-
-        av.setDistance(distance_cm)
-
-        if not av.isInside():
-            # Show arrow away from airspace
-            angle = angle - 180
-            if angle < 0:
-                angle = angle + 360
-
-        av.setAngle(angle)
-
-        if draw:
-            if av.isInside():
-                draw_p(point, "red")
-                draw_vector(point, c, "red", 0.2)
-            else:
-                draw_p(point, "green")
-                draw_vector(point, c, "black", 0.2)
+        target = nearest_points[0]
+            
+        av = AirspaceVector(self, point, target)
 
         return av
