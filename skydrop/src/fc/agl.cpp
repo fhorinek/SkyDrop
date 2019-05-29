@@ -8,10 +8,6 @@ FIL agl_data_file;
 // The SRMT HGT file format is described in detail in
 //     http://dds.cr.usgs.gov/srtm/version2_1/Documentation/SRTM_Topo.pdf
 
-// All lat/lon values are multiplied by HGT_COORD_MUL, so that we can use
-// fixed point integer arithmetic instead of floating points:
-#define HGT_COORD_MUL	10000000l
-
 // Some HGT files contain 1201 x 1201 points (3 arc/90m resolution)
 #define HGT_DATA_WIDTH_3	1201ul
 
@@ -34,8 +30,8 @@ void agl_get_filename(char * fn, int32_t lat, int32_t lon)
 {
     char lat_c, lon_c;
 
-    uint8_t lat_n = abs(lat / HGT_COORD_MUL);
-    uint16_t lon_n = abs(lon / HGT_COORD_MUL);
+    uint8_t lat_n = abs(lat / GPS_COORD_MUL);
+    uint16_t lon_n = abs(lon / GPS_COORD_MUL);
 
     if (lat >= 0)
     {
@@ -109,13 +105,13 @@ int16_t agl_get_alt_on_opened_file(int32_t lat, int32_t lon)
     {
         // we do not care above degree, only minutes are important
         // reverse the value, because file goes in opposite direction.
-        lon = (HGT_COORD_MUL - 1) + (lon % HGT_COORD_MUL);   // lon is negative!
+        lon = (GPS_COORD_MUL - 1) + (lon % GPS_COORD_MUL);   // lon is negative!
     }
     if (lat < 0)
     {
         // we do not care above degree, only minutes are important
         // reverse the value, because file goes in opposite direction.
-        lat = (HGT_COORD_MUL - 1) + (lat % HGT_COORD_MUL);   // lat is negative!
+        lat = (GPS_COORD_MUL - 1) + (lat % GPS_COORD_MUL);   // lat is negative!
     }
 
     // Check, if we have a 1201x1201 or 3601x3601 tile:
@@ -136,10 +132,10 @@ int16_t agl_get_alt_on_opened_file(int32_t lat, int32_t lon)
     }
 
     // "-2" is, because a file has a overlap of 1 point to the next file.
-    uint32_t coord_div_x = HGT_COORD_MUL / (num_points_x - 2);
-    uint32_t coord_div_y = HGT_COORD_MUL / (num_points_y - 2);
-    uint16_t y = (lat % HGT_COORD_MUL) / coord_div_y;
-    uint16_t x = (lon % HGT_COORD_MUL) / coord_div_x;
+    uint32_t coord_div_x = GPS_COORD_MUL / (num_points_x - 2);
+    uint32_t coord_div_y = GPS_COORD_MUL / (num_points_y - 2);
+    uint16_t y = (lat % GPS_COORD_MUL) / coord_div_y;
+    uint16_t x = (lon % GPS_COORD_MUL) / coord_div_x;
 
     uint16_t rd;
     uint8_t tmp[4];
@@ -174,8 +170,8 @@ int16_t agl_get_alt_on_opened_file(int32_t lat, int32_t lon)
     alt22.uint8[1] = tmp[2];
 
     //get point displacement
-    float lat_dr = ((lat % HGT_COORD_MUL) % coord_div_y) / float(coord_div_y);
-    float lon_dr = ((lon % HGT_COORD_MUL) % coord_div_x) / float(coord_div_x);
+    float lat_dr = ((lat % GPS_COORD_MUL) % coord_div_y) / float(coord_div_y);
+    float lon_dr = ((lon % GPS_COORD_MUL) % coord_div_x) / float(coord_div_x);
 
     //compute height by using bilinear interpolation
     float alt1 = alt11.int16 + float(alt12.int16 - alt11.int16) * lat_dr;
@@ -251,7 +247,7 @@ void agl_step()
         fc.agl.ground_gradient = AGL_INVALID;
         fc.agl.ground_level = agl_get_alt(fc.gps_data.latitude, fc.gps_data.longtitude);
         if (fc.agl.ground_level != AGL_INVALID)
-            DEBUG("AGL: lat/lon: %f %f GL: %d GL_GRAD: %f\n", fc.gps_data.latitude * 1.0 / HGT_COORD_MUL, fc.gps_data.longtitude * 1.0 / HGT_COORD_MUL, fc.agl.ground_level, fc.agl.ground_gradient);
+            DEBUG("AGL: lat/lon: %f %f GL: %d GL_GRAD: %f\n", fc.gps_data.latitude * 1.0 / GPS_COORD_MUL, fc.gps_data.longtitude * 1.0 / GPS_COORD_MUL, fc.agl.ground_level, fc.agl.ground_gradient);
     }
 }
 

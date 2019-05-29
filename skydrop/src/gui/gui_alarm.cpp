@@ -52,14 +52,13 @@ void gui_set_alarm_loop()
 			if (gui_alarm_switch_back == 0)
 			{
 				gui_alarm_switch_back = task_get_ms_tick() + GUI_ALARM_TIMEOUT;
+				seq_stop();
 			}
 			else
 			{
 				if (gui_alarm_switch_back < task_get_ms_tick())
 					gui_switch_task(GUI_PAGES);
 			}
-
-			seq_stop();
 		break;
 
 		case(1):

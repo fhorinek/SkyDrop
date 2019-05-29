@@ -47,7 +47,7 @@ from const import *
 from gps_calc import *
 
 bVerbose = 0
-wantedResolution = 300
+wantedResolution = 200
 latOnly = lonOnly = None
 force = False
 checkPoint = None
@@ -203,8 +203,8 @@ class Indexer(object):
             class_name = airspace.getClass()
             name = airspace.getName()
                         
-            hmin = min(hmin, 0x8FFF) + (0x8000 if hmin_agl else 0)
-            hmax = min(hmax, 0x8FFF) + (0x8000 if hmax_agl else 0)
+            hmin = min(hmin, 0x7FFF) + (0x8000 if hmin_agl else 0)
+            hmax = min(hmax, 0x7FFF) + (0x8000 if hmax_agl else 0)
                         
             class_dict = {
                 "R" : 0,    #restricted
@@ -246,7 +246,22 @@ def dump(lon, lat, airspaces):
         pr = cProfile.Profile()
         pr.enable() 
     
-    filename = f"N{lat:02d}E{lon:03d}.air"
+    lat_n = abs((lat * HGT_COORD_MUL) / HGT_COORD_MUL);
+    lon_n = abs((lon * HGT_COORD_MUL) / HGT_COORD_MUL);
+
+    if lat >= 0:
+        lat_c = 'N'
+    else:
+        lat_c = 'S'
+        lat_n += 1
+        
+    if (lon >= 0):
+        lon_c = 'E'
+    else:
+        lon_c = 'W'
+        lon_n += 1
+
+    filename = "%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
     
     numPoints = wantedResolution
 
@@ -296,11 +311,9 @@ def dump(lon, lat, airspaces):
                     off = (1 / numPoints) * 0.5
                     p = shapely.geometry.Point(lon_i + off, lat_i + off)
                     
-                    mul = 10000000
-                    x = round((lon_i * mul % mul) * numPoints / mul)
-                    y = round((lat_i * mul % mul) * numPoints / mul)
-                    x = int(x)
-                    y = int(y)
+                    mul = HGT_COORD_MUL
+                    x = int(round((abs(lon_i) * mul % mul) * numPoints / mul))
+                    y = int(round((abs(lat_i) * mul % mul) * numPoints / mul))
                     
                     offset = int((x * numPoints + y) * DATA_LEVELS * DATA_LEVEL_SIZE)
                     dumpPoint(output, offset, p, airspaces)
@@ -320,7 +333,6 @@ def dump(lon, lat, airspaces):
     if isEmpty:
         print (filename, "is empty")
     else:
-        f.write(struct.pack("H", numPoints))
         f.write(bytes(output))
         f.write(bytes(indexer.dumpIndex()))
                
@@ -387,6 +399,13 @@ def main(argv = None):
     else:
         usage()
         sys.exit(1)
+        
+    print("Resolution table")
+    print("Max distance %7.3fkm" % (OFFSET_BASE * 111))
+    print("Mode 0 %0.10f deg -> %7.3fkm  %7.3fkm" % (OFFSET_MUL_0, OFFSET_MUL_0 * 111, OFFSET_MUL_0 * 111 * 64))
+    print("Mode 1 %0.10f deg -> %7.3fkm  %7.3fkm" % (OFFSET_MUL_1, OFFSET_MUL_1 * 111, OFFSET_MUL_1 * 111 * 64))
+    print("Mode 2 %0.10f deg -> %7.3fkm  %7.3fkm" % (OFFSET_MUL_2, OFFSET_MUL_2 * 111, OFFSET_MUL_2 * 111 * 64))
+    print("Mode 3 normal vector")
         
 # --------------------------------------------------------------------
 #      Open data source.
@@ -465,30 +484,21 @@ def main(argv = None):
             inside = bool(index & 0x80)
             index &= 0x7F
             
-            
-            if a & 0x80: #angle mode
-                a &= 0x7F
-                distance_km = int.from_bytes([a], 'little', signed=False) / 2.0
-                angle = int.from_bytes([b], 'little', signed=False) * 2
-                
-                mode = "angle"
-            else:
-                lat_offset = int.from_bytes([a], 'little', signed=True) 
-                long_offset = int.from_bytes([b], 'little', signed=True) 
+            mode = (a & 0x80) >> 6 | (b & 0x80) >> 7           
 
-                point = checkPoint
-                target = shapely.geometry.Point(point.x + lat_offset * OFFSET_MUL, point.y + long_offset * OFFSET_MUL)
-                
-                distance_km = gps_distance_2d_shapely(point, target) / (100 * 1000)
-                angle = gps_bearing_shapely(point, target)
-                
-                mode = "offset"                
-            
+            lat_offset = a & 0x7F
+            long_offset = b & 0x7F
+            if lat_offset & 0x40:
+                lat_offset = -(lat_offset & 0x3F)
+            if long_offset & 0x40:
+                long_offset = -(long_offset & 0x3F)           
+
+
             if index == 0x7F:
-                print ("  level", level, "---")
+                print ("---")
                 continue
             
-            print ("  %u %3udeg %8.2fkm %2s %s" % (level, angle, distance_km, "IN" if inside else "", mode))
+            print ("mode %d lat %d lon %d" % (mode, lat_offset, long_offset))
             indexer.printIndex(index)
             
 

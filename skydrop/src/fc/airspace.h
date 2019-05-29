@@ -17,14 +17,21 @@ void airspace_get_angle();
 void airspace_get_distance();
 void airspace_step();
 
-#define AIRSPACE_INVALID 			999
-#define AIRSPACE_LONGEST_DISTANCE 	(0xFF * 64)
+#define AIRSPACE_INVALID 			0xFFFF
+#define AIRSPACE_TOO_FAR 			0xFFFF
+#define AIR_INDEX_INVALID			0x7F
 
-#define AIR_AGL_FLAG 				0x80
-#define AIR_250ft 					250
-#define AIR_250ft_to_m 				76.196281622
+#define AIR_RESOLUTION				200
 
-uint16_t airspace_convert_alt_ft(uint8_t raw_alt);
-uint16_t airspace_convert_alt_m(uint8_t raw_alt);
+#define MIN_RES						6
+#define OFFSET_BASE					0.5
+#define OFFSET_MUL_0				(OFFSET_BASE / 64)
+#define OFFSET_MUL_1				((OFFSET_MUL_0 * MIN_RES) / 64)
+#define OFFSET_MUL_2				((OFFSET_MUL_1 * MIN_RES) / 64)
+
+#define AIR_AGL_FLAG 				0x8000
+
+uint16_t airspace_convert_alt_ft(uint16_t raw_alt);
+uint16_t airspace_convert_alt_m(uint16_t raw_alt);
 
 #endif /* FC_AIRSPACE_H */

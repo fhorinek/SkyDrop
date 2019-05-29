@@ -1,10 +1,18 @@
 
+from math import sqrt
+
 DATA_LEVELS = 5
 DATA_LEVEL_SIZE = 3
 
 DATA_INDEX_SIZE = 64
 
-OFFSET_MUL = 0.001 #~111m
-OFFSET_MUL_FINE = 0.0001 #~11m
+MIN_RES = 6
+                     
+OFFSET_BASE  = 0.5                           
+OFFSET_MUL_0 = OFFSET_BASE / 64
+OFFSET_MUL_1 = (OFFSET_MUL_0 * MIN_RES) / 64
+OFFSET_MUL_2 = (OFFSET_MUL_1 * MIN_RES) / 64
 
-AIRSPACE_BORDER = 0.9 #~33km on equartor   
+AIRSPACE_BORDER = OFFSET_BASE
+
+HGT_COORD_MUL = 10000000

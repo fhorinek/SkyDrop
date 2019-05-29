@@ -1,7 +1,6 @@
 #include "lcd_disp.h"
 #include "uart.h"
 
-
 void lcd_display::SetDrawLayer(uint8_t layer)
 {
 	this->active_buffer = this->layers[layer];
@@ -17,9 +16,10 @@ void lcd_display::GotoXY(int16_t x, int16_t y)
 	text_y = y;
 }
 
-uint32_t lcd_display::clip(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
+uint32_t lcd_display::clip(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
-	uint32_t oldClip = ((uint32_t)clip_x1 << 24 | (uint32_t)clip_y1 << 16 | (uint32_t)clip_x2 << 8 | (uint32_t)clip_y2);
+	uint32_t oldClip = ((uint32_t) clip_x1 << 24 | (uint32_t) clip_y1 << 16
+			| (uint32_t) clip_x2 << 8 | (uint32_t) clip_y2);
 
 	clip_x1 = x1;
 	clip_y1 = y1;
@@ -29,13 +29,15 @@ uint32_t lcd_display::clip(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
 	return oldClip;
 }
 
-uint32_t lcd_display::clip(uint32_t x1y1x2y2) {
-	uint32_t oldClip = ((uint32_t)clip_x1 << 24 | (uint32_t)clip_y1 << 16 | (uint32_t)clip_x2 << 8 | (uint32_t)clip_y2);
+uint32_t lcd_display::clip(uint32_t x1y1x2y2)
+{
+	uint32_t oldClip = ((uint32_t) clip_x1 << 24 | (uint32_t) clip_y1 << 16
+			| (uint32_t) clip_x2 << 8 | (uint32_t) clip_y2);
 
 	clip_x1 = (x1y1x2y2 >> 24) & 0xff;
 	clip_y1 = (x1y1x2y2 >> 16) & 0xff;
-	clip_x2 = (x1y1x2y2 >>  8) & 0xff;
-	clip_y2 = (x1y1x2y2 >>  0) & 0xff;
+	clip_x2 = (x1y1x2y2 >> 8) & 0xff;
+	clip_y2 = (x1y1x2y2 >> 0) & 0xff;
 
 	return oldClip;
 }
@@ -44,7 +46,7 @@ uint32_t lcd_display::clip(uint32_t x1y1x2y2) {
  * Write ASCII character on screen
  *
  */
-void lcd_display::Write(uint8_t ascii=0)
+void lcd_display::Write(uint8_t ascii = 0)
 {
 	if (text_x >= lcd_width)
 		return;
@@ -163,7 +165,6 @@ uint8_t lcd_display::GetAHeight()
 	return this->font_A_height;
 }
 
-
 void lcd_display::LoadFont(const uint8_t * font)
 {
 	this->font_data = font;
@@ -177,7 +178,6 @@ void lcd_display::LoadFont(const uint8_t * font)
 	this->font_adr_start = 6; //header
 	this->font_adr_start += (this->font_end - this->font_begin + 2) * 2; //char adr table
 }
-
 
 void lcd_display::sendcommand(unsigned char cmd)
 {
@@ -210,7 +210,7 @@ void lcd_display::Init(Spi * spi)
 	_delay_ms(10);
 	GpioWrite(LCD_RST, HIGH);
 
-	#define START_LINE	64
+#define START_LINE	64
 
 	sendcommand(0x21); //Extended commands
 
@@ -249,7 +249,7 @@ void lcd_display::SetContrast(uint8_t val) //0-127
 
 void lcd_display::SetInvert(uint8_t invert)
 {
-	 //Set display control, normal mode. 0x0D for inverse
+	//Set display control, normal mode. 0x0D for inverse
 	if (invert)
 		sendcommand(0x0D);
 	else
@@ -260,7 +260,6 @@ void lcd_display::SetFlip(bool flip)
 {
 	this->flip = flip;
 }
-
 
 void lcd_display::Stop()
 {
@@ -274,18 +273,30 @@ void lcd_display::Stop()
  * Draw line (works in any direction)
  *
  */
-void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color=1) {
-  int dx =  abs(x1-x0), sx = x0<x1 ? 1 : -1;
-  int dy = -abs(y1-y0), sy = y0<y1 ? 1 : -1;
-  int err = dx+dy, e2; // error value e_xy
+void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
+		uint8_t color = 1)
+{
+	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+	int err = dx + dy, e2; // error value e_xy
 
-  while (1) {
-    PutPixel(x0, y0, color);
-    if (x0==x1 && y0==y1) break;
-    e2 = 2*err;
-    if (e2 > dy) { err += dy; x0 += sx; } // e_xy+e_x > 0
-    if (e2 < dx) { err += dx; y0 += sy; } // e_xy+e_y < 0
-  }
+	while (1)
+	{
+		PutPixel(x0, y0, color);
+		if (x0 == x1 && y0 == y1)
+			break;
+		e2 = 2 * err;
+		if (e2 > dy)
+		{
+			err += dy;
+			x0 += sx;
+		} // e_xy+e_x > 0
+		if (e2 < dx)
+		{
+			err += dx;
+			y0 += sy;
+		} // e_xy+e_y < 0
+	}
 }
 
 /**
@@ -295,21 +306,22 @@ void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8
  * /param y the y position in pixel
  * /param color the color which could be either DISP_COLOR_WHITE or "0" for black
  */
-void lcd_display::PutPixel(int16_t x, int16_t  y, uint8_t color)
+void lcd_display::PutPixel(int16_t x, int16_t y, uint8_t color)
 {
-	if ( x < clip_x1 || y < clip_y1 || x >= clip_x2 || y >= clip_y2
-	  || x < 0 || y < 0 || x >= lcd_width || y >= lcd_height)
+	if (x < clip_x1|| y < clip_y1 || x >= clip_x2 || y >= clip_y2
+	|| x < 0 || y < 0 || x >= lcd_width || y >= lcd_height)
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);
 	if (color == DISP_COLOR_BLACK)
 		active_buffer[index] |= (1 << (y % 8));
-	else {
+	else
+	{
 		active_buffer[index] &= ~(1 << (y % 8));
 	}
 }
 
-void lcd_display::InvertPixel(uint8_t x ,uint8_t  y)
+void lcd_display::InvertPixel(uint8_t x, uint8_t y)
 {
 	if (x >= lcd_width || y >= lcd_height)
 		return;
@@ -318,7 +330,7 @@ void lcd_display::InvertPixel(uint8_t x ,uint8_t  y)
 	active_buffer[index] ^= (1 << (y % 8));
 }
 
-void lcd_display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
+void lcd_display::DrawImage(const uint8_t *data, uint8_t x, uint8_t y)
 {
 	uint8_t w, h;
 
@@ -327,142 +339,169 @@ void lcd_display::DrawImage(const uint8_t *data,uint8_t x,uint8_t y)
 	DrawImage(data + 2, x, y, w, h);
 }
 
-void lcd_display::DrawImage(const uint8_t *data, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void lcd_display::DrawImage(const uint8_t *data, uint8_t x, uint8_t y,
+		uint8_t w, uint8_t h)
 {
 	uint8_t cbuf;
 
-	uint8_t imgwidth = (w+x < lcd_width)?w:lcd_width-x;
-	int16_t xCutOff  = (w+x < lcd_width)?0:(w+x-lcd_width);
-	uint8_t yOffset  = (y/8 < 1)?0:y/8;
+	uint8_t imgwidth = (w + x < lcd_width) ? w : lcd_width - x;
+	int16_t xCutOff = (w + x < lcd_width) ? 0 : (w + x - lcd_width);
+	uint8_t yOffset = (y / 8 < 1) ? 0 : y / 8;
 
-	uint8_t imgheight = (h/8);
+	uint8_t imgheight = (h / 8);
 	uint8_t _x = x;
 	uint8_t _y = 0;
 	uint16_t index = 0;
 
-	if (y >= lcd_height || x >= lcd_width) return;
+	if (y >= lcd_height || x >= lcd_width)
+		return;
 
-	for (_y=0;_y < imgheight; _y++){
-		for(_x=0;_x < imgwidth; _x++){
+	for (_y = 0; _y < imgheight; _y++)
+	{
+		for (_x = 0; _x < imgwidth; _x++)
+		{
 
 			cbuf = pgm_read_byte(&data[index]);
 
-			if (y % 8 != 0) {
+			if (y % 8 != 0)
+			{
 				uint16_t tmp = 0;
 
-				uint8_t  tmpdat = cbuf;
-				tmp = (tmpdat << (y%8));
+				uint8_t tmpdat = cbuf;
+				tmp = (tmpdat << (y % 8));
 
-				active_buffer[((_y+yOffset)*lcd_width)+_x+x] |= (tmp & 255);
-				if (_y+yOffset+1 < lcd_height)
-				active_buffer[((_y+yOffset+1)*lcd_width)+_x+x] |= ((tmp >> 8) & 255);
+				active_buffer[((_y + yOffset) * lcd_width) + _x + x] |= (tmp
+						& 255);
+				if (_y + yOffset + 1 < lcd_height)
+					active_buffer[((_y + yOffset + 1) * lcd_width) + _x + x] |=
+							((tmp >> 8) & 255);
 			}
 			else
-				active_buffer[((_y+yOffset)*lcd_width)+_x+x] |= cbuf;
+				active_buffer[((_y + yOffset) * lcd_width) + _x + x] |= cbuf;
 			index++;
 		}
 		index += xCutOff;
 	}
 }
 
-void lcd_display::DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color=1,uint8_t fill=0){
+void lcd_display::DrawRectangle(int8_t x1, int8_t y1, int8_t x2, int8_t y2,
+		uint8_t color = 1, uint8_t fill = 0)
+{
 	int8_t xdir;
-	int8_t xref = (x1 <= x2) ? x2:x1;
-	int8_t ydir = (y1 <= y2) ? y2:y1;
-	int8_t yref = (y1 <= y2) ? y1:y2;
+	int8_t xref = (x1 <= x2) ? x2 : x1;
+	int8_t ydir = (y1 <= y2) ? y2 : y1;
+	int8_t yref = (y1 <= y2) ? y1 : y2;
 
-	for(; ydir >= yref; ydir--){
-		PutPixel(x1,ydir,color);
-		PutPixel(x2,ydir,color);
-		if (fill==0 && (ydir != y1 && ydir != y2)) continue;
-		for(xdir = (x1 <= x2) ? (x1+1):(x2+1); xdir <= (xref-1); xdir++){
-			PutPixel(xdir,ydir,color);
+	for (; ydir >= yref; ydir--)
+	{
+		PutPixel(x1, ydir, color);
+		PutPixel(x2, ydir, color);
+		if (fill == 0 && (ydir != y1 && ydir != y2))
+			continue;
+		for (xdir = (x1 <= x2) ? (x1 + 1) : (x2 + 1); xdir <= (xref - 1);
+				xdir++)
+		{
+			PutPixel(xdir, ydir, color);
 		}
 	}
 }
 
-void lcd_display::Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2){
+void lcd_display::Invert(int8_t x1, int8_t y1, int8_t x2, int8_t y2)
+{
 	int8_t xdir;
-	int8_t xref = (x1 <= x2) ? x2:x1;
-	int8_t ydir = (y1 <= y2) ? y2:y1;
-	int8_t yref = (y1 <= y2) ? y1:y2;
+	int8_t xref = (x1 <= x2) ? x2 : x1;
+	int8_t ydir = (y1 <= y2) ? y2 : y1;
+	int8_t yref = (y1 <= y2) ? y1 : y2;
 
-	for(; ydir >= yref; ydir--){
-		InvertPixel(x1,ydir);
-		InvertPixel(x2,ydir);
-		for(xdir = (x1 <= x2) ? (x1+1):(x2+1); xdir <= (xref-1); xdir++){
-			InvertPixel(xdir,ydir);
+	for (; ydir >= yref; ydir--)
+	{
+		InvertPixel(x1, ydir);
+		InvertPixel(x2, ydir);
+		for (xdir = (x1 <= x2) ? (x1 + 1) : (x2 + 1); xdir <= (xref - 1);
+				xdir++)
+		{
+			InvertPixel(xdir, ydir);
 		}
 	}
 }
 
-void lcd_display::InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2)
+void lcd_display::InvertPart(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
 	uint8_t y, x;
 
-  for(y = y1;y <= y2; y++)
-  {
-	  for (x = x1; x < x2; x++)
-	  {
-		  active_buffer[lcd_width * y + x] ^= 0xFF;
-	  }
-  }
-}
-
-void lcd_display::DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end)
-{
-	int16_t angle = 0;
-	int8_t x,y;
-
-	for (angle=start;angle<=end;angle++)
+	for (y = y1; y <= y2; y++)
 	{
-		x = radius * get_sin(angle);
-		y = radius * get_sin(angle+180);
-		PutPixel(cx+x,cy + y,1);
+		for (x = x1; x < x2; x++)
+		{
+			active_buffer[lcd_width * y + x] ^= 0xFF;
+		}
 	}
 }
 
-void lcd_display::DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color){
-	 DrawLine(x1, y1, x2,y2,color);
-	 DrawLine(x1,y1,x3,y3,color);
-	 DrawLine(x2,y2,x3,y3,color);
+void lcd_display::DrawArc(uint8_t cx, uint8_t cy, uint8_t radius, int16_t start,
+		int16_t end)
+{
+	int16_t angle = 0;
+	int8_t x, y;
+
+	for (angle = start; angle <= end; angle++)
+	{
+		x = radius * get_sin(angle);
+		y = radius * get_sin(angle + 180);
+		PutPixel(cx + x, cy + y, 1);
+	}
 }
 
-void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,uint8_t color=1)
+void lcd_display::DrawTriangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
+		uint8_t x3, uint8_t y3, uint8_t color)
+{
+	DrawLine(x1, y1, x2, y2, color);
+	DrawLine(x1, y1, x3, y3, color);
+	DrawLine(x2, y2, x3, y3, color);
+}
+
+void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,
+		uint8_t color = 1)
 {
 	int8_t error = -radius;
 	uint8_t x = radius;
 	uint8_t y = 0;
 
-  while (x >= y)
-  {
-    plot8points(cx, cy, x, y, color);
+	while (x >= y)
+	{
+		plot8points(cx, cy, x, y, color);
 
-    error += y;
-    ++y;
-    error += y;
+		error += y;
+		++y;
+		error += y;
 
-    if (error >= 0)
-    {
-      error -= x;
-      --x;
-      error -= x;
-    }
-  }
+		if (error >= 0)
+		{
+			error -= x;
+			--x;
+			error -= x;
+		}
+	}
 }
 
-void lcd_display::plot8points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
+void lcd_display::plot8points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,
+		uint8_t color)
 {
-  plot4points(cx, cy, x, y, color);
-  if (x != y) plot4points(cx, cy, y, x, color);
+	plot4points(cx, cy, x, y, color);
+	if (x != y)
+		plot4points(cx, cy, y, x, color);
 }
 
-void lcd_display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,uint8_t color)
+void lcd_display::plot4points(uint8_t cx, uint8_t cy, uint8_t x, uint8_t y,
+		uint8_t color)
 {
-  PutPixel(cx + x, cy + y,color);
-  if (x != 0) PutPixel(cx - x, cy + y,color);
-  if (y != 0) PutPixel(cx + x, cy - y,color);
-  if (x != 0 && y != 0) PutPixel(cx - x, cy - y,color);
+	PutPixel(cx + x, cy + y, color);
+	if (x != 0)
+		PutPixel(cx - x, cy + y, color);
+	if (y != 0)
+		PutPixel(cx + x, cy - y, color);
+	if (x != 0 && y != 0)
+		PutPixel(cx - x, cy - y, color);
 }
 
 void lcd_display::SetRowCol(unsigned char row, unsigned char col)
@@ -471,35 +510,37 @@ void lcd_display::SetRowCol(unsigned char row, unsigned char col)
 	this->sendcommand(0x40 | row);
 }
 
-
 void lcd_display::Draw()
 {
 	if (this->flip)
 	{
-		for (uint8_t j=0;j<6;j++)
+		for (uint8_t j = 0; j < 6; j++)
 		{
 			SetRowCol(5 - j, 0);
 
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0; a < lcd_width; a++)
+			for (uint8_t a = 0; a < lcd_width; a++)
 			{
-				this->spi->SendRaw(fast_flip(active_buffer[lcd_width - 1 - a + (j * lcd_width)]));
+				this->spi->SendRaw(
+						fast_flip(
+								active_buffer[lcd_width - 1 - a
+										+ (j * lcd_width)]));
 			}
 			this->spi->UnsetSlave();
 		}
 	}
 	else
 	{
-		for (uint8_t j=0;j<6;j++)
+		for (uint8_t j = 0; j < 6; j++)
 		{
 			SetRowCol(j, 0);
 
 			GpioWrite(LCD_DC, HIGH);
 			this->spi->SetSlave(LCD_CE);
-			for (uint8_t a=0; a < lcd_width; a++)
+			for (uint8_t a = 0; a < lcd_width; a++)
 			{
-				this->spi->SendRaw(active_buffer[a+(j * lcd_width)]);
+				this->spi->SendRaw(active_buffer[a + (j * lcd_width)]);
 			}
 			this->spi->UnsetSlave();
 		}
@@ -523,20 +564,22 @@ void lcd_display::CopyToLayerX(uint8_t dst, int8_t x)
 		col_x = x;
 	}
 
-	for (uint8_t j=0;j<6;j++)
+	for (uint8_t j = 0; j < 6; j++)
 	{
 		uint16_t index = j * lcd_width + col_x;
 		uint8_t cnt = 0;
 
 		for (uint8_t a = start_x; a < end_x; a++)
 		{
-			this->layers[dst][index + cnt] = this->active_buffer[a + (j * lcd_width)];
+			this->layers[dst][index + cnt] = this->active_buffer[a
+					+ (j * lcd_width)];
 			cnt++;
 		}
 	}
 }
 
-void lcd_display::CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1, uint8_t row2)
+void lcd_display::CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1,
+		uint8_t row2)
 {
 	uint8_t start_x, end_x, col_x;
 
@@ -553,14 +596,15 @@ void lcd_display::CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1, uint8_t 
 		col_x = x;
 	}
 
-	for (uint8_t j=row1; j<row2; j++)
+	for (uint8_t j = row1; j < row2; j++)
 	{
 		uint16_t index = j * lcd_width + col_x;
 		uint8_t cnt = 0;
 
 		for (uint8_t a = start_x; a < end_x; a++)
 		{
-			this->layers[dst][index + cnt] = this->active_buffer[a + (j * lcd_width)];
+			this->layers[dst][index + cnt] = this->active_buffer[a
+					+ (j * lcd_width)];
 			cnt++;
 		}
 	}
@@ -568,7 +612,8 @@ void lcd_display::CopyToLayerXPart(uint8_t dst, int8_t x, uint8_t row1, uint8_t 
 
 void lcd_display::CopyToLayer(uint8_t dst)
 {
-	memcpy(this->layers[dst], this->active_buffer, (lcd_height / 8) * lcd_width);
+	memcpy(this->layers[dst], this->active_buffer,
+			(lcd_height / 8) * lcd_width);
 }
 
 uint8_t * lcd_display::GetActiveLayerPtr()
@@ -576,9 +621,10 @@ uint8_t * lcd_display::GetActiveLayerPtr()
 	return this->active_buffer;
 }
 
-void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
+void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1,
+		uint8_t row2, uint8_t col2)
 {
-	for (uint8_t j=row1; j<row2; j++)
+	for (uint8_t j = row1; j < row2; j++)
 	{
 		uint16_t start_i = j * lcd_width;
 
@@ -590,18 +636,20 @@ void lcd_display::CopyToLayerPart(uint8_t dst, uint8_t row1, uint8_t col1, uint8
 	}
 }
 
-void lcd_display::ClearBuffer(void){
-  unsigned char i,k;
-  for(k=0;k<6;k++)
-  {
-	  for(i=0;i<lcd_width;i++)     //clear all COL
-	  {
-		active_buffer[i+(k*lcd_width)] = 0;
-	  }
-  }
+void lcd_display::ClearBuffer(void)
+{
+	unsigned char i, k;
+	for (k = 0; k < 6; k++)
+	{
+		for (i = 0; i < lcd_width; i++)     //clear all COL
+		{
+			active_buffer[i + (k * lcd_width)] = 0;
+		}
+	}
 }
 
-void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2)
+void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2,
+		uint8_t col2)
 {
 	for (uint8_t j = row1; j < row2; j++)
 	{
@@ -616,9 +664,10 @@ void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t co
 	}
 }
 
-void  lcd_display::CreateSinTable(){
-	  for (int16_t i=0; i < 91; i++)
-		  sin_table[i] = sin(((float)i/180.0)*3.142);
+void lcd_display::CreateSinTable()
+{
+	for (int16_t i = 0; i < 91; i++)
+		sin_table[i] = sin(((float) i / 180.0) * 3.142);
 }
 
 float lcd_display::get_sin(uint16_t angle)
@@ -631,7 +680,8 @@ float lcd_display::get_sin(uint16_t angle)
 		return this->sin_table[90 - (angle - 90)];
 	else if (angle < 270)
 		return -this->sin_table[angle - 180];
-	else return -this->sin_table[90 - (angle - 270)];
+	else
+		return -this->sin_table[90 - (angle - 270)];
 }
 
 float lcd_display::get_cos(uint16_t angle)

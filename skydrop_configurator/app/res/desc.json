@@ -601,6 +601,7 @@
                 ["LAYOUT_121", "Layout 1 | 2 | 1"],
                 ["LAYOUT_122", "Layout 1 | 2 | 2"],
                 ["LAYOUT_123", "Layout 1 | 2 | 3"],
+                ["LAYOUT_132", "Layout 1 | 3 | 2"],
                 ["LAYOUT_133", "Layout 1 | 3 | 3"],
                 ["LAYOUT_21", "Layout 2 | 1"],
                 ["LAYOUT_22", "Layout 2 | 2"],
@@ -650,6 +651,12 @@
                 ["WIDGET_WAYPOINT_TIME", "Waypoint Time"],
                 ["WIDGET_WAYPOINT_INFO", "Waypoint Info"],
 
+                ["WIDGET_AIRSPACE_ARROW", "Airspace Arrow"],
+                ["WIDGET_AIRSPACE_DISTANCE", "Airspace Distance"],
+                ["WIDGET_AIRSPACE_LIMITS", "Airspace Limits"],
+                ["WIDGET_AIRSPACE_INFO", "Airspace Info"],
+                ["WIDGET_AIRSPACE_NAME", "Airspace Name"],
+
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
                 ["WIDGET_WIND_DIR_POINTS", "Wind direction points"],
@@ -667,10 +674,7 @@
                 ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
                 ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"],
 
-                ["WIDGET_EMPTY", "No widget"],
-                
-                ["WIDGET_DEBUG_ETC", "Debug info"],
-                ["WIDGET_DEBUG_IMU", "Debug info IMU"]
+                ["WIDGET_EMPTY", "No widget"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -1102,6 +1106,45 @@
             "desc": "Display info about curren waypoint list",
             "label": "WP",
             "value": "Load"
+        },
+        "WIDGET_AIRSPACE_ARROW":
+        {
+            "type": "arrow",
+            "name": "Airspace Arrow",
+            "desc": "Arrow pointing to nearest airspace or shortest way out",
+            "label": "AS near"
+        },
+        "WIDGET_AIRSPACE_DISTANCE":
+        {
+            "type": "value",
+            "name": "Airspace Distance",
+            "desc": "Arrow showing distace to nearest airspace or how far inside you are",
+            "label": "AS dist",
+            "value": "32"
+        },
+        "WIDGET_AIRSPACE_LIMITS":
+        {
+            "type": "text2",
+            "name": "Airspace Limis",
+            "desc": "Actual maximum and minimum allowed altitude",
+            "label": "AS Limit",
+            "value": "2432\n---"
+        },
+        "WIDGET_AIRSPACE_INFO":
+        {
+            "type": "text2",
+            "name": "Airspace Info",
+            "desc": "Floor and Ceiling of nearest or intersected airspace",
+            "label": "AS Info",
+            "value": "1424M\n0A"
+        },
+        "WIDGET_AIRSPACE_NAME":
+        {
+            "type": "text",
+            "name": "Airspace Name",
+            "desc": "Name of the nearest or intersected airspace",
+            "label": "AS Name",
+            "value": "CTA BRATISLAVA"
         }
     }
 }            

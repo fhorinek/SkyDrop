@@ -21,7 +21,7 @@
 
 #include "../gui/gui_dialog.h"
 
-#include "debug_on.h"
+//#include "debug_on.h"
 
 volatile flight_computer_data_t fc;
 

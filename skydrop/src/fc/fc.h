@@ -74,6 +74,10 @@
 #define FC_GPS_NEW_SAMPLE_CIRCLE        0b00100000
 #define FC_GPS_NEW_SAMPLE_AIRSPACE      0b01000000
 
+// All lat/lon values are multiplied by GPS_COORD_MUL, so that we can use
+// fixed point integer arithmetic instead of floating points:
+#define GPS_COORD_MUL	10000000l
+
 struct gps_data_t
 {
 	/**
@@ -265,6 +269,35 @@ struct agl_data_t
 	float ground_gradient;    // the gradient of the current GPS position
 };
 
+
+#define AIR_CACHE_VALID		0x01
+#define AIR_CACHE_INSIDE	0x02
+#define AIR_CACHE_NORMAL	0x04
+#define AIR_CACHE_FAR		0x08
+
+struct airspace_cache_t
+{
+	uint8_t flags;
+
+	//target
+	int32_t latitude;
+	int32_t longtitude;
+
+	//offset
+	int8_t lat_offset;
+    int8_t lon_offset;
+
+	uint16_t floor;
+	uint16_t ceil;
+
+	uint8_t index;
+	uint8_t airspace_class;
+};
+
+#define AIR_LEVELS					5
+#define AIR_LEVEL_SIZE				3
+#define AIR_INDEX_SIZE				64
+
 struct airspace_data_t
 {
 	bool file_valid;
@@ -272,15 +305,20 @@ struct airspace_data_t
 	char filename[10];        // The filename of the currently opened airspace file
 
 	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
-	int16_t angle;            // The angle out of the airspace or "AGL_INVALID".
+	uint16_t angle;            // The angle out of the airspace or "AGL_INVALID".
 	uint16_t distance_m;
-	uint8_t ceiling;
-	uint8_t floor;
+	uint16_t ceiling;
+	uint16_t floor;
 
-	uint8_t min_alt;
-	uint8_t max_alt;
+	uint16_t min_alt;
+	uint16_t max_alt;
+
+	uint8_t airspace_name_index;
+	char airspace_name[50];
+
+	uint16_t cache_index;
+	airspace_cache_t cache[AIR_LEVELS];
 };
-
 
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
