@@ -1,10 +1,22 @@
 
-Build XXXX - XX. XX. 2019
+Build 4411 - 29. 05. 2019
 ========================================================
 ADDED:
- * First version of CTR handling:
-   - Read AIR files
-   - Widgets: CTR Arrow, CTR distance, CTR height
+ * Airspace implementation
+    Widgets AS Name, AS Info, AS Limit, AS Arrow, AS Distance
+ * New audio signaling for sink and weaklift
+ * New Layout 132
+
+CHANGED:
+ * Vario settings - added Advanced
+ * Debug menu - removing unused lines
+
+FIX:
+ * Corrected compass heading and compass pints sign 
+ 
+REMOVED: 
+ * Unused debug widgets 
+ 
 
 Build 4251 - 10. 04. 2019
 ========================================================
