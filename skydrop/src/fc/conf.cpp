@@ -167,6 +167,8 @@ EEMEM cfg_t config_ee = {
 		},
 		//alarm_enabled
 		false,
+		// alarm_confirm_secs
+		10,
 		//alarm_1
 		500,
 		//alarm_2

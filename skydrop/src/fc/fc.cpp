@@ -671,8 +671,10 @@ void fc_step()
 	//altitude alarm
 	if (config.altitude.alarm_enabled && fc.flight.state == FLIGHT_FLIGHT)
 	{
-		if (fc_active_alarm())
+		if (fc_alarm_running(fc_active_alarm()))
+		{
 			gui_switch_task(GUI_ALARM);
+		}
 	}
 
 	//gps time sync
@@ -796,6 +798,11 @@ void fc_step()
     }
 }
 
+/**
+ * Find out, if and which altitude alarm is active.
+ *
+ * @return 0 if no alarm is active, 1 for alarm_1, 2 for alarm_2, 3 for alarm_h1
+ */
 uint8_t fc_active_alarm()
 {
 	//clear suppress flags if altitude is above the alarms
@@ -808,14 +815,40 @@ uint8_t fc_active_alarm()
 	if (fc.altitude1 < config.altitude.alarm_h1 - config.altitude.alarm_reset)
 		fc.altitude_alarm_status &= ~FC_ALT_ALARM_H1_SUPPRESS;
 
-	if (fc.altitude1 < config.altitude.alarm_2 && !(fc.altitude_alarm_status & FC_ALT_ALARM2_SUPPRESS))
+	if (fc.altitude1 < config.altitude.alarm_2)
 		return 2;
 
-	if (fc.altitude1 < config.altitude.alarm_1 && !(fc.altitude_alarm_status & FC_ALT_ALARM1_SUPPRESS))
+	if (fc.altitude1 < config.altitude.alarm_1)
 		return 1;
 
-	if (fc.altitude1 > config.altitude.alarm_h1 && !(fc.altitude_alarm_status & FC_ALT_ALARM_H1_SUPPRESS))
+	if (fc.altitude1 > config.altitude.alarm_h1)
 		return 3;
+
+	return 0;
+}
+
+/**
+ * Find out, if the given alarm is running (not suppressed).
+ *
+ * @return alarm, if it is not suppressed, otherwise 0
+ */
+uint8_t fc_alarm_running(uint8_t alarm)
+{
+	switch (alarm)
+	{
+		case (1):
+			if (!(fc.altitude_alarm_status & FC_ALT_ALARM1_SUPPRESS))
+				return alarm;
+		break;
+		case (2):
+			if (!(fc.altitude_alarm_status & FC_ALT_ALARM2_SUPPRESS))
+				return alarm;
+		break;
+		case (3):
+			if (!(fc.altitude_alarm_status & FC_ALT_ALARM_H1_SUPPRESS))
+				return alarm;
+		break;
+	}
 
 	return 0;
 }
