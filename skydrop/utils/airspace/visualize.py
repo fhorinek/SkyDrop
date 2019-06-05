@@ -1,15 +1,23 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
-# This script can be used to visualize the content of an AIR file
-# containing airspace data. It will draw a map showing the contents of
-# the file as a raster with points and arrows.
+# This script can be used to visualize and inspect the content of a
+# generated AIR file containing airspace data. It will first read
+# airspace data from an OpenAirspace file to draw all airspaces into
+# the map. By using the right mouse button, you can check this point.
+# It will open the corresponding AIR file of this point and output all
+# data previously generated for this point.
 #
-# It takes two arguments:
-#   1. a filename of an AIR file
-#   2. [optional] a level to visualize, which can be number from 0-4.
+# Additionally it will try to open the serial device /dev/ttyUSB1
+# which could be connected to a SkyDrop's GPS serial port. By clicking
+# on a point the GPS position will be sent to the SkyDrop. This allows
+# to see the reaction of the SkyDrop when it is at this position.
+#
+# It takes 1 arguments:
+#   1. a filename of the OpenAirspace file used to generated
 #
 # 20.12.2018: tilmann@bubecks.de
+# 03.06.2019: Updated version to read OpenAirspace and AIR
 
 from math import sqrt,cos,atan2,floor,sin,asin
 import re
@@ -347,6 +355,8 @@ def ReadAltFt( poFeature, fieldName ):
                     alt = int(m.group(1))
                     unit = m.group(2)
                     level = m.group(3)
+                    if level == "GND":
+                        level = "AGL"
                 else:
                     m = re.match('(\d+)\s*(\w+)', alt)
                     if m != None:
@@ -355,6 +365,9 @@ def ReadAltFt( poFeature, fieldName ):
                         if level == "ft":
                             unit = level
                             level = "MSL"
+                        elif level == "GND":
+                            unit = "ft"
+                            level = "AGL"
                         else:
                             unit = "ft"
                     else:
@@ -492,7 +505,7 @@ def ev(event):
     lon = event.xdata
     if lat is None or lon is None:
         return
-    if event.button == 1:
+    if event.button == 3:      # Right mouse button
         get_point(lat, lon)
         spf.send_point(lat, lon, galt)
         

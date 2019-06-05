@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- mode: python-mode; python-indent-offset: 4 -*-
 #*****************************************************************************
-# dnf install python3-shapely python3-gdal
+# dnf install python3-shapely python3-gdal python3-matplotlib
 #
 # This program is used to read a "Open-Airspace-file" containing a number of
 # airspaces and then computing a raster of positions around these airspaces.
@@ -608,7 +608,10 @@ def ReadAltFt( poFeature, fieldName ):
                     alt = int(m.group(1))
                     unit = m.group(2)
                     level = m.group(3)
+                    if level == "GND":
+                        level = "AGL"
                 else:
+                    # "1000ft"
                     m = re.match('(\d+)\s*(\w+)', alt)
                     if m != None:
                         alt = int(m.group(1))
@@ -616,6 +619,9 @@ def ReadAltFt( poFeature, fieldName ):
                         if level == "ft":
                             unit = level
                             level = "MSL"
+                        elif level == "GND":
+                            unit = "ft"
+                            level = "AGL"
                         else:
                             unit = "ft"
                     else:
