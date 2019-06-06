@@ -23,8 +23,8 @@ from matplotlib.patches import FancyArrow
 import shapely
 import shapely.ops
 import shapely.geometry
-from osgeo import ogr
 from Airspace import Airspace
+import openaip
 
 import numpy as np
 
@@ -89,7 +89,7 @@ def get_point(lat, lon):
     lat_n = int(abs(lat / mul))
     lon_n = int(abs(lon / mul))
 
-    name = "%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
+    name = "data/%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
 
     print(" filename is '%s'" % name)
 
@@ -245,25 +245,12 @@ def get_point(lat, lon):
         
         floor &= 0x7FFF
         ceil &= 0x7FFF
-            
-        class_dict = {
-            "R" : 0,    #restricted
-            "Q" : 1,    # danger
-            "P" : 2,    # prohibited
-            "A" : 3,    # Class A
-            "B" : 4,    # Class B
-            "C" : 5,    # Class C
-            "D" : 6,    # Class D 
-            "GP" : 7,   # glider prohibited 
-            "CTR" : 8,  # CTR
-            "W" : 9    # Wave Window
-        }
 
         #reverse
-        class_dict = {v: k for k, v in class_dict.items()}
+        class_dict = {v: k for k, v in CLASS_DICT.items()}
         class_name = class_dict[class_index]
         
-        print("   i =%3u %6u %s - %6u %s [%4s] %s" % (index, floor, floor_mode, ceil, ceil_mode, class_name, name))    
+        print("   i =%3u %6u %s - %6u %s [%10s] %s" % (index, floor, floor_mode, ceil, ceil_mode, class_name, name))    
 
         lwid = 3 - i * 0.5
         arrow = FancyArrow(p.x, p.y, p2.x - p.x, p2.y - p.y, length_includes_head=True, linewidth=lwid, color=color, head_width=0.007, alpha=1.0)
@@ -286,206 +273,6 @@ def getBoundingBox(airspaces):
         bb[3] = max(bb[3], bb2[3])
     return bb
 
-#**********************************************************************
-#                           ReadLayer()
-#**********************************************************************
-
-def ReadLayer( poLayer ):
-
-    poDefn = poLayer.GetLayerDefn()
-
-# --------------------------------------------------------------------
-#      Read, and dump features.
-# --------------------------------------------------------------------
-    poFeature = poLayer.GetNextFeature()
-    while poFeature is not None:
-        ReadFeature(poFeature)
-        poFeature = poLayer.GetNextFeature()
-        
-    return
-
-def ReadField(poFeature, fieldName):
-        poDefn = poFeature.GetDefnRef()
-        iField = poDefn.GetFieldIndex(fieldName)
-        poFDefn = poDefn.GetFieldDefn(iField)
-        if poFeature.IsFieldSet( iField ):
-                value = poFeature.GetFieldAsString( iField ).strip();
-        else:
-                value = None
-
-        return value
-
-def ReadAltFt( poFeature, fieldName ):
-    poDefn = poFeature.GetDefnRef()
-    alt = None
-    level = None
-    unit = None
-    iField = poDefn.GetFieldIndex(fieldName)
-    poFDefn = poDefn.GetFieldDefn(iField)
-    if poFeature.IsFieldSet( iField ):
-        value = poFeature.GetFieldAsString( iField ).strip();
-        alt = value
-        if alt == "GND" or alt == "SFC":
-            alt = 0
-            unit = "ft"
-            level = "AGL"
-        elif alt == "UNLTD":
-            alt = 99999
-            unit = "ft"
-            level = "MSL"
-        else:
-            # "8000 ft AMSL"
-            m = re.match('(\d+)\s+([a-z]+)\s+(\w+)', alt)
-            if m != None:
-                alt = int(m.group(1))
-                unit = m.group(2)
-                level = m.group(3)
-            else:
-                # "2200ft MSL"
-                m = re.match('(\d+)([a-z]+)\s+(\w+)', alt)
-                if m != None:
-                    alt = int(m.group(1))
-                    unit = m.group(2)
-                    level = m.group(3)
-                else:
-                    m = re.match('(\d+)\s*(\w+)', alt)
-                    if m != None:
-                        alt = int(m.group(1))
-                        level = m.group(2)
-                        if level == "ft":
-                            unit = level
-                            level = "MSL"
-                        else:
-                            unit = "ft"
-                    else:
-                        # "FL80"
-                        m = re.match('FL\s*(\d+)', alt)
-                        if m != None:
-                            alt = int(m.group(1)) * 100
-                            level = "MSL"
-                            unit = "ft"
-                        else:
-                            print ("Unknown alt grammar '"+value+"'")
-                            sys.exit(1)
-
-        if unit == "m":
-            alt = alt * 3.28084    # convert meter to feet
-            unit = "ft"
-            
-        if unit != "ft":
-            print("airspace #%ld: %s" % (poFeature.GetFID(), value))
-            print ("Unknown unit", unit)
-            sys.exit(1)
-            
-        if level == "AMSL":
-            level = "MSL"
-            
-        if level != "MSL" and level != "AGL":
-            print("airspace #%ld: %s" % (poFeature.GetFID(), value))
-            print ("Unknown level", level)
-            sys.exit(1)
-
-    return alt, (level == "AGL")
-        
-def ReadFeature( poFeature ):
-
-    poDefn = poFeature.GetDefnRef()
-    # print("OGRFeature(%s):%ld" % (poDefn.GetName(), poFeature.GetFID() ))
-
-    classAir = ReadField(poFeature, "CLASS")
-   
-    name = ReadField(poFeature, "NAME")
-    floor, floorAGL = ReadAltFt(poFeature, "FLOOR")
-    ceiling, ceilingAGL = ReadAltFt(poFeature, "CEILING")
-
-    nGeomFieldCount = poFeature.GetGeomFieldCount()
-    if nGeomFieldCount > 0:
-        for iField in range(nGeomFieldCount):
-            poGeometry = poFeature.GetGeomFieldRef(iField)
-            if poGeometry is not None:
-                geometryName = poGeometry.GetGeometryName()
-                if geometryName != "POLYGON":
-                    print ("Unknown geometry: ", geometryName)
-                    sys.exit(1)
-                geometryCount = poGeometry.GetGeometryCount()
-                if geometryCount != 1:
-                    print("GeometryCount != 1")
-                    sys.exit(1)
-                        
-                ring = poGeometry.GetGeometryRef(0)
-                points = ring.GetPointCount()
-                p = []
-                for i in range(points):
-                    lon, lat, z = ring.GetPoint(i)
-                    p.append((lon, lat))
-                polygon = shapely.geometry.Polygon(p)
-                airspace = Airspace()
-                airspace.setName(name)
-                airspace.setMinMax(floor, floorAGL, ceiling, ceilingAGL)
-                airspace.setPolygon(polygon)
-                airspaces.append(airspace)
-        
-    return
-
-def draw_airspace(pszDataSource):
-    # --------------------------------------------------------------------
-    #      Open data source.
-    # --------------------------------------------------------------------
-        poDS = None
-        poDriver = None
-
-        poDS = ogr.Open( pszDataSource)
-
-    # --------------------------------------------------------------------
-    #      Report failure.
-    # --------------------------------------------------------------------
-        if poDS is None:
-            print( "FAILURE:\n"
-                    "Unable to open datasource `%s' with the following drivers." % pszDataSource )
-
-            for iDriver in range(ogr.GetDriverCount()):
-                print( "  -> %s" % ogr.GetDriver(iDriver).GetName() )
-
-            return 1
-
-        poDriver = poDS.GetDriver()
-
-    # --------------------------------------------------------------------
-    #      Some information messages.
-    # --------------------------------------------------------------------
-        print( "INFO: Open of `%s'\n"
-                "      using driver `%s' successful." % (pszDataSource, poDriver.GetName()) )
-
-        poDS_Name = poDS.GetName()
-        if str(type(pszDataSource)) == "<type 'unicode'>" and str(type(poDS_Name)) == "<type 'str'>":
-            poDS_Name = poDS_Name.decode("utf8")
-        if pszDataSource != poDS_Name:
-            print( "INFO: Internal data source name `%s'\n"
-                    "      different from user name `%s'." % (poDS_Name, pszDataSource ))
-
-        #gdal.Debug( "OGR", "GetLayerCount() = %d\n", poDS.GetLayerCount() )
-
-        # --------------------------------------------------------------------
-        #      Process specified data source layers.
-        # --------------------------------------------------------------------
-        poLayer = poDS.GetLayerByName("airspaces")
-
-        if poLayer is None:
-            print( "FAILURE: Couldn't fetch requested layer %s!" % papszIter )
-            return 1
-
-        ReadLayer( poLayer )
-
-    # --------------------------------------------------------------------
-    #      Close down.
-    # --------------------------------------------------------------------
-        poDS.Destroy()
-
-        for airspace in airspaces:
-            airspace.draw()
-            
-        
-galt = 200            
 
 def ev(event):
     lat = event.ydata
@@ -502,13 +289,18 @@ spf = GPS_Spoof("/dev/ttyUSB1")
 
 level = 0
 path = "."
+galt = 200
 
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 patch = []
 
-draw_airspace(sys.argv[1])
-
+for oas in openaip.load_file(sys.argv[1]):
+    if CLASS_FILTER[oas.category] and not oas.invalid:
+        airspaces.append(Airspace(oas))
+    
+for airspace in airspaces:
+    airspace.draw()
 
 a, = plt.plot([], [])
 a.figure.canvas.mpl_connect('motion_notify_event', ev)
@@ -520,7 +312,6 @@ plt.ylabel('Latitude')
 ax.axis('equal')
 
 plt.subplots_adjust(left=0.05, right=1.0, top=1.0, bottom=0.05)
-#plt.savefig(sys.argv[1] + ".png", dpi=300, bbox_inches='tight')
 plt.show()
 
 

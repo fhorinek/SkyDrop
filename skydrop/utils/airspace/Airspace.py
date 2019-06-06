@@ -29,15 +29,20 @@ def draw_line(p1, p2, color="black", alpha=1.0):
 # and maximum height of this airspace.
 #
 class Airspace:
-    def __init__(self):
-        self.minFt = None
-        self.minAGL = None
-        self.maxAGL = None
-        self.name = None
-        self.polygon = None
+    def __init__(self, a):
+        self.minFt = a.bottom.value
+        self.minAGL = a.bottom.agl
+        
+        self.maxFt = a.top.value
+        self.maxAGL = a.top.agl
+        
+        self.name = a.name
+        
+        self.setPolygon(shapely.geometry.Polygon(a.coordinates))
+        self.class_name = a.category
+        
         self.index = None
         self.indexer = None
-        self.class_name = None
         
     def setIndexer(self, indexer):
         self.indexer = indexer
@@ -47,12 +52,6 @@ class Airspace:
             self.index = self.indexer.getNext(self)
             
         return self.index
-
-    def setName(self, name):
-        self.name = name
-
-    def setClass(self, class_name):
-        self.class_name = class_name
         
     def getClass(self):
         return self.class_name
@@ -66,13 +65,6 @@ class Airspace:
         
         ex = AIRSPACE_BORDER      
         self.near_box = shapely.geometry.box(self.bb[0] - ex, self.bb[1] - ex, self.bb[2] + ex, self.bb[3] + ex)
-
-
-    def setMinMax(self, minFt, minAGL, maxFt, maxAGL):
-        self.minFt = minFt
-        self.minAGL = minAGL
-        self.maxFt = maxFt
-        self.maxAGL = maxAGL
 
     def getMin(self):
         return self.minFt, self.minAGL

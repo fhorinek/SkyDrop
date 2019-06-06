@@ -1,8 +1,7 @@
-import sys
-from agl import get_alt_point
-
+import random
 import struct
 
+import shapely.geometry
 from const import *
 from gps_calc import *
 
@@ -84,6 +83,26 @@ class AirspaceVector:
                     off_x = self.target.x - self.point.x
                     off_y = self.target.y - self.point.y
                     dist = sqrt(off_x ** 2 + off_y ** 2)
+                    
+                    if dist == 0:
+                    
+                        #Zero distance condition! 
+                        #Point 20.20249999999996 49.522500000000264
+                        #Target 20.20249999999996 49.522500000000264
+
+                    
+                        print("Zero distance condition! ")
+                    
+                        print("Point", self.point.x, self.point.y)
+                        print("Target", self.target.x, self.target.y)
+
+                        x = self.point.x + [-1, 1][random.randint(0, 1)] * random.uniform(0.00001, 0.0001)
+                        y = self.point.y + [-1, 1][random.randint(0, 1)] * random.uniform(0.00001, 0.0001)
+    
+                        new_point = shapely.geometry.Point(x, y)
+
+                        new_av = self.airspace.getAirspaceVector(new_point) 
+                        return new_av.getBytes()         
                     
                     mul = 60 / dist
                     
