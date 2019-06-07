@@ -39,3 +39,23 @@ This can be skipped and generate datafiles for only single source file, like in 
     Use `./create_zip.py lists/openaip_airspace_slovakia_sk.aip.list` to create zip file of the data for the airspace 
     in dist directory
  
+## Notes
+
+Few notes on how we handle airspaces, since we do not want to edit the files, because of possible updates.
+
+ * Tiles over water will not be generated. Conversion will skip any tile not in `agl_tiles.list` if the file exists.
+ * Tiles under latitude -60 will not be generated.
+ * Airspaces classes will be changed based on the its name prefix (eg. if TMA Bratislava is class C,
+   it will be changed to class TMA)
+ * Airspaces classes that have `false` in `CLASS_FILTER` inside `const.py` will be skipped
+ * Airspaces without class will go into OTH class
+ * Airspaces that starts higher than 32767ft / 9987m (0x7FFF) will be skipped
+ * Airspaces that have same top and bottom will be skipped.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
