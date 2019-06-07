@@ -19,6 +19,8 @@ HGT_COORD_MUL = 10000000
 
 MAX_ALTITUDE = 0x7FFF
 
+LAT_MINIMUM = -60
+
 CLASS_DICT = {
     "A":            0,
     "B":            1,

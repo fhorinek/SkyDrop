@@ -222,7 +222,7 @@ def dump(lon, lat, airspaces):
     
     lat_n = abs((lat * HGT_COORD_MUL) / HGT_COORD_MUL);
     lon_n = abs((lon * HGT_COORD_MUL) / HGT_COORD_MUL);
-
+    
     if lat >= 0:
         lat_c = 'N'
     else:
@@ -237,14 +237,16 @@ def dump(lon, lat, airspaces):
 
     filename = "%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
 
-
+    if lat < LAT_MINIMUM:
+        print (filename, "too low to care, skipping...")
+        return    
     
     if os.path.isfile("data/" + filename) and not force and not mk_list:
         print (filename, "exists, skipping...")
         return    
     
     #do we need to add aditional airspace?
-    if os.path.exists("lookup/" + filename):
+    if os.path.exists("lookup/" + filename) and not mk_list:
         f = open("lookup/" + filename, "r")
         data = f.readlines()
         f.close()
@@ -286,8 +288,6 @@ def dump(lon, lat, airspaces):
     
     numPoints = wantedResolution
     filesize = numPoints * numPoints * DATA_LEVELS * DATA_LEVEL_SIZE
-    
-    print (filename, "computing (" + str(numPoints) + "x" + str(numPoints) + ")")
 
     output = bytearray(filesize)
     
@@ -303,6 +303,7 @@ def dump(lon, lat, airspaces):
         isEmpty = True
         delta = AIRSPACE_BORDER
         
+        print (filename, "Checking...")
         for lat_i in numpy.arange(lat + delta / 2, lat + 1, delta):
             for lon_i in numpy.arange(lon + delta / 2, lon + 1, delta):
                 p = shapely.geometry.Point(lon_i, lat_i)
@@ -315,10 +316,14 @@ def dump(lon, lat, airspaces):
 
         if not isEmpty:
             if mk_list:
-                f1 = open("lists/%s" % os.path.basename(DataSource), "a")
+                print (filename, "added to list")
+                f1 = open("lists/%s.list" % os.path.basename(DataSource), "a")
                 f1.write("%s\n" % filename)
                 f1.close()
                 return 
+
+            print (filename, "computing (%ux%u)" % (numPoints, numPoints))
+
         
             pos = 0
             f = open("data/" + filename, 'wb')
@@ -566,6 +571,7 @@ def main(argv = None):
             if mk_list:
                 #if we are making list use only one, since we are writing the result to single file
                 parallelism = 1 
+                os.system("rm lists/%s.list" % os.path.basename(DataSource))
 
             while len(procs) > 0 or len(running) > 0:
                 # Start as much processes as we have CPUs
@@ -579,7 +585,7 @@ def main(argv = None):
                         del running[i]
                         # "i" is now wrong, break out and restart
                         break      
-                time.sleep(0.1)
+                #time.sleep(0.1)
 
         except (KeyboardInterrupt, SystemExit):
             print("Exiting (main)...")

@@ -5,6 +5,7 @@ import os
 res = []
 ssize = 0
 isize = []
+iall = []
 
 for fname in os.listdir("lists"):
     f = open("lists/" + fname, "r")
@@ -17,7 +18,10 @@ for fname in os.listdir("lists"):
     
     for line in f.readlines():
         line = line.split()[0]
-        
+
+        if line not in iall:
+            iall.append(line)
+            
         cnt += 1
         if os.path.exists("data/%s" % line):
             size = os.path.getsize("data/%s" % line)
@@ -49,7 +53,7 @@ def score(a):
     if a["cnt"] == 0:
         return 0
         
-    return (a["done"] / a["cnt"] * 10000) + a["done"] 
+    return (a["done"] / a["cnt"] * 100000000) + a["done"] * 10000 + a["cnt"]
 
     
 res.sort(key = score, reverse = True)    
@@ -63,14 +67,16 @@ for data in res:
     
     dst = fname.replace("openaip_airspace_", "").replace(".aip", "") + ".zip"
     zipped = os.path.exists("dist/%s" % dst)
+    if zipped:
+        zsize = os.path.getsize("dist/%s" % dst) / (1024 * 1024)
 
     print(" %-60s %4u / %4u   %3.0f %% %8.1fMB  %s%s%s" % 
         (fname, done, cnt, 
         (done * 100) / cnt if done > 0 else 0, size, 
         "done!" if cnt == done else "", 
         ("working (%u)..." % working) if working > 0 else "",
-        " ZIP" if zipped else ""))
+        ("  ZIP (%5.1fMB)" % zsize) if zipped else ""))
         
 print("-" * 100)
-print(" "* 65, "Total %u files %8.1fMB" % (len(isize), ssize / (1024 * 1024)))
+print(" "* 55, "Total %4u / %4u   %3.0f %% %8.1fMB" % (len(isize), len(iall), (len(isize) * 100)/ len(iall), ssize / (1024 * 1024)))
 
