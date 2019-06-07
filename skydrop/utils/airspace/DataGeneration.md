@@ -45,7 +45,7 @@ Few notes on how we handle airspaces, since we do not want to edit the files, be
 
  * Tiles over water will not be generated. Conversion will skip any tile not in `agl_tiles.list` if the file exists.
  * Tiles under latitude -60 will not be generated.
- * Airspaces classes will be changed based on the its name prefix (eg. if TMA Bratislava is class C,
+ * Airspaces classes will be changed based on the its name prefix (eg. if airspace named "TMA Bratislava" is class C,
    it will be changed to class TMA)
  * Airspaces classes that have `false` in `CLASS_FILTER` inside `const.py` will be skipped
  * Airspaces without class will go into OTH class
