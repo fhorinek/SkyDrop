@@ -26,9 +26,9 @@ This can be skipped and generate datafiles for only single source file, like in 
     eg. `./convert.py -l source/openaip_airspace_slovakia_sk.aip` will create list file for this airspace
     lists are required for final airspace packing as border data files will be shared for more than one country
     they are also used for creating lookup lists
-    Generaly this method is not very intense on the CPU, you can run it in paralel. See `create_lists.sh`
+    Generaly this method is not very intense on the CPU, you can run it in paralel. See `./create_lists.sh`
  2. **Create lookup data.**
-    Use `create_lookup.py` to invert the lists data
+    Use `./create_lookup.py` to invert the lists data
     Thees files will be later used for loading additional airspaces when generating border data
  3. **Generate data file.**
     `./convert.py source/openaip_airspace_slovakia_sk.aip` Will genearte data for entered airspace.
