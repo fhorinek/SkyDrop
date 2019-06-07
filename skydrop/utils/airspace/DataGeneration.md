@@ -21,21 +21,21 @@ This new method requires pre-computed meta data about the source file.
 
 
 The data generation now need additional steps, if you want to use multiple files as sources.
-This can be skipped and generate datafiles for only single source file.
+This can be skipped and generate datafiles for only single source file, like in **step 3**.
  1. **Create file list for every source file.**
-    eg. "./convert.py -l source/openaip_airspace_slovakia_sk.aip" will create list file for this airspace
+    eg. `./convert.py -l source/openaip_airspace_slovakia_sk.aip` will create list file for this airspace
     lists are required for final airspace packing as border data files will be shared for more than one country
     they are also used for creating lookup lists
-    Generaly this method is not very intense on the CPU, you can run it in paralell see "create_lists.sh"
+    Generaly this method is not very intense on the CPU, you can run it in paralel. See `create_lists.sh`
  2. **Create lookup data.**
-    Use "create_lookup.py" to invert the lists data
+    Use `create_lookup.py` to invert the lists data
     Thees files will be later used for loading additional airspaces when generating border data
  3. **Generate data file.**
-    "./convert.py source/openaip_airspace_slovakia_sk.aip" Will genearte data for entered airspace.
+    `./convert.py source/openaip_airspace_slovakia_sk.aip` Will genearte data for entered airspace.
     The convert script will look for files in lookup directory.
     If the file exist it will be used to check if the AIR file needs to be generated for this airspace 
     (skiping Quickcheck for emptyness) and also if there is a need to load another airspace.
  4. **Bundle airspace data to zip**
-    Use ./create_zip.py lists/openaip_airspace_slovakia_sk.aip.list to create zip file of the data for the airspace 
+    Use `./create_zip.py lists/openaip_airspace_slovakia_sk.aip.list` to create zip file of the data for the airspace 
     in dist directory
  
