@@ -60,7 +60,7 @@ CLASS_FILTER = {
     "RESTRICTED":   True,   #Restricted
     "TMZ":          True,   #Transponder Mandatory Zone
     "RMZ":          True,   #Radio mandatory zone
-    "FIR":          True,   #Flight information region
+    "FIR":          False,  #Flight information region
     "UIR":          False,  #Upper information region Above FIR
     "WAVE":         False,  #Wave window
     "GLIDING":      False,  #Gliding area
