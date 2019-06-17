@@ -137,6 +137,7 @@ void L3gd20::Start()
 	uint8_t bwValue = this->settings.bw;
 
 	this->EnableGyro((l3g_odr)odrValue, (l3g_scale)scaleValue, (l3g_bw)bwValue);
+	this->EnableGyroFIFO(L3GD20_GYRO_FIFO_TRESHOLD);
 }
 
 void L3gd20::Stop()
@@ -210,6 +211,4 @@ void L3gd20::Set(struct l3gd20_settings settings)
 			return;
 
 	this->Reset();
-
-	this->EnableGyroFIFO(L3GD20_FIFO_TRESHOLD);
 }

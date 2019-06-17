@@ -1,41 +1,56 @@
 <div ng-controller="simple">
     <h1>Altimeters</h1>
 
-    <ctrl-tabs>
-        <ctrl-tab name="Altimeter_1" open="1">
-            Always in mode absolute to QNH1
-            <ctrl item="list['cfg_altitude_alt1_flags']"></ctrl>
-            QNH1
-            <ctrl item="list['cfg_altitude_QNH1']"></ctrl>
-            QNH2
-            <ctrl item="list['cfg_altitude_QNH2']"></ctrl>
-        </ctrl-tab>
-        <ctrl-tab name="Altimeter_2" open="1">
-            <ctrl item="list['cfg_altitude_altimeter_0_flags']"></ctrl>
-            if set to relative mode
-            <ctrl item="list['cfg_altitude_altimeter_0_delta']"></ctrl>
-        </ctrl-tab>
-        <ctrl-tab name="Altimeter_3" open="0">
-            <ctrl item="list['cfg_altitude_altimeter_1_flags']"></ctrl>
-            if set to relative mode
-            <ctrl item="list['cfg_altitude_altimeter_1_delta']"></ctrl>
-        </ctrl-tab>
-        <ctrl-tab name="Altimeter_4" open="0">
-            <ctrl item="list['cfg_altitude_altimeter_2_flags']"></ctrl>
-            if set to relative mode
-            <ctrl item="list['cfg_altitude_altimeter_2_delta']"></ctrl>
-        </ctrl-tab>
-        <ctrl-tab name="Altimeter_5" open="0">
-            <ctrl item="list['cfg_altitude_altimeter_3_flags']"></ctrl>
-            if set to relative mode
-            <ctrl item="list['cfg_altitude_altimeter_3_delta']"></ctrl>
-        </ctrl-tab>
-        <ctrl-tab name="Altitude_alarm" open="0">
-            <ctrl item="list['cfg_altitude_alarm_enabled']"></ctrl>
-            <ctrl item="list['cfg_altitude_alarm_1']"></ctrl>
-            <ctrl item="list['cfg_altitude_alarm_2']"></ctrl>
-            <ctrl item="list['cfg_altitude_alarm_reset']"></ctrl>
-        </ctrl-tab>
-    </ctrl-tabs>
+
+    <div class="row">
+        <div class="col-md-6">
+            <ctrl-tabs>
+                <ctrl-tab name="Variometer_settings" open="1">
+                    <ctrl item="list['cfg_vario_flags']"></ctrl>
+                    <ctrl item="list['cfg_vario_digital_vario_dampening']"></ctrl>
+                    <ctrl item="list['cfg_vario_avg_vario_dampening']"></ctrl>
+                </ctrl-tab>
+                <ctrl-tab name="Altimeter_1" open="1">
+                    Always in mode absolute to QNH1
+                    <ctrl item="list['cfg_altitude_alt1_flags']"></ctrl>
+                    QNH1
+                    <ctrl item="list['cfg_altitude_QNH1']"></ctrl>
+                    QNH2
+                    <ctrl item="list['cfg_altitude_QNH2']"></ctrl>
+                </ctrl-tab>
+            </ctrl-tabs>
+        </div>
+        <div class="col-md-6">
+            <ctrl-tabs>        
+                <ctrl-tab name="Altimeter_2" open="1">
+                    <ctrl item="list['cfg_altitude_altimeter_0_flags']"></ctrl>
+                    if set to relative mode
+                    <ctrl item="list['cfg_altitude_altimeter_0_delta']"></ctrl>
+                </ctrl-tab>
+                <ctrl-tab name="Altimeter_3" open="0">
+                    <ctrl item="list['cfg_altitude_altimeter_1_flags']"></ctrl>
+                    if set to relative mode
+                    <ctrl item="list['cfg_altitude_altimeter_1_delta']"></ctrl>
+                </ctrl-tab>
+                <ctrl-tab name="Altimeter_4" open="0">
+                    <ctrl item="list['cfg_altitude_altimeter_2_flags']"></ctrl>
+                    if set to relative mode
+                    <ctrl item="list['cfg_altitude_altimeter_2_delta']"></ctrl>
+                </ctrl-tab>
+                <ctrl-tab name="Altimeter_5" open="0">
+                    <ctrl item="list['cfg_altitude_altimeter_3_flags']"></ctrl>
+                    if set to relative mode
+                    <ctrl item="list['cfg_altitude_altimeter_3_delta']"></ctrl>
+                </ctrl-tab>
+                <ctrl-tab name="Altitude_alarm" open="0">
+                    <ctrl item="list['cfg_altitude_alarm_enabled']"></ctrl>
+                    <ctrl item="list['cfg_altitude_alarm_1']"></ctrl>
+                    <ctrl item="list['cfg_altitude_alarm_2']"></ctrl>
+                    <ctrl item="list['cfg_altitude_alarm_h1']"></ctrl>
+                    <ctrl item="list['cfg_altitude_alarm_reset']"></ctrl>
+                </ctrl-tab>
+            </ctrl-tabs>
+        </div>
+    </div>
 
 </div>

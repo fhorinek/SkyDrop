@@ -96,7 +96,8 @@
             "name": "Vario Flags",
             "mode": "flags",
             "flags": [
-                ["VARIO_UNITS_I", "Use imperial units"]
+                ["VARIO_UNITS_I", "Use imperial units"],
+                ["VARIO_USE_ACC", "Use accelerometer data"]
             ]
         },    
         "cfg_vario_weak_lift" : {
@@ -131,11 +132,15 @@
                 ["ALT_UNIT_I", "Use imperial units"]
             ]
         },
-        "cfg_audio_profile_fluid" : {
-            "name": "Fluid Audio",
-            "desc": "Enable fluent frequency change",
-            "mode": "bool"
-        },
+        "cfg_audio_profile_flags" : {
+            "name": "Audio vario flags",
+            "mode": "flags",
+            "flags": [
+                ["AUDIO_FLUID", "Enable fluid frequency change"],
+                ["AUDIO_WEAK", "Enable weak lift"],
+                ["AUDIO_PRE_SINK", "Enable sink beep"]
+            ]
+        }, 
         "cfg_audio_profile_lift" : {
             "name": "Lift treshold",
             "desc": "in cm/s",
@@ -151,6 +156,22 @@
             "min": -2000,
             "max": 2000,
             "step": 10
+        },
+        "cfg_audio_profile_prebeep_offset" : {
+            "name": "Prebeep frequency offset",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 250,
+            "step": 1
+        },
+        "cfg_audio_profile_prebeep_length" : {
+            "name": "Prebeep duration",
+            "desc": "in ms",
+            "mode": "number",
+            "min": 10,
+            "max": 250,
+            "step": 1
         },
         "cfg_connectivity_use_gps" : {
             "name": "Enable GPS",
@@ -404,6 +425,105 @@
                 [128, "Screen 8"]
             ]
         },
+        "cfg_gui_page_acro_thold" : {
+            "name": "Acro screen threshold",
+            "desc": "in dm/s",
+            "mode": "number",
+            "min": -100,
+            "max": 0,
+            "step": 5
+        },        
+        "cfg_gui_page_cirlcing_thold" : {
+            "name": "circling screen threshold",
+            "desc": "in deg/s",
+            "mode": "number",
+            "min": 2,
+            "max": 30,
+            "step": 1
+        },        
+        "cfg_gui_page_circling_average" : {
+            "name": "Circling screen averaging time",
+            "desc": "in sec",
+            "mode": "number",
+            "min": 5,
+            "max": 60,
+            "step": 1
+        },        
+        "cfg_gui_page_mode_0" : {
+            "name": "Prepare",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_1" : {
+            "name": "Circling",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_2" : {
+            "name": "Normal",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_3" : {
+            "name": "Acro",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
+        "cfg_gui_page_mode_4" : {
+            "name": "Landing",
+            "mode": "select",
+            "options": [
+                [255, "Disabled"],
+                [0, "Screen 1"],
+                [1, "Screen 2"],
+                [2, "Screen 3"],
+                [3, "Screen 4"],
+                [4, "Screen 5"],
+                [5, "Screen 6"],
+                [6, "Screen 7"],
+                [7, "Screen 8"]
+            ]
+        },        
          "cfg_system_record_screen" : {
             "name": "Record screen",
             "desc": "Do NOT enable, for debug and testing only!",
@@ -481,6 +601,7 @@
                 ["LAYOUT_121", "Layout 1 | 2 | 1"],
                 ["LAYOUT_122", "Layout 1 | 2 | 2"],
                 ["LAYOUT_123", "Layout 1 | 2 | 3"],
+                ["LAYOUT_132", "Layout 1 | 3 | 2"],
                 ["LAYOUT_133", "Layout 1 | 3 | 3"],
                 ["LAYOUT_21", "Layout 2 | 1"],
                 ["LAYOUT_22", "Layout 2 | 2"],
@@ -525,6 +646,17 @@
                 ["WIDGET_HOME_TIME", "Time to home"],
                 ["WIDGET_HOME_INFO", "Home info"],
 
+                ["WIDGET_WAYPOINT_ARROW", "Waypoint Arrow"],
+                ["WIDGET_WAYPOINT_DISTANCE", "Waypoint Distance"],
+                ["WIDGET_WAYPOINT_TIME", "Waypoint Time"],
+                ["WIDGET_WAYPOINT_INFO", "Waypoint Info"],
+
+                ["WIDGET_AIRSPACE_ARROW", "Airspace Arrow"],
+                ["WIDGET_AIRSPACE_DISTANCE", "Airspace Distance"],
+                ["WIDGET_AIRSPACE_LIMITS", "Airspace Limits"],
+                ["WIDGET_AIRSPACE_INFO", "Airspace Info"],
+                ["WIDGET_AIRSPACE_NAME", "Airspace Name"],
+
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
                 ["WIDGET_WIND_DIR_POINTS", "Wind direction points"],
@@ -542,10 +674,7 @@
                 ["WIDGET_CTRL_AUDIO", "Enable/Disable audio vario"],
                 ["WIDGET_CTRL_WLIFT", "Enable/Disable weaklift"],
 
-                ["WIDGET_EMPTY", "No widget"],
-                
-                ["WIDGET_DEBUG_ETC", "Debug info"],
-                ["WIDGET_DEBUG_IMU", "Debug info IMU"]
+                ["WIDGET_EMPTY", "No widget"]
             ]
         },
         "cfg_audio_profile_freq_[0-9]" : {
@@ -618,7 +747,7 @@
             "mode": "bool"
         },        
         "cfg_altitude_alarm_1" : {
-            "name": "First altitude alarm",
+            "name": "First lower altitude alarm",
             "desc": "in meters",
             "mode": "number",
             "min": 0,
@@ -626,13 +755,21 @@
             "step": 5
         },
         "cfg_altitude_alarm_2" : {
-            "name": "Second altitude alarm",
+            "name": "Second lower altitude alarm",
             "desc": "in meters",
             "mode": "number",
             "min": 0,
             "max": 10000,
             "step": 5
         },
+        "cfg_altitude_alarm_h1" : {
+            "name": "First higher altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },        
         "cfg_altitude_alarm_reset" : {
             "name": "Reset alarm confirmation after gaining this height over the alarms",
             "desc": "in meters",
@@ -914,7 +1051,7 @@
             "name": "Home Information",
             "desc": "Displaying additional home information",
             "label": "Home info",
-            "value": "<Load>"
+            "value": "Load"
         },        
         "WIDGET_COMPASS": 
         {
@@ -938,6 +1075,76 @@
             "desc": "Compas readout as points", 
             "label": "Comp",
             "value": "N"
-        }   
+        },
+        "WIDGET_WAYPOINT_ARROW":
+        {
+            "type": "arrow",
+            "name": "Waypoint Arrow",
+            "desc": "Arrow pointing to next waypoint",
+            "label": "WP"
+        },
+        "WIDGET_WAYPOINT_DISTANCE":
+        {
+            "type": "value",
+            "name": "Waypoint Distance",
+            "desc": "Arrow showing distace to next waypoint",
+            "label": "WP",
+            "value": "32"
+        },
+        "WIDGET_WAYPOINT_TIME":
+        {
+            "type": "value",
+            "name": "Waypoint Time",
+            "desc": "Arrow showing ETA to next waypoint in minutes",
+            "label": "WP",
+            "value": "5"
+        },
+        "WIDGET_WAYPOINT_INFO":
+        {
+            "type": "value",
+            "name": "Waypoint Info",
+            "desc": "Display info about curren waypoint list",
+            "label": "WP",
+            "value": "Load"
+        },
+        "WIDGET_AIRSPACE_ARROW":
+        {
+            "type": "arrow",
+            "name": "Airspace Arrow",
+            "desc": "Arrow pointing to nearest airspace or shortest way out",
+            "label": "AS near"
+        },
+        "WIDGET_AIRSPACE_DISTANCE":
+        {
+            "type": "value",
+            "name": "Airspace Distance",
+            "desc": "Arrow showing distace to nearest airspace or how far inside you are",
+            "label": "AS dist",
+            "value": "32"
+        },
+        "WIDGET_AIRSPACE_LIMITS":
+        {
+            "type": "text2",
+            "name": "Airspace Limis",
+            "desc": "Actual maximum and minimum allowed altitude",
+            "label": "AS Limit",
+            "value": "2432\n---"
+        },
+        "WIDGET_AIRSPACE_INFO":
+        {
+            "type": "text2",
+            "name": "Airspace Info",
+            "desc": "Floor and Ceiling of nearest or intersected airspace",
+            "label": "AS Info",
+            "value": "1424M\n0A"
+        },
+        "WIDGET_AIRSPACE_NAME":
+        {
+            "type": "text",
+            "name": "Airspace Name",
+            "desc": "Name of the nearest or intersected airspace",
+            "label": "AS Name",
+            "value": "CTA BRATISLAVA"
+        }
     }
 }            

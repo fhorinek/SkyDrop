@@ -5,7 +5,7 @@
 
 void gui_set_debug_init()
 {
-	gui_list_set(gui_set_debug_item, gui_set_debug_action, 14, GUI_SETTINGS);
+	gui_list_set(gui_set_debug_item, gui_set_debug_action, 6, GUI_SETTINGS);
 }
 
 void gui_set_debug_stop() {}
@@ -44,16 +44,7 @@ void gui_set_debug_action(uint8_t index)
 {
 	switch(index)
 	{
-//		case(3):
-//			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Do you want to\nreset Factory\ntest?"), GUI_STYLE_YESNO, gui_set_debug_reset_fc);
-//			gui_switch_task(GUI_DIALOG);
-//		break;
-
 		case(2):
-			battery_force_update();
-		break;
-
-		case(4):
 			if (config.system.debug_log == DEBUG_MAGIC_ON)
 				config.system.debug_log = 0;
 			else
@@ -62,18 +53,18 @@ void gui_set_debug_action(uint8_t index)
 			eeprom_update_byte(&config_ee.system.debug_log, config.system.debug_log);
 		break;
 
-		case(5):
+		case(3):
 			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Clear\ndebug.log?"), GUI_STYLE_YESNO, gui_set_debug_delete_fc);
 			gui_switch_task(GUI_DIALOG);
 		break;
 
-		case(6):
+		case(4):
 			config.system.debug_gps = !config.system.debug_gps;
 			eeprom_busy_wait();
 			eeprom_update_byte(&config_ee.system.debug_gps, config.system.debug_gps);
 		break;
 
-		case(8):
+		case(5):
 			config.system.record_screen = !config.system.record_screen;
 			eeprom_busy_wait();
 			eeprom_update_byte(&config_ee.system.record_screen, config.system.record_screen);
@@ -88,47 +79,13 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	switch (index)
 	{
 		case (0):
-			strcpy_P(text, PSTR("Reset"));
-			*flags |= GUI_LIST_SUB_TEXT;
-
-			if (system_rst & 0b00100000)
-				strcpy_P(sub_text, PSTR("Software"));
-			else
-			if (system_rst & 0b00010000)
-				strcpy_P(sub_text, PSTR("Programming"));
-			else
-			if (system_rst & 0b00001000)
-				strcpy_P(sub_text, PSTR("Watchdog"));
-			else
-			if (system_rst & 0b00000100)
-				strcpy_P(sub_text, PSTR("Brownout"));
-			else
-			if (system_rst & 0b00000010)
-				strcpy_P(sub_text, PSTR("External"));
-			else
-			if (system_rst & 0b00000001)
-				strcpy_P(sub_text, PSTR("Power On"));
-			else
-				sprintf_P(sub_text, PSTR("Unknown: %02X"), system_rst);
-		break;
-
-		case (1):
 			strcpy_P(text, PSTR("Firmware"));
 			*flags |= GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("%s"), fw_info.app_name);
 		break;
 
-		case (2):
-			strcpy_P(text, PSTR("ADC raw (max)"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%d (%u)"), battery_adc_raw, bat_adc_max);
-		break;
 
-//		case (3):
-//			strcpy_P(text, PSTR("Reset Factory test"));
-//		break;
-
-		case (3):
+		case (1):
 			strcpy_P(text, PSTR("Board rev."));
 			*flags |= GUI_LIST_SUB_TEXT;
 
@@ -140,7 +97,7 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 
 		break;
 
-		case (4):
+		case (2):
 			strcpy_P(text, PSTR("Debug log"));
 			if (config.system.debug_log == DEBUG_MAGIC_ON)
 				*flags |= GUI_LIST_CHECK_ON;
@@ -148,12 +105,12 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
-		case (5):
+		case (3):
 			strcpy_P(text, PSTR("Clear log"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
-		case (6):
+		case (4):
 			strcpy_P(text, PSTR("Debug GPS"));
 			if (config.system.debug_gps)
 				*flags |= GUI_LIST_CHECK_ON;
@@ -161,14 +118,7 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
-		case (7):
-			strcpy_P(text, PSTR("WDT last PC"));
-			*flags |= GUI_LIST_SUB_TEXT;
-
-			sprintf_P(sub_text, PSTR("0x%lX"), debug_last_pc);
-		break;
-
-		case (8):
+		case (5):
 			strcpy_P(text, PSTR("Record screen"));
 			if (config.system.record_screen)
 				*flags |= GUI_LIST_CHECK_ON;
@@ -176,40 +126,7 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
-		case (9):
-			strcpy_P(text, PSTR("Acc bias"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			memcpy((void *)&tmp_vf, (void *)&fc.acc.bias, sizeof(tmp_vf));
-			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
-		break;
 
-		case (10):
-			strcpy_P(text, PSTR("Acc sens"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			memcpy((void *)&tmp_vf, (void *)&fc.acc.sens, sizeof(tmp_vf));
-			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
-		break;
-
-		case (11):
-			strcpy_P(text, PSTR("Mag bias"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			memcpy((void *)&tmp_vf, (void *)&fc.mag.bias, sizeof(tmp_vf));
-			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
-		break;
-
-		case (12):
-			strcpy_P(text, PSTR("Mag sens"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			memcpy((void *)&tmp_vf, (void *)&fc.mag.sens, sizeof(tmp_vf));
-			sprintf_P(sub_text, PSTR("%d %d %d"), int16_t(tmp_vf.x * 2), int16_t(tmp_vf.y * 2), int16_t(tmp_vf.z * 2));
-		break;
-
-		case (13):
-			strcpy_P(text, PSTR("Gyro bias"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			memcpy((void *)&tmp_vf, (void *)&fc.gyro.bias, sizeof(tmp_vf));
-			sprintf_P(sub_text, PSTR("% 4.1f % 4.1f % 4.1f"), tmp_vf.x, tmp_vf.y, tmp_vf.z );
-		break;
 	}
 }
 

@@ -124,11 +124,7 @@ EEMEM cfg_t config_ee = {
 		//avg_vario_dampening
 		1.0 / 100.0 / 10.0, // << last 10 sec
 		//flags
-		VARIO_UNITS_M,
-		//weak_lift_enabled
-		false,
-		//weak_lift
-		30, // << -0.3 m/s (buzzer start at lift - week_lift)
+		VARIO_UNITS_M | VARIO_USE_ACC,
 	},
 	//altitude
 	{
@@ -183,21 +179,23 @@ EEMEM cfg_t config_ee = {
 	//audio_profile
 	{
 		//freq
-		{90, 91, 93, 96, 100, 105, 111, 118, 126, 135, 145, 156, 168, 181, 195, 210, 226, 243, 261, 280, 300, 325, 360, 405, 460, 525, 600, 685, 780, 875, 960, 1025, 1070, 1105, 1130, 1150, 1165, 1180, 1195, 1210, 1225},
-		//length
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 480, 370, 288, 233, 192, 163, 142, 128, 120, 112, 105, 98, 91, 84, 78, 72, 66, 60, 54, 48, 42},
+		{190, 191, 193, 196, 200, 205, 211, 218, 226, 235, 245, 256, 268, 281, 295, 310, 326, 343, 361, 380, 400, 425, 460, 505, 560, 625, 700, 785, 880, 975, 1060, 1125, 1170, 1205, 1230, 1250, 1265, 1280, 1295, 1310, 1325},
 		//pause
-		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 265, 215, 180, 150, 125, 108, 97, 90, 83, 77, 72, 67, 62, 57, 52, 47, 42, 37, 32, 27},
-		//weak_lift_freq_low
-		60,
-		//weak_lift_freq_high
-		400,
+		{54, 88, 122, 156, 190, 224, 258, 292, 326, 360, 394, 428, 462, 496, 530, 564, 598, 632, 666, 700, 480, 370, 288, 233, 192, 163, 142, 128, 120, 112, 105, 98, 91, 84, 78, 72, 66, 60, 54, 48, 42},
+		//length
+		{395, 390, 385, 380, 375, 370, 365, 360, 355, 350, 345, 340, 335, 330, 325, 320, 315, 310, 305, 300, 300, 265, 215, 180, 150, 125, 108, 97, 90, 83, 77, 72, 67, 62, 57, 52, 47, 42, 37, 32, 27},
 		//lift
 		10,
 		//sink
-		-150,
-		//fluid
-		1,
+		-50,
+		//weak
+		30,
+		//flags
+		AUDIO_FLUID | AUDIO_BEEP_SINK | AUDIO_WEAK,
+		//prebeep_offset in Hz
+		40,
+		//prebeep_length in ms
+		50
 	},
 	//System
 	{
@@ -284,8 +282,6 @@ EEMEM cfg_t config_ee = {
 	}
 };
 
-
-
 bool cfg_factory_passed()
 {
 	eeprom_busy_wait();
@@ -308,16 +304,18 @@ void cfg_acc_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = -112;
-	tmp.y = 73;
-	tmp.z = -108;
+	tmp.x = 45;
+	tmp.y = 234;
+	tmp.z = 66;
+
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_bias, sizeof(vector_i16_t));
 
 	//sensitivity
-	tmp.x = 2715;
-	tmp.y = 2709;
-	tmp.z = 2723;
+	tmp.x = 8165;
+	tmp.y = 8448;
+	tmp.z = 8036;
+
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_sensitivity, sizeof(vector_i16_t));
 }
@@ -326,16 +324,18 @@ void cfg_mag_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = -845;
-	tmp.y = -158;
-	tmp.z = 276;
+	tmp.x = 1916;
+	tmp.y = -1542;
+	tmp.z = 2252;
+
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_bias, sizeof(vector_i16_t));
 
 	//sensitivity
-	tmp.x = 5628;
-	tmp.y = 5497;
-	tmp.z = 5364;
+	tmp.x = 5048;
+	tmp.y = 5096;
+	tmp.z = 4712;
+
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
 }
@@ -344,9 +344,10 @@ void cfg_gyro_write_defaults()
 {
 	vector_i16_t tmp;
 	//bias
-	tmp.x = -4;
-	tmp.y = 1;
-	tmp.z = 5;
+	tmp.x = 1.1 * 10;
+	tmp.y = 24.6 * 10;
+	tmp.z = -44.8 * 10;
+
 	eeprom_busy_wait();
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.gyro_bias, sizeof(vector_i16_t));
 }
@@ -358,64 +359,66 @@ void cfg_compass_write_defaults()
 	eeprom_update_block(&tmp, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
 
+void cfg_baro_write_defaults()
+{
+	int16_t tmp = 0;
+	eeprom_busy_wait();
+	eeprom_update_block(&tmp, &config_ro.baro_offset, sizeof(config_ro.baro_offset));
+}
+
+void cfg_check_floats()
+{
+	if (isnan(config.altitude.QNH1))
+	{
+	    config.altitude.QNH1 = 103000;
+	    eeprom_busy_wait();
+	    eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
+	}
+
+    if (isnan(config.altitude.QNH2))
+    {
+    	config.altitude.QNH2 = 101325;
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
+    }
+
+    if (isnan(config.vario.digital_vario_dampening))
+    {
+    	config.vario.digital_vario_dampening = 1.0 / 100.0 / 0.3;
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
+    }
+
+    if (isnan(config.vario.avg_vario_dampening))
+    {
+    	config.vario.avg_vario_dampening = 1.0 / 100.0 / 10.3;
+        eeprom_busy_wait();
+        eeprom_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
+    }
+}
 
 void cfg_load()
 {
+	//check and reload default calibration data (if needed)
 	eeprom_busy_wait();
 	uint8_t calib_flags = eeprom_read_byte(&config_ro.calibration_flags);
 
-	if (calib_flags & CALIB_ACC_NOT_DONE)
+	if (calib_flags != CALIB_DEFAULT_LOADED)
 	{
 		cfg_acc_write_defaults();
-		calib_flags &= ~CALIB_ACC_NOT_DONE;
-	}
-
-	if (calib_flags & CALIB_MAG_NOT_DONE)
-	{
 		cfg_mag_write_defaults();
-		calib_flags &= ~CALIB_MAG_NOT_DONE;
-	}
-
-	if (calib_flags & CALIB_GYRO_NOT_DONE)
-	{
 		cfg_gyro_write_defaults();
-		calib_flags &= ~CALIB_GYRO_NOT_DONE;
-	}
-
-	if (calib_flags & CALIB_COMPASS_NOT_DONE)
-	{
 		cfg_compass_write_defaults();
-		calib_flags &= ~CALIB_COMPASS_NOT_DONE;
+		cfg_baro_write_defaults();
+
+		eeprom_busy_wait();
+		eeprom_update_byte(&config_ro.calibration_flags, CALIB_DEFAULT_LOADED);
 	}
 
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ro.calibration_flags, calib_flags);
 
 	eeprom_busy_wait();
 	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));
 
 	//prevent freezing if QNH or int. interval is corrupted
-	if (isnan(config.altitude.QNH1))
-	{
-	    eeprom_busy_wait();
-	    eeprom_update_float(&config_ee.altitude.QNH1, 103000);
-	}
-
-    if (isnan(config.altitude.QNH2))
-    {
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.altitude.QNH2, 101325);
-    }
-
-    if (isnan(config.vario.digital_vario_dampening))
-    {
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.vario.digital_vario_dampening, 1.0 / 100.0 / 0.3);
-    }
-
-    if (isnan(config.vario.avg_vario_dampening))
-    {
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.vario.avg_vario_dampening, 1.0 / 100.0 / 10.3);
-    }
+	cfg_check_floats();
 }

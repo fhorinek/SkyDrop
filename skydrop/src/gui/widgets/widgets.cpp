@@ -7,7 +7,7 @@ float widget_menu_fvalue1;
 
 widget widget_array[NUMBER_OF_WIDGETS] = {
 		//debug
-		w_dummy, w_debug_etc, w_debug_imu,
+		w_dummy,
 		//vario
 		w_vario, w_avg_vario, w_vario_bar, w_vario_history,
 		//altitude
@@ -38,6 +38,8 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		w_thermal_time, w_thermal_gain,
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
+		//airspace
+		w_airspace_angle, w_airspace_distance, w_airspace_limits, w_airspace_info, w_airspace_name
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -90,6 +92,13 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_WAYPOINT_TIME,
 	WIDGET_WAYPOINT_INFO,
 
+	//airspace
+	WIDGET_AIRSPACE_ARROW,
+	WIDGET_AIRSPACE_DISTANCE,
+	WIDGET_AIRSPACE_LIMITS,
+	WIDGET_AIRSPACE_INFO,
+	WIDGET_AIRSPACE_NAME,
+
 	//wind
 	WIDGET_WIND_DIR,
 	WIDGET_WIND_DIR_ARROW,
@@ -114,6 +123,25 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 
 	WIDGET_EMPTY
 };
+
+/**
+ * Format a distance in a human readable format.
+ *
+ * @param text the text buffer to print into.
+ * @param distance the distance in km.
+ */
+void sprintf_distance(char *text, float distance)
+{
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+		distance *= FC_KM_TO_MILE;
+
+	if (distance < 1.0)
+		sprintf_P(text, PSTR("%.2f"), distance);
+	else if (distance < 100.0)
+		sprintf_P(text, PSTR("%.1f"), distance);
+	else
+		sprintf_P(text, PSTR("%.0f"), distance);
+}
 
 uint8_t widget_sorted_get_index(uint8_t pos)
 {
@@ -267,27 +295,33 @@ void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	disp.LoadFont(F_TEXT_L);
-	uint8_t text_w = disp.GetTextWidth(value1);
+	uint8_t text_w1 = disp.GetTextWidth(value1);
+	uint8_t text_w2 = disp.GetTextWidth(value2);
+	uint8_t text_w = max(text_w1, text_w2);
 	uint8_t text_h = disp.GetTextHeight() * 2;
 
 	if (w < text_w || h < text_h)
 	{
 		disp.LoadFont(F_TEXT_M);
-		text_w = disp.GetTextWidth(value1);
+		text_w1 = disp.GetTextWidth(value1);
+		text_w2 = disp.GetTextWidth(value2);
+		uint8_t text_w = max(text_w1, text_w2);
 		text_h = disp.GetTextHeight() * 2;
 		if (w < text_w || h < text_h)
 		{
 			disp.LoadFont(F_TEXT_S);
-			text_w = disp.GetTextWidth(value1);
+			text_w1 = disp.GetTextWidth(value1);
+			text_w2 = disp.GetTextWidth(value2);
+			uint8_t text_w = max(text_w1, text_w2);
 			text_h = disp.GetTextHeight() * 2;
 			if (w < text_w || h < text_h)
 				return;
 		}
 	}
 
-	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
+	disp.GotoXY(x + w / 2 - text_w1 / 2, y + h / 2 - text_h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value1);
-	disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2);
+	disp.GotoXY(x + w / 2 - text_w2 / 2, y + h / 2);
 	fprintf_P(lcd_out, PSTR("%s"), value2);
 }
 
@@ -302,17 +336,45 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
  */
 void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
+	disp.LoadFont(F_TEXT_L);
+	uint8_t text_h = disp.GetTextHeight();
+
+	if (h < text_h)
+	{
+		disp.LoadFont(F_TEXT_M);
+		text_h = disp.GetTextHeight();
+		if (h < text_h)
+		{
+			disp.LoadFont(F_TEXT_S);
+			text_h = disp.GetTextHeight();
+			if (h < text_h)
+				return;
+		}
+	}
+
 	uint8_t text_w = disp.GetTextWidth(text);
-	if ( text_w > w ) {
+	if ( text_w > w )
+	{
+		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
+
 		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 10);
 		int16_t scroll_x = x - (int16_t)offset;
-		disp.GotoXY(scroll_x, y);
+
+		disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
 		fputs(text, lcd_out);
+
 		scroll_x += text_w + 10;
-		disp.GotoXY(scroll_x, y);
-		fputs(text, lcd_out);
-	} else {
-		disp.GotoXY(x, y);
+		if (scroll_x < x + w)
+		{
+			disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
+			fputs(text, lcd_out);
+		}
+
+		disp.clip(oldClip);
+	}
+	else
+	{
+		disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
 		fputs(text, lcd_out);
 	}
 }

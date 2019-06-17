@@ -49,11 +49,11 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
     	for (var i=0; i < 41; i++)
     	{
     		freq.push($scope.list["cfg_audio_profile_freq_" + i].value);
-    		length.push($scope.list["cfg_audio_profile_length_" + i].value);
     		pause.push($scope.list["cfg_audio_profile_pause_" + i].value);
+    		length.push($scope.list["cfg_audio_profile_length_" + i].value);
     	}
     
-    	$scope.data = [freq, length, pause];  
+    	$scope.data = [freq, pause, length];  
     };
 	
 	$scope.labels = [];
@@ -61,15 +61,15 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	for (var i = -10 ; i <= 10; i += 0.5)
 		$scope.labels.push(i + " m/s");
 	
-	$scope.series = ['Frequency [Hz]', 'Length [ms]', 'Pause [ms]'];
+	$scope.series = ['Frequency [Hz]', 'Pause [ms]', 'Length [ms]'];
 		
 	$scope.data = [];
 	$scope.point_drag = false;
 	$scope.point_series = false;
 	$scope.point_index = false;
 	$scope.c_freq = "N/A";
-	$scope.c_leng = "N/A";
 	$scope.c_paus = "N/A";
+	$scope.c_leng = "N/A";
 	$scope.c_state = "Idle";
 	
 	$scope.onHover = function (points, evt, chart) 
@@ -79,7 +79,7 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 		{
 			$scope.point_index = points[0].index;
 			
-			var name = ["cfg_audio_profile_freq_", "cfg_audio_profile_length_", "cfg_audio_profile_pause_"][$scope.point_series] + $scope.point_index;
+			var name = ["cfg_audio_profile_freq_", "cfg_audio_profile_pause_", "cfg_audio_profile_length_"][$scope.point_series] + $scope.point_index;
 			
 			var val = $scope.list[name].value;
 			var y = evt.layerY;
@@ -207,8 +207,8 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	    if (ivario >= lift || ivario <= sink)
 	    {
 	        var c_freq = get_near(ivario / 100.0, $scope.data[0]);
-	        var c_leng = get_near(ivario / 100.0, $scope.data[1]);
-	        var c_paus = get_near(ivario / 100.0, $scope.data[2]);
+	        var c_paus = get_near(ivario / 100.0, $scope.data[1]);
+	        var c_leng = get_near(ivario / 100.0, $scope.data[2]);
 	        
             $scope.c_state = (ivario >= lift) ? "Lift" : "Sink";
             $scope.c_freq = Math.round(c_freq) + " Hz";;
@@ -301,8 +301,8 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
     		var label = ((i - 20) / 2) + " m/s";
     		
     		audio_data.freq[label] = $scope.list["cfg_audio_profile_freq_" + i].value;
-    		audio_data.length[label] = $scope.list["cfg_audio_profile_length_" + i].value;
     		audio_data.pause[label] = $scope.list["cfg_audio_profile_pause_" + i].value;
+    		audio_data.length[label] = $scope.list["cfg_audio_profile_length_" + i].value;
     	}
     	
     	var json_data = JSON.stringify(audio_data);
@@ -364,8 +364,8 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	        		var label = ((i - 20) / 2) + " m/s";
 	        		
 	        		tmp_data["cfg_audio_profile_freq_" + i] = json_data.freq[label];
-	        		tmp_data["cfg_audio_profile_length_" + i] = json_data.length[label];
 	        		tmp_data["cfg_audio_profile_pause_" + i] = json_data.pause[label];
+	        		tmp_data["cfg_audio_profile_length_" + i] = json_data.length[label];
 	        	}    
     		}
     		catch (e)

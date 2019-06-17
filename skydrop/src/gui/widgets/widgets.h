@@ -63,85 +63,98 @@ extern float widget_menu_fvalue1;
 
 #define WIDGET_OFF				0xFF
 #define WIDGET_EMPTY			0
-#define WIDGET_DEBUG_ETC		1
-#define WIDGET_DEBUG_IMU		2
 #include "dummy.h"
 
-#define WIDGET_VARIO			3
-#define WIDGET_AVG_VARIO		4
-#define WIDGET_VARIO_BAR		5
-#define WIDGET_VARIO_HISTORY	6
+#define WIDGET_VARIO			1
+#define WIDGET_AVG_VARIO		2
+#define WIDGET_VARIO_BAR		3
+#define WIDGET_VARIO_HISTORY	4
 #include "vario.h"
 
-#define WIDGET_ALT1				7
-#define WIDGET_ALT2				8
-#define WIDGET_ALT3				9
-#define WIDGET_ALT4				10
-#define WIDGET_ALT5				11
+#define WIDGET_ALT1				5
+#define WIDGET_ALT2				6
+#define WIDGET_ALT3				7
+#define WIDGET_ALT4				8
+#define WIDGET_ALT5				9
 #include "altitude.h"
 
-#define WIDGET_ACC_TOT			12
+#define WIDGET_ACC_TOT			10
 #include "acc.h"
 
-#define WIDGET_TIME				13
-#define WIDGET_DATE				14
-#define WIDGET_FTIME			15
+#define WIDGET_TIME				11
+#define WIDGET_DATE				12
+#define WIDGET_FTIME			13
 #include "time.h"
 
-#define WIDGET_TEMPERATURE		16
+#define WIDGET_TEMPERATURE		14
 #include "temperature.h"
 
-#define WIDGET_GHEADING			17
-#define WIDGET_GROUND_SPD		18
-#define WIDGET_POSITION			19
-#define WIDGET_GHEADING_ARROW	20
-#define WIDGET_GHEADING_POINTS	21
+#define WIDGET_GHEADING			15
+#define WIDGET_GROUND_SPD		16
+#define WIDGET_POSITION			17
+#define WIDGET_GHEADING_ARROW	18
+#define WIDGET_GHEADING_POINTS	19
 #include "gps.h"
 
-#define WIDGET_BATTERY			22
+#define WIDGET_BATTERY			20
 #include "battery.h"
 
-#define WIDGET_GLIDE_RATIO		23
+#define WIDGET_GLIDE_RATIO		21
 #include "flight.h"
 
-#define WIDGET_CTRL_AUDIO		24
-#define WIDGET_CTRL_WLIFT		25
+#define WIDGET_CTRL_AUDIO		22
+#define WIDGET_CTRL_WLIFT		23
 #include "ctrl.h"
 
-#define WIDGET_WIND_SPD			26
-#define WIDGET_WIND_DIR			27
-#define WIDGET_WIND_DIR_ARROW	28
-#define WIDGET_WIND_DIR_POINTS	29
+#define WIDGET_WIND_SPD			24
+#define WIDGET_WIND_DIR			25
+#define WIDGET_WIND_DIR_ARROW	26
+#define WIDGET_WIND_DIR_POINTS	27
 #include "wind.h"
 
-#define WIDGET_AGL_HEIGHT		30
-#define WIDGET_AGL_LEVEL		31
+#define WIDGET_AGL_HEIGHT		28
+#define WIDGET_AGL_LEVEL		29
 #include "agl.h"
 
-#define WIDGET_ODO_METER		32
-#define WIDGET_ODO_BACK			33
-#define WIDGET_ODO_DISTANCE		34
-#define WIDGET_HOME_TIME		35
-#define WIDGET_HOME_INFO		36
+#define WIDGET_ODO_METER		30
+#define WIDGET_ODO_BACK			31
+#define WIDGET_ODO_DISTANCE		32
+#define WIDGET_HOME_TIME		33
+#define WIDGET_HOME_INFO		34
 #include "odometer.h"
 
-#define WIDGET_COMPASS			37
-#define WIDGET_COMPASS_ARROW	38
-#define WIDGET_COMPASS_POINTS	39
+#define WIDGET_COMPASS			35
+#define WIDGET_COMPASS_ARROW	36
+#define WIDGET_COMPASS_POINTS	37
 #include "compass.h"
 
-#define WIDGET_THERMAL_TIME     40
-#define WIDGET_THERMAL_GAIN     41
+#define WIDGET_THERMAL_TIME     38
+#define WIDGET_THERMAL_GAIN     39
 #include "thermal.h"
 
-#define WIDGET_WAYPOINT_ARROW       42
-#define WIDGET_WAYPOINT_DISTANCE    43
-#define WIDGET_WAYPOINT_TIME        44
-#define WIDGET_WAYPOINT_INFO        45
+#define WIDGET_WAYPOINT_ARROW       40
+#define WIDGET_WAYPOINT_DISTANCE    41
+#define WIDGET_WAYPOINT_TIME        42
+#define WIDGET_WAYPOINT_INFO        43
 
-#define NUMBER_OF_WIDGETS		46
+#define WIDGET_AIRSPACE_ARROW       44
+#define WIDGET_AIRSPACE_DISTANCE    45
+#define WIDGET_AIRSPACE_LIMITS	    46
+#define WIDGET_AIRSPACE_INFO	    47
+#define WIDGET_AIRSPACE_NAME	    48
+#include "airspace.h"
 
-#define NUMBER_OF_SORTED_WIDGETS	44
+#define NUMBER_OF_WIDGETS			49
+
+#define NUMBER_OF_SORTED_WIDGETS	49
+
+/**
+ * Format a distance in a human readable format.
+ *
+ * @param text the text buffer to print into.
+ * @param distance the distance in km.
+ */
+extern void sprintf_distance(char *text, float distance);
 
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);

@@ -23,36 +23,6 @@ const uint8_t PROGMEM img_distance[] =
 	{9, 8, // width, heigth
 		0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x1F, 0x0E, 0x04 };
 
-/**
- * Format a distance in a human readable format.
- *
- * @param text the text buffer to print into.
- * @param distance the distance in km.
- */
-void sprintf_distance(char *text, float distance)
-{
-	const char *unit_P;
-
-	if (config.altitude.alt1_flags & ALT_UNIT_I)
-	{
-		distance *= FC_KM_TO_MILE;
-		unit_P = PSTR("mi");
-	}
-	else
-	{
-		unit_P = PSTR("km");
-	}
-
-	if (distance < 100.0)
-	{
-		sprintf_P(text, PSTR("%.1f %S"), distance, unit_P);
-	}
-	else
-	{
-		sprintf_P(text, PSTR("%.0f %S"), distance, unit_P);
-	}
-}
-
 void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
 	uint8_t lh = widget_label_P(PSTR("Odo"), x, y);
@@ -117,7 +87,7 @@ void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 {
 	float distance;
 
-	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid)
+	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid && fc.flight.waypoint_no)
 	{
 		distance = fc.flight.next_waypoint.distance;
 	}

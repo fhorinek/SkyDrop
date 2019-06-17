@@ -72,6 +72,11 @@
 #define FC_GPS_NEW_SAMPLE_ODO			0b00001000
 #define FC_GPS_NEW_SAMPLE_ALT           0b00010000
 #define FC_GPS_NEW_SAMPLE_CIRCLE        0b00100000
+#define FC_GPS_NEW_SAMPLE_AIRSPACE      0b01000000
+
+// All lat/lon values are multiplied by GPS_COORD_MUL, so that we can use
+// fixed point integer arithmetic instead of floating points:
+#define GPS_COORD_MUL	10000000l
 
 struct gps_data_t
 {
@@ -128,7 +133,7 @@ struct accel_data_t
 	float filter_old;
 	uint8_t filter_hold_time;
 	float total_filtered;			//total acceleration, + filtered, + peak detection, used by acceleration widget
-	float zGCA;						//Z direction (external frame), gravity compensated acceleration
+	float zGCA;						//Z direction (external frame), gravity compensated acceleration in m/s
 };
 
 struct mag_data_t
@@ -264,6 +269,57 @@ struct agl_data_t
 	float ground_gradient;    // the gradient of the current GPS position
 };
 
+
+#define AIR_CACHE_VALID		0x01
+#define AIR_CACHE_INSIDE	0x02
+#define AIR_CACHE_NORMAL	0x04
+#define AIR_CACHE_FAR		0x08
+
+struct airspace_cache_t
+{
+	uint8_t flags;
+
+	//target
+	int32_t latitude;
+	int32_t longtitude;
+
+	//offset
+	int8_t lat_offset;
+    int8_t lon_offset;
+
+	uint16_t floor;
+	uint16_t ceil;
+
+	uint8_t index;
+	uint8_t airspace_class;
+};
+
+#define AIR_LEVELS					5
+#define AIR_LEVEL_SIZE				3
+#define AIR_INDEX_SIZE				64
+
+struct airspace_data_t
+{
+	bool file_valid;
+
+	char filename[10];        // The filename of the currently opened airspace file
+
+	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
+	uint16_t angle;            // The angle out of the airspace or "AGL_INVALID".
+	uint16_t distance_m;
+	uint16_t ceiling;
+	uint16_t floor;
+
+	uint16_t min_alt;
+	uint16_t max_alt;
+
+	uint8_t airspace_name_index;
+	char airspace_name[50];
+
+	uint16_t cache_index;
+	airspace_cache_t cache[AIR_LEVELS];
+};
+
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
 
@@ -294,6 +350,8 @@ struct flight_computer_data_t
 
 	agl_data_t agl;
 
+	airspace_data_t airspace;
+
 	uint32_t odometer;              // in cm gives up to 42.000km
 
 	uint8_t logger_state;           // One of the LOGGER_IDLE, LOGGER_WAIT_FOR_GPS, ...
@@ -301,7 +359,7 @@ struct flight_computer_data_t
 	bool glide_ratio_valid;
 	float glide_ratio;
 
-	float altitude1;
+	float altitude1;                // in meter
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
 	uint8_t altitude_alarm_status;

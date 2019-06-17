@@ -5,18 +5,23 @@
 #include "buzzer.h"
 #include "audio.h"
 
-
+#define MS_TO_TICKS			31
 #define AUDIO_LOW_PASS		10.0
 
-#define VARIO_OFF	0
-#define VARIO_BEEP	1
-#define VARIO_PAUSE	2
-#define VARIO_CONT	3
+#define VARIO_OFF		0
+#define VARIO_BEEP		1
+#define VARIO_PAUSE		2
+#define VARIO_CONT		3
+#define VARIO_PRE_BEEP	4
 
 volatile uint8_t audio_vario_mode = VARIO_OFF;
 volatile uint16_t audio_vario_pause;
 volatile uint16_t audio_vario_length;
 volatile float audio_vario_freq = 0;
+
+volatile int16_t audio_vario_prebeep_length = 0;
+volatile int16_t audio_vario_prebeep_frequency = 0;
+
 
 int16_t vario_ivario_old = 0;
 bool vario_force_change = false;
@@ -74,19 +79,49 @@ ISR(AUDIO_TIMER_OVF)
 	if (audio_vario_mode == VARIO_PAUSE)
 	//sound start
 	{
-		buzzer_set_vol(config.gui.vario_volume);
-		buzzer_set_freq(audio_vario_freq);
-
-		if (audio_vario_length > 0)
+		//vario in continous mode
+		if (audio_vario_length == 0)
 		{
+			audio_off();
+			return;
+		}
+
+		buzzer_set_vol(config.gui.vario_volume);
+
+		if (audio_vario_prebeep_length > 0)
+		{
+			buzzer_set_freq(audio_vario_prebeep_frequency);
+			audio_timer.SetTop(audio_vario_prebeep_length);
+			audio_vario_mode = VARIO_PRE_BEEP;
+		}
+		else
+		{
+			buzzer_set_freq(audio_vario_freq);
 			audio_timer.SetTop(audio_vario_length);
 			audio_vario_mode = VARIO_BEEP;
 		}
-		else
-			audio_off();
 
 		return;
 	}
+
+	if (audio_vario_mode == VARIO_PRE_BEEP)
+	//sound start after prebeep
+	{
+		//vario in continous mode
+		if (audio_vario_length == 0)
+		{
+			audio_off();
+			return;
+		}
+
+		buzzer_set_vol(config.gui.vario_volume);
+		buzzer_set_freq(audio_vario_freq);
+		audio_timer.SetTop(audio_vario_length);
+		audio_vario_mode = VARIO_BEEP;
+
+		return;
+	}
+
 }
 
 void audio_vario_apply()
@@ -98,13 +133,23 @@ void audio_vario_apply()
 			if (audio_vario_length > 0 && audio_vario_pause > 0)
 			{
 				buzzer_set_vol(config.gui.vario_volume);
-				buzzer_set_freq(audio_vario_freq);
-
 				audio_timer.SetValue(0);
-				audio_timer.SetTop(audio_vario_length);
+
+				if (audio_vario_prebeep_length > 0)
+				{
+					buzzer_set_freq(audio_vario_prebeep_frequency);
+					audio_timer.SetTop(audio_vario_prebeep_length);
+					audio_vario_mode = VARIO_PRE_BEEP;
+				}
+				else
+				{
+					buzzer_set_freq(audio_vario_freq);
+					audio_timer.SetTop(audio_vario_length);
+					audio_vario_mode = VARIO_BEEP;
+				}
+
 				audio_timer.Start();
 
-				audio_vario_mode = VARIO_BEEP;
 				break;
 			}
 			//continous tone
@@ -130,7 +175,7 @@ void audio_vario_apply()
 				break;
 			}
 
-			if (config.audio_profile.fluid)
+			if (config.audio_profile.flags & AUDIO_FLUID)
 				buzzer_set_freq(audio_vario_freq);
 		break;
 
@@ -172,35 +217,9 @@ void audio_vario_step(float vario)
 	vario_force_change = (abs(ivario - vario_ivario_old) >= 10) ? true: false;
 	vario_ivario_old = ivario;
 
-	//buzzer
-	if (config.vario.weak_lift_enabled)
-	{
-		int16_t buzz_thold = config.audio_profile.lift - config.vario.weak_lift;
-
-		if (ivario >= buzz_thold && ivario < config.audio_profile.lift && ivario > config.audio_profile.sink)
-		{
-			int16_t freq;
-
-			//addition to base weak lift freq (can be negative)
-			int16_t beep_freq = config.audio_profile.weak_lift_freq_high;
-			beep_freq -= config.audio_profile.weak_lift_freq_low;
-
-			freq = config.audio_profile.weak_lift_freq_low + ((int32_t)beep_freq * (int32_t)(ivario - buzz_thold)) / (int32_t)config.vario.weak_lift;
-
-			if (audio_vario_freq != 0)
-				audio_vario_freq += ((float)freq - audio_vario_freq) / AUDIO_LOW_PASS;
-			else
-				audio_vario_freq = freq;
-
-			audio_vario_length = 0;
-			audio_vario_pause = 0;
-			audio_vario_apply();
-
-			return;
-		}
-	}
-
-	if ((ivario >= config.audio_profile.lift || ivario <= config.audio_profile.sink) && (config.gui.vario_volume > 0))
+	if ((ivario >= config.audio_profile.lift ||
+		(ivario >= config.audio_profile.lift - config.audio_profile.weak && config.audio_profile.flags & AUDIO_WEAK) ||
+		 ivario <= config.audio_profile.sink) && (config.gui.vario_volume > 0))
 	{
 		//get frequency from the table
 		uint16_t freq = get_near(vario, config.audio_profile.freq);
@@ -209,9 +228,32 @@ void audio_vario_step(float vario)
 		else
 			audio_vario_freq = freq;
 
-		//convert ms to timer ticks
-		audio_vario_length = get_near(vario, config.audio_profile.length) * 31;
-		audio_vario_pause = get_near(vario, config.audio_profile.pause) * 31;
+		//if normal lift, weak or sink
+		audio_vario_length = get_near(vario, config.audio_profile.length) * MS_TO_TICKS;
+		audio_vario_pause = get_near(vario, config.audio_profile.pause) * MS_TO_TICKS;
+
+		audio_vario_prebeep_length = 0;
+
+		if (ivario >= config.audio_profile.lift - config.audio_profile.weak && ivario < config.audio_profile.lift && config.audio_profile.flags & AUDIO_WEAK)
+		{
+			//if weak lift -> add prebeep
+			audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
+			audio_vario_prebeep_frequency = audio_vario_freq - config.audio_profile.prebeep_offset;
+		}
+
+		if (ivario <= config.audio_profile.sink && config.audio_profile.flags & AUDIO_BEEP_SINK)
+		{
+			//if sink and sink_prebeep -> add prebeep
+			audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
+			audio_vario_prebeep_frequency = audio_vario_freq + config.audio_profile.prebeep_offset;
+		}
+
+		if (ivario <= config.audio_profile.sink && !(config.audio_profile.flags & AUDIO_BEEP_SINK))
+		{
+			//if sink is continous
+			audio_vario_length = 0;
+			audio_vario_pause = 0;
+		}
 
 		//update audio with new settings
 		audio_vario_apply();

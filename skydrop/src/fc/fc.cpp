@@ -8,6 +8,7 @@
 #include "kalman.h"
 #include "vario.h"
 #include "agl.h"
+#include "airspace.h"
 #include "odometer.h"
 #include "compass.h"
 #include "waypoint.h"
@@ -20,7 +21,7 @@
 
 #include "../gui/gui_dialog.h"
 
-#include "debug_on.h"
+//#include "debug_on.h"
 
 volatile flight_computer_data_t fc;
 
@@ -83,9 +84,10 @@ void fc_init()
 	protocol_init();
 	wind_init();
 	agl_init();
+	airspace_init();
 	gyro_init();
 	imu_init();
-	vario_init(ms5611.pressure);
+	vario_init();
 	compass_init();
 
 	gps_init();
@@ -147,7 +149,7 @@ void fc_init()
 
 	lsm_cfg.enabled = true;
 	lsm_cfg.accOdr = lsm_acc_1600Hz;
-	lsm_cfg.accScale = lsm_acc_16g;
+	lsm_cfg.accScale = lsm_acc_8g;
 
 	lsm_cfg.magOdr = lsm_mag_100Hz;
 	lsm_cfg.magScale = lsm_mag_4g;
@@ -315,15 +317,15 @@ ISR(FC_MEAS_TIMER_CMPA)
 
 	if (hw_revision == HW_REW_1504)
 	{
-		fc.mag.raw.x = -x;
-		fc.mag.raw.y = -y;
+		fc.mag.raw.x = y;
+		fc.mag.raw.y = -x;
 		fc.mag.raw.z = z;
 	}
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.mag.raw.x = x;
-		fc.mag.raw.y = y;
+		fc.mag.raw.x = -y;
+		fc.mag.raw.y = x;
 		fc.mag.raw.z = -z;
 	}
 
@@ -352,16 +354,16 @@ ISR(FC_MEAS_TIMER_CMPB)
 
 	if (hw_revision == HW_REW_1504)
 	{
-		fc.acc.raw.x = -x;
-		fc.acc.raw.y = -y;
-		fc.acc.raw.z = z;
+		fc.acc.raw.x = -y;
+		fc.acc.raw.y = x;
+		fc.acc.raw.z = -z;
 	}
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.acc.raw.x = x;
-		fc.acc.raw.y = y;
-		fc.acc.raw.z = z;
+		fc.acc.raw.x = y;
+		fc.acc.raw.y = -x;
+		fc.acc.raw.z = -z;
 	}
 
 	acc_calc_vector(); //calculate actual acceleration as vector
@@ -387,15 +389,15 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 	if (hw_revision == HW_REW_1504)
 	{
-		fc.gyro.raw.x = y;
-		fc.gyro.raw.y = x;
+		fc.gyro.raw.x = -x;
+		fc.gyro.raw.y = -y;
 		fc.gyro.raw.z = z;
 	}
 
 	if (hw_revision == HW_REW_1506)
 	{
-		fc.gyro.raw.x = x;
-		fc.gyro.raw.y = y;
+		fc.gyro.raw.x = -y;
+		fc.gyro.raw.y = x;
 		fc.gyro.raw.z = z;
 	}
 
@@ -438,6 +440,7 @@ ISR(FC_MEAS_TIMER_CMPC)
 //	DEBUG(";%d;%d;%d", fc.gyro_data.x, fc.gyro_data.y, fc.gyro_data.z);
 //	DEBUG(";%0.0f\n", ms5611.pressure);
 
+	gyro_calc_vector();
 	imu_step();
 
 	BT_ALLOW_TX
@@ -576,6 +579,8 @@ void fc_step()
 	#endif
 
 	agl_step(); //it is before gps_step, so new gps fix will be processed in next loop
+
+	airspace_step();   // must be after agl_step, because it needs data from there.
 
 	alt_calibration_step();
 
@@ -748,6 +753,7 @@ void fc_step()
 
 //        DEBUG("ach %0.2f\n", fc.flight.avg_heading_change);
 //        DEBUG("tch %d\n", fc.flight.total_heading_change);
+//        DEBUG("cr %d\n", fc.flight.circling);
 	}
 
     if (fc.flight.state == FLIGHT_FLIGHT)

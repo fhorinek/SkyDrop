@@ -346,8 +346,6 @@ uint8_t fast_flip(uint8_t in)
 	return out;
 }
 
-
-
 void io_init()
 {
 	if (hw_revision == HW_REW_1504)
