@@ -15,9 +15,13 @@ class GPS_Spoof(object):
         self.heading = 0
         self.speed = 0
         self.last_point = None
-        
-        self.port = serial.Serial(port, 9600)
-        
+
+        try:
+            self.port = serial.Serial(port, 9600)
+        except serial.serialutil.SerialException as se:
+            print (se)
+            print ("No GPS spoofing to SkyDrop...")
+            self.port = None
 
     def send_point(self, latitude, longitude, alt):
         utc = datetime.utcnow()
@@ -70,7 +74,8 @@ class GPS_Spoof(object):
             cs ^= n 
             
         line = bytes("$%s*%02X\r\n" % (s, cs), "utf-8")
-        self.port.write(line)
+        if self.port != None:
+            self.port.write(line)
 
         s = "GPGGA,,,,,,,5,1,%d,,10" % alt
         cs = 0
@@ -79,7 +84,8 @@ class GPS_Spoof(object):
             cs ^= n 
             
         line = bytes("$%s*%02X\r\n" % (s, cs), "utf-8")
-        self.port.write(line)
+        if self.port != None:
+            self.port.write(line)
 
         s = "GPGSA,,3"
         cs = 0
@@ -89,7 +95,8 @@ class GPS_Spoof(object):
             
         line = bytes("$%s*%02X\r\n" % (s, cs), "utf-8")
         
-        self.port.write(line)
+        if self.port != None:
+            self.port.write(line)
  
         
     

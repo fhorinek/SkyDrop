@@ -279,7 +279,7 @@ def ev(event):
     lon = event.xdata
     if lat is None or lon is None:
         return
-    if event.button == 1:
+    if event.button == 3:        # right mouse button
         get_point(lat, lon)
         spf.send_point(lat, lon, galt)
         
