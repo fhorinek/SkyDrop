@@ -1,3 +1,7 @@
+Build 4420 - 21. 06. 2019
+========================================================
+FIX:
+ * Airspace calculation was wrong, when one of the coordinates was negative 
 
 Build 4411 - 29. 05. 2019
 ========================================================

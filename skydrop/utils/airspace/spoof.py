@@ -29,11 +29,11 @@ class GPS_Spoof(object):
         date = utc.strftime("%d%m%y")
         
         lat_dec = (latitude - int(latitude)) * 60
-        lat_str = "%02d%07.4f" % (abs(int(latitude)), lat_dec)
+        lat_str = "%02d%07.4f" % (abs(int(latitude)), abs(lat_dec))
         lat_c = "N" if latitude > 0 else "S"
         
         lon_dec = (longitude - int(longitude)) * 60
-        lon_str = "%03d%07.4f" % (abs(int(longitude)), lon_dec)
+        lon_str = "%03d%07.4f" % (abs(int(longitude)), abs(lon_dec))
         lon_c = "E" if longitude > 0 else "W"
         
         if self.last_point:

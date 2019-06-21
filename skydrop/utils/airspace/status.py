@@ -53,7 +53,7 @@ def score(a):
     if a["cnt"] == 0:
         return 0
         
-    return (a["done"] / a["cnt"] * 100000000) + a["done"] * 10000 + a["cnt"]
+    return (a["done"] / a["cnt"] * 1000000000) + a["done"] * 10000 + a["cnt"]
 
     
 res.sort(key = score, reverse = True)    
@@ -70,7 +70,7 @@ for data in res:
     if zipped:
         zsize = os.path.getsize("dist/%s" % dst) / (1024 * 1024)
 
-    print(" %-60s %4u / %4u   %3.0f %% %8.1fMB  %s%s%s" % 
+    print(" %-55s %4u / %4u   %3.0f %% %8.1fMB  %s%s%s" % 
         (fname, done, cnt, 
         (done * 100) / cnt if done > 0 else 0, size, 
         "done!" if cnt == done else "", 
@@ -78,5 +78,5 @@ for data in res:
         ("  ZIP (%5.1fMB)" % zsize) if zipped else ""))
         
 print("-" * 100)
-print(" "* 55, "Total %4u / %4u   %3.0f %% %8.1fMB" % (len(isize), len(iall), (len(isize) * 100)/ len(iall), ssize / (1024 * 1024)))
+print(" "* 50, "Total %4u / %4u   %3.0f %% %8.1fMB" % (len(isize), len(iall), (len(isize) * 100)/ len(iall), ssize / (1024 * 1024)))
 

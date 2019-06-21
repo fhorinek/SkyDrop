@@ -210,6 +210,8 @@ class Indexer(object):
         
 def dump(lon, lat, airspaces):
 
+    #print("lon, lat", lon, lat)
+
     global wantedResolution
     global mk_list
     global DataSource
@@ -227,13 +229,11 @@ def dump(lon, lat, airspaces):
         lat_c = 'N'
     else:
         lat_c = 'S'
-        lat_n += 1
         
     if (lon >= 0):
         lon_c = 'E'
     else:
         lon_c = 'W'
-        lon_n += 1
 
     filename = "%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
 
@@ -250,6 +250,8 @@ def dump(lon, lat, airspaces):
         f = open("lookup/" + filename, "r")
         data = f.readlines()
         f.close()
+        
+        print(data)
         
         needed_as = []
         
@@ -301,7 +303,7 @@ def dump(lon, lat, airspaces):
     try:
         # Quickcheck for emptyness
         isEmpty = True
-        delta = AIRSPACE_BORDER
+        delta = AIRSPACE_BORDER / 2
         
         print (filename, "Checking...")
         for lat_i in numpy.arange(lat + delta / 2, lat + 1, delta):
@@ -341,8 +343,8 @@ def dump(lon, lat, airspaces):
                     p = shapely.geometry.Point(lon_i + off, lat_i + off)
                     
                     mul = HGT_COORD_MUL
-                    x = int(round((abs(lon_i) * mul % mul) * numPoints / mul))
-                    y = int(round((abs(lat_i) * mul % mul) * numPoints / mul))
+                    x = int(round(((lon_i) * mul % mul) * numPoints / mul))
+                    y = int(round(((lat_i) * mul % mul) * numPoints / mul))
                     
                     offset = int((x * numPoints + y) * DATA_LEVELS * DATA_LEVEL_SIZE)
                     dumpPoint(output, offset, p, airspaces)

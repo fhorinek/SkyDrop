@@ -70,26 +70,29 @@ def get_point(lat, lon):
 
     p = shapely.geometry.Point(lon, lat)
 
+    print("Point (lat, lon)", lat, lon)
+
     lat = int(lat * mul)
     lon = int(lon * mul)
 
     print("Point (lat, lon)", lat, lon)
 
+    lat_n = int(abs(lat / mul))
+    lon_n = int(abs(lon / mul))
+
     if lat >= 0:
         lat_c = "N"
     else:
         lat_c = "S"
+        lat_n -= 1
 
     if lon >= 0:
         lon_c = "E"
-
     else:
         lon_c = "W"
-     
-    lat_n = int(abs(lat / mul))
-    lon_n = int(abs(lon / mul))
+        lon_n -= 1
 
-    name = "data/%c%02u%c%03u.AIR" % (lat_c, lat_n, lon_c, lon_n)
+    name = "data/%c%02u%c%03u.AIR" % (lat_c, abs(lat_n), lon_c, abs(lon_n))
 
     print(" filename is '%s'" % name)
 
@@ -102,10 +105,10 @@ def get_point(lat, lon):
 
     numPoints = 200
 
-    x = int((abs(lon) % mul) * numPoints / mul)
-    y = int((abs(lat) % mul) * numPoints / mul)
+    x = int((lon % mul) * numPoints / mul)
+    y = int((lat % mul) * numPoints / mul)
 
-    print(x, y)
+    print("x, y", x, y)
 
     offset_point = int((x * numPoints + y) * DATA_LEVELS * DATA_LEVEL_SIZE)
     offset_index = int((numPoints * numPoints) * DATA_LEVELS * DATA_LEVEL_SIZE)
@@ -136,11 +139,13 @@ def get_point(lat, lon):
         
         mode = (a & 0x80) >> 6 | (b & 0x80) >> 7
 
-        origin = shapely.geometry.Point(lon_n + ((x + 0.5) / float(numPoints)), lat_n + ((y + 0.5) / float(numPoints)))
+        origin = shapely.geometry.Point(lon_n + ((x + 0.5) / float(numPoints)), 
+                                        lat_n + ((y + 0.5) / float(numPoints)))
+                                        
         plt.plot(origin.x, origin.y, '.', color="red")
         
-        #print("origin lat", origin.y)
-        #print("origin lon", origin.x)        
+        print("origin lat", origin.y * 10000000)
+        print("origin lon", origin.x * 10000000)        
         
         if mode == 0:
             mul = OFFSET_MUL_0    
@@ -211,6 +216,7 @@ def get_point(lat, lon):
 
         plt.plot(p.x, p.y, 'o', color="magenta")
         plt.plot(p2.x, p2.y, 'x', color="green")
+        plt.plot(origin.x, origin.y, 'x', color="red")
         
         plt.plot(target.x, target.y, 'x', color="blue")
 

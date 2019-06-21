@@ -137,11 +137,16 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
     uint16_t rd;
 
-    uint16_t x = int((abs(lon) % GPS_COORD_MUL) * AIR_RESOLUTION / GPS_COORD_MUL);
-	uint16_t y = int((abs(lat) % GPS_COORD_MUL) * AIR_RESOLUTION / GPS_COORD_MUL);
+    uint16_t x = int((NDIV(lon, GPS_COORD_MUL)) * AIR_RESOLUTION / GPS_COORD_MUL);
+	uint16_t y = int((NDIV(lat, GPS_COORD_MUL)) * AIR_RESOLUTION / GPS_COORD_MUL);
+
+	DEBUG("x %u\n", x);
+	DEBUG("y %u\n", y);
 
     //seek to position
     uint32_t index = x * AIR_RESOLUTION + y;
+
+    DEBUG("index %lu\n", index);
 
     if (fc.airspace.cache_index != index)
     {
@@ -179,11 +184,14 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
 			uint8_t mode = (as_point.level[i].a & 0x80) >> 6 | (as_point.level[i].b & 0x80) >> 7;
 
-			int32_t origin_lat = (lat / GPS_COORD_MUL) * GPS_COORD_MUL + (((y * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
-			int32_t origin_lon = (lon / GPS_COORD_MUL) * GPS_COORD_MUL + (((x * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
+			int16_t lon_n = (lon / GPS_COORD_MUL) - (lon < 0 ? 1 : 0);
+			int16_t lat_n = (lat / GPS_COORD_MUL) - (lat < 0 ? 1 : 0);
 
-//	        DEBUG(" origin_lat: %ld\n", origin_lat);
-//	        DEBUG(" origin_lon: %ld\n", origin_lon);
+			int32_t origin_lat = lat_n * GPS_COORD_MUL + (((y * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
+			int32_t origin_lon = lon_n * GPS_COORD_MUL + (((x * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
+
+	        DEBUG(" origin_lat: %ld\n", origin_lat);
+	        DEBUG(" origin_lon: %ld\n", origin_lon);
 
 			int8_t lat_offset = (as_point.level[i].a & 0x3F) * ((as_point.level[i].a & 0x40) ? -1 : 1);
 	        int8_t lon_offset = (as_point.level[i].b & 0x3F) * ((as_point.level[i].b & 0x40) ? -1 : 1);

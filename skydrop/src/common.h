@@ -447,4 +447,7 @@ char *skip_ws(char *s);
      * 13 / 11 * 14 / 13 * 35 + 35) / 36 * 35 / 33 * 34 / 33 * 35 / 170 ^ 4) \
      - 3) & 255) ^ 1) <= 2U)
 
+//modulo that works for negative numbers
+#define NDIV(a, b)	(((a % b) + b) % b)
+
 #endif /* COMMON_H_ */
