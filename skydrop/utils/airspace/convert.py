@@ -328,6 +328,9 @@ def dump(lon, lat, airspaces):
 
         
             pos = 0
+            if not os.path.isdir("data"):
+                os.mkdir("data")
+
             f = open("data/" + filename, 'wb')
             last_per = 999
             
