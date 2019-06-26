@@ -133,7 +133,7 @@
             ]
         },
         "cfg_audio_profile_flags" : {
-            "name": "Audio vario flags",
+            "name": "Audio vario options",
             "mode": "flags",
             "flags": [
                 ["AUDIO_FLUID", "Enable fluid frequency change"],

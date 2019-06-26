@@ -47,7 +47,6 @@
                 <ctrl-tab name="Treshold_settings">
                     <ctrl item="list['cfg_audio_profile_lift']"></ctrl>
                     <ctrl item="list['cfg_audio_profile_sink']"></ctrl>
-                    <ctrl item="list['cfg_audio_profile_weak']"></ctrl>
                     <ctrl item="list['cfg_audio_profile_flags']"></ctrl>
                     <ctrl item="list['cfg_audio_profile_prebeep_offset']"></ctrl>
                     <ctrl item="list['cfg_audio_profile_prebeep_length']"></ctrl>
@@ -56,15 +55,15 @@
         </div>
         <div class="col-md-6">
             <ctrl-tabs>
-                <ctrl-tab name="Mute_options">
-                    <ctrl item="list['cfg_gui_vario_mute']"></ctrl>
-                    <ctrl item="list['cfg_gui_silent']"></ctrl>
-                </ctrl-tab>
                 <ctrl-tab name="Load_and_store">
                     <button type="button" class="btn btn-default btn-sm" ng-click="save_to_file()">Store profile as file</button>
                     <button type="button" class="btn btn-default btn-sm" ng-click="load_from_file()">Load profile from file</button>
                     <button type="button" class="btn btn-default btn-sm" ng-click="load_default()">Restore default profile</button>
-                </ctrl-tab>        
+                </ctrl-tab>   
+                <ctrl-tab name="Mute_options">
+                    <ctrl item="list['cfg_gui_vario_mute']"></ctrl>
+                    <ctrl item="list['cfg_gui_silent']"></ctrl>
+                </ctrl-tab>
             </ctrl-tabs>
         </div>
     </div>
