@@ -174,50 +174,77 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 
 	        return start;
         };	
+        
+        var MS_TO_TICKS = 1;
+        
 	    var ivario = value * 100; //in cm now
 
 	    var lift = $scope.list["cfg_audio_profile_lift"].value;
 	    var sink = $scope.list["cfg_audio_profile_sink"].value;
-	    var weak_lift = $scope.list["cfg_vario_weak_lift"].value;
-	    var weak_lift_freq_low = $scope.list["cfg_audio_profile_weak_lift_freq_low"].value;
-	    var weak_lift_freq_high = $scope.list["cfg_audio_profile_weak_lift_freq_high"].value;
+	    var weak = $scope.list["cfg_audio_profile_weak"].value;	    
 	    
-	    if ($scope.list["cfg_vario_weak_lift_enabled"].value)
+	    var prebeep_offset = $scope.list["cfg_audio_profile_prebeep_offset"].value;	 
+	    var prebeep_length = $scope.list["cfg_audio_profile_prebeep_length"].value;	 
+	    
+        var fluid = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_FLUID"];
+        var beep_sink = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_BEEP_SINK"];
+        var audio_weak = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_WEAK"];
+
+
+	    if (ivario >= lift ||
+		    (ivario >= lift - weak && audio_weak) ||
+		     ivario <= sink)
 	    {
-	        var buzz_thold = (lift - weak_lift);
-	        
-	        if (ivario >= buzz_thold && ivario < lift && ivario > sink)
-	        {
-        
-	            var beep_freq = weak_lift_freq_high;
-	            beep_freq -= weak_lift_freq_low;
-	            
-	            var c_freq = weak_lift_freq_low + (beep_freq * (ivario - buzz_thold)) / weak_lift;
-	            
-	            $scope.c_state = "Weaklift";
-	            $scope.c_freq = Math.round(c_freq) + " Hz";
-	            $scope.c_paus = "N/A";
-	            $scope.c_leng = "N/A";
-	            $scope.play_beep(c_freq, 0, 0);
-	            return;
-	        }
-	        
+		    //get frequency from the table
+		    var audio_vario_freq = get_near(ivario / 100.0, $scope.data[0])
+
+		    //if normal lift, weak or sink
+		    var audio_vario_length = get_near(ivario / 100.0, $scope.data[2]) * MS_TO_TICKS;
+		    var audio_vario_pause = get_near(ivario / 100.0, $scope.data[1]) * MS_TO_TICKS;
+
+		    var audio_vario_prebeep_length = 0;
+		    var audio_vario_prebeep_frequency = 0;
+		    
+            $scope.c_state = "Lift";
+
+		    if (ivario >= lift - weak && ivario < lift && audio_weak)
+		    {
+			    //if weak lift -> add prebeep
+			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
+			    var audio_vario_prebeep_frequency = audio_vario_freq - prebeep_offset;
+
+                $scope.c_state = "Prebeep lift";
+		    }
+
+		    if (ivario <= sink && beep_sink)
+		    {
+			    //if sink and sink_prebeep -> add prebeep
+			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
+			    var audio_vario_prebeep_frequency = audio_vario_freq + prebeep_offset;
+
+                $scope.c_state = "Prebeep sink";
+
+		    }
+
+		    if (ivario <= sink && !beep_sink)
+		    {
+			    //if sink is continous
+			    audio_vario_length = 0;
+			    audio_vario_pause = 0;
+			    
+                $scope.c_state = "Sink";
+		    }
+
+            $scope.c_freq = Math.round(audio_vario_freq) + " Hz";;
+            $scope.c_paus = (audio_vario_pause) ? Math.round(audio_vario_pause) + " ms" : "N/A";
+            $scope.c_leng = (audio_vario_length) ? Math.round(audio_vario_length) + " ms" : "N/A";
+
+		    //update audio with new settings
+		    $scope.play_beep(audio_vario_freq, audio_vario_length, audio_vario_pause, audio_vario_prebeep_frequency, audio_vario_prebeep_length);
+
+		    return;
 	    }
-	    
-	    if (ivario >= lift || ivario <= sink)
-	    {
-	        var c_freq = get_near(ivario / 100.0, $scope.data[0]);
-	        var c_paus = get_near(ivario / 100.0, $scope.data[1]);
-	        var c_leng = get_near(ivario / 100.0, $scope.data[2]);
-	        
-            $scope.c_state = (ivario >= lift) ? "Lift" : "Sink";
-            $scope.c_freq = Math.round(c_freq) + " Hz";;
-            $scope.c_paus = (c_paus) ? Math.round(c_paus) + " ms" : "N/A";
-            $scope.c_leng = (c_leng) ? Math.round(c_leng) + " ms" : "N/A";
-            $scope.play_beep(c_freq, c_leng, c_paus);
-            return;	        
-	    }
-	    
+
         $scope.c_state = "Idle";
         $scope.c_freq = "N/A";
         $scope.c_paus = "N/A";
@@ -230,7 +257,7 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	// freq in Hz
 	// len in ms
 	// pause in ms
-	$scope.play_beep = function(freq, leng, paus)
+	$scope.play_beep = function(freq, leng, paus, pfreq, pleng)
 	{
 	    if (audio == false)
 	        return;
@@ -238,12 +265,10 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
         if (!audio.paused)
             audio.pause();
 	
-        console.log("generating demo for", freq, leng, paus);
+        console.log("generating demo for", freq, leng, paus, pfreq, pleng);
         var rate = 31250;
         
         var data = [];
-        
-        var T = (rate / freq);
         
         // duration in sec
         var duration = 3;
@@ -251,9 +276,18 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
         for (var i=0; i< rate * duration; i++) 
         {
             var ms = (i / rate) * 1000;
-            if (ms % (leng + paus) <= leng || (leng == 0 && paus == 0))
+            
+            var total_duration = leng + paus + pleng
+            
+            //beep
+            if (ms % (total_duration) <= (leng + pleng) || (leng == 0 && paus == 0))
             {
                 var val;
+                
+                if (ms % (total_duration) <= pleng)
+                    var T = (rate / pfreq)
+                else
+                    var T = (rate / freq);
             
                 if (i % T < T/2)
                     val = 255;
@@ -262,6 +296,7 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
                     
                 data[i] = val;
             }
+            //silent
             else
             {
                 data[i] = data[i - 1];

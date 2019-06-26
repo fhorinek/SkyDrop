@@ -138,7 +138,7 @@
             "flags": [
                 ["AUDIO_FLUID", "Enable fluid frequency change"],
                 ["AUDIO_WEAK", "Enable weak lift"],
-                ["AUDIO_PRE_SINK", "Enable sink beep"]
+                ["AUDIO_BEEP_SINK", "Enable sink beep"]
             ]
         }, 
         "cfg_audio_profile_lift" : {

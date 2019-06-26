@@ -251,7 +251,7 @@ def dump(lon, lat, airspaces):
         data = f.readlines()
         f.close()
         
-        print(data)
+        #print(data)
         
         needed_as = []
         
