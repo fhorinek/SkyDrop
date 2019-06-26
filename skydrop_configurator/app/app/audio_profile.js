@@ -213,7 +213,7 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
 			    var audio_vario_prebeep_frequency = audio_vario_freq - prebeep_offset;
 
-                $scope.c_state = "Prebeep lift";
+                $scope.c_state = "Weak lift";
 		    }
 
 		    if (ivario <= sink && beep_sink)
@@ -222,7 +222,10 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
 			    var audio_vario_prebeep_frequency = audio_vario_freq + prebeep_offset;
 
-                $scope.c_state = "Prebeep sink";
+                if (beep_sink)
+                    $scope.c_state = "Prebeep sink";
+                else
+                    $scope.c_state = "Sink";
 
 		    }
 
@@ -235,9 +238,12 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
                 $scope.c_state = "Sink";
 		    }
 
-            $scope.c_freq = Math.round(audio_vario_freq) + " Hz";;
+            var pb_leng = (audio_vario_prebeep_length) ? Math.round(audio_vario_prebeep_length) + " ms / " : "";
+            var pb_freq = (audio_vario_prebeep_frequency) ? Math.round(audio_vario_prebeep_frequency) + " Hz / " : "";
+
+            $scope.c_freq = pb_freq + (Math.round(audio_vario_freq) + " Hz");
             $scope.c_paus = (audio_vario_pause) ? Math.round(audio_vario_pause) + " ms" : "N/A";
-            $scope.c_leng = (audio_vario_length) ? Math.round(audio_vario_length) + " ms" : "N/A";
+            $scope.c_leng = pb_leng + ((audio_vario_length) ? Math.round(audio_vario_length) + " ms" : "N/A");
 
 		    //update audio with new settings
 		    $scope.play_beep(audio_vario_freq, audio_vario_length, audio_vario_pause, audio_vario_prebeep_frequency, audio_vario_prebeep_length);
