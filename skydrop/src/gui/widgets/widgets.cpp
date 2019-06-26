@@ -132,7 +132,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
  */
 void sprintf_distance(char *text, float distance)
 {
-	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
 		distance *= FC_KM_TO_MILE;
 
 	if (distance < 1.0)

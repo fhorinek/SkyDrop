@@ -9,6 +9,9 @@ filename = sys.argv[1]
 
 dst = os.path.basename(filename).replace("openaip_airspace_", "").replace(".aip", "").replace(".list", "") + ".zip"
 
+if not os.path.isdir("dist"):
+    os.mkdir("dist")
+
 os.system("rm dist/%s" % dst)
 
 #load files
