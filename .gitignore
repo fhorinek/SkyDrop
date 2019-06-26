@@ -14,5 +14,7 @@
 makefile
 generated*.png
 *.pyc
-/skydrop/utils/.ipynb_checkpoints/
+.ipynb_checkpoints/
 
+skydrop/utils/airspace/dist/
+skydrop/utils/airspace/data/

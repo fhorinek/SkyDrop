@@ -372,9 +372,55 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
     	reader.readAsText(file);
     };    
     
+    
+    
+    //load binary (EE or FW) data from url and then call cb
+    this.load_bin = function(url_path, cb, error_cb)
+    {
+        var callback = cb;
+        var service = this;
+    
+        console.log("loading bin resource %s", url_path);
+
+        $http.get(
+            url_path,
+            {
+                responseType: "arraybuffer"
+            }
+        )     
+        .success(function(data) {
+            callback(data, service);            
+        })
+        .error(function(xhr, status, error) {
+            console.warn("XHR error", xhr, status, error);
+            if (error_cb != undefined)
+            	error_cb();
+            service.reject_all();
+        });
+    };    
+    
+    
+    $scope.load_default = function()
+    {
+        if (!confirm('Restore default audio profile?\nYour changes will be discarted!'))
+            return;
+    
+        $http.get("res/audioprofile.json")     
+        .success(function(data) {
+            $scope.load_audio_json(data);            
+        })
+        .error(function(xhr, status, error) {
+            console.warn("XHR error", xhr, status, error);
+        });
+    }    
+    
     $scope.load_audio_json = function(data)
     {
-    	var json_data = JSON.parse(data);
+        if (data instanceof Object)
+            var json_data = data;
+        else
+        	var json_data = JSON.parse(data);
+        	
     	var pass = true;
     	
     	if (json_data.system == undefined)
