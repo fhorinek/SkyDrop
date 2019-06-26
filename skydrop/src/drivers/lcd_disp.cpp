@@ -195,8 +195,6 @@ void lcd_display::Init(Spi * spi)
 {
 	this->spi = spi;
 
-	CreateSinTable();
-
 	clip(0, 0, lcd_width, lcd_height);
 
 	GpioSetDirection(LCD_RST, OUTPUT);
@@ -664,24 +662,34 @@ void lcd_display::ClearPart(uint8_t row1, uint8_t col1, uint8_t row2,
 	}
 }
 
-void lcd_display::CreateSinTable()
-{
-	for (int16_t i = 0; i < 91; i++)
-		sin_table[i] = sin(((float) i / 180.0) * 3.142);
-}
+/**
+ * This table holds sinus values for 0-90 degrees.
+ * The value is multiplied by 255 to use a uint8_t * for storage.
+ */
+const uint8_t PROGMEM sin_table[91] = {
+		0, 4, 8, 13, 17, 22, 26, 31, 35, 39, 44, 48, 53, 57, 61, 66, 70,
+		74, 78, 83, 87, 91, 95, 99, 103, 107, 111, 115, 119, 123, 127,
+		131, 135, 138, 142, 146, 149, 153, 157, 160, 163, 167, 170, 173,
+		177, 180, 183, 186, 189, 192, 195, 198, 200, 203, 206, 208, 211,
+		213, 216, 218, 220, 223, 225, 227, 229, 231, 232, 234, 236, 238,
+		239, 241, 242, 243, 245, 246, 247, 248, 249, 250, 251,
+		251, 252, 253, 253, 254, 254, 254, 254, 254, 255 };
 
 float lcd_display::get_sin(uint16_t angle)
 {
 	angle = angle % 360;
+	int16_t value;
 
 	if (angle < 90)
-		return this->sin_table[angle];
+		value = pgm_read_byte(&sin_table[angle]);
 	else if (angle < 180)
-		return this->sin_table[90 - (angle - 90)];
+		value = pgm_read_byte(&sin_table[90 - (angle - 90)]);
 	else if (angle < 270)
-		return -this->sin_table[angle - 180];
+		value = -pgm_read_byte(&sin_table[angle - 180]);
 	else
-		return -this->sin_table[90 - (angle - 270)];
+		value = -pgm_read_byte(&sin_table[90 - (angle - 270)]);
+
+	return (float)value / 255.0;
 }
 
 float lcd_display::get_cos(uint16_t angle)
