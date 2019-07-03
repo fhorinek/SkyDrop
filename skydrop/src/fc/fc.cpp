@@ -13,6 +13,7 @@
 #include "compass.h"
 #include "waypoint.h"
 #include "alt_calibration.h"
+#include "circling.h"
 
 
 #include "protocols/protocol.h"
@@ -538,13 +539,7 @@ void fc_reset()
 
 	fc.altitude_alarm_status = 0b00000000;
 
-    fc.flight.total_heading_change = 0;
-    fc.flight.avg_heading_change = 0;
-    fc.flight.last_heading = 0;
-
-    fc.flight.circling = false;
-    fc.flight.circling_time = 0;
-    fc.flight.circling_gain = 0;
+	circling_reset();
 }
 
 void fc_sync_gps_time()
@@ -597,6 +592,8 @@ void fc_step()
 	compass_step();
 
 	odometer_step();
+
+	circling_step();
 
 	//logger always enabled
 	if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
@@ -725,37 +722,6 @@ void fc_step()
 	}
 
 	//flight modes
-	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_CIRCLE)
-	{
-	    fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_CIRCLE;
-
-	    int16_t heading_change = fc.gps_data.heading - fc.flight.last_heading;
-	    if (heading_change > 180)
-	    	heading_change -= 360;
-	    if (heading_change < -180)
-	    	heading_change += 360;
-
-        fc.flight.last_heading = fc.gps_data.heading;
-
-//        DEBUG("\nhch %d\n", heading_change);
-
-
-        fc.flight.avg_heading_change += (heading_change - fc.flight.avg_heading_change) / config.gui.page_circling_average;
-        fc.flight.total_heading_change += heading_change;
-
-        //if avg have different sign than total zero the total
-        if (fc.flight.avg_heading_change > 0 && fc.flight.total_heading_change < 0)
-        	fc.flight.total_heading_change = 0;
-        else if (fc.flight.avg_heading_change < 0 && fc.flight.total_heading_change > 0)
-        	fc.flight.total_heading_change = 0;
-
-        fc.flight.total_heading_change = CLAMP(fc.flight.total_heading_change, -400, 400);
-
-//        DEBUG("ach %0.2f\n", fc.flight.avg_heading_change);
-//        DEBUG("tch %d\n", fc.flight.total_heading_change);
-//        DEBUG("cr %d\n", fc.flight.circling);
-	}
-
     if (fc.flight.state == FLIGHT_FLIGHT)
     {
         if (fc.vario.avg < config.gui.page_acro_thold)
@@ -769,8 +735,8 @@ void fc_step()
         	//			AND
         	//circl only if avg heading > config thold
             if (((abs(fc.flight.total_heading_change) > 360 && !fc.flight.circling) ||
-            	(abs(fc.flight.total_heading_change) > 340 && fc.flight.circling)) &&
-            	(abs(fc.flight.avg_heading_change) > config.gui.page_cirlcing_thold))
+              	 (abs(fc.flight.total_heading_change) > 340 &&  fc.flight.circling)) &&
+                 (abs(fc.flight.avg_heading_change) > PAGE_AUTOSET_CIRCLING_THOLD))
             {
                 if (!fc.flight.circling)
                 {
@@ -780,6 +746,7 @@ void fc_step()
 					fc.flight.circling_start_altitude = fc.altitude1;
                 }
 
+                fc.flight.circling_stop = 0;
                 fc.flight.circling_time = (task_get_ms_tick() - fc.flight.circling_start) / 1000;
                 fc.flight.circling_gain = fc.altitude1 - fc.flight.circling_start_altitude;
             }
@@ -787,9 +754,15 @@ void fc_step()
             {
             	if (fc.flight.circling)
             	{
-					fc.flight.circling = false;
-					fc.flight.total_heading_change = 0;
-					gui_page_set_mode(PAGE_MODE_NORMAL);
+                	if (fc.flight.circling_stop == 0)
+                		fc.flight.circling_stop = task_get_ms_tick();
+
+                	if (task_get_ms_tick() - fc.flight.circling_stop > (config.gui.page_circling_timeout * 1000))
+                	{
+    					fc.flight.circling = false;
+    					fc.flight.total_heading_change = 0;
+    					gui_page_set_mode(PAGE_MODE_NORMAL);
+                	}
             	}
             }
         }

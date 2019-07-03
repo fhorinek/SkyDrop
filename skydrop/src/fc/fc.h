@@ -173,6 +173,7 @@ struct temp_data_t
 struct vario_data_t
 {
 	bool valid;					//baro valid
+	float fake;
 
 	float pressure;
 	float vario;
@@ -215,6 +216,8 @@ struct flight_stats_t
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
 
+#define VARIO_CIRCLING_HISTORY_SCALE	12 // == 1m/s
+
 struct flight_data_t
 {
 	flight_stats_t stats;
@@ -253,10 +256,13 @@ struct flight_data_t
 
 	//circling
 	bool circling;
+	uint32_t circling_stop;
 	uint32_t circling_start;
 	uint16_t circling_time; //in sec
 	float circling_start_altitude;
 	float circling_gain; //in m
+
+	int8_t circling_history[8];
 };
 
 struct agl_data_t

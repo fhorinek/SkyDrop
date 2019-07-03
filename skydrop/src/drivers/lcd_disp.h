@@ -22,8 +22,8 @@ private:
 
 	void sendcommand(unsigned char cmd);
 	void SendChar(unsigned char data);
-	void plot8points(uint8_t cx,uint8_t cy,uint8_t x,uint8_t y,uint8_t color);
-	void plot4points(uint8_t cx,uint8_t cy,uint8_t x,uint8_t y,uint8_t color);
+	void plot8points(uint8_t cx,uint8_t cy,uint8_t x, uint8_t y, uint8_t color);
+	void plot4points(uint8_t cx,uint8_t cy,uint8_t x, uint8_t y, uint8_t color);
 
 	void CreateSinTable();
 
@@ -61,7 +61,7 @@ public:
 	void ClearBuffer();
 	void PutPixel(int16_t x ,int16_t  y, uint8_t color);
 	void DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t color);
-	void DrawCircle(uint8_t cx,uint8_t cy,uint8_t radius,uint8_t color);
+	void DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius, uint8_t color);
 	void DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color,uint8_t fill);
 	void DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color);
 	void DrawArc(uint8_t cx,uint8_t cy,uint8_t radius,int16_t start,int16_t end);

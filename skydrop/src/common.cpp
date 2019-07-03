@@ -439,7 +439,7 @@ float mul_to_sec(float mul)
 
 float sec_to_mul(float sec)
 {
-	if (sec == 0.0)
+	if (sec <= 0.01)
 		return 1;
 	else
 		return 1.0 / (sec * 100.0);
@@ -537,6 +537,9 @@ float atoi_f(char * str)
 	uint8_t dot = 0;
 	uint8_t i = 0;
 
+	if (str[0] == '-')
+		i++;
+
 	while(ISDIGIT(str[i]) || str[i] == '.')
 	{
 		if (str[i] == '.')
@@ -557,6 +560,9 @@ float atoi_f(char * str)
 
 		i++;
 	}
+
+	if (str[0] == '-')
+		tmp *= -1;
 
 	return tmp;
 }

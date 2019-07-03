@@ -47,10 +47,8 @@ EEMEM cfg_t config_ee = {
 		0b00000000,
 	    //page_acro_thold; //*10
 		-3,
-	    //page_cirlcing_thold; //in deg
-		6,
-	    //page_circling_average; //in  s
-		10,
+	    //page_circling_timeout; //in  s
+		15,
 		//page mode
 		{
             //prepare
@@ -191,7 +189,7 @@ EEMEM cfg_t config_ee = {
 		//weak
 		30,
 		//flags
-		AUDIO_FLUID | AUDIO_BEEP_SINK | AUDIO_WEAK,
+		AUDIO_FLUID | AUDIO_BEEP_SINK,// | AUDIO_WEAK,
 		//prebeep_offset in Hz
 		40,
 		//prebeep_length in ms

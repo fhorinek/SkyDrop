@@ -35,7 +35,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//compass
 		w_compass_heading, w_compass_arrow, w_compass_points,
 		//thermal
-		w_thermal_time, w_thermal_gain,
+		w_thermal_time, w_thermal_gain, w_thermal_ass,
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
@@ -73,6 +73,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	//thermal
 	WIDGET_THERMAL_TIME,
 	WIDGET_THERMAL_GAIN,
+	WIDGET_THERMAL_ASS,
 
 	//time and date
 	WIDGET_FTIME,
@@ -440,11 +441,13 @@ void widgets_draw(uint8_t page)
 void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	// make sure, that angle is always between 0 and 359:
-	if (angle < 0 || angle > 359) {
+	if (angle < 0 || angle > 359)
 		angle = (angle % 360 + 360) % 360;
-	}
 
 	uint8_t s = min(w, h);
+
+	bool simple = s <= 16;
+
 	uint8_t mx = x + w / 2;
 	uint8_t my = y + h / 2;
 	float fsin = disp.get_sin(angle);
@@ -466,9 +469,18 @@ void widget_arrow(int16_t angle, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	uint8_t y4 = my - fcos * s / 3;
 
 	disp.DrawLine(x1, y1, x3, y3, 1);
-	disp.DrawLine(x2, y2, x3, y3, 1);
-	disp.DrawLine(x2, y2, x4, y4, 1);
 	disp.DrawLine(x1, y1, x4, y4, 1);
+
+	if (simple)
+	{
+		disp.DrawLine(x3, y3, x4, y4, 1);
+
+	}
+	else
+	{
+		disp.DrawLine(x2, y2, x3, y3, 1);
+		disp.DrawLine(x2, y2, x4, y4, 1);
+	}
 }
 
 //converts degrees to points N

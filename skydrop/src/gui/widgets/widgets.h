@@ -130,23 +130,24 @@ extern float widget_menu_fvalue1;
 
 #define WIDGET_THERMAL_TIME     38
 #define WIDGET_THERMAL_GAIN     39
+#define WIDGET_THERMAL_ASS      40
 #include "thermal.h"
 
-#define WIDGET_WAYPOINT_ARROW       40
-#define WIDGET_WAYPOINT_DISTANCE    41
-#define WIDGET_WAYPOINT_TIME        42
-#define WIDGET_WAYPOINT_INFO        43
+#define WIDGET_WAYPOINT_ARROW       41
+#define WIDGET_WAYPOINT_DISTANCE    42
+#define WIDGET_WAYPOINT_TIME        43
+#define WIDGET_WAYPOINT_INFO        44
 
-#define WIDGET_AIRSPACE_ARROW       44
-#define WIDGET_AIRSPACE_DISTANCE    45
-#define WIDGET_AIRSPACE_LIMITS	    46
-#define WIDGET_AIRSPACE_INFO	    47
-#define WIDGET_AIRSPACE_NAME	    48
+#define WIDGET_AIRSPACE_ARROW       45
+#define WIDGET_AIRSPACE_DISTANCE    46
+#define WIDGET_AIRSPACE_LIMITS	    47
+#define WIDGET_AIRSPACE_INFO	    48
+#define WIDGET_AIRSPACE_NAME	    49
 #include "airspace.h"
 
-#define NUMBER_OF_WIDGETS			49
+#define NUMBER_OF_WIDGETS			50
 
-#define NUMBER_OF_SORTED_WIDGETS	49
+#define NUMBER_OF_SORTED_WIDGETS	50
 
 /**
  * Format a distance in a human readable format.

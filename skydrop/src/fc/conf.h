@@ -43,6 +43,8 @@ struct cfg_gui_layout
 #define PAGE_MODE_LANDED        4
 #define NUMBER_OF_PAGE_MODES    5
 
+#define PAGE_AUTOSET_CIRCLING_THOLD	6
+#define PAGE_AUTOSET_CIRCLING_AVG	10
 
 struct cfg_gui
 {
@@ -64,8 +66,7 @@ struct cfg_gui
 	uint8_t hide_label;
 
 	int8_t page_acro_thold; //*10
-	uint8_t page_cirlcing_thold; //in deg
-	uint8_t page_circling_average; //in s
+	uint8_t page_circling_timeout; //in s
     uint8_t page_mode[NUMBER_OF_PAGE_MODES];
     cfg_gui_layout pages[MAX_NUMBER_OF_PAGES];
 };

@@ -9,6 +9,8 @@ KalmanFilter kalmanFilter;
 void vario_init()
 {
 	fc.vario.valid = false;
+	fc.vario.fake = NAN;
+
 	fc.vario.avg = 0;
 	fc.vario.digital = 0;
 
@@ -99,6 +101,9 @@ void vario_calc(float pressure)
 //	DEBUG("%lu;%lu;%0.2f;%ld\n", ms5611.raw_pressure, ms5611.raw_temperature, ms5611.pressure, ms5611.temperature);
 
 	fc.vario.pressure = fc_alt_to_press(altitude, config.altitude.QNH1);
+
+	if (!isnan(fc.vario.fake))
+		vario = fc.vario.fake;
 
 	fc.vario.vario = vario;
 

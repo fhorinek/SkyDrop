@@ -20,8 +20,8 @@ rm src/gui/update.o
 ../utils/build/inc_build_number.py
 
 #suffle the key
-if [ -f "../../../skydrop_vali/skydrop_vali/src/p_key_prep.py" ]; then 
-    ../../../skydrop_vali/skydrop_vali/src/p_key_prep.py
+if [ -f "../../../SkyDrop_vali/skydrop_vali/src/p_key_prep.py" ]; then 
+    ../../../SkyDrop_vali/skydrop_vali/src/p_key_prep.py
 else
     echo "The validator private key is closed source. Tracklogs will be generated without G-Record."
 fi

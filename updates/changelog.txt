@@ -1,9 +1,14 @@
-Build XXXX - DD. MM. 2019
+Build 4482 - 03. 07. 2019
 ========================================================
 ADDED:
  * New setting "GPS>Distance Units" which can be set to
    "imperial" or "metric". It is used by all navigation
    widgets and odometer to correctly format distances.
+ * Thermal assistant widget
+ * New Layouts 21a, 31, 33
+ 
+FIX:
+ * Vario floating average fix
 
 Build 4420 - 21. 06. 2019
 ========================================================

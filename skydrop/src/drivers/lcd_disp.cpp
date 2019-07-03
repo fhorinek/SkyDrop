@@ -273,8 +273,7 @@ void lcd_display::Stop()
  * Draw line (works in any direction)
  *
  */
-void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1,
-		uint8_t color = 1)
+void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color = 1)
 {
 	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
 	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -460,8 +459,7 @@ void lcd_display::DrawTriangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2,
 	DrawLine(x2, y2, x3, y3, color);
 }
 
-void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius,
-		uint8_t color = 1)
+void lcd_display::DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius, uint8_t color)
 {
 	int8_t error = -radius;
 	uint8_t x = radius;

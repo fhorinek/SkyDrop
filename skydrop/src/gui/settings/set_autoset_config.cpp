@@ -10,7 +10,7 @@
 
 void gui_set_autoset_config_init()
 {
-    gui_list_set(gui_set_autoset_config_item, gui_set_autoset_config_action, 3, GUI_SET_AUTOSET);
+    gui_list_set(gui_set_autoset_config_item, gui_set_autoset_config_action, 2, GUI_SET_AUTOSET);
 }
 
 void gui_set_autoset_config_stop() {}
@@ -26,22 +26,13 @@ void gui_set_autoset_config_irqh(uint8_t type, uint8_t * buff)
 }
 
 
-void gui_set_autoset_config_circling_avg_cb(float val)
+void gui_set_autoset_config_circling_timeout_cb(float val)
 {
     gui_switch_task(GUI_SET_AUTOSET_CONFIG);
 
-    config.gui.page_circling_average = val;
+    config.gui.page_circling_timeout = val;
     eeprom_busy_wait();
-    eeprom_update_byte(&config_ee.gui.page_circling_average, config.gui.page_circling_average);
-}
-
-void gui_set_autoset_config_circling_thold_cb(float val)
-{
-    gui_switch_task(GUI_SET_AUTOSET_CONFIG);
-
-    config.gui.page_cirlcing_thold = val;
-    eeprom_busy_wait();
-    eeprom_update_byte(&config_ee.gui.page_cirlcing_thold, config.gui.page_cirlcing_thold);
+    eeprom_update_byte(&config_ee.gui.page_circling_timeout, config.gui.page_circling_timeout);
 }
 
 void gui_set_autoset_config_acro_thold_cb(float val)
@@ -58,16 +49,11 @@ void gui_set_autoset_config_action(uint8_t index)
     switch (index)
     {
         case (0):
-            gui_value_conf_P(PSTR("Circling avg."), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.gui.page_circling_average, 5, 60, 1, gui_set_autoset_config_circling_avg_cb);
+            gui_value_conf_P(PSTR("Circling timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.gui.page_circling_timeout, 0, 250, 1, gui_set_autoset_config_circling_timeout_cb);
             gui_switch_task(GUI_SET_VAL);
         break;
 
         case (1):
-            gui_value_conf_P(PSTR("Circling thold."), GUI_VAL_NUMBER, PSTR("%0.0f deg/s"), config.gui.page_cirlcing_thold, 2, 30, 1, gui_set_autoset_config_circling_thold_cb);
-            gui_switch_task(GUI_SET_VAL);
-        break;
-
-        case (2):
             gui_value_conf_P(PSTR("Acro thold."), GUI_VAL_NUMBER, PSTR("%0.1f m/s"), config.gui.page_acro_thold / 10.0, -10, 0, 0.5, gui_set_autoset_config_acro_thold_cb);
             gui_switch_task(GUI_SET_VAL);
         break;
@@ -80,18 +66,12 @@ void gui_set_autoset_config_item(uint8_t index, char * text, uint8_t * flags, ch
     switch (index)
     {
         case (0):
-            strcpy_P(text, PSTR("Circling avg."));
-            sprintf_P(sub_text, PSTR("%d s"), config.gui.page_circling_average);
+            strcpy_P(text, PSTR("Circling timeout"));
+            sprintf_P(sub_text, PSTR("%d s"), config.gui.page_circling_timeout);
             *flags |= GUI_LIST_SUB_TEXT;
         break;
 
         case (1):
-            strcpy_P(text, PSTR("Circling thold."));
-            sprintf_P(sub_text, PSTR("%d deg/s"), config.gui.page_cirlcing_thold);
-            *flags |= GUI_LIST_SUB_TEXT;
-        break;
-
-        case (2):
             strcpy_P(text, PSTR("Acro thold."));
             sprintf_P(sub_text, PSTR("%0.1f m/s"), config.gui.page_acro_thold / 10.0);
             *flags |= GUI_LIST_SUB_TEXT;

@@ -462,6 +462,16 @@ void gps_parse_gsv()
 //	DEBUG("\n");
 }
 
+void gps_parse_var()
+{
+//	DEBUG("gps_parse_var\n");
+	char * ptr = find_comma(gps_parser_buffer);
+
+	fc.vario.fake = atoi_f(ptr);
+//
+//	DEBUG(" vario = %0.2f\n", fc.vario.vario);
+}
+
 void gps_normal()
 {
 	gps_detail_enabled = false;
@@ -632,13 +642,13 @@ void gps_parse(Usart * c_uart)
 					if (cmpn_p(gps_parser_ptr, PSTR("RMC"), 3))
 						gps_parse_rmc();
 
-					if (cmpn_p(gps_parser_ptr, PSTR("GGA"), 3))
+					else if (cmpn_p(gps_parser_ptr, PSTR("GGA"), 3))
 						gps_parse_gga();
 
-					if (cmpn_p(gps_parser_ptr, PSTR("GSA"), 3))
+					else if (cmpn_p(gps_parser_ptr, PSTR("GSA"), 3))
 						gps_parse_gsa();
 
-					if (cmpn_p(gps_parser_ptr, PSTR("GSV"), 3))
+					else if (cmpn_p(gps_parser_ptr, PSTR("GSV"), 3))
 						gps_parse_gsv();
 				}
 				else if (cmpn_p(gps_parser_buffer, PSTR("PMTK"), 4))
@@ -648,9 +658,11 @@ void gps_parse(Usart * c_uart)
 					if (cmpn_p(gps_parser_ptr, PSTR("011"), 3))
 						gps_parse_hello();
 
-					if (cmpn_p(gps_parser_ptr, PSTR("010"), 3))
+					else if (cmpn_p(gps_parser_ptr, PSTR("010"), 3))
 						gps_parse_sys();
 				}
+				else if (cmpn_p(gps_parser_buffer, PSTR("VAR"), 3))
+					gps_parse_var();
 
 			}
 			else

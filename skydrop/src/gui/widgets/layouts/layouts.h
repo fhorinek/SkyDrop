@@ -46,13 +46,16 @@ struct layout_t
 #define LAYOUT_132		7
 #define LAYOUT_133		8
 #define LAYOUT_21		9
-#define LAYOUT_22		10
-#define LAYOUT_222		11
-#define LAYOUT_223		12
-#define LAYOUT_233		13
-#define LAYOUT_333		14
+#define LAYOUT_21a		10
+#define LAYOUT_22		11
+#define LAYOUT_222		12
+#define LAYOUT_223		13
+#define LAYOUT_233		14
+#define LAYOUT_31		15
+#define LAYOUT_33		16
+#define LAYOUT_333		17
 
-#define NUMBER_OF_LAYOUTS	15
+#define NUMBER_OF_LAYOUTS	18
 
 
 extern const layout_desc * layout_list[NUMBER_OF_LAYOUTS];
