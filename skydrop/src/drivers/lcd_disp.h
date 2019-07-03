@@ -25,10 +25,6 @@ private:
 	void plot8points(uint8_t cx,uint8_t cy,uint8_t x, uint8_t y, uint8_t color);
 	void plot4points(uint8_t cx,uint8_t cy,uint8_t x, uint8_t y, uint8_t color);
 
-	void CreateSinTable();
-
-	float sin_table[91];
-
 	int16_t text_x;
 	int16_t text_y;
     uint8_t clip_x1, clip_y1, clip_x2, clip_y2;
