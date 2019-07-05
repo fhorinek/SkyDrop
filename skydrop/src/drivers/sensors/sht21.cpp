@@ -91,7 +91,7 @@ bool SHT21::Read()
 void SHT21::CompensateTemperature()
 {
 //	DEBUG("RT -- %u\n", this->raw_temperature);
-	float tmp = -46.85 -5 + 175.72 * ((float)this->raw_temperature / 65536.0);
+	float tmp = -46.85 + 175.72 * ((float)this->raw_temperature / 65536.0);
 //	DEBUG("  %0.2f\n", tmp);
 	this->temperature = tmp * 10;
 }
