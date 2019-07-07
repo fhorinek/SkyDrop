@@ -17,6 +17,15 @@
 //# 0 1 mode1 offset with mul OFFSET_MUL_1
 //# 1 0 mode2 offset with mul OFFSET_MUL_2
 //# 1 1 mode3 offset with normalised vector
+//#
+//# The lower 7 bits of A or B are:
+//#   -SII IIII
+//#   where S is a sign bit: 1=negative, 0=positive
+//#   and 6 bit with "I" are seen as a integer.
+//#
+//# For A this is a latitude offset and for B it is a longitude offset
+//# multiplied depending on mode. This allows for different resolutions
+//# depending on distance (and mode).
 
 struct airspace_data_level_t
 {
@@ -83,14 +92,28 @@ void airspace_open_file(char * fn)
     }
 }
 
+/**
+ * Takes a (raw) altitude in feet and converts into feet.
+ *
+ * @param altitude in feet
+ *
+ * @return same altitude in feet
+ */
 uint16_t airspace_convert_alt_ft(uint16_t raw_alt)
 {
-	return 0x7FFF & raw_alt;
+	return ~AIR_AGL_FLAG & raw_alt;
 }
 
+/**
+ * Takes a (raw) altitude in feet and converts into meter.
+ *
+ * @param altitude in feet
+ *
+ * @return same altitude in meter
+ */
 uint16_t airspace_convert_alt_m(uint16_t raw_alt)
 {
-	return (0x7FFF & raw_alt) / FC_METER_TO_FEET;
+	return (~AIR_AGL_FLAG & raw_alt) / FC_METER_TO_FEET;
 }
 
 //is device altitude below raw_alt?
@@ -150,6 +173,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
     if (fc.airspace.cache_index != index)
     {
+    	// read data, as cache does not contain the right values.
 		assert(f_lseek(&airspace_data_file, index * AIR_LEVELS * AIR_LEVEL_SIZE) == FR_OK);
 		assert(f_read(&airspace_data_file, &as_point, sizeof(as_point), &rd) == FR_OK);
 		assert(rd == sizeof(as_point));
@@ -222,16 +246,18 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 				break;
 	        }
 
-	        fc.airspace.cache[i].latitude   = target_lat;
-	        fc.airspace.cache[i].longtitude = target_lon;
+	        fc.airspace.cache[i].latitude  = target_lat;
+	        fc.airspace.cache[i].longitude = target_lon;
 
 	        fc.airspace.cache[i].lat_offset = lat_offset;
 	        fc.airspace.cache[i].lon_offset = lon_offset;
 
+	        fc.airspace.cache_index = index;
+
 //	        DEBUG(" flags: %02X\n", fc.airspace.cache[i].flags);
 //
 //	        DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
-//	        DEBUG(" longtitude: %ld\n", fc.airspace.cache[i].longtitude);
+//	        DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
 //
 //	        DEBUG(" lat_offset: %d\n", fc.airspace.cache[i].lat_offset);
 //	        DEBUG(" lon_offset: %d\n", fc.airspace.cache[i].lon_offset);
@@ -286,7 +312,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
         }
         else if (fc.airspace.cache[i].lat_offset == 0)
         {
-            tx = fc.airspace.cache[i].longtitude;
+            tx = fc.airspace.cache[i].longitude;
             ty = lat;
         }
         else
@@ -298,7 +324,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
             DEBUG("kn %0.5f\n", kn);
 
             int64_t q1 = lat - k * lon;
-            int64_t q2 = fc.airspace.cache[i].latitude - kn * fc.airspace.cache[i].longtitude;
+            int64_t q2 = fc.airspace.cache[i].latitude - kn * fc.airspace.cache[i].longitude;
 
             DEBUG("q1 %ld\n", q1);
             DEBUG("q2 %ld\n", q2);
@@ -310,7 +336,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 		DEBUG(" lat: %ld\n", lat);
 		DEBUG(" lon: %ld\n", lon);
 		DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
-		DEBUG(" longtitude: %ld\n", fc.airspace.cache[i].longtitude);
+		DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
 
         int8_t dx = (tx - lon) >= 0 ? 1 : -1;
         int8_t dy = (ty - lat) >= 0 ? 1 : -1;
@@ -377,10 +403,19 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 		if (inside)
 		{
 			if (airspace_alt_is_above(fc.airspace.cache[i].floor, gps_alt, msl_alt))
-				fc.airspace.min_alt = fc.airspace.cache[i].ceil;
-
+			{
+				if (fc.airspace.min_alt == AIRSPACE_INVALID)
+					fc.airspace.min_alt = fc.airspace.cache[i].ceil;
+				else
+					fc.airspace.min_alt = max(fc.airspace.min_alt, fc.airspace.cache[i].ceil);
+			}
 			if (airspace_alt_is_below(fc.airspace.cache[i].ceil, gps_alt, msl_alt))
-				fc.airspace.max_alt = fc.airspace.cache[i].floor;
+			{
+				if (fc.airspace.max_alt == AIRSPACE_INVALID)
+					fc.airspace.max_alt = fc.airspace.cache[i].floor;
+				else
+					fc.airspace.max_alt = min(fc.airspace.max_alt, fc.airspace.cache[i].floor);
+			}
 		}
     }
 

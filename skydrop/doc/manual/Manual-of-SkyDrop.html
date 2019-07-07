@@ -66,7 +66,7 @@
 <li><p><strong>blue flash</strong> - bluetooth is enabled &amp; connected</p></li>
 </ul>
 <h2 id="widget-menu">widget menu</h2>
-<p><strong>Change widgets</strong> selection allow to assign different widget options on current home screen. Use arrow buttons to scroll between fields on the screen, use middle button to select field for widget change, which will be chosen from widget list in next step. Several widgets are adjustable (e.g. altimeter widgets <strong>Alt</strong>) or can enable/disable specific function can be toggled (e.g. <strong>beep</strong> or <strong>weak</strong>).</p>
+<p><strong>Change widgets</strong> selection allow to assign different widget options on current home screen. Use arrow buttons to scroll between fields on the screen, use middle button to select field for widget change, which will be chosen from widget list in next step. Several widgets are adjustable (e.g. altimeter widgets <strong>Alt</strong>) or can enable/disable specific function can be toggled (e.g. <strong>beep</strong> or <strong>weak</strong>).</p>
 <p><strong>You can chose from following widgets:</strong></p>
 <p><strong>Vario bar</strong> shown graphically value of analog vario, each step represents 1m/s. The vario bar increases from middle to top when vario shows 0 to 3 m/s, then decreases from middle to top when vario shows 3 to 6 m/s. The bar shows sinking the same way, so the total range of vario bar is -6 to 6 m/s.</p>
 <p><strong>Vario</strong> shows value of digital variometer.</p>
@@ -75,11 +75,16 @@
 <p><strong>Altitude 1 to 5</strong> (<strong>Alt</strong> on LCD) shows altimeter (1 - 5) value. This widget can be adjusted.</p>
 <p><strong>Height AGL</strong> shows the height above the ground. This needs HAGL data files stored in SkyDrop. Please follow https://github.com/fhorinek/SkyDrop/wiki/HAGL-data-files for instructions on how to put them onto device.</p>
 <p><strong>Ground Level</strong> shows the height above sea level of the ground at the current position. Taken from HAGL data.</p>
+<p><strong>Airspace Distance</strong> (<strong>AS dist</strong> on LCD) shows the distance to the closest airspace border from your current position. If the pilot is inside the airspace, it has to move this distance to leave the airspace. If he is outside the airspace, then this is the remaining distance before entering the airspace.</p>
+<p><strong>Airspace Arrow</strong> (<strong>AS near</strong> on LCD) shows the angle to the closest airspace border from your current position. If the pilot is inside the airspace, it has to follow the arrow to leave the airspace. If he is outside the airspace, then this is the arrow pointing to the airspace. The pilot has <strong>Airspace distance</strong> until reaching the airspace.</p>
+<p><strong>Airspace Name</strong> (<strong>AS Name</strong> on LCD) shows the name of the closest airspace.</p>
+<p><strong>Airspace Info</strong> (<strong>AS Info</strong> on LCD) shows the lowest and highest value of the airspace at the current position. The values are shown in imperial or meter, depending on the setting of Altimeter 1. If the value is followed by “A”, it is meant as “AGL”. Followed by “M” means “main sea level”.</p>
+<p><strong>Airspace Limits</strong> (<strong>AS Limit</strong> on LCD) shows the lowest and highest height allowed to be used at the current position. The values are shown in imperial or meter, depending on the setting of Altimeter 1.</p>
 <p><strong>Ground speed</strong> (<strong>GSpd</strong> on LCD) shows ground speed obtained from GPS receiver.</p>
 <p><strong>Glide ratio</strong> (<strong>Glide</strong> on LCD) shows ratio between actual ground speed and sinking rate.</p>
 <p><strong>GPS heading</strong> (<strong>GHdg</strong> on LCD) shows heading obtained from GPS receiver.</p>
 <p><strong>GPS HDG arrow</strong> shows graphically heading obtained from GPS receiver - north is up.</p>
-<p><strong>GPS HDG points</strong> shows the cardinal direction of the pilots movement as 'N', 'E', 'W', ...</p>
+<p><strong>GPS HDG points</strong> shows the cardinal direction of the pilots movement as ‘N’, ‘E’, ‘W’, …</p>
 <p><strong>GPS position</strong> (<strong>GPos</strong> on LCD) shows GPS coordinates obtained from GPS receiver.</p>
 <p><strong>Thermal time</strong> (<strong>TTime</strong> on LCD) shows the time since the pilot started circling.</p>
 <p><strong>Thermal gain</strong> (<strong>TGain</strong> on LCD) shows the meter/feet gained since circling.</p>
@@ -95,14 +100,14 @@
 <p><strong>Waypoint distance</strong> shows the distance in miles/km to the next waypoint.</p>
 <p><strong>Waypoint time</strong> shows the time needed to get to the next waypoint. This only shows up, if you fly towards it.</p>
 <p><strong>Waypoint info</strong> shows the number of waypoints and allows to go to previous or next waypoints.</p>
-<p><strong>Wind direction</strong> shows the direction of the wind in degree: 0 is north, 180 is south...</p>
+<p><strong>Wind direction</strong> shows the direction of the wind in degree: 0 is north, 180 is south…</p>
 <p><strong>Wind arrow</strong> shows the direction of the wind relative to the pilot as an arrow.</p>
-<p><strong>Wind dir points</strong> shows the cardinal direction of the wind as 'N', 'E', 'W', ...</p>
+<p><strong>Wind dir points</strong> shows the cardinal direction of the wind as ‘N’, ‘E’, ‘W’, …</p>
 <p><strong>Wind speed</strong> shows the speed of the wind in km/h or mph.</p>
 <p><strong>Accelerometer</strong> shows acceleration of the pilot averaged through all directions</p>
-<p><strong>Compass heading</strong> shows the heading of the pilot in degree: 0 is north, 180 is south...</p>
+<p><strong>Compass heading</strong> shows the heading of the pilot in degree: 0 is north, 180 is south…</p>
 <p><strong>Compass arrow</strong> shows the direction of north</p>
-<p><strong>Compass points</strong> shows the cardinal direction of the pilots as 'N', 'E', 'W', ...</p>
+<p><strong>Compass points</strong> shows the cardinal direction of the pilots as ‘N’, ‘E’, ‘W’, …</p>
 <p><strong>Battery</strong> shows remaining battery power in %.</p>
 <p><strong>Temperature</strong> (<strong>Temp</strong> on LCD) shows air temperature and humidity.</p>
 <p><strong>Weeklift ON/OFF</strong> (<strong>weak</strong> on LCD) switch on/off attention to light thermal (&lt;1m/s) around.</p>
@@ -116,7 +121,7 @@
 <p>The menu is accessible by long pressing the middle button and the select the right menu entry with the right button. Here is a description of the available menu entries.</p>
 <h3 id="vario">Vario</h3>
 <p><strong>Lift/Sink threshold</strong> defines the vertical speed value when sound is activated (in 0.1m/s steps).</p>
-<p><strong>Weak lift</strong> enables continuous sound before lift threshold is reached to let pilot know &quot;something is in the air&quot; (in 0.1m/s steps). Frequency will change linearly from low to high inside weak range.</p>
+<p><strong>Weak lift</strong> enables continuous sound before lift threshold is reached to let pilot know “something is in the air” (in 0.1m/s steps). Frequency will change linearly from low to high inside weak range.</p>
 <p><strong>Fluid audio</strong> allows sound tone change during actual beep.</p>
 <p><strong>Digital vario int.</strong> suppress very fast vario changes and makes displayed digital vario value more stable in 0.1s steps (won't affect vario bar graph or sound output).</p>
 <p><strong>Average vario int.</strong> defines time used to compute average vario value, used for overall thermal power overview (in 0.1s steps).</p>
@@ -140,7 +145,7 @@
 <p>contains all recorded logs showing basic flight statistics.</p>
 <h3 id="navigation">Navigation</h3>
 <p>There are two different kinds of navigation: HOME and WAYPOINT.</p>
-<p><strong>HOME</strong> Select &quot;Set as Takeoff&quot; to automatically set HOME to the position where you started or load a home file from the SD card. More information here https://github.com/fhorinek/SkyDrop/wiki/Navigation-and-aerodrome-files</p>
+<p><strong>HOME</strong> Select “Set as Takeoff” to automatically set HOME to the position where you started or load a home file from the SD card. More information here https://github.com/fhorinek/SkyDrop/wiki/Navigation-and-aerodrome-files</p>
 <p><strong>WAYPOINT</strong> You can load a file from SD card which contains a number of waypoints to follow. Use the waypoint widgets to get directions for the next waypoint.</p>
 <h3 id="gps">GPS</h3>
 <p><strong>Enable GPS</strong> checkbox enables/disables onboard GPS receiver (significant for battery power).</p>
@@ -188,7 +193,7 @@
 <p><strong>Clear log</strong> This will clear the debug log from previous log messages.</p>
 <p><strong>Debug GPS</strong> All messages received from the GPS receiver will be logged to the debug log.</p>
 <p><strong>WDT last PC</strong></p>
-<p><strong>Record screen</strong> The device will make a dump of the screen every second to the SD card into the directory &quot;REC&quot;. This directory must already exist otherwise no dump will be made. Use https://github.com/fhorinek/SkyDrop/blob/master/skydrop/utils/img/convert-LOGO-to-image.py to convert each dump.</p>
+<p><strong>Record screen</strong> The device will make a dump of the screen every second to the SD card into the directory “REC”. This directory must already exist otherwise no dump will be made. Use https://github.com/fhorinek/SkyDrop/blob/master/skydrop/utils/img/convert-LOGO-to-image.py to convert each dump.</p>
 <p><strong>Acc bias</strong></p>
 <p><strong>Acc sens</strong></p>
 <p><strong>Mag bias</strong></p>
@@ -216,7 +221,7 @@
 <p>SkyDrop variometer with strap, raiser mount, USB cable, stickers, user guide.</p>
 <h2 id="device-update-instructions">device update instructions</h2>
 <p>Watch video tutorial on SkyBean YouTube channel <a href="http://www.youtube.com/c/SkyBeanVarios">youtube.com/c/SkyBeanVarios</a> or follow these instructions:</p>
-<ol style="list-style-type: decimal">
+<ol type="1">
 <li>Download update file from SkyBean webpage or repository<a href="http://vps.skybean.eu/repo/updates/">skybean.eu/repo/updates</a> the last folder contains the newest firmware version.</li>
 <li>Connect SkyDrop (powered off) to the computer via micro USB cable.</li>
 <li>Wait until USB mode is enabled and device folder will show in computer.</li>
