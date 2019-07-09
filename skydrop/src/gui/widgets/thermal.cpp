@@ -95,4 +95,4 @@ void widget_thermal_assistant_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 
 register_widget1(w_thermal_time, "Thermal time", widget_thermal_time_draw);
 register_widget1(w_thermal_gain, "Thermal gain", widget_thermal_gain_draw);
-register_widget1(w_thermal_ass, "Thermal assistent", widget_thermal_assistant_draw);
+register_widget1(w_thermal_ass, "Thermal assistant", widget_thermal_assistant_draw);

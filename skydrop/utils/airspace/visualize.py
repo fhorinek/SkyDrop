@@ -77,8 +77,8 @@ def get_point(lat, lon):
 
     print("Point (lat, lon)", lat, lon)
 
-    lat_n = int(abs(lat / mul))
-    lon_n = int(abs(lon / mul))
+    lat_n = int((lat / mul))
+    lon_n = int((lon / mul))
 
     if lat >= 0:
         lat_c = "N"
@@ -112,6 +112,8 @@ def get_point(lat, lon):
 
     offset_point = int((x * numPoints + y) * DATA_LEVELS * DATA_LEVEL_SIZE)
     offset_index = int((numPoints * numPoints) * DATA_LEVELS * DATA_LEVEL_SIZE)
+
+    print("offset_point", offset_point)
 
 
     global patch
@@ -163,16 +165,16 @@ def get_point(lat, lon):
         if long_offset & 0x40:
             long_offset = -(long_offset & 0x3F)
 
-        #print("lat_offset", lat_offset)
-        #print("long_offset", long_offset)
+        print("lat_offset", lat_offset)
+        print("long_offset", long_offset)
 
         if mode < 3:
             target = shapely.geometry.Point(origin.x + long_offset * mul, origin.y + lat_offset * mul)
         else:        
             target = origin
 
-        #print("otarget lat", target.y)
-        #print("otarget lon", target.x)
+        print("otarget lat", target.y)
+        print("otarget lon", target.x)
 
         if long_offset == 0:
             ty = target.y
@@ -184,8 +186,8 @@ def get_point(lat, lon):
             k = lat_offset / long_offset
             kn = -long_offset / lat_offset
             
-            #print("k", k)
-            #print("kn", kn)
+            print("k", k)
+            print("kn", kn)
 
             q1 = p.y - k * p.x
             q2 = target.y - kn * target.x

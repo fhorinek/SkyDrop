@@ -197,7 +197,7 @@ void gui_set_logger_item(uint8_t index, char * text, uint8_t * flags, char * sub
 		break;
 
 		case (6):
-			strcpy_P(text, PSTR("Glider id"));
+			strcpy_P(text, PSTR("Glider ID"));
 			*flags |= GUI_LIST_SUB_TEXT;
 
 			if (strlen((char *)config.logger.glider_id) == 0)

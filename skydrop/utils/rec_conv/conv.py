@@ -12,9 +12,10 @@ def remap_img(data):
             n.append(not ord(data[index]) & (1 << pos))
             
     return n
-            
+           
 pth = "in/"
 raws = os.listdir(pth)
+os.system("rm -rf out/*");
 
 for raw in raws:
     print raw

@@ -20,7 +20,11 @@ void task_active_init()
 	}
 	else
 	{
-		gui_switch_task(GUI_FTEST);
+		#ifndef ENABLE_FACTORY_TEST
+			gui_showmessage_P(PSTR("Factory Test\nnot done!"));
+		#else
+			gui_switch_task(GUI_FTEST);
+		#endif
 	}
 
 	ewdt_reset();

@@ -53,14 +53,14 @@ const uint8_t PROGMEM img_pwr[26]={12,16,224,248,28,12,0,63,63,0,12,28,248,224,1
 const uint8_t PROGMEM img_menu[22]={10,16,51,51,51,51,51,51,51,51,51,51,3,3,3,3,3,3,3,3,3,3};
 const uint8_t PROGMEM img_layout[16]={14,8,252,132,132,191,161,225,33,33,225,161,191,132,132,252};
 
-MK_SEQ(snd_page_0, ARR({800}), ARR({100}));
-MK_SEQ(snd_page_1, ARR({800, 1000}), ARR({100, 100}));
-MK_SEQ(snd_page_2, ARR({800, 1000, 1200}), ARR({100, 100, 100}));
-MK_SEQ(snd_page_3, ARR({800, 1000, 1200, 1400}), ARR({100, 100, 100, 100}));
-MK_SEQ(snd_page_4, ARR({800, 1000, 1200, 1400, 1600}), ARR({100, 100, 100, 100, 100, 100}));
-MK_SEQ(snd_page_5, ARR({800, 1000, 1200, 1400, 1600, 1800}), ARR({100, 100, 100, 100, 100, 100, 100}));
-MK_SEQ(snd_page_6, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000}), ARR({100, 100, 100, 100, 100, 100, 100, 100}));
-MK_SEQ(snd_page_7, ARR({800, 1000, 1200, 1400, 1600, 1800, 2000, 2200}), ARR({100, 100, 100, 100, 100, 100, 100, 100, 100}));
+MK_SEQ(snd_page_0, ARR({800, 1000}), ARR({100, 100}));
+MK_SEQ(snd_page_1, ARR({800, 1200}), ARR({100, 100}));
+MK_SEQ(snd_page_2, ARR({800, 1400}), ARR({100, 100}));
+MK_SEQ(snd_page_3, ARR({800, 1600}), ARR({100, 100}));
+MK_SEQ(snd_page_4, ARR({800, 1800}), ARR({100, 100}));
+MK_SEQ(snd_page_5, ARR({800, 2000}), ARR({100, 100}));
+MK_SEQ(snd_page_6, ARR({800, 2200}), ARR({100, 100}));
+MK_SEQ(snd_page_7, ARR({800, 2400}), ARR({100, 100}));
 
 const sequence_t * snd_pages[] = {&snd_page_0, &snd_page_1, &snd_page_2, &snd_page_3, &snd_page_4, &snd_page_5, &snd_page_6, &snd_page_7};
 

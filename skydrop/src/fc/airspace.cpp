@@ -3,7 +3,7 @@
 
 #include "../drivers/storage/storage.h"
 
-//#include "debug_on.h"
+#include "debug_on.h"
 
 //#index
 //#   1000 0000 - inside (128, 0x80)
@@ -54,7 +54,7 @@ void airspace_init()
     DEBUG("airspace_init\n");
     fc.airspace.file_valid = false;
 
-    fc.airspace.airspace_name_index = 0x3F;
+    fc.airspace.airspace_name_index = AIR_INDEX_INVALID;
     fc.airspace.airspace_name[0] = 0;
 
 	fc.airspace.min_alt = AIRSPACE_INVALID;
@@ -192,7 +192,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 			if (as_point.level[i].index & 0x80)
 				fc.airspace.cache[i].flags |= AIR_CACHE_INSIDE;
 
-			fc.airspace.cache[i].index = as_point.level[i].index & 0x3F;
+			fc.airspace.cache[i].index = as_point.level[i].index & 0x7F;
 
 			uint32_t airspace_index_pos = (uint32_t)((uint32_t)AIR_RESOLUTION * (uint32_t)AIR_RESOLUTION * (uint32_t)AIR_LEVELS * (uint32_t)AIR_LEVEL_SIZE) +
 					(uint32_t)(fc.airspace.cache[i].index) * AIR_INDEX_SIZE;
@@ -254,20 +254,20 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
 	        fc.airspace.cache_index = index;
 
-//	        DEBUG(" flags: %02X\n", fc.airspace.cache[i].flags);
-//
-//	        DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
-//	        DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
-//
-//	        DEBUG(" lat_offset: %d\n", fc.airspace.cache[i].lat_offset);
-//	        DEBUG(" lon_offset: %d\n", fc.airspace.cache[i].lon_offset);
-//
-//	        DEBUG(" floor: %u %c\n", fc.airspace.cache[i].floor & 0x7FFF, fc.airspace.cache[i].floor & 0x8000 ? 'A' : 'M');
-//	        DEBUG(" ceil: %u %c\n", fc.airspace.cache[i].ceil & 0x7FFF, fc.airspace.cache[i].ceil & 0x8000 ? 'A' : 'M');
-//
-//	        DEBUG(" index: %u\n", fc.airspace.cache[i].index);
-//	        DEBUG(" airspace_class: %u\n", fc.airspace.cache[i].airspace_class);
-//	        DEBUG("\n");
+	        DEBUG(" flags: %02X\n", fc.airspace.cache[i].flags);
+
+	        DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
+	        DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
+
+	        DEBUG(" lat_offset: %d\n", fc.airspace.cache[i].lat_offset);
+	        DEBUG(" lon_offset: %d\n", fc.airspace.cache[i].lon_offset);
+
+	        DEBUG(" floor: %u %c\n", fc.airspace.cache[i].floor & 0x7FFF, fc.airspace.cache[i].floor & 0x8000 ? 'A' : 'M');
+	        DEBUG(" ceil: %u %c\n", fc.airspace.cache[i].ceil & 0x7FFF, fc.airspace.cache[i].ceil & 0x8000 ? 'A' : 'M');
+
+	        DEBUG(" index: %u\n", fc.airspace.cache[i].index);
+	        DEBUG(" airspace_class: %u\n", fc.airspace.cache[i].airspace_class);
+	        DEBUG("\n");
 		}
     }
 
@@ -333,16 +333,16 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
             ty = k * tx + q1;
         }
 
-		DEBUG(" lat: %ld\n", lat);
-		DEBUG(" lon: %ld\n", lon);
-		DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
-		DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
+//		DEBUG(" lat: %ld\n", lat);
+//		DEBUG(" lon: %ld\n", lon);
+//		DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
+//		DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
 
         int8_t dx = (tx - lon) >= 0 ? 1 : -1;
         int8_t dy = (ty - lat) >= 0 ? 1 : -1;
 
-        DEBUG(" dx %d\n", dx);
-        DEBUG(" dy %d\n", dy);
+//        DEBUG(" dx %d\n", dx);
+//        DEBUG(" dy %d\n", dy);
 
         inside = (fc.airspace.cache[i].flags & AIR_CACHE_INSIDE) > 0;
 
@@ -359,14 +359,14 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
         else
         	distance = gps_distance_2d(lat, lon, ty, tx) / 100;
 
-        DEBUG(" target x %ld\n", tx);
-        DEBUG(" target y %ld\n", ty);
+//        DEBUG(" target x %ld\n", tx);
+//        DEBUG(" target y %ld\n", ty);
 //        DEBUG(" inside %u\n", inside);
 //        DEBUG(" angle %u\n", angle);
 //        DEBUG(" dist %u km\n", distance);
 //        DEBUG("\n");
 
-        DEBUG("%d %ddeg %0.3fkm %c\n", i, angle, distance / 1000.0, inside ? 'I' : ' ');
+        DEBUG(">>%d %ddeg %0.3fkm %c\n", i, angle, distance / 1000.0, inside ? 'I' : ' ');
 
     	//is inside the as_point floor and ceil
     	if (airspace_is_inside(fc.airspace.cache[i].floor, fc.airspace.cache[i].ceil, gps_alt, msl_alt))
@@ -453,7 +453,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     }
     else
     {
-		DEBUG("angle: AIRSPACE_INVALID\n");
+		DEBUG("AIRSPACE_INVALID\n");
 		DEBUG("\n");
     }
 }

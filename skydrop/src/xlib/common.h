@@ -10,7 +10,7 @@
 
 //#include <avr/pgmspace.h>
 #include "pgmhack.h"
-
+#define NOINIT	__attribute__ ((section (".noinit")))
 
 #ifdef __cplusplus
 	#include "oofix.h"

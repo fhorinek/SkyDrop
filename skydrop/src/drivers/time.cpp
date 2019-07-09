@@ -6,9 +6,9 @@ uint8_t monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 #define TIME_FLAG_B		0xEF01
 #define TIME_FLAG_B_GPS	0xEF02
 
-volatile uint16_t unix_time_set_flag_a __attribute__ ((section (".noinit")));
-volatile uint32_t unix_time __attribute__ ((section (".noinit")));
-volatile uint16_t unix_time_set_flag_b __attribute__ ((section (".noinit")));
+volatile uint16_t unix_time_set_flag_a NOINIT;
+volatile uint32_t unix_time NOINIT;
+volatile uint16_t unix_time_set_flag_b NOINIT;
 
 #define LEAP_YEAR(_year) ((_year%4)==0)
 

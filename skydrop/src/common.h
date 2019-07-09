@@ -29,6 +29,9 @@
 #include "build_number.h"
 #include "debug.h"
 
+//We are running out of usable space, removing factory test from normal build save few kb
+//#define ENABLE_FACTORY_TEST
+
 union byte8
 {
     uint64_t uint64;

@@ -18,6 +18,15 @@ uint8_t f_test_lcd_cont = 0;
 uint8_t f_test_lcd_cont_min = 0;
 uint8_t f_test_lcd_cont_max = 0;
 
+#ifndef ENABLE_FACTORY_TEST
+
+void gui_factory_test_init() {}
+void gui_factory_test_stop() {}
+void gui_factory_test_loop() {}
+void gui_factory_test_irqh(uint8_t type, uint8_t * buff) {}
+
+#else
+
 void gui_factory_test_init()
 {
 	DEBUG(" *** Factory test ***\n");
@@ -379,3 +388,4 @@ void gui_factory_test_irqh(uint8_t type, uint8_t * buff)
 		}
 	}
 }
+#endif
