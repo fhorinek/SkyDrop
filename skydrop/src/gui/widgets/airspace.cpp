@@ -54,26 +54,31 @@ void widget_airspace_limits_sprintf(char * text, uint16_t raw)
 		return;
 	}
 
-	if (raw & AIR_AGL_FLAG && fc.agl.valid)
+	if (raw & AIR_AGL_FLAG)
 	{
-		if (config.altitude.alt1_flags & ALT_UNIT_I)
-			sprintf_P(text, PSTR("%u"), airspace_convert_alt_ft(raw) + fc.agl.ground_level / FC_METER_TO_FEET);
-		else
-			sprintf_P(text, PSTR("%u"), airspace_convert_alt_m(raw) + fc.agl.ground_level);
+		// This is a height above ground level (AGL), so add ground level to get absolute height
+		if (fc.agl.valid)
+		{
+			if (config.altitude.alt1_flags & ALT_UNIT_I)
+				sprintf_P(text, PSTR("%u"), airspace_convert_alt_ft(raw) + fc.agl.ground_level / FC_METER_TO_FEET);
+			else
+				sprintf_P(text, PSTR("%u"), airspace_convert_alt_m(raw) + fc.agl.ground_level);
 
-		return;
-	}
-	else if (raw & AIR_AGL_FLAG && !fc.agl.valid)
-	{
-		if (config.altitude.alt1_flags & ALT_UNIT_I)
-			sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_ft(raw));
+			return;
+		}
 		else
-			sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_m(raw));
-
-		return;
+		{
+			// We do not have AGL data, so only show the value
+			if (config.altitude.alt1_flags & ALT_UNIT_I)
+				sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_ft(raw));
+			else
+				sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_m(raw));
+			return;
+		}
 	}
 	else
 	{
+		// This is not a AGL value, so it is MSL. Show directly
 		if (config.altitude.alt1_flags & ALT_UNIT_I)
 			sprintf_P(text, PSTR("%u"), airspace_convert_alt_ft(raw));
 		else

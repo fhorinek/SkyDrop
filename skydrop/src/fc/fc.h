@@ -271,7 +271,7 @@ struct agl_data_t
 	bool file_valid;
 
 	char filename[10];        // The filename of the currently opened HAGL file
-	int16_t ground_level;     // The ground level of the current GPS position or "AGL_INVALID".
+	int16_t ground_level;     // The ground level in meter of the current GPS position or "AGL_INVALID".
 	float ground_gradient;    // the gradient of the current GPS position
 };
 
@@ -283,21 +283,21 @@ struct agl_data_t
 
 struct airspace_cache_t
 {
-	uint8_t flags;
+	uint8_t flags;			// AIR_CACHE_XXX
 
 	//target
-	int32_t latitude;
-	int32_t longtitude;
+	int32_t latitude;		// This is the border of the airspace
+	int32_t longitude;
 
 	//offset
-	int8_t lat_offset;
+	int8_t lat_offset;		// and the offset from the pilot to the target
     int8_t lon_offset;
 
-	uint16_t floor;
-	uint16_t ceil;
+	uint16_t floor;			// lower height of the airspace (in feet)
+	uint16_t ceil;			// upper height of the airspace (in feet)
 
 	uint8_t index;
-	uint8_t airspace_class;
+	uint8_t airspace_class;	// class of the airspace (CTR, D, C, ...)
 };
 
 #define AIR_LEVELS					5
@@ -311,8 +311,8 @@ struct airspace_data_t
 	char filename[10];        // The filename of the currently opened airspace file
 
 	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
-	uint16_t angle;            // The angle out of the airspace or "AGL_INVALID".
-	uint16_t distance_m;
+	uint16_t angle;           // The angle out of the airspace or "AGL_INVALID".
+	uint16_t distance_m;      // The distance to (or out) of the airspace in meter.
 	uint16_t ceiling;
 	uint16_t floor;
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- mode: python-mode; python-indent-offset: 4 -*-
 #*****************************************************************************
-# dnf install python3-shapely python3-gdal
+# dnf install python3-shapely python3-gdal python3-matplotlib
 #
 # This program is used to read a "Open-Airspace-file" containing a number of
 # airspaces and then computing a raster of positions around these airspaces.

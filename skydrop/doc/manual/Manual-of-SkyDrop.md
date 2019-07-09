@@ -120,6 +120,16 @@ During startup animation, firmware version in bottom left and hardware revision 
 
 **Ground Level** shows the height above sea level of the ground at the current position. Taken from HAGL data.
 
+**Airspace Distance** (**AS dist** on LCD) shows the distance to the closest airspace border from your current position. If the pilot is inside the airspace, it has to move this distance to leave the airspace. If he is outside the airspace, then this is the remaining distance before entering the airspace.
+
+**Airspace Arrow** (**AS near** on LCD) shows the angle to the closest airspace border from your current position. If the pilot is inside the airspace, it has to follow the arrow to leave the airspace. If he is outside the airspace, then this is the arrow pointing to the airspace. The pilot has **Airspace distance** until reaching the airspace.
+
+**Airspace Name** (**AS Name** on LCD) shows the name of the closest airspace.
+
+**Airspace Info** (**AS Info** on LCD) shows the lowest and highest value of the airspace at the current position. The values are shown in imperial or meter, depending on the setting of Altimeter 1. If the value is followed by "A", it is meant as "AGL". Followed by "M" means "main sea level".
+
+**Airspace Limits** (**AS Limit** on LCD) shows the lowest and highest height allowed to be used at the current position. The values are shown in imperial or meter, depending on the setting of Altimeter 1.
+
 **Ground speed** (**GSpd** on LCD) shows ground speed obtained from GPS receiver.
 
 **Glide ratio** (**Glide** on LCD) shows ratio between actual ground speed and sinking rate.
