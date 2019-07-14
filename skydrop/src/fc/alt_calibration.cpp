@@ -1,5 +1,6 @@
 #include "alt_calibration.h"
 #include "fc.h"
+#include "agl.h"
 
 /**
  * We have a new GPS position and try to calibrate the ALT1 value.
@@ -59,7 +60,7 @@ void alt_calibration_step()
         //
         // Option 1: Try ground level
         //
-        if (fc.flight.state != FLIGHT_FLIGHT && fc.agl.valid)
+        if (fc.flight.state != FLIGHT_FLIGHT && fc.agl.ground_level != AGL_INVALID)
         {
             if (fc.gps_data.groud_speed < FC_GLIDE_MIN_KNOTS)
             {
