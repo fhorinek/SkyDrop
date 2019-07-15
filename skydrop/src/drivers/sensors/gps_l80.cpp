@@ -555,15 +555,14 @@ uint8_t gps_simulation_next()
 
 void gps_parse(Usart * c_uart)
 {
-	uint8_t c = c_uart->Read();
 
 #ifdef GPS_SIMULATION
-	// Even during simulation, we read from UART to get a kind of
-	// timing behaviour and speed down the GPS read simulation.
-	c = gps_simulation_next();
+	uint8_t c = gps_simulation_next();
+#else
+	uint8_t c = c_uart->Read();
 #endif
 
-	// DEBUG("%c", c);
+	// DEBUG("GPS: read %c", c);
 
 	switch (gps_parser_state)
 	{
@@ -751,6 +750,17 @@ void gps_step()
 {
 //	gps_uart.DumpDMA();
 
+#ifdef GPS_SIMULATION
+	static uint32_t last_read = 0;
+
+	if (task_get_ms_tick() > last_read)
+	{
+		// This is approx. 1 character every milli second = 9600 baud
+		last_read = task_get_ms_tick();
+		gps_parse(&gps_uart);
+	}
+#else
 	while (!gps_uart.isRxBufferEmpty())
 		gps_parse(&gps_uart);
+#endif
 }
