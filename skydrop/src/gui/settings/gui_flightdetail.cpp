@@ -217,7 +217,7 @@ void gui_flightdetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub
 		break;
 		case 7:
 			strcpy_P(text, PSTR("Odometer:"));
-			if (log_odo == LOG_NODATA_i16)
+			if (log_odo == LOG_NODATA_u32)
 			{
 				sprintf_P(sub_text, PSTR("<no data>"));
 				break;
