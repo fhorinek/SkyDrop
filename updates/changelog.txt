@@ -45,6 +45,11 @@ FIX:
 REMOVED: 
  * Unused debug widgets 
  
+ * Automatic confirmation of altitude alarm after X secs.
+   This can be configured in Settings>Altitude>Alaram>Confirm.
+   Additionally show an icon with a flashing warning light, if
+   you are in an alarm.
+
 
 Build 4251 - 10. 04. 2019
 ========================================================

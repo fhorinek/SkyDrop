@@ -378,6 +378,7 @@ void fc_pause();
 void fc_continue();
 
 uint8_t fc_active_alarm();
+uint8_t fc_alarm_running(uint8_t alarm);
 
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);
