@@ -1,15 +1,20 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # This script can be used to visualize the content of an AIR file
 # containing airspace data. It will draw a map showing the contents of
 # the file as a raster with points and arrows.
 #
-# It takes two arguments:
-#   1. a filename of an AIR file
-#   2. [optional] a level to visualize, which can be number from 0-4.
+# By using the right button on the map, the user can see the underlying
+# data. It is read from data directory, where the AIR data files from
+# SkyDrop must be accessible.
+#
+# It will draw arrows to the stored points and airspaces and log some
+# output to stdout.
 #
 # 20.12.2018: tilmann@bubecks.de
+#
+# Fedora: dnf install python3-pyserial python3-shapely python3-gdal python3-matplotlib
 
 from math import sqrt,cos,atan2,floor,sin,asin
 import re
@@ -19,6 +24,7 @@ import sys
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrow
+import getopt
 
 import shapely
 import shapely.ops
@@ -290,7 +296,10 @@ def ev(event):
     if event.button == 3:        # right mouse button
         get_point(lat, lon)
         spf.send_point(lat, lon, galt)
-        
+
+def usage():
+    print ('visualize.py [-c 49.5,8.9] openairspace-file')
+
 from spoof import GPS_Spoof      
 
 spf = GPS_Spoof("/dev/ttyUSB1")
@@ -302,11 +311,38 @@ galt = 200
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 patch = []
+checkPoint = None
 
-for oas in openaip.load_file(sys.argv[1]):
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hc:",["help", "check"])
+except getopt.GetoptError:
+    usage()
+    sys.exit(1)
+
+for opt, arg in opts:
+    if opt in ("-h", "--help"):
+        usage()
+        sys.exit(0)
+    elif opt in ("-c", "--check"):
+        m = re.match('([-+]?\d*\.\d+|\d+),([-+]?\d*\.\d+|\d+)', arg)
+        if m != None:
+            checkPoint = shapely.geometry.Point(float(m.group(2)), float(m.group(1)))
+        else:
+            print ("argument '" + arg + "' is invalid for --check.")
+            usage()
+            sys.exit(1)
+
+if len(args) != 1:
+    usage()
+    sys.exit(1)
+
+for oas in openaip.load_file(args[0]):
     if CLASS_FILTER[oas.category] and not oas.invalid:
         airspaces.append(Airspace(oas))
-    
+
+if checkPoint != None:
+    get_point(checkPoint.y, checkPoint.x)
+
 for airspace in airspaces:
     airspace.draw()
 
@@ -314,7 +350,7 @@ a, = plt.plot([], [])
 a.figure.canvas.mpl_connect('motion_notify_event', ev)
 a.figure.canvas.mpl_connect('button_press_event', ev)
 
-plt.title(sys.argv[1])
+plt.title(args[0])
 plt.xlabel('Longitude')
 plt.ylabel('Latitude')
 ax.axis('equal')
