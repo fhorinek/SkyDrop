@@ -267,10 +267,9 @@ struct flight_data_t
 
 struct agl_data_t
 {
-	bool valid;
-	bool file_valid;
-
+	bool file_valid;          // Is the file "filename" successfully opened and data available?
 	char filename[10];        // The filename of the currently opened HAGL file
+
 	int16_t ground_level;     // The ground level in meter of the current GPS position or "AGL_INVALID".
 	float ground_gradient;    // the gradient of the current GPS position
 };
@@ -379,6 +378,7 @@ void fc_pause();
 void fc_continue();
 
 uint8_t fc_active_alarm();
+uint8_t fc_alarm_running(uint8_t alarm);
 
 float fc_alt_to_qnh(float alt, float pressure);
 float fc_press_to_alt(float pressure, float qnh);

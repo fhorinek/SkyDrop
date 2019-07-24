@@ -5,6 +5,9 @@ ADDED:
    altitude1 to ground level. This can be used to
    calibrate altitude1 when standing on ground.
 
+FIX:
+ * AGL fixed (bubeck)
+
 Build 4520 - 09. 07. 2019
 ========================================================
 FIX:
@@ -47,6 +50,11 @@ FIX:
 REMOVED: 
  * Unused debug widgets 
  
+ * Automatic confirmation of altitude alarm after X secs.
+   This can be configured in Settings>Altitude>Alaram>Confirm.
+   Additionally show an icon with a flashing warning light, if
+   you are in an alarm.
+
 
 Build 4251 - 10. 04. 2019
 ========================================================

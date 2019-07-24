@@ -177,6 +177,11 @@ const uint8_t PROGMEM img_debug[] = {
 		0x93, 0x54, 0x3D, 0x3D, 0x54, 0x93
 };
 
+const uint8_t PROGMEM img_alarm[] = {
+		6, 8, // width, heigth
+		0x00, 0x00, 0x5E, 0x5E, 0x00, 0x00
+};
+
 MK_SEQ(snd_but_short, ARR({1000}), ARR({50}));
 MK_SEQ(snd_but_long, ARR({800}), ARR({200}));
 
@@ -712,11 +717,19 @@ void gui_statusbar()
 		}
 	}
 
+
 	//Debug.log indicator
-	if (config.system.debug_log == DEBUG_MAGIC_ON)
+	if (config.altitude.alarm_enabled && fc.flight.state == FLIGHT_FLIGHT && fc_active_alarm() != 0)
 	{
-		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
+		disp.DrawImage(img_alarm, GUI_DISP_WIDTH - 6, 26);
+		if (GUI_BLINK_TGL(500))
+			disp.Invert(GUI_DISP_WIDTH - 6, 26, GUI_DISP_WIDTH, 26 + 7);
 	}
+	else if (config.system.debug_log == DEBUG_MAGIC_ON)
+		{
+			//Debug.log indicator
+			disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
+		}
 
 	//battery indicator
 	uint8_t a = battery_per / 10;

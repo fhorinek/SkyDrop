@@ -48,7 +48,7 @@ We are standing on shoulders these giants:
 <b>CParser.py</b> - (C)Luke Campagnola<br>
 /utils/ee_maper/CParser.py<br>
 
-<b>[Configurator](http://vps.skybean.eu:8080/configurator/)</b>
+<b>[Configurator](https://vps.skybean.eu/configurator/#/)</b>
 
 <b>Angular.js (angular, angular-animate, angular-route)</b> - (C)Google (https://angularjs.org/)<br>
 app/bower_components/angular, app/bower_components/angular-animate, app/bower_components/angular-route, <br>

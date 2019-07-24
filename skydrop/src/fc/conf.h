@@ -98,6 +98,7 @@ struct cfg_altitude
 	cfg_altimeter altimeter[NUMBER_OF_ALTIMETERS];
 
 	uint8_t alarm_enabled;
+	uint8_t alarm_confirm_secs; // Number of secs to confirm an alarm. "0" means forever.
 	uint16_t alarm_1;          // Lower alarm 1. If lower than this: alarm
 	uint16_t alarm_2;          // Lower alarm 2. If lower than this: alarm
 	uint16_t alarm_h1;         // Height alarm 1. If higher than this: alarm
