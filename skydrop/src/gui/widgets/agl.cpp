@@ -24,7 +24,7 @@ void widget_agl_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
-		if (fc.agl.ground_level != AGL_INVALID)
+		if (fc.agl.ground_level != AGL_INVALID && fc.flight.state != FLIGHT_FLIGHT)
 		{
 			char message[40];
 
