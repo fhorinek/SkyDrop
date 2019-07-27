@@ -31,9 +31,8 @@ void widget_agl_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 			fc_manual_alt0_change(fc.agl.ground_level);
 			config.altitude.QNH1 = fc_alt_to_qnh(fc.agl.ground_level,
 					fc.vario.pressure);
-			sprintf_P(message, PSTR("Alt1 set to ground\nlevel: %d %s"),
-					fc.agl.ground_level,
-					(config.altitude.alt1_flags & ALT_UNIT_I) ? "ft" : "m");
+                        sprintf_P(message, PSTR("Alt1 set to ground\nlevel: %d"),
+                                        (config.altitude.alt1_flags & ALT_UNIT_I) ? (int)(fc.agl.ground_level * FC_METER_TO_FEET) : fc.agl.ground_level);
 			gui_showmessage(message);
 		}
 	}
