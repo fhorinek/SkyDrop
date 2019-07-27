@@ -314,7 +314,7 @@ patch = []
 checkPoint = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hc:",["help", "check"])
+    opts, args = getopt.getopt(sys.argv[1:],"hc:",["help", "check="])
 except getopt.GetoptError:
     usage()
     sys.exit(1)
