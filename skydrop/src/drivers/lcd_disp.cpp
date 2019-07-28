@@ -271,7 +271,7 @@ void lcd_display::Stop()
  * Draw line (works in any direction)
  *
  */
-void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color = 1)
+void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
 {
 	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
 	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -403,6 +403,15 @@ void lcd_display::DrawRectangle(int8_t x1, int8_t y1, int8_t x2, int8_t y2,
 	}
 }
 
+/**
+ * Invert parts of the display. x1 can be greater or lower than x2. Also y1/y2.
+ * It will invert from x1 to x2 (including x1 and x2). Also y1/y2 included.
+ *
+ * @param x1 the left (or right) position
+ * @param y1 the top (or bottom) position
+ * @param x2 the opposite side to x1
+ * @param y2 the opposite side to y1
+ */
 void lcd_display::Invert(int8_t x1, int8_t y1, int8_t x2, int8_t y2)
 {
 	int8_t xdir;
