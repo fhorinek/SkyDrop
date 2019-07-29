@@ -1,5 +1,10 @@
 Build XXXX - XX. XX. 2019
 ========================================================
+ADDED:
+ * Long middle button press on HAGL widget resets
+   altitude1 to ground level. This can be used to
+   calibrate altitude1 when standing on ground.
+
 FIX:
  * AGL fixed (bubeck)
 
