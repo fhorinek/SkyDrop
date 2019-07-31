@@ -366,6 +366,14 @@ void cfg_baro_write_defaults()
 	eeprom_update_block(&tmp, &config_ro.baro_offset, sizeof(config_ro.baro_offset));
 }
 
+void cfg_bat_write_defaults()
+{
+	uint16_t tmp = 0xffff;
+	eeprom_busy_wait();
+	eeprom_write_word(&config_ro.bat_runtime_minutes, tmp);
+}
+
+
 void cfg_check_floats()
 {
 	if (isnan(config.altitude.QNH1))
@@ -410,6 +418,7 @@ void cfg_load()
 		cfg_gyro_write_defaults();
 		cfg_compass_write_defaults();
 		cfg_baro_write_defaults();
+		cfg_bat_write_defaults();
 
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ro.calibration_flags, CALIB_DEFAULT_LOADED);

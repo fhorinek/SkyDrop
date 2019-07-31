@@ -289,39 +289,47 @@ struct debug_info
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
+//
+//This data is accessible by using eeprom_read_byte/eeprom_update_byte...
+//
 //						dec		hex
-//size 					128		0x80
-//start address			1920	0x780
+//size 					384		0x180
+//start address			1920	0x680
 struct cfg_ro_t
 {									//offset	size
-	uint8_t factory_passed;			//+0		1
-	uint8_t lcd_contrast_min;		//+1		1
-	uint8_t lcd_contrast_max;		//+2		1
+	uint8_t reserved0[54];          //+0        54
 
-	uint8_t bt_module_type; 		//+3		1
+	uint16_t bat_runtime_minutes;   //+54       2    How many minutes does the battery run if full? 0xffff=no calib done
+	uint16_t bat_calibration[100];  //+56       200
 
-	cfg_calibration calibration;	//+4		24
+	uint8_t factory_passed;			//+256		1
+	uint8_t lcd_contrast_min;		//+257		1
+	uint8_t lcd_contrast_max;		//+258		1
 
-	uint8_t hw_revision;			//+28		1
+	uint8_t bt_module_type; 		//+259		1
 
-	uint8_t flight_number;			//+29		1
-	uint32_t flight_date;			//+30		4
+	cfg_calibration calibration;	//+260		24
 
-	debug_info debug;				//+34		14
+	uint8_t hw_revision;			//+284		1
 
-	uint16_t bat_adc_max;			//+48		2
+	uint8_t flight_number;			//+285		1
+	uint32_t flight_date;			//+286		4
 
-	uint8_t calibration_flags;		//+50		1
+	debug_info debug;				//+290		14
 
-	vector_i16_t gyro_bias;			//+51		6
+	uint16_t bat_adc_max;			//+304		2
 
-	int16_t	magnetic_declination;	//+57		2
+	uint8_t calibration_flags;		//+306		1
 
-	uint32_t total_flight_time;		//+59		4
+	vector_i16_t gyro_bias;			//+307		6
 
-	int16_t baro_offset;			//+61		2
+	int16_t	magnetic_declination;	//+313		2
 
-	uint8_t reserved[70];			//+63		62
+	uint32_t total_flight_time;		//+315		4
+
+	int16_t baro_offset;			//+319		2
+
+	uint8_t reserved[70];			//+321		62
 };
 
 //configuration in RAM
