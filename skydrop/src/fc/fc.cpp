@@ -686,9 +686,9 @@ void fc_step()
 
 	//glide ratio
 	//when you have GPS, baro and speed is higher than 2km/h and you are sinking <= -0.01
-	if (fc.gps_data.valid && fc.vario.valid && fc.gps_data.groud_speed > FC_GLIDE_MIN_KNOTS && fc.vario.avg <= FC_GLIDE_MIN_SINK)
+	if (fc.gps_data.valid && fc.vario.valid && fc.gps_data.ground_speed > FC_GLIDE_MIN_KNOTS && fc.vario.avg <= FC_GLIDE_MIN_SINK)
 	{
-		float spd_m = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS;
+		float spd_m = fc.gps_data.ground_speed * FC_KNOTS_TO_MPS;
 		fc.glide_ratio = spd_m / abs(fc.vario.avg);
 
 		fc.glide_ratio_valid = true;

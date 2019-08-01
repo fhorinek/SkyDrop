@@ -164,7 +164,7 @@ void odometer_step()
 
 		//do not add when gps speed is < 1 km/h
 		//do not add when difference between calculated speed and gps speed is > 10 km/h
-		if (abs(calc_speed - fc.gps_data.groud_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.groud_speed > FC_ODO_MIN_SPEED)
+		if (abs(calc_speed - fc.gps_data.ground_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.ground_speed > FC_ODO_MIN_SPEED)
 			fc.odometer += v;
 	}
 

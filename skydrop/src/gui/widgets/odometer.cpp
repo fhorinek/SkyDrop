@@ -129,7 +129,7 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 		if (abs(relative_direction) < 45) {
 			// Pilot is heading towards home.
 			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-			min = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.groud_speed * FC_KNOTS_TO_MPS)) / 60.0;
+			min = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
 		}
 	}
 
@@ -146,7 +146,7 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 		if (abs(relative_direction) < 45) {
 			// Pilot is heading towards home.
 			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-			min = ((fc.flight.next_waypoint.distance * 1000.0) / (fc.gps_data.groud_speed * FC_KNOTS_TO_MPS)) / 60.0;
+			min = ((fc.flight.next_waypoint.distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
 		}
 	}
 

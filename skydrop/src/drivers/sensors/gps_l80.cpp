@@ -223,7 +223,7 @@ void gps_parse_rmc()
 
 //	DEBUG("lat+lon %07ld %08ld\n", latitude, longitude);
 
-	fc.gps_data.groud_speed = atoi_f(ptr); //in knots
+	fc.gps_data.ground_speed = atoi_f(ptr); //in knots
 
 	ptr = find_comma(ptr);
 
