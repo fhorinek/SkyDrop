@@ -22,7 +22,7 @@
  *               -x track,speed,course,fix=2d
  *               -o nmea -F GPS-SIM.TXT
  */
-#define GPS_SIMULATION
+// #define GPS_SIMULATION
 
 // A working MTK NMEA checksum calculator can be found at: http://www.hhhh.org/wiml/proj/nmeaxor.html
 
