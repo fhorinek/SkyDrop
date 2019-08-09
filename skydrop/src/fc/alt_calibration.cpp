@@ -61,7 +61,7 @@ void alt_calibration_step()
         //
         if (fc.flight.state != FLIGHT_FLIGHT && fc.agl.ground_level != AGL_INVALID)
         {
-            if (fc.gps_data.groud_speed < FC_GLIDE_MIN_KNOTS)
+            if (fc.gps_data.ground_speed < FC_GLIDE_MIN_KNOTS)
             {
                 if (fc.gps_data.hdop != 0)
                 {
