@@ -22,7 +22,7 @@
  *               -x track,speed,course,fix=2d
  *               -o nmea -F GPS-SIM.TXT
  */
-//#define GPS_SIMULATION
+// #define GPS_SIMULATION
 
 // A working MTK NMEA checksum calculator can be found at: http://www.hhhh.org/wiml/proj/nmeaxor.html
 
@@ -33,6 +33,10 @@ uint8_t gps_uart_rx_buffer[GPS_UART_RX_SIZE];
 uint8_t gps_uart_tx_buffer[GPS_UART_TX_SIZE];
 
 Usart gps_uart(GPS_UART_RX_SIZE, gps_uart_rx_buffer, GPS_UART_TX_SIZE, gps_uart_tx_buffer);
+
+#ifdef GPS_SIMULATION
+uint32_t gps_sim_wait_until = 0;   // msecs to wait until the next character is read
+#endif
 
 CreateStdOut(gps_out, gps_uart.Write);
 
@@ -97,6 +101,11 @@ uint8_t l80_sat_snr[L80_SAT_CNT];
 void gps_parse_rmc()
 {
 //	DEBUG("\nRMC\n");
+
+#ifdef GPS_SIMULATION
+	// Wait for 1 sec before reading the next GPS character.
+	gps_sim_wait_until = task_get_ms_tick() + 1000;
+#endif
 
 	gps_init_ok = true;
 
@@ -540,13 +549,15 @@ uint8_t gps_simulation_next()
 	        // If the GPS parser is in GPS_IDLE, then skip all characters
 	        // until "$" where the next command starts. This allows
 	        // using DEBUG.LOG as a GPS-SIM.TXT
-	        do {
+	        do
+	        {
 		        f_read(&gps_data_file, &c, 1, &br);
-		        if ( br != 1 ) {
-			        c = 0;
-				break;
-			}
-		} while ( gps_parser_state == GPS_IDLE && c != '$' );
+		        if ( br != 1 )
+		        {
+		        	c = 0;
+		        	break;
+		        }
+	        } while ( gps_parser_state == GPS_IDLE && c != '$' );
 	}
 
 	return c;
@@ -555,15 +566,14 @@ uint8_t gps_simulation_next()
 
 void gps_parse(Usart * c_uart)
 {
-	uint8_t c = c_uart->Read();
 
 #ifdef GPS_SIMULATION
-	// Even during simulation, we read from UART to get a kind of
-	// timing behaviour and speed down the GPS read simulation.
-	c = gps_simulation_next();
+	uint8_t c = gps_simulation_next();
+#else
+	uint8_t c = c_uart->Read();
 #endif
 
-	// DEBUG("%c", c);
+	// DEBUG("GPS: read %c", c);
 
 	switch (gps_parser_state)
 	{
@@ -751,6 +761,11 @@ void gps_step()
 {
 //	gps_uart.DumpDMA();
 
+#ifdef GPS_SIMULATION
+	while (task_get_ms_tick() > gps_sim_wait_until)
+		gps_parse(&gps_uart);
+#else
 	while (!gps_uart.isRxBufferEmpty())
 		gps_parse(&gps_uart);
+#endif
 }
