@@ -74,6 +74,7 @@
 								<option id="de.innot.avreclipse.cpplinker.option.otherlinkargs.852333318" name="Other Arguments" superClass="de.innot.avreclipse.cpplinker.option.otherlinkargs" useByScannerDiscovery="false" value="-Wl,-u,vfprintf -lm -Wl,--section-start=.fw_info=0x00810000 -Wl,--section-start=.eeprom=0x00810020 -Wl,--section-start=.cfg_ro=0x00810680" valueType="string"/>
 								<option id="de.innot.avreclipse.cpplinker.option.nostart.1620358744" name="No startup or default libs (-nostdlib)" superClass="de.innot.avreclipse.cpplinker.option.nostart" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<option id="de.innot.avreclipse.cpplinker.option.mrelax.1755937849" name="Relax branches (-mrelax)" superClass="de.innot.avreclipse.cpplinker.option.mrelax" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="de.innot.avreclipse.cpplinker.option.nosyms.1445341399" name="Omit Symbols (-s)" superClass="de.innot.avreclipse.cpplinker.option.nosyms" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="de.innot.avreclipse.tool.cpplinker.input.1462354175" name="OBJ Files" superClass="de.innot.avreclipse.tool.cpplinker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
 									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
@@ -91,6 +92,7 @@
 							</tool>
 							<tool id="de.innot.avreclipse.tool.size.winavr.app.release.1454308947" name="Print Size" superClass="de.innot.avreclipse.tool.size.winavr.app.release">
 								<option id="de.innot.avreclipse.size.option.format.401859948" name="Size Format" superClass="de.innot.avreclipse.size.option.format" useByScannerDiscovery="false" value="de.innot.avreclipse.size.option.format.sysv" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.size.option.formatwithavr.941622691" name="Size Format" superClass="de.innot.avreclipse.size.option.formatwithavr" useByScannerDiscovery="false" value="de.innot.avreclipse.size.option.format.avr" valueType="enumerated"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1616035555" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>

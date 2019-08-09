@@ -20,17 +20,7 @@ void gui_set_debug_irqh(uint8_t type, uint8_t * buff)
 	gui_list_irqh(type, buff);
 }
 
-void gui_set_debug_reset_fc(uint8_t ret)
-{
-	if (ret == GUI_DIALOG_YES)
-	{
-		cfg_reset_factory_test();
-	}
-	else
-		gui_switch_task(GUI_SET_DEBUG);
-}
-
-void gui_set_debug_delete_fc(uint8_t ret)
+void gui_set_debug_delete_log(uint8_t ret)
 {
 	if (ret == GUI_DIALOG_YES)
 	{
@@ -54,7 +44,7 @@ void gui_set_debug_action(uint8_t index)
 		break;
 
 		case(3):
-			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Clear\ndebug.log?"), GUI_STYLE_YESNO, gui_set_debug_delete_fc);
+			gui_dialog_set_P(PSTR("Confirmation"), PSTR("Clear\ndebug.log?"), GUI_STYLE_YESNO, gui_set_debug_delete_log);
 			gui_switch_task(GUI_DIALOG);
 		break;
 
@@ -74,8 +64,6 @@ void gui_set_debug_action(uint8_t index)
 
 void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
-	vector_float_t tmp_vf;
-
 	switch (index)
 	{
 		case (0):

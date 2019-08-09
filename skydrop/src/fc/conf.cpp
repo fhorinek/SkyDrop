@@ -282,24 +282,6 @@ EEMEM cfg_t config_ee = {
 	}
 };
 
-bool cfg_factory_passed()
-{
-	eeprom_busy_wait();
-	return eeprom_read_byte(&config_ro.factory_passed) == CFG_FACTORY_PASSED_hex;
-}
-
-void cfg_reset_factory_test()
-{
-	uint8_t ff_buffer[sizeof(cfg_ro_t)];
-	for (uint16_t i = 0; i < sizeof(cfg_ro_t); i++)
-		ff_buffer[i] = 0xFF;
-
-	eeprom_busy_wait();
-	eeprom_update_block(ff_buffer, &config_ro, sizeof(cfg_ro_t));
-	eeprom_busy_wait();
-	task_set(TASK_POWERDOWN);
-}
-
 void cfg_acc_write_defaults()
 {
 	vector_i16_t tmp;

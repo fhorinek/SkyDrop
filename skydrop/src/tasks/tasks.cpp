@@ -153,9 +153,7 @@ void task_init()
 
 	powerdown_lock.Unlock();
 
-	//if ftest is not done
-	if (!cfg_factory_passed())
-		task_set(TASK_ACTIVE);
+	task_set(TASK_ACTIVE);
 
 	//if is USB connected go directly to USB task
 	if ((usb_state = USB_CONNECTED))

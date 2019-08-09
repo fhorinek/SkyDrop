@@ -22,7 +22,6 @@
 #include "settings/set_layout.h"
 #include "settings/set_display.h"
 #include "usb.h"
-#include "factory_test.h"
 #include "settings/set_system.h"
 #include "settings/set_autostart.h"
 #include "settings/set_gps.h"
@@ -71,7 +70,7 @@ Spi gui_disp_spi;
 void (* gui_init_array[])() =
 	{gui_pages_init, gui_settings_init, gui_splash_init, gui_set_vario_init, gui_value_init,
 	gui_set_audio_init, gui_set_widgets_init, gui_layouts_init, gui_set_layout_init,
-	gui_set_display_init, gui_usb_init, gui_factory_test_init, gui_set_system_init,
+	gui_set_display_init, gui_usb_init, gui_set_system_init,
 	gui_set_autostart_init, gui_set_gps_init, gui_set_gps_detail_init, gui_set_debug_init,
 	gui_set_altimeters_init, gui_set_altimeter_init, gui_set_time_init, gui_set_logger_init,
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_vario_advanced_init,
@@ -84,7 +83,7 @@ void (* gui_init_array[])() =
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
 	gui_set_audio_stop, gui_set_widgets_stop, gui_layouts_stop, gui_set_layout_stop,
-	gui_set_display_stop, gui_usb_stop, gui_factory_test_stop, gui_set_system_stop,
+	gui_set_display_stop, gui_usb_stop, gui_set_system_stop,
 	gui_set_autostart_stop, gui_set_gps_stop, gui_set_gps_detail_stop, gui_set_debug_stop,
 	gui_set_altimeters_stop, gui_set_altimeter_stop, gui_set_time_stop, gui_set_logger_stop,
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_vario_advanced_stop,
@@ -97,7 +96,7 @@ void (* gui_stop_array[])() =
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
 	gui_set_audio_loop, gui_set_widgets_loop, gui_layouts_loop, gui_set_layout_loop,
-	gui_set_display_loop, gui_usb_loop, gui_factory_test_loop, gui_set_system_loop,
+	gui_set_display_loop, gui_usb_loop, gui_set_system_loop,
 	gui_set_autostart_loop, gui_set_gps_loop, gui_set_gps_detail_loop, gui_set_debug_loop,
 	gui_set_altimeters_loop, gui_set_altimeter_loop, gui_set_time_loop, gui_set_logger_loop,
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_vario_advanced_loop,
@@ -110,7 +109,7 @@ void (* gui_loop_array[])() =
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
 	gui_set_audio_irqh, gui_set_widgets_irqh, gui_layouts_irqh, gui_set_layout_irqh,
-	gui_set_display_irqh, gui_usb_irqh, gui_factory_test_irqh, gui_set_system_irqh,
+	gui_set_display_irqh, gui_usb_irqh, gui_set_system_irqh,
 	gui_set_autostart_irqh, gui_set_gps_irqh, gui_set_gps_detail_irqh, gui_set_debug_irqh,
 	gui_set_altimeters_irqh, gui_set_altimeter_irqh, gui_set_time_irqh, gui_set_logger_irqh,
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_vario_advanced_irqh,
@@ -468,7 +467,6 @@ void gui_loop()
 				&& gui_task != GUI_SET_GPS_DETAIL
 				&& gui_task != GUI_DIALOG
 				&& gui_task != GUI_SPLASH
-				&& gui_task != GUI_FTEST
 				&& gui_task != GUI_SET_VAL
 				&& gui_task != GUI_UPDATE
 				&& gui_task != GUI_TEXT
@@ -726,16 +724,17 @@ void gui_statusbar()
 			disp.Invert(GUI_DISP_WIDTH - 6, 26, GUI_DISP_WIDTH, 26 + 7);
 	}
 	else if (config.system.debug_log == DEBUG_MAGIC_ON)
-		{
-			//Debug.log indicator
-			disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
-		}
+	{
+		//Debug.log indicator
+		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
+	}
 
 	//battery indicator
 	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
 	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
 
-	if ( battery_calibrating_state == BATTERY_CAL_NONE) {
+	if ( battery_calibrating_state == BATTERY_CAL_NONE)
+	{
 		uint8_t a = battery_per / 10;
 
 		if (battery_per == BATTERY_CHARGING)
@@ -746,7 +745,9 @@ void gui_statusbar()
 		if (battery_per == BATTERY_FULL)
 			a = 10;
 		disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
-	} else {
+	}
+	else
+	{
 		uint8_t a;
 		uint8_t x1, x2;
 
