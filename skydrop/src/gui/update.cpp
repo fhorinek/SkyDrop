@@ -84,7 +84,7 @@ void gui_update_fail(uint16_t line)
 	{
 		DEBUG("Same version\n");
 		strcpy_P(tmp1, PSTR("Update"));
-		sprintf_P(tmp2, PSTR("Same version\nRestore default\nconfiguration?"), line);
+		sprintf_P(tmp2, PSTR("Same version\nLoad\nconfiguration?"), line);
 		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OKCANCEL, gui_update_eeprom_cb);
 	}
 

@@ -81,7 +81,7 @@ void gui_set_alt_alarm_action(uint8_t index)
 		break;
 
 		case (1):
-			gui_value_conf_P(PSTR("Confirm time"), GUI_VAL_NUMBER, PSTR("%0.0f secs"), config.altitude.alarm_confirm_secs, 0, 255, 1, gui_set_alt_alarm_confirm_secs_cb);
+			gui_value_conf_P(PSTR("Confirm time"), GUI_VAL_NUMBER_DISABLE, PSTR("%0.0f secs"), config.altitude.alarm_confirm_secs, 0, 255, 1, gui_set_alt_alarm_confirm_secs_cb);
 
 			gui_switch_task(GUI_SET_VAL);
 		break;
@@ -137,9 +137,9 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 		break;
 
 		case (1):
-			strcpy_P(text, PSTR("Confirm time"));
+			strcpy_P(text, PSTR("Auto confirm"));
 			if (config.altitude.alarm_confirm_secs == 0)
-				sprintf_P(sub_text, PSTR("<Forever>"));
+				sprintf_P(sub_text, PSTR("Disabled"));
 			else
 				sprintf_P(sub_text, PSTR("%u secs"), config.altitude.alarm_confirm_secs);
 			*flags |= GUI_LIST_SUB_TEXT;

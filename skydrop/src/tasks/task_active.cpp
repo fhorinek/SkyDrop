@@ -13,19 +13,9 @@ void task_active_init()
 	ewdt_reset();
 
 
-	if (cfg_factory_passed())
-	{
-		gui_splash_set_mode(SPLASH_ON);
-		gui_switch_task(GUI_SPLASH);
-	}
-	else
-	{
-		#ifndef ENABLE_FACTORY_TEST
-			gui_showmessage_P(PSTR("Factory Test\nnot done!"));
-		#else
-			gui_switch_task(GUI_FTEST);
-		#endif
-	}
+	gui_splash_set_mode(SPLASH_ON);
+	gui_switch_task(GUI_SPLASH);
+
 
 	ewdt_reset();
 	if (storage_init())
@@ -51,41 +41,6 @@ void task_special_files_handle()
 	{
 		task_set(TASK_UPDATE);
 		return;
-	}
-
-	//Force bt module type
-	if (f_stat("BT_1026", &fno) == FR_OK)
-	{
-		f_unlink("BT_1026");
-		eeprom_update_byte(&config_ro.bt_module_type, BT_PAN1026);
-	}
-
-	if (f_stat("BT_1322", &fno) == FR_OK)
-	{
-		f_unlink("BT_1322");
-		eeprom_update_byte(&config_ro.bt_module_type, BT_PAN1322);
-	}
-
-	//Reset factory test if RST_FT file found
-	if (f_stat("RST_FT", &fno) == FR_OK)
-	{
-		f_unlink("RST_FT");
-		cfg_reset_factory_test();
-	}
-
-	//Override factory test if PASS_FT file found
-	if (f_stat("PASS_FT", &fno) == FR_OK)
-	{
-		f_unlink("PASS_FT");
-
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
-		eeprom_busy_wait();
-
-		gui_showmessage_P(PSTR("Factory test\noverride!"));
-
-		gui_splash_set_mode(SPLASH_ON);
-		gui_switch_task(GUI_SPLASH);
 	}
 
 	//Load eeprom update

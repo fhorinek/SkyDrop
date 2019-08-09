@@ -2,7 +2,11 @@ Build XXXX - XX. XX. 2019
 ========================================================
 FIX:
  * AGL fixed (bubeck)
-
+ 
+CHANGES:
+ * Removing Factory test from public firmware 
+ * Creating dedicated firmware for Factory test
+ 
 Build 4520 - 09. 07. 2019
 ========================================================
 FIX:
@@ -847,7 +851,7 @@ CHANGED:
         * Audio 
             * General volume
         * MassStorage - if you disable this option you can plug USB without going to USB mode
-        * Debug - info for development ant testing
+        * Debug - info for development and testing
         
 KNOWN ISSUES
  * Temperature is not correct            
