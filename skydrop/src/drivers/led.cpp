@@ -43,6 +43,7 @@ ISR(LED_TIMER1_OVF)
 				break;
 			}
 			led_task_state = LED_TASK_NO_GPS;
+			//no break
 
 		case(LED_TASK_NO_GPS):
 			if (config.connectivity.use_gps && !fc.gps_data.valid)
@@ -52,6 +53,7 @@ ISR(LED_TIMER1_OVF)
 				break;
 			}
 			led_task_state = LED_TASK_BT_NC;
+			//no break
 
 		case(LED_TASK_BT_NC):
 			if (bt_ready() && !bt_device_active())
@@ -61,6 +63,7 @@ ISR(LED_TIMER1_OVF)
 				break;
 			}
 			led_task_state = LED_TASK_BT_OK;
+			//no break
 
 		case(LED_TASK_BT_OK):
 			if (bt_ready() && bt_device_active())
@@ -70,11 +73,12 @@ ISR(LED_TIMER1_OVF)
 				break;
 			}
 			led_task_state = LED_TASK_IDLE;
+			//no break
 
 		case(LED_TASK_IDLE):
 			led_task_cnt = LED_NOTIFY_LOOP;
 			led_task_state = 0;
-		return;
+			return;
 
 		//pause between alarms
 		default:

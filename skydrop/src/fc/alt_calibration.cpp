@@ -26,7 +26,6 @@ void alt_calibration_step()
     float best_altitude = fc.altitude1;
     float error;
     enum BEST_ALT_SOURCE best_altitude_source = BH_NONE;
-    char message[80];
 
     //
     // Option 1: Try vario height from barometer
@@ -62,7 +61,7 @@ void alt_calibration_step()
         //
         if (fc.flight.state != FLIGHT_FLIGHT && fc.agl.ground_level != AGL_INVALID)
         {
-            if (fc.gps_data.groud_speed < FC_GLIDE_MIN_KNOTS)
+            if (fc.gps_data.ground_speed < FC_GLIDE_MIN_KNOTS)
             {
                 if (fc.gps_data.hdop != 0)
                 {
@@ -98,6 +97,7 @@ void alt_calibration_step()
     if (abs(height_delta) > 10 || height_min_error < fc.vario.error_over_time - 10)
     {
         DEBUG("Calibrating altitude: now=%fm previous=%fm source=%d error=%fm\n", best_altitude, fc.altitude1, best_altitude_source, height_min_error);
+//        char message[80];
 //        sprintf_P(message, PSTR("QNH1 cal'ed:\n%0.0fm -> %0.0fm"), fc.altitude1, best_altitude);
 //        gui_showmessage(message);
 

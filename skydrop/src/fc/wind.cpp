@@ -15,7 +15,7 @@ void wind_new_gps_fix()
 {
     DEBUG("Wind step #1\n");
     /*	GPS speed,heading input		*/
-    float speed = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS; // m/s
+    float speed = fc.gps_data.ground_speed * FC_KNOTS_TO_MPS; // m/s
     float angle = fc.gps_data.heading;
 
     uint8_t sector = int(angle + (360 / WIND_NUM_OF_SECTORS / 2)) % 360 / (360 / WIND_NUM_OF_SECTORS);

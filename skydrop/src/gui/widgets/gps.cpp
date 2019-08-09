@@ -26,19 +26,19 @@ void widget_gspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 		switch(config.connectivity.gps_format_flags & GPS_SPD_MASK)
 		{
 			case(GPS_SPD_KPH):
-				val = fc.gps_data.groud_speed * FC_KNOTS_TO_KPH;
+				val = fc.gps_data.ground_speed * FC_KNOTS_TO_KPH;
 			break;
 
 			case(GPS_SPD_MS):
-				val = fc.gps_data.groud_speed * FC_KNOTS_TO_MPS;
+				val = fc.gps_data.ground_speed * FC_KNOTS_TO_MPS;
 			break;
 
 			case(GPS_SPD_MPH):
-				val = fc.gps_data.groud_speed * FC_KNOTS_TO_MPH;
+				val = fc.gps_data.ground_speed * FC_KNOTS_TO_MPH;
 			break;
 
 			case(GPS_SPD_KNOT):
-				val = fc.gps_data.groud_speed;
+				val = fc.gps_data.ground_speed;
 			break;
 		}
 
