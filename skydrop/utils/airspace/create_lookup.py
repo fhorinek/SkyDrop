@@ -17,7 +17,10 @@ for fname in os.listdir("lists"):
             table[line] = [fname]
         
     f.close()
-    
+
+if not os.path.isdir("lookup"):
+                os.mkdir("lookup")    
+
 for key in table:
     f = open("lookup/%s" % key, "w")
     for k in table[key]:
