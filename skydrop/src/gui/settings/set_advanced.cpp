@@ -119,19 +119,19 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 					strcpy_P(sub_text, PSTR("Uart off"));
 				break;
 				case(UART_FORWARD_9600):
-					strcpy_P(sub_text, PSTR("Telemetry 9600"));
+					sprintf_P(sub_text, PSTR("Telemetry %lu"), 9600);
 				break;
 				case(UART_FORWARD_19200):
-					strcpy_P(sub_text, PSTR("Telemetry 19200"));
+					sprintf_P(sub_text, PSTR("Telemetry %lu"), 19200);
 				break;
 				case(UART_FORWARD_38400):
-					strcpy_P(sub_text, PSTR("Telemetry 38400"));
+					sprintf_P(sub_text, PSTR("Telemetry %lu"), 38400);
 				break;
 				case(UART_FORWARD_57600):
-					strcpy_P(sub_text, PSTR("Telemetry 57600"));
+					sprintf_P(sub_text, PSTR("Telemetry %lu"), 57600);
 				break;
 				case(UART_FORWARD_115200):
-					strcpy_P(sub_text, PSTR("Telemetry 115200"));
+					sprintf_P(sub_text, PSTR("Telemetry %lu"), 115200ul);
 				break;
 			}
 		break;

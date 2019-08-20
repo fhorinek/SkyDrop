@@ -4,7 +4,7 @@
 
 KalmanFilter kalmanFilter;
 
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 void vario_init()
 {

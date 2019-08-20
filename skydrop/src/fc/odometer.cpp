@@ -9,7 +9,7 @@
 #include "waypoint.h"
 #include "fc.h"
 
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 #include "../drivers/audio/sequencer.h"
 

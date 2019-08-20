@@ -16,8 +16,6 @@ void gui_homedetail_init();
 void gui_homedetail_stop();
 void gui_homedetail_loop();
 void gui_homedetail_irqh(uint8_t type, uint8_t * buff);
-void gui_homedetail_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);
-void gui_homedetail_action(uint8_t index);
 
 void read_homefile(const char *filename, cfg_home * home);
 

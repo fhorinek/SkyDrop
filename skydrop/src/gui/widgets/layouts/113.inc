@@ -11,7 +11,7 @@
    +---+ +---------------+
 */
 
-const layout_desc layout_113 PROGMEM =
+const layout_desc_5 layout_113 PROGMEM =
 {
 	//number of active widgets
 	5,
@@ -23,10 +23,6 @@ const layout_desc layout_113 PROGMEM =
 		{16, 32, 62, 16},
 		{47, 0, 31, 16},
 		{47, 16, 31, 16},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
-		{0, 0, 0, 0},
 	}
 };
 

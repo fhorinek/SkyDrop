@@ -10,7 +10,7 @@
  */
 
 #include "kalman.h"
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 void KalmanFilter::Configure(float Q_accel, float R_altitude, float alt)
 {

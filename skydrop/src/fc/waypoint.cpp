@@ -7,7 +7,7 @@
 
 #include "waypoint.h"
 
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 char waypoint_filename[24];        // The filename of the current waypoint file
 

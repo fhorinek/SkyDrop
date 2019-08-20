@@ -3,7 +3,7 @@
 
 #include "../drivers/storage/storage.h"
 
-#include "debug_on.h"
+#include "debug_off.h"
 
 //#index
 //#   1000 0000 - inside (128, 0x80)

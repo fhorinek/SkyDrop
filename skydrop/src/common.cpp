@@ -211,7 +211,8 @@ void GetID_str(char * id) //23 b
 {
 	uint8_t * b = device_id;
 
-	sprintf_P(id, PSTR("%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X"), b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7], b[8], b[9], b[10]);
+	for (uint8_t i = 0; i < 11; i++)
+		sprintf_P(id + (2 * i), PSTR("%02X"), b[i]);
 }
 
 //***************************************************

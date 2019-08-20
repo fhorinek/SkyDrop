@@ -62,14 +62,17 @@ def parse_layouts(filename, p):
             if name[-4:] == ".inc":
                 layouts_files.append(name)
         
-        if line[0][0] == "{":
-            line = "".join(line).split("{")[1].split("}")[0].split(",")
-            pos = 0
-            for var in line:
-                layouts_map[layouts_macro_name[pos]] = {"widgets": [], "number_of_widgets": False, "id":pos}
-                layouts_name_map[var[1:]] = layouts_macro_name[pos]
-                pos += 1
+        if line[0] == "const": 
+            layout_pos = 0
+
+        if line[0] == "(layout_desc": 
+            layout_name = line[2].replace("&", "").replace(",", "")
+            
+            layouts_map[layouts_macro_name[layout_pos]] = {"widgets": [], "number_of_widgets": False, "id": layout_pos}
+            layouts_name_map[layout_name] = layouts_macro_name[layout_pos]
+            layout_pos += 1
     
+       
     base = os.path.dirname(filename)
     
     for filename in layouts_files:
@@ -80,6 +83,7 @@ def parse_layouts(filename, p):
         f.close()        
         for line in data:
             line = line.split()
+            
             if len(line) == 0:
                 continue
             
@@ -99,9 +103,9 @@ def parse_layouts(filename, p):
                 layouts_map[layout_name]["number_of_widgets"] = n
 
             if len(line) == 5:
-                if line[1] == "layout_desc":
+                if line[1][:11] == "layout_desc":
                     layout_name = layouts_name_map[line[2]]
-                    
+
     return layouts_map
                 
                 

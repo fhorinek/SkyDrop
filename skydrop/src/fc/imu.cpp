@@ -159,62 +159,62 @@ float imu_GravityCompensatedAccel(float ax, float ay, float az, volatile float* 
 	return (abs(za) < 0.1) ? 0 : za * 9.81f;
 }
 
-#include "../../debug_on.h"
+//#include "../../debug_on.h"
 
-uint8_t cnt;
-
-void imu_debug()
-{
-    cnt = (cnt + 1) % 5;
-    if (cnt != 0)
-    	return;
-
-	#define _180_DIV_PI         57.2957795f
-
-	float q0 = fc.imu.quat[0];
-	float q1 = fc.imu.quat[1];
-	float q2 = fc.imu.quat[2];
-	float q3 = fc.imu.quat[3];
-
-	float sinr_cosp = +2.0 * (q0 * q1 + q2 * q3);
-	float cosr_cosp = +1.0 - 2.0 * (q1 * q1 + q2 * q2);
-	float roll = atan2(sinr_cosp, cosr_cosp);
-
-	float pitch;
-
-	// pitch (y-axis rotation)
-	float sinp = +2.0 * (q0 * q2 - q3 * q1);
-	if (fabs(sinp) >= 1)
-		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
-	else
-		pitch = asin(sinp);
-
-	// yaw (z-axis rotation)
-	float siny_cosp = +2.0 * (q0 * q3 + q1 * q2);
-	float cosy_cosp = +1.0 - 2.0 * (q2 * q2 + q3 * q3);
-	float yaw = atan2(siny_cosp, cosy_cosp);
-
-	yaw *= _180_DIV_PI;
-	pitch *= _180_DIV_PI;
-	roll *= _180_DIV_PI;
-
-//	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
-
-//	DEBUG("GYRO: %7d %7d %7d\n", fc.gyro.raw.x, fc.gyro.raw.y, fc.gyro.raw.z);
-//	DEBUG("ACC: %7d %7d %7d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
-//	DEBUG("MAG: %7d %7d %7d\n", fc.mag.raw.x, fc.mag.raw.y, fc.mag.raw.z);
-
-
-//	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;"
-//				, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
-//				, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
-//				, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
-
-   	DEBUG("%0.1f;%0.1f;%0.1f;", yaw, pitch, roll);
-
-   	DEBUG("%0.3f;", fc.acc.zGCA);
-   	DEBUG("\n");
-}
+//uint8_t cnt;
+//
+//void imu_debug()
+//{
+//    cnt = (cnt + 1) % 5;
+//    if (cnt != 0)
+//    	return;
+//
+//	#define _180_DIV_PI         57.2957795f
+//
+//	float q0 = fc.imu.quat[0];
+//	float q1 = fc.imu.quat[1];
+//	float q2 = fc.imu.quat[2];
+//	float q3 = fc.imu.quat[3];
+//
+//	float sinr_cosp = +2.0 * (q0 * q1 + q2 * q3);
+//	float cosr_cosp = +1.0 - 2.0 * (q1 * q1 + q2 * q2);
+//	float roll = atan2(sinr_cosp, cosr_cosp);
+//
+//	float pitch;
+//
+//	// pitch (y-axis rotation)
+//	float sinp = +2.0 * (q0 * q2 - q3 * q1);
+//	if (fabs(sinp) >= 1)
+//		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+//	else
+//		pitch = asin(sinp);
+//
+//	// yaw (z-axis rotation)
+//	float siny_cosp = +2.0 * (q0 * q3 + q1 * q2);
+//	float cosy_cosp = +1.0 - 2.0 * (q2 * q2 + q3 * q3);
+//	float yaw = atan2(siny_cosp, cosy_cosp);
+//
+//	yaw *= _180_DIV_PI;
+//	pitch *= _180_DIV_PI;
+//	roll *= _180_DIV_PI;
+//
+////	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;", fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3]);
+//
+////	DEBUG("GYRO: %7d %7d %7d\n", fc.gyro.raw.x, fc.gyro.raw.y, fc.gyro.raw.z);
+////	DEBUG("ACC: %7d %7d %7d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
+////	DEBUG("MAG: %7d %7d %7d\n", fc.mag.raw.x, fc.mag.raw.y, fc.mag.raw.z);
+//
+//
+////	DEBUG("%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;%0.2f;"
+////				, fc.acc.vector.x, fc.acc.vector.y, fc.acc.vector.z
+////				, fc.gyro.vector.x, fc.gyro.vector.y, fc.gyro.vector.z
+////				, fc.mag.vector.x, fc.mag.vector.y, fc.mag.vector.z);
+//
+//   	DEBUG("%0.1f;%0.1f;%0.1f;", yaw, pitch, roll);
+//
+//   	DEBUG("%0.3f;", fc.acc.zGCA);
+//   	DEBUG("\n");
+//}
 
 void imu_step()
 {

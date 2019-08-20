@@ -62,6 +62,7 @@
 								</option>
 								<option id="de.innot.avreclipse.cppcompiler.option.otherflags.443372134" name="Other flags" superClass="de.innot.avreclipse.cppcompiler.option.otherflags" useByScannerDiscovery="false" value="" valueType="string"/>
 								<option id="de.innot.avreclipse.cppcompiler.option.optimize.datasections.1422164659" name="Each data item in its own section (-fdata-sections)" superClass="de.innot.avreclipse.cppcompiler.option.optimize.datasections" useByScannerDiscovery="false" value="true" valueType="boolean"/>
+								<option id="de.innot.avreclipse.cppcompiler.option.debug.gprof.522423742" name="Generate gprof information (-pg)" superClass="de.innot.avreclipse.cppcompiler.option.debug.gprof" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 								<inputType id="de.innot.avreclipse.cppcompiler.input.1195678771" superClass="de.innot.avreclipse.cppcompiler.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.linker.winavr.app.release.119995177" name="AVR C Linker" superClass="de.innot.avreclipse.tool.linker.winavr.app.release"/>

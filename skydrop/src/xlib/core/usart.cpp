@@ -115,28 +115,62 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 	for (i=0;i<xlib_core_usart_events_count;i++)
 		this->events[i] = NULL;
 
-	if (baud > freq_cpu/16)
-		mul = 8;
+//	if (baud > freq_cpu/16)
+//		mul = 8;
+//
+//	for (bscale = 7; bscale>=-7; bscale--)
+//	{
+//		if (bscale >= 0)
+//		{
+//			bsel = (uint16_t)((float)freq_cpu / (xlib_core_usart_pow(bscale)*mul*(float)baud) - 1);
+//			new_baud = (uint32_t)((uint32_t)freq_cpu/(xlib_core_usart_pow(bscale)*mul*((uint16_t)bsel + 1)));
+//		}
+//		else
+//		{
+//			bsel = (uint16_t)((float)(1 / xlib_core_usart_pow(bscale)) * (float)(freq_cpu / (mul*(float)baud) - 1));
+//			new_baud = (uint32_t)((uint32_t)freq_cpu/(mul*(xlib_core_usart_pow(bscale)*((uint16_t)bsel) + 1)));
+//		}
+//
+//		if ((error > abs(1 - (float)((float)new_baud / (float)baud))) && (bsel < 1024))
+//		{
+//			bsel_best = bsel;
+//			bscale_best = bscale;
+//			error = abs(1 - (float)((float)new_baud / (float)baud));
+//		}
+//	}
 
-	for (bscale = 7; bscale>=-7; bscale--)
+	switch (baud)
 	{
-		if (bscale >= 0)
-		{
-			bsel = (uint16_t)((float)freq_cpu / (xlib_core_usart_pow(bscale)*mul*(float)baud) - 1);
-			new_baud = (uint32_t)((uint32_t)freq_cpu/(xlib_core_usart_pow(bscale)*mul*((uint16_t)bsel + 1)));
-		}
-		else
-		{
-			bsel = (uint16_t)((float)(1 / xlib_core_usart_pow(bscale)) * (float)(freq_cpu / (mul*(float)baud) - 1));
-			new_baud = (uint32_t)((uint32_t)freq_cpu/(mul*(xlib_core_usart_pow(bscale)*((uint16_t)bsel) + 1)));
-		}
+		case(9600ul):
+			bsel_best = 3317;
+			bscale_best = -4;
+		break;
 
-		if ((error > abs(1 - (float)((float)new_baud / (float)baud))) && (bsel < 1024))
-		{
-			bsel_best = bsel;
-			bscale_best = bscale;
-			error = abs(1 - (float)((float)new_baud / (float)baud));
-		}
+		case(19200ul):
+			bsel_best = 3301;
+			bscale_best = -5;
+		break;
+
+		case(38400ul):
+			bsel_best = 3269;
+			bscale_best = -6;
+		break;
+
+		case(57600ul):
+			bsel_best = 2158;
+			bscale_best = -6;
+		break;
+
+		case(115200ul):
+			bsel_best = 2094;
+			bscale_best = -7;
+		break;
+
+		case(921600ul):
+			bsel_best = 150;
+			bscale_best = -7;
+		break;
+
 	}
 
 	GpioSetDirection(port, tx, OUTPUT);
@@ -159,8 +193,8 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 	this->usart->CTRLA = 0;
 
 	//set doublespeed operation
-	if (mul == 8)
-		this->usart->CTRLB |= USART_CLK2X_bm;
+//	if (mul == 8)
+//		this->usart->CTRLB |= USART_CLK2X_bm;
 
 	//reset counters
 	this->write_index = 0;
