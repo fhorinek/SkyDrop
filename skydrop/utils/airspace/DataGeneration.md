@@ -21,7 +21,7 @@ This new method requires pre-computed meta data about the source file.
 
 ## Prerequisites ##
 
-This is how to instlal the minimum required packets on a debian system to create airspace files
+This is how to install the minimum required packets on a debian system to create airspace files
  * apt-get install -y python3 python3-pip watch && \
  * pip3 install matplotlib shapely lxml 
 
