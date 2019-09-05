@@ -59,6 +59,9 @@
  */
 // #define SHOW_FPS
 
+/** The directory, where screen recording is saved */
+#define REC_DIR_P       PSTR("REC")
+
 lcd_display disp;
 CreateStdOut(lcd_out, disp.Write);
 
@@ -592,7 +595,10 @@ void gui_loop()
 		UINT wb;
 		char fname[32];
 
-		sprintf_P(fname, PSTR("/REC/%08d"), gui_record_cnt);
+	        strcpy_P(fname, REC_DIR_P);
+        	f_mkdir(fname);
+
+		sprintf_P(fname, PSTR("%S/%08d"), REC_DIR_P, gui_record_cnt);
 
 		uint8_t res = f_open(&fimg, fname, FA_WRITE | FA_CREATE_ALWAYS);
 		DEBUG("rec = %02X\n", res);

@@ -7,6 +7,8 @@ ADDED:
 
 FIX:
  * AGL fixed (bubeck)
+ * create missing "/REC" directory for screen
+   recording (bubeck)
  
 CHANGES:
  * Removing Factory test from public firmware 
