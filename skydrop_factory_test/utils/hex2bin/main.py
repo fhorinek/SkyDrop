@@ -85,12 +85,11 @@ label = ""
 if (len(sys.argv) == 4):
     label = sys.argv[3]
     
-f = open("../utils/build/build_number.txt", "r")
-number = int(f.readline())
-f.close()
+import random
+number = random.randint(0, 0xFFFF)
     
 if (label == "" or label == "auto"):
-    label = "skydrop-%04d" % number
+    label = "setup-%04d" % number
     
 a = Hex2BinConv(out)
 a.batch(hex, label)
