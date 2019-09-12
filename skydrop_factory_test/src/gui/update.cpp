@@ -10,6 +10,8 @@
 
 #include "../drivers/storage/storage.h"
 
+FIL file1;
+
 FIL	* update_file;
 FIL	* update_file_out;
 
@@ -155,7 +157,6 @@ void gui_update_loop()
 			//update task is special case
 			//update files are used only during update
 			//we can "steal" them from other tasks
-			FIL file1;
 			extern FIL debug_file;
 
 			assert(f_unlink("UPDATE.FW") == FR_OK);
@@ -195,12 +196,6 @@ void gui_update_loop()
 				break;
 			}
 
-			//check build number
-			if (update_head.build_number == BUILD_NUMBER)
-			{
-				gui_update_fail(0);
-				break;
-			}
 		break;
 
 		case(UPDATE_CHECK_EE):
