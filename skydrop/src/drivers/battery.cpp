@@ -50,18 +50,28 @@ bool bat_cal_available = false;
 uint8_t battery_calibrating_state = BATTERY_CAL_BOOT;
 
 /**
- * Check, if we have calibration data for the battery in EEPROM.
+ * Return the number of minutes, that the battery runs, if full.
  *
- * @return true if data is available, false otherwise.
+ * @return number of minutes for full capacity
  */
-bool bat_calibrated()
+uint16_t bat_runtime_minutes()
 {
 	uint16_t value;
 
 	eeprom_busy_wait();
 	value = eeprom_read_word(&config_ro.bat_runtime_minutes);
 	DEBUG("config_ro.bat_runtime_minutes=%u\n", value);
-	return ( value != 0xffff );
+	return value;
+}
+
+/**
+ * Check, if we have calibration data for the battery in EEPROM.
+ *
+ * @return true if data is available, false otherwise.
+ */
+bool bat_calibrated()
+{
+	return ( bat_runtime_minutes() != 0xffff );
 }
 
 /**

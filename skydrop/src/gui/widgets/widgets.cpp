@@ -264,7 +264,7 @@ void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
  *
  * \param value the text to be shown.
  * \param x the X coordinate of the box
- * \param y the X coordinate of the box
+ * \param y the Y coordinate of the box
  * \param w the width of the box
  * \param h the height of the box
  */

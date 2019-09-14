@@ -33,4 +33,18 @@ void battery_init();
 bool battery_step();
 void battery_force_update();
 
+/**
+ * Return the number of minutes, that the battery runs, if full.
+ *
+ * @return number of minutes for full capacity
+ */
+uint16_t bat_runtime_minutes();
+
+/**
+ * Check, if we have calibration data for the battery in EEPROM.
+ *
+ * @return true if data is available, false otherwise.
+ */
+bool bat_calibrated();
+
 #endif /* BATTERY_H_ */
