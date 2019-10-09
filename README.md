@@ -82,7 +82,7 @@ AVR Eclipse plugin<br>
 http://avr-eclipse.sourceforge.net/wiki/index.php/The_AVR_Eclipse_Plugin<br>
 PyDev Eclipse plugin<br>
 http://pydev.org/<br>
-Atmel AVG GCC Toolchain:<br>
+Atmel AVR GCC Toolchain:<br>
 http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx<br>
 
 Build info

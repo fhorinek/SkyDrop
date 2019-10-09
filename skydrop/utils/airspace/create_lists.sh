@@ -5,5 +5,9 @@ do
     nohup ./convert.py -l source/$f &
 done
 
-watch "ps aux | grep convert.py"
-
+while (( $(ps aux | pgrep -f -a convert.py | wc -l) != 0))
+do 
+    ps aux | grep convert.py
+    sleep 5
+    echo "##################################################################"
+done
