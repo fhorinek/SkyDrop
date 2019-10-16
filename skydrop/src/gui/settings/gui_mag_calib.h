@@ -25,8 +25,9 @@ struct gui_mag_calib_t
 };
 
 
+#define gui_mag_calib_stop gui_dummy
+
 void gui_mag_calib_init(void);
-void gui_mag_calib_stop(void);
 void gui_mag_calib_loop(void);
 void gui_mag_calib_irqh(uint8_t type, uint8_t * buff);
 

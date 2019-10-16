@@ -46,10 +46,10 @@ struct acc_calib_t
 
 
 #define default1G			4000
-#define treshold_lo  		(0.50 * default1G)
+#define treshold_lo  		(default1G / 2)
 //#define treshold_hi  		1.10 * default1G
 
-#define avg_weight_calc 	10		//averaging, weight of old samples - getting values for calculation of bias and sensitivity
+#define avg_weight_calc 	10		//averaging, weight of old samples - getting values for calculation of bias && sensitivity
 #define avg_weight_flow 	5		//averaging, weight of old samples - decision which axis will be set
 #define LPF_beta 			0.05	//low pass filter setting, for values shown at point of decision
 
@@ -87,7 +87,7 @@ void gui_accelerometer_calib_init()
 	gui_acc_calib.filtered_total_old = 1;
 }
 
-void gui_accelerometer_calib_stop() {}
+//void gui_accelerometer_calib_stop() {}
 
 int16_t acc_calib_get_value(uint8_t flag, int16_t in_value)
 {
@@ -135,40 +135,59 @@ int16_t acc_calib_get_value(uint8_t flag, int16_t in_value)
 
 void gui_accelerometer_calib_loop()
 {
-
-
 	gui_acc_calib.sampling = 0;
 
 	//DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
 
-	if(abs(fc.acc.raw.x) > (treshold_lo) )
-	//if(abs(fc.acc_raw.x) > (fc.acc_tot * treshold_percent / 100.0) )
-	{
-		if(fc.acc.raw.x > 0 and !(gui_acc_calib.valid & VALID_XP))
-			gui_acc_calib.calc.pos_val.x = acc_calib_get_value(VALID_XP, fc.acc.raw.x);
+	uint8_t flag = 0;
+	int16_t raw_val;
+	int16_t * dest;
 
-		if(fc.acc.raw.x < 0 and !(gui_acc_calib.valid & VALID_XN))
-			gui_acc_calib.calc.neg_val.x = acc_calib_get_value(VALID_XN, fc.acc.raw.x);
+	if(fc.acc.raw.x > treshold_lo && !(gui_acc_calib.valid & VALID_XP))
+	{
+		flag = VALID_XP;
+		dest = &gui_acc_calib.calc.neg_val.x;
+		raw_val = fc.acc.raw.x;
 	}
 
-	if(abs(fc.acc.raw.y) > (treshold_lo) )
-	//if(abs(fc.acc_raw.y) > (fc.acc_tot * treshold_percent / 100.0) )
+	if(fc.acc.raw.x < -treshold_lo && !(gui_acc_calib.valid & VALID_XN))
 	{
-		if(fc.acc.raw.y > 0 and !(gui_acc_calib.valid & VALID_YP))
-			gui_acc_calib.calc.pos_val.y = acc_calib_get_value(VALID_YP, fc.acc.raw.y);
-
-		if(fc.acc.raw.y < 0 and !(gui_acc_calib.valid & VALID_YN))
-			gui_acc_calib.calc.neg_val.y = acc_calib_get_value(VALID_YN, fc.acc.raw.y);
+		flag = VALID_XN;
+		dest = &gui_acc_calib.calc.neg_val.x;
+		raw_val = fc.acc.raw.x;
 	}
 
-	if(abs(fc.acc.raw.z) > (treshold_lo) )
-	//if(abs(fc.acc_raw.z) > (fc.acc_tot * treshold_percent / 100.0) )
+	if(fc.acc.raw.y > treshold_lo && !(gui_acc_calib.valid & VALID_YP))
 	{
-		if(fc.acc.raw.z > 0 and !(gui_acc_calib.valid & VALID_ZP))
-			gui_acc_calib.calc.pos_val.z = acc_calib_get_value(VALID_ZP, fc.acc.raw.z);
+		flag = VALID_YP;
+		dest = &gui_acc_calib.calc.neg_val.y;
+		raw_val = fc.acc.raw.y;
+	}
 
-		if(fc.acc.raw.z < 0 and !(gui_acc_calib.valid & VALID_ZN))
-			gui_acc_calib.calc.neg_val.z = acc_calib_get_value(VALID_ZN, fc.acc.raw.z);
+	if(fc.acc.raw.y < -treshold_lo && !(gui_acc_calib.valid & VALID_YN))
+	{
+		flag = VALID_YN;
+		dest = &gui_acc_calib.calc.neg_val.y;
+		raw_val = fc.acc.raw.y;
+	}
+
+	if(fc.acc.raw.z > treshold_lo && !(gui_acc_calib.valid & VALID_ZP))
+	{
+		flag = VALID_ZP;
+		dest = &gui_acc_calib.calc.neg_val.z;
+		raw_val = fc.acc.raw.z;
+	}
+
+	if(fc.acc.raw.z < -treshold_lo && !(gui_acc_calib.valid & VALID_ZN))
+	{
+		flag = VALID_ZN;
+		dest = &gui_acc_calib.calc.neg_val.z;
+		raw_val = fc.acc.raw.z;
+	}
+
+	if (flag)
+	{
+		*dest = acc_calib_get_value(flag, raw_val);
 	}
 
 	disp.LoadFont(F_TEXT_M);
@@ -182,12 +201,12 @@ void gui_accelerometer_calib_loop()
 	{
 		strcpy_P(tmp, PSTR("X+"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 - 20 , GUI_DIALOG_TOP + 2 + h_t);
-		strcpy_P(tmp, PSTR("X - "));
+		strcpy_P(tmp, PSTR("X -"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 - 20 , GUI_DIALOG_TOP + 2 + h_t + h_t);
 
 		strcpy_P(tmp, PSTR("Y+"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 +1, GUI_DIALOG_TOP + 2 + h_t);
-		strcpy_P(tmp, PSTR("Y - "));
+		strcpy_P(tmp, PSTR("Y -"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 +1, GUI_DIALOG_TOP + 2 + h_t + h_t);
 
 		strcpy_P(tmp, PSTR("Z+"));
@@ -195,69 +214,33 @@ void gui_accelerometer_calib_loop()
 		strcpy_P(tmp, PSTR("Z -"));
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20 +1, GUI_DIALOG_TOP + 2 + h_t + h_t);
 
-		if(gui_acc_calib.valid & VALID_XP)
-			disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-
-		if(gui_acc_calib.valid & VALID_XN)
-			disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-
-		if(gui_acc_calib.valid & VALID_YP)
-			disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +7 , GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-
-		if(gui_acc_calib.valid & VALID_YN)
-			disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-
-		if(gui_acc_calib.valid & VALID_ZP)
-			disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-
-		if(gui_acc_calib.valid & VALID_ZN)
-			disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-
-
 		disp.LoadFont(F_TEXT_M);
 		uint8_t blink = GUI_BLINK_TGL(500);
-		if(gui_acc_calib.sampling == VALID_XP)
-		{
-			strcpy_P(tmp, PSTR("Calibrating X+"));	//status area
-			if(blink)					//blink what is being measured
-				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-		}
-		else if(gui_acc_calib.sampling == VALID_XN)
-		{
-			strcpy_P(tmp, PSTR("Calibrating X-"));
-			if(blink)
-				disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-		}
-		else if(gui_acc_calib.sampling == VALID_YP)
-		{
-			strcpy_P(tmp, PSTR("Calibrating Y+"));
-			if(blink)
-				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-		}
-		else if(gui_acc_calib.sampling == VALID_YN)
-		{
-			strcpy_P(tmp, PSTR("Calibrating Y-"));
-			if(blink)
-				disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-		}
-		else if(gui_acc_calib.sampling == VALID_ZP)
-		{
-			strcpy_P(tmp, PSTR("Calibrating Z+"));
-			if(blink)
-				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
-		}
-		else if(gui_acc_calib.sampling == VALID_ZN)
-		{
-			strcpy_P(tmp, PSTR("Calibrating Z-"));
-			if(blink)
-				disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
-		}
-		else
-		{
-			strcpy_P(tmp, PSTR("Waiting..."));
-		}
-		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + 1 );
 
+		if(gui_acc_calib.valid & VALID_XP || (gui_acc_calib.sampling == VALID_XP && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
+
+		if(gui_acc_calib.valid & VALID_XN || (gui_acc_calib.sampling == VALID_XN && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 -20 -8, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 -20 +6, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
+
+		if(gui_acc_calib.valid & VALID_YP || (gui_acc_calib.sampling == VALID_YP && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +7 , GUI_DIALOG_TOP + 2 + h_t + h_t -2);
+
+		if(gui_acc_calib.valid & VALID_YN || (gui_acc_calib.sampling == VALID_YN && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 -7, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
+
+		if(gui_acc_calib.valid & VALID_ZP || (gui_acc_calib.sampling == VALID_ZP && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t -1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t -2);
+
+		if(gui_acc_calib.valid & VALID_ZN || (gui_acc_calib.sampling == VALID_ZN && blink))
+			disp.Invert(GUI_DISP_WIDTH / 2 +20 -6, GUI_DIALOG_TOP + 2 + h_t + h_t - 1, GUI_DISP_WIDTH / 2 +20 +7, GUI_DIALOG_TOP + 2 + h_t + h_t + h_t -2);
+
+		if (gui_acc_calib.sampling)
+			strcpy_P(tmp, PSTR("Calibrating..."));
+		else
+			strcpy_P(tmp, PSTR("Waiting..."));
+
+		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + 1 );
 	}
 
 	//menu
@@ -267,13 +250,12 @@ void gui_accelerometer_calib_loop()
 	if(gui_acc_calib.valid == ( VALID_XP | VALID_XN | VALID_YP | VALID_YN | VALID_ZP | VALID_ZN ) )
 	{
 		//calculate gain, offset
-
-		gui_acc_calib.sens.x = (float(gui_acc_calib.calc.pos_val.x) - float(gui_acc_calib.calc.neg_val.x) ) / 2 ;
-		gui_acc_calib.sens.y = (float(gui_acc_calib.calc.pos_val.y) - float(gui_acc_calib.calc.neg_val.y) ) / 2 ;
-		gui_acc_calib.sens.z = (float(gui_acc_calib.calc.pos_val.z) - float(gui_acc_calib.calc.neg_val.z) ) / 2 ;
-		gui_acc_calib.bias.x = (float(gui_acc_calib.calc.pos_val.x) - gui_acc_calib.sens.x);
-		gui_acc_calib.bias.y = (float(gui_acc_calib.calc.pos_val.y) - gui_acc_calib.sens.y);
-		gui_acc_calib.bias.z = (float(gui_acc_calib.calc.pos_val.z) - gui_acc_calib.sens.z);
+		gui_acc_calib.sens.x = (gui_acc_calib.calc.pos_val.x - gui_acc_calib.calc.neg_val.x) / 2;
+		gui_acc_calib.sens.y = (gui_acc_calib.calc.pos_val.y - gui_acc_calib.calc.neg_val.y) / 2;
+		gui_acc_calib.sens.z = (gui_acc_calib.calc.pos_val.z - gui_acc_calib.calc.neg_val.z) / 2;
+		gui_acc_calib.bias.x = (gui_acc_calib.calc.pos_val.x - gui_acc_calib.sens.x);
+		gui_acc_calib.bias.y = (gui_acc_calib.calc.pos_val.y - gui_acc_calib.sens.y);
+		gui_acc_calib.bias.z = (gui_acc_calib.calc.pos_val.z - gui_acc_calib.sens.z);
 
 		//DEBUG("%d %d %d %d %d %d\n", gui_acc_calib.calc.pos_val.x, gui_acc_calib.calc.neg_val.x, gui_acc_calib.calc.pos_val.y,gui_acc_calib.calc.neg_val.y, gui_acc_calib.calc.pos_val.z, gui_acc_calib.calc.neg_val.z);
 		//DEBUG("sens: %f %f %f bias: %f %f %f\n", gui_acc_calib.sens.x, gui_acc_calib.sens.y, gui_acc_calib.sens.z, gui_acc_calib.bias.x, gui_acc_calib.bias.y, gui_acc_calib.bias.z);
@@ -294,7 +276,6 @@ void gui_accelerometer_calib_loop()
 
 		gui_acc_calib.filtered_total_new = (gui_acc_calib.filtered_total_new - (LPF_beta * (gui_acc_calib.filtered_total_new - new_acc_tot)));
 		gui_acc_calib.filtered_total_old = (gui_acc_calib.filtered_total_old - (LPF_beta * (gui_acc_calib.filtered_total_old - fc.acc.total)));
-
 
 		disp.LoadFont(F_TEXT_M);
 

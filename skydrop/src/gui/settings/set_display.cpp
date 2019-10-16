@@ -10,18 +10,6 @@ void gui_set_display_init()
 	gui_list_set(gui_set_display_item, gui_set_display_action, 7, GUI_SET_SYSTEM);
 }
 
-void gui_set_display_stop() {}
-
-void gui_set_display_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_display_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_display_contrast_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);

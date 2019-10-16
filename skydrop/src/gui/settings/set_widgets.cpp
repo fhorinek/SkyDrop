@@ -17,8 +17,6 @@ void gui_set_widgets_init()
 	gui_list_set(gui_set_widgets_item, gui_set_widgets_action, NUMBER_OF_SORTED_WIDGETS, GUI_LAYOUTS);
 }
 
-void gui_set_widgets_stop() {}
-
 void gui_set_widgets_loop()
 {
 	switch (set_widget_mode)

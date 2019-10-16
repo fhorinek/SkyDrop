@@ -32,4 +32,6 @@ void storage_dir_close();
 void storage_dir_rewind();
 bool storage_dir_list(char * fname, uint8_t * flags);
 
+
+
 #endif /* STORAGE_H_ */

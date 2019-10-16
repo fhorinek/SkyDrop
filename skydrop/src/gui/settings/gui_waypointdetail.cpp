@@ -20,9 +20,5 @@ void gui_waypointdetail_init()
 	gui_switch_task(GUI_PAGES);
 }
 
-void gui_waypointdetail_stop() {}
 
-void gui_waypointdetail_loop() {}
-
-void gui_waypointdetail_irqh(uint8_t type, uint8_t * buff) {}
 

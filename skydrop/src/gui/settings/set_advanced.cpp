@@ -11,19 +11,7 @@
 
 void gui_set_advanced_init()
 {
-	gui_list_set(gui_set_advanced_item, gui_set_advanced_action, 5, GUI_SET_SYSTEM);
-}
-
-void gui_set_advanced_stop() {}
-
-void gui_set_advanced_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_advanced_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
+	gui_list_set(gui_set_advanced_item, gui_set_advanced_action, 6, GUI_SET_SYSTEM);
 }
 
 void gui_set_advanced_format_cb(uint8_t ret)
@@ -31,6 +19,18 @@ void gui_set_advanced_format_cb(uint8_t ret)
 	if (ret == GUI_DIALOG_FORMAT)
 	{
 		gui_format_sd();
+	}
+	gui_switch_task(GUI_SET_ADVANCED);
+}
+
+void gui_set_advanced_restore_cfg_cb(uint8_t ret)
+{
+	if (ret == GUI_DIALOG_FORMAT)
+	{
+		gui_showmessage_P(PSTR("Restoring default\nconfiguration..."));
+		gui_force_loop();
+		cfg_restore_defaults();
+		gui_showmessage_P(PSTR("Done"));
 	}
 	gui_switch_task(GUI_SET_ADVANCED);
 }
@@ -55,7 +55,7 @@ void gui_set_advanced_action(uint8_t index)
 		msg[len + 12 + 11] = 0;
 
 		gui_showmessage(msg);
-		gui_messageduration(60);
+		gui_forcemessage();
 	}
 	break;
 
@@ -86,6 +86,11 @@ void gui_set_advanced_action(uint8_t index)
 
 	case(4):
 		gui_switch_task(GUI_SET_CALIB);
+	break;
+
+	case(5):
+		gui_dialog_set_P(PSTR("Warning"), PSTR("This will wipe\nall your settings!\nContinue?"), GUI_STYLE_FORMAT, gui_set_advanced_restore_cfg_cb);
+		gui_switch_task(GUI_DIALOG);
 	break;
 	}
 }
@@ -119,19 +124,19 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 					strcpy_P(sub_text, PSTR("Uart off"));
 				break;
 				case(UART_FORWARD_9600):
-					sprintf_P(sub_text, PSTR("Telemetry %lu"), 9600);
+					sprintf_P(sub_text, PSTR("Telemetry %u00"), 96);
 				break;
 				case(UART_FORWARD_19200):
-					sprintf_P(sub_text, PSTR("Telemetry %lu"), 19200);
+					sprintf_P(sub_text, PSTR("Telemetry %u00"), 192);
 				break;
 				case(UART_FORWARD_38400):
-					sprintf_P(sub_text, PSTR("Telemetry %lu"), 38400);
+					sprintf_P(sub_text, PSTR("Telemetry %u00"), 384);
 				break;
 				case(UART_FORWARD_57600):
-					sprintf_P(sub_text, PSTR("Telemetry %lu"), 57600);
+					sprintf_P(sub_text, PSTR("Telemetry %u00"), 576);
 				break;
 				case(UART_FORWARD_115200):
-					sprintf_P(sub_text, PSTR("Telemetry %lu"), 115200ul);
+					sprintf_P(sub_text, PSTR("Telemetry %u00"), 1152);
 				break;
 			}
 		break;
@@ -143,6 +148,11 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 
 		case (4):
 			strcpy_P(text, PSTR("Calibration"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (5):
+			strcpy_P(text, PSTR("Factory reset"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 	}

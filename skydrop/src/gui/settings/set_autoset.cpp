@@ -4,23 +4,9 @@
 #include "../gui_list.h"
 #include "../../fc/fc.h"
 
-
-
 void gui_set_autoset_init()
 {
     gui_list_set(gui_set_autoset_item, gui_set_autoset_action, 6, GUI_LAYOUTS);
-}
-
-void gui_set_autoset_stop() {}
-
-void gui_set_autoset_loop()
-{
-    gui_list_draw();
-}
-
-void gui_set_autoset_irqh(uint8_t type, uint8_t * buff)
-{
-    gui_list_irqh(type, buff);
 }
 
 void gui_set_autoset_action(uint8_t index)

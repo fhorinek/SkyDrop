@@ -10,10 +10,11 @@
 
 #include "gui.h"
 
+#define gui_splash_stop gui_dummy
+#define gui_splash_irqh gui_dummy
+
 void gui_splash_init();
-void gui_splash_stop();
 void gui_splash_loop();
-void gui_splash_irqh(uint8_t type, uint8_t * buff);
 
 void gui_splash_set_mode(uint8_t mode);
 

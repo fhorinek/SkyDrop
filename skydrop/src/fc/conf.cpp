@@ -12,6 +12,9 @@ cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 #define empty20				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define empty80				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
+//*** Default configuration placeholder ***
+const cfg_t config_defaults PROGMEM = {0xAABBCCDD, '*', '*', '*', ' ', 'D', 'e', 'f', 'a', 'u', 'l', 't', ' ', 'c', 'o', 'n', 'f', 'i', 'g', 'u', 'r', 'a', 't', 'i', 'o', 'n', ' ', 'p', 'l', 'a', 'c', 'e', 'h', 'o', 'l', 'd', 'e', 'r', ' ', '*', '*', '*'};
+
 volatile cfg_t config;
 
 EEMEM cfg_t config_ee = {
@@ -279,6 +282,17 @@ EEMEM cfg_t config_ee = {
 		empty20,
 		//info
 		empty80
+	},
+	//Airspaces
+	{
+		//class_enabled
+		0b1111111111111111,
+		//warning_m
+		500,
+		//alert_on
+		true,
+		//alarm_confirm_secs
+		30,
 	}
 };
 
@@ -413,3 +427,29 @@ void cfg_load()
 	//prevent freezing if QNH or int. interval is corrupted
 	cfg_check_floats();
 }
+
+void cfg_restore_defaults()
+{
+	#define EE_PAGE_SIZE            255
+
+	for (uint16_t i = 0; i < sizeof(cfg_t); i += EE_PAGE_SIZE)
+	{
+		uint8_t buff[EE_PAGE_SIZE];
+		uint8_t size = min(sizeof(cfg_t) - i, EE_PAGE_SIZE);
+
+		void * progmem_adr = (void *) ((uint16_t) (&config_defaults) + i);
+		void * eeprom_adr = (void *) ((uint16_t) (&config_ee) + i);
+
+		memcpy_P(buff, progmem_adr, size);
+		eeprom_busy_wait();
+		eeprom_write_block(buff, eeprom_adr, size);
+
+		ewdt_reset();
+	}
+
+	eeprom_busy_wait();
+
+	cfg_load();
+	gui_load_eeprom();
+}
+

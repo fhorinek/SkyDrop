@@ -12,7 +12,10 @@
 #include "../../common.h"
 
 void gui_accelerometer_calib_init(void);
-void gui_accelerometer_calib_stop(void);
+
+//void gui_accelerometer_calib_stop(void);
+#define gui_accelerometer_calib_stop gui_dummy
+
 void gui_accelerometer_calib_loop(void);
 void gui_accelerometer_calib_irqh(uint8_t type, uint8_t * buff);
 

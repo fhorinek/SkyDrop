@@ -10,20 +10,6 @@ void gui_set_time_init()
 	gui_list_set(gui_set_time_item, gui_set_time_action, 5, GUI_SET_SYSTEM);
 }
 
-void gui_set_time_stop()
-{
-}
-
-void gui_set_time_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_time_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_time_time_cb(float val)
 {
 	gui_switch_task(GUI_SET_TIME);

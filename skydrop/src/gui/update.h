@@ -10,10 +10,11 @@
 
 #include "gui.h"
 
+#define gui_update_stop gui_dummy
+#define gui_update_irqh gui_dummy
+
 void gui_update_init();
-void gui_update_stop();
 void gui_update_loop();
-void gui_update_irqh(uint8_t type, uint8_t * buff);
 void gui_update_cb(uint8_t ret);
 
 #endif /* UPDATE_H_ */

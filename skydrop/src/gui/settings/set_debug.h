@@ -10,10 +10,11 @@
 
 #include "../gui.h"
 
+#define gui_set_debug_stop gui_dummy
+#define gui_set_debug_loop gui_list_draw
+#define gui_set_debug_irqh gui_list_irqh
+
 void gui_set_debug_init();
-void gui_set_debug_stop();
-void gui_set_debug_loop();
-void gui_set_debug_irqh(uint8_t type, uint8_t * buff);
 void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);
 void gui_set_debug_action(uint8_t index);
 

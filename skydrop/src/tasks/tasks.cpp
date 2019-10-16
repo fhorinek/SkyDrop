@@ -2,6 +2,7 @@
 #include "../xlib/core/watchdog.h"
 #include "../fc/conf.h"
 
+//#include "../debug_on.h"
 
 void (* task_init_array[])() =
 {task_powerdown_init, task_usb_init, task_active_init, task_update_init};
@@ -153,7 +154,7 @@ void task_init()
 
 	powerdown_lock.Unlock();
 
-	task_set(TASK_ACTIVE);
+	//task_set(TASK_ACTIVE);
 
 	//if is USB connected go directly to USB task
 	if ((usb_state = USB_CONNECTED))

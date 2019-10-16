@@ -15,8 +15,8 @@ void widget_battery_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 	else
 	{
 		sprintf_P(text1, PSTR("%d%%"), battery_per);
-		if (bat_calibrated())
-			sprintf_P(text2, PSTR("%dmin"), bat_runtime_minutes() * battery_per / 100);
+		if (battery_calibrated())
+			sprintf_P(text2, PSTR("%dmin"), battery_runtime_minutes() * battery_per / 100);
 	}
 
 	if (text2[0])

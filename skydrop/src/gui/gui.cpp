@@ -8,6 +8,7 @@
 #include "../drivers/audio/sequencer.h"
 #include "../drivers/bluetooth/bt.h"
 #include "gui_storage.h"
+#include "gui_list.h"
 
 #include "widgets/widgets.h"
 
@@ -50,6 +51,9 @@
 #include "settings/set_alt_alarm.h"
 #include "settings/set_autoset.h"
 #include "settings/set_autoset_config.h"
+#include "settings/set_airspaces.h"
+#include "settings/set_airspaces_class.h"
+#include "gui_airspace.h"
 
 /**
  * By defining SHOW_FPS you enable code to show the current
@@ -77,8 +81,8 @@ void (* gui_init_array[])() =
 	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init, gui_set_calib_init,
 	gui_accelerometer_calib_init, gui_mag_calib_init, gui_filemanager_init, gui_flightdetail_init,
 	gui_gyro_calib_init, gui_compass_calib_init, gui_homedetail_init, gui_home_init,
-  gui_set_alarm_init, gui_set_alt_alarm_init, gui_set_autoset_init, gui_set_autoset_config_init,
-  gui_waypointdetail_init};
+    gui_alarm_init, gui_set_alt_alarm_init, gui_set_autoset_init, gui_set_autoset_config_init,
+    gui_waypointdetail_init, gui_set_airspaces_init, gui_set_airspaces_class_init, gui_airspace_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -90,8 +94,8 @@ void (* gui_stop_array[])() =
 	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
 	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_filemanager_stop, gui_flightdetail_stop,
 	gui_gyro_calib_stop, gui_compass_calib_stop, gui_homedetail_stop, gui_home_stop,
-	gui_set_alarm_stop, gui_set_alt_alarm_stop, gui_set_autoset_stop, gui_set_autoset_config_stop,
-  gui_waypointdetail_stop};
+	gui_alarm_stop, gui_set_alt_alarm_stop, gui_set_autoset_stop, gui_set_autoset_config_stop,
+    gui_waypointdetail_stop, gui_set_airspaces_stop, gui_set_airspaces_class_stop, gui_airspace_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -103,8 +107,8 @@ void (* gui_loop_array[])() =
 	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
 	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_filemanager_loop, gui_flightdetail_loop,
 	gui_gyro_calib_loop, gui_compass_calib_loop, gui_homedetail_loop, gui_home_loop,
-	gui_set_alarm_loop, gui_set_alt_alarm_loop, gui_set_autoset_loop, gui_set_autoset_config_loop,
-  gui_waypointdetail_loop};
+	gui_alarm_loop, gui_set_alt_alarm_loop, gui_set_autoset_loop, gui_set_autoset_config_loop,
+    gui_waypointdetail_loop, gui_set_airspaces_loop, gui_set_airspaces_class_loop, gui_airspace_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -116,8 +120,8 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
 	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_filemanager_irqh, gui_flightdetail_irqh,
 	gui_gyro_calib_irqh, gui_compass_calib_irqh, gui_homedetail_irqh, gui_home_irqh,
-	gui_set_alarm_irqh, gui_set_alt_alarm_irqh, gui_set_autoset_irqh, gui_set_autoset_config_irqh,
-    gui_waypointdetail_irqh};
+	gui_alarm_irqh, gui_set_alt_alarm_irqh, gui_set_autoset_irqh, gui_set_autoset_config_irqh,
+    gui_waypointdetail_irqh, gui_set_airspaces_irqh, gui_set_airspaces_class_irqh, gui_airspace_irqh};
 
 #define GUI_ANIM_STEPS	20
 
@@ -186,6 +190,10 @@ MK_SEQ(snd_but_long, ARR({800}), ARR({200}));
 
 uint32_t gui_idle_timer;
 #define GUI_IDLE_RETURN			30000
+
+void gui_dummy() {}
+void gui_dummy(uint8_t index) {}
+void gui_dummy(uint8_t type, uint8_t * buff) {}
 
 void gui_switch_task(uint8_t new_task)
 {
@@ -454,7 +462,6 @@ void gui_loop()
 	if (gui_loop_timer > task_get_ms_tick())
 		return;
 
-//	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)50; //20 fps
 	gui_loop_timer = (uint32_t)task_get_ms_tick() + (uint32_t)33; //30 fps
 
 	gui_update_disp_cfg();
@@ -474,6 +481,7 @@ void gui_loop()
 				&& gui_task != GUI_SET_CALIB_MAG
 				&& gui_task != GUI_SET_CALIB_GYRO
 				&& gui_task != GUI_ALARM
+				&& gui_task != GUI_AIRSPACE_ALARM
 				)
 		{
 			if (task_get_ms_tick() - gui_idle_timer > GUI_IDLE_RETURN)
@@ -484,7 +492,10 @@ void gui_loop()
 		if (gui_task == GUI_PAGES)
 		{
 			//Power off if not in flight, auto power off is enabled and bluetooth device is not connected
-			if (fc.flight.state != FLIGHT_FLIGHT && config.system.auto_power_off > 0 && !bt_device_active() && battery_calibrating_state == BATTERY_CAL_NONE)
+			if (fc.flight.state != FLIGHT_FLIGHT &&
+					config.system.auto_power_off > 0 &&
+					!bt_device_active() &&
+					battery_calibrating_state == BATTERY_CAL_NONE)
 			{
 				if (task_get_ms_tick() - gui_idle_timer > (uint32_t)config.system.auto_power_off * 60ul * 1000ul)
 				{
@@ -599,7 +610,7 @@ void gui_loop()
 
 		if (res == FR_OK)
 		{
-			f_write(&fimg, disp.GetActiveLayerPtr(), lcb_layer_size, &wb);
+			f_write(&fimg, disp.GetActiveLayerPtr(), lcd_layer_size, &wb);
 			f_close(&fimg);
 
 			gui_record_cnt++;
@@ -641,8 +652,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 		if (gui_message_end > task_get_ms_tick())
 		{
 			if (type == B_MIDDLE && (*buff == BE_CLICK || *buff == BE_LONG))
-				if (gui_message_end != MESSAGE_FORCE_ON)
-					gui_hidemessage();
+				gui_hidemessage();
 
 			return;
 		}
@@ -729,12 +739,13 @@ void gui_statusbar()
 		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
 	}
 
-	//battery indicator
-	disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
-	disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
 
-	if ( battery_calibrating_state == BATTERY_CAL_NONE)
+	if (battery_calibrating_state == BATTERY_CAL_NONE || GUI_BLINK_TGL(500))
 	{
+		//battery indicator
+		disp.DrawLine(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 13, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 13, 1);
+		disp.DrawRectangle(GUI_DISP_WIDTH - 6, GUI_DISP_HEIGHT - 12, GUI_DISP_WIDTH - 1, GUI_DISP_HEIGHT - 1, 1, 0);
+
 		uint8_t a = battery_per / 10;
 
 		if (battery_per == BATTERY_CHARGING)
@@ -745,18 +756,5 @@ void gui_statusbar()
 		if (battery_per == BATTERY_FULL)
 			a = 10;
 		disp.DrawRectangle(GUI_DISP_WIDTH - 5, GUI_DISP_HEIGHT - 1 - a, GUI_DISP_WIDTH - 2, GUI_DISP_HEIGHT - 1, 1, 1);
-	}
-	else
-	{
-		uint8_t a;
-		uint8_t x1, x2;
-
-		a = (task_get_ms_tick() % 2000) / 250;
-		if ( battery_calibrating_state == BATTERY_CAL_DISCHARGE ) a = 7 - a;
-		x1 = GUI_DISP_WIDTH - 2 - a;
-		x2 = x1 + 3;
-		x1 = max(GUI_DISP_WIDTH - 6, x1);
-		x2 = min(GUI_DISP_WIDTH - 2, x2);
-		disp.DrawRectangle(x1, GUI_DISP_HEIGHT - 12, x2, GUI_DISP_HEIGHT - 2, 1, 1);
 	}
 }

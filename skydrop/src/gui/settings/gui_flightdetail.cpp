@@ -105,19 +105,6 @@ void gui_flightdetail_init()
 	gui_list_set(gui_flightdetail_item, gui_flightdetail_action, 8, GUI_FILEMANAGER);
 }
 
-void gui_flightdetail_stop() {}
-
-void gui_flightdetail_loop()
-{
-	gui_list_draw();
-}
-
-void gui_flightdetail_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
-void gui_flightdetail_action(uint8_t index) {}
 
 void gui_flightdetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub_text)
 {

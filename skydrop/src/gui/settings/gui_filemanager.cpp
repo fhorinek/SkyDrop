@@ -69,16 +69,6 @@ void gui_filemanager_stop()
 	}
 }
 
-void gui_filemanager_loop()
-{
-	gui_list_draw();
-}
-
-void gui_filemanager_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_filemanager_action(uint8_t index)
 {
 	char tmp[44];

@@ -484,7 +484,7 @@ void gps_parse_var()
 void gps_normal()
 {
 	gps_detail_enabled = false;
-	DEBUG("set_nmea_output - normal\n");
+	//DEBUG("set_nmea_output - normal\n");
 	// set GLL=0, RMC=1, VTG=0, GGA=1, GSA=1, GSV=0
 	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0*29\r\n"));
 }
@@ -492,14 +492,14 @@ void gps_normal()
 void gps_detail()
 {
 	gps_detail_enabled = true;
-	DEBUG("set_nmea_output - detail\n");
+	//DEBUG("set_nmea_output - detail\n");
 	// set GLL=0, RMC=1, VTG=0, GGA=1, GSA=1, GSV=1
 	fprintf_P(gps_out, PSTR("$PMTK314,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0*28\r\n"));
 }
 
 void gps_set_baudrate()
 {
-	DEBUG("set_baudrate\n");
+	//DEBUG("set_baudrate\n");
 	fprintf_P(gps_out, PSTR("$PMTK251,115200*1F\r\n"));
 	gps_uart.FlushTxBuffer();
 	_delay_ms(1);
@@ -515,12 +515,12 @@ void gps_change_uart_baudrate()
 
 void gps_parse_hello()
 {
-	DEBUG("GPS HELLO\n");
+	//DEBUG("GPS HELLO\n");
 }
 
 void gps_parse_sys()
 {
-	DEBUG("GPS SYS RESP");
+	//DEBUG("GPS SYS RESP");
 
 	if (gps_detail_enabled)
 		gps_detail();
@@ -678,7 +678,7 @@ void gps_parse(Usart * c_uart)
 			else
 			{
 				DEBUG("GPS:\"$%s\"\n", gps_parser_buffer);
-				DEBUG("GPS CHECKSUM IS WRONG! %02X %02X\n", gps_rx_checksum, gps_checksum);
+				DEBUG("CHECKSUM ERROR! %02X %02X\n", gps_rx_checksum, gps_checksum);
 			}
 		break;
 

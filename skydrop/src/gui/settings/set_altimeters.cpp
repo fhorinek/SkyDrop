@@ -12,13 +12,6 @@ void gui_set_altimeters_init()
 	gui_list_set(gui_set_altimeters_item, gui_set_altimeters_action, 8, GUI_SETTINGS);
 }
 
-void gui_set_altimeters_stop() {}
-
-void gui_set_altimeters_loop()
-{
-	gui_list_draw();
-}
-
 void gui_set_altimeters_qnh1_cb(float val)
 {
 	val *= 100.0;
@@ -42,11 +35,6 @@ void gui_set_altimeters_qnh2_cb(float val)
 	eeprom_update_float(&config_ee.altitude.QNH2, val);
 
 	config.altitude.QNH2 = val;
-}
-
-void gui_set_altimeters_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
 }
 
 void gui_set_altimeters_action(uint8_t index)

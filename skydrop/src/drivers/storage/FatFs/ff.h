@@ -232,6 +232,13 @@ int f_puts (const TCHAR* str, FIL* cp);								/* Put a string to the file */
 int f_printf (FIL* fp, const TCHAR* str, ...);						/* Put a formatted string to the file */
 TCHAR* f_gets (TCHAR* buff, int len, FIL* fp);						/* Get a string from the file */
 
+
+
+FRESULT f_delete_node (
+    TCHAR* path,    /* Path name buffer with the sub-directory to delete */
+    UINT sz_buff   /* Size of path name buffer (items) */
+);
+
 #define f_eof(fp) (((fp)->fptr == (fp)->fsize) ? 1 : 0)
 #define f_error(fp) ((fp)->err)
 #define f_tell(fp) ((fp)->fptr)

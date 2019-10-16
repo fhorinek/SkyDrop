@@ -73,6 +73,7 @@ def displacePoint(P, angle, distance_m):
 
 def get_point(lat, lon):
     mul = 10000000
+    debug = False
 
     p = shapely.geometry.Point(lon, lat)
 
@@ -152,8 +153,9 @@ def get_point(lat, lon):
                                         
         plt.plot(origin.x, origin.y, '.', color="red")
         
-        print("origin lat", origin.y * 10000000)
-        print("origin lon", origin.x * 10000000)        
+        if debug:
+            print("origin lat", origin.y * 10000000)
+            print("origin lon", origin.x * 10000000)        
         
         if mode == 0:
             mul = OFFSET_MUL_0    
@@ -171,16 +173,18 @@ def get_point(lat, lon):
         if long_offset & 0x40:
             long_offset = -(long_offset & 0x3F)
 
-        print("lat_offset", lat_offset)
-        print("long_offset", long_offset)
+        if debug:
+            print("lat_offset", lat_offset)
+            print("long_offset", long_offset)
 
         if mode < 3:
             target = shapely.geometry.Point(origin.x + long_offset * mul, origin.y + lat_offset * mul)
         else:        
             target = origin
-
-        print("otarget lat", target.y)
-        print("otarget lon", target.x)
+            
+        if debug:
+            print("otarget lat", target.y)
+            print("otarget lon", target.x)
 
         if long_offset == 0:
             ty = target.y
@@ -192,8 +196,9 @@ def get_point(lat, lon):
             k = lat_offset / long_offset
             kn = -long_offset / lat_offset
             
-            print("k", k)
-            print("kn", kn)
+            if debug:
+                print("k", k)
+                print("kn", kn)
 
             q1 = p.y - k * p.x
             q2 = target.y - kn * target.x

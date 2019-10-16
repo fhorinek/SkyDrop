@@ -11,10 +11,6 @@ void gui_usb_set_mode(uint8_t mode)
 {
 }
 
-void gui_usb_init() {}
-
-void gui_usb_stop() {}
-
 void gui_usb_loop()
 {
 	char tmp[16];

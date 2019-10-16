@@ -12,18 +12,6 @@ void gui_set_audio_init()
 	gui_list_set(gui_set_audio_item, gui_set_audio_action, 5, GUI_SET_SYSTEM);
 }
 
-void gui_set_audio_stop() {}
-
-void gui_set_audio_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_audio_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_audio_vario_vol_cb(float val)
 {
 	gui_switch_task(GUI_SET_AUDIO);

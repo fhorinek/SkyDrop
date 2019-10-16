@@ -17,18 +17,6 @@ void gui_home_init()
 	gui_list_set(gui_home_item, gui_home_action, 5, GUI_SETTINGS);
 }
 
-void gui_home_stop() {}
-
-void gui_home_loop()
-{
-	gui_list_draw();
-}
-
-void gui_home_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_home_action(uint8_t index)
 {
 	switch(index)

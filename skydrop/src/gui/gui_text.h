@@ -16,9 +16,10 @@
 
 typedef void uint8_t_cb(uint8_t val, char * buff);
 
+#define gui_text_init gui_dummy
+#define gui_text_stop gui_dummy
+
 void gui_text_conf(char * text, uint8_t max_len, uint8_t_cb * cb);
-void gui_text_init();
-void gui_text_stop();
 void gui_text_loop();
 void gui_text_irqh(uint8_t type, uint8_t * buff);
 

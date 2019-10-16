@@ -353,7 +353,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 		}
 	}
 
-	uint8_t text_w = disp.GetTextWidth(text);
+	uint16_t text_w = disp.GetTextWidth(text);
 	if ( text_w > w )
 	{
 		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
@@ -375,8 +375,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 	}
 	else
 	{
-		disp.GotoXY(x + w / 2 - text_w / 2, y + h / 2 - text_h / 2);
-		fputs(text, lcd_out);
+		gui_caligh_text(text, x + w / 2, y + h / 2 - text_h / 2);
 	}
 }
 

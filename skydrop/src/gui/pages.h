@@ -11,7 +11,9 @@
 #include "gui.h"
 
 void gui_pages_init();
-void gui_pages_stop();
+
+#define gui_pages_stop gui_dummy
+
 void gui_pages_loop();
 void gui_pages_irqh(uint8_t type, uint8_t * buff);
 

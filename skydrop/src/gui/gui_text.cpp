@@ -24,10 +24,6 @@ void gui_text_conf(char * text, uint8_t max_len, uint8_t_cb * cb)
 		gui_text_mode = 1;
 }
 
-void gui_text_init(){}
-
-void gui_text_stop(){}
-
 char gui_text_gen_c(uint8_t i, uint8_t mode)
 {
 	if (i <= 25)

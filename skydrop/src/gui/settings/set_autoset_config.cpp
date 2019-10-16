@@ -5,26 +5,10 @@
 #include "../gui_value.h"
 #include "../../fc/fc.h"
 
-
-
-
 void gui_set_autoset_config_init()
 {
     gui_list_set(gui_set_autoset_config_item, gui_set_autoset_config_action, 2, GUI_SET_AUTOSET);
 }
-
-void gui_set_autoset_config_stop() {}
-
-void gui_set_autoset_config_loop()
-{
-    gui_list_draw();
-}
-
-void gui_set_autoset_config_irqh(uint8_t type, uint8_t * buff)
-{
-    gui_list_irqh(type, buff);
-}
-
 
 void gui_set_autoset_config_circling_timeout_cb(float val)
 {

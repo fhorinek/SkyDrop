@@ -11,8 +11,9 @@
 #include "../gui.h"
 #include "../../common.h"
 
+#define gui_gyro_calib_stop gui_dummy
+
 void gui_gyro_calib_init(void);
-void gui_gyro_calib_stop(void);
 void gui_gyro_calib_loop(void);
 void gui_gyro_calib_irqh(uint8_t type, uint8_t * buff);
 

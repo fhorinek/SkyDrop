@@ -273,10 +273,10 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	switch (a_type)
 		{
 		case(ALT_ABS_QNH1):
-			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH1 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH1);
 		break;
 		case(ALT_ABS_QNH2):
-			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH2 / 10);
+			sprintf_P(tmp, PSTR("%0.0f"), config.altitude.QNH2);
 		break;
 		case(ALT_DIFF):
 			sprintf_P(tmp, PSTR("%+d"), config.altitude.altimeter[alt_index - 2].delta);

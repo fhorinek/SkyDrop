@@ -12,10 +12,11 @@
 #include "../gui.h"
 #include "../../fc/fc.h"
 
+#define gui_homedetail_stop gui_dummy
+#define gui_homedetail_loop gui_dummy
+#define gui_homedetail_irqh gui_dummy
+
 void gui_homedetail_init();
-void gui_homedetail_stop();
-void gui_homedetail_loop();
-void gui_homedetail_irqh(uint8_t type, uint8_t * buff);
 
 void read_homefile(const char *filename, cfg_home * home);
 

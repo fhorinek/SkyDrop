@@ -11,14 +11,14 @@
 
 #define lcd_width		84
 #define lcd_height		48
-#define lcb_layer_size	((lcd_height / 8) * lcd_width)
+#define lcd_layer_size	((lcd_height / 8) * lcd_width)
 
 class lcd_display{
 private:
 	Spi * spi;
 	uint8_t * active_buffer;
 
-	uint8_t layers[DISP_LAYERS][lcb_layer_size];
+	uint8_t layers[DISP_LAYERS][lcd_layer_size];
 
 	void sendcommand(unsigned char cmd);
 	void SendChar(unsigned char data);
@@ -55,8 +55,8 @@ public:
 	uint32_t clip(uint32_t x1y1x2y2);
 
 	void ClearBuffer();
-	void PutPixel(int16_t x ,int16_t  y, uint8_t color);
-	void DrawLine(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint8_t color = 1);
+	void PutPixel(int8_t x ,int8_t  y, uint8_t color);
+	void DrawLine(int8_t x1, int8_t y1, int8_t x2, int8_t y2, uint8_t color = 1);
 	void DrawCircle(uint8_t cx, uint8_t cy, uint8_t radius, uint8_t color);
 	void DrawRectangle(int8_t x1,int8_t y1,int8_t x2,int8_t y2,uint8_t color,uint8_t fill);
 	void DrawTriangle(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2,uint8_t x3,uint8_t y3,uint8_t color);
@@ -66,7 +66,7 @@ public:
 	void Write(uint8_t ascii);
 	void SetRowCol(unsigned char row,unsigned char col);
 	void Draw();
-	void GotoXY(int16_t x, int16_t y);
+	void GotoXY(int16_t x, int8_t y);
 	void InvertPixel(uint8_t x ,uint8_t  y);
 	void Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2);
 	void LoadFont(const uint8_t * font);
@@ -74,9 +74,9 @@ public:
 	void ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2);
 	void InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2);
 
-	uint8_t GetTextWidth(char * text);
-	uint8_t GetTextWidth_P(const char * text);
-	uint8_t GetTextWidthN(char * text, uint8_t n);
+	uint16_t GetTextWidth(char * text);
+	uint16_t GetTextWidth_P(const char * text);
+	uint16_t GetTextWidthN(char * text, uint8_t n);
 	uint8_t GetTextHeight();
 	uint8_t GetAHeight();
 
