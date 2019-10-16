@@ -173,6 +173,9 @@ uint8_t igc_start(char * path)
 	//H F TZN
 	sprintf_P(line, PSTR("HFTZNTIMEZONE:%+0.1f"), config.system.time_zone / 2.0);
 	igc_writeline(line);
+	//J for temp (OAT)
+	sprintf_P(line, PSTR("J010810OAT"));
+	igc_writeline(line);
 
 #ifdef IGC_NO_PRIVATE_KEY
 	//Developer note: we can't publish the private key for signing the IGC file
@@ -308,6 +311,13 @@ void igc_step()
 	//B record
 	sprintf_P(line, PSTR("B%02d%02d%02d%s%s%c%05d%05d"), hour, min, sec, fc.gps_data.cache_igc_latitude, fc.gps_data.cache_igc_longtitude, c, alt, galt);
 	igc_writeline(line);
+
+	if ( fc.temp.temp != logger_last_temp )
+	{
+		logger_last_temp = fc.temp.temp;
+	    sprintf_P(line, PSTR("K%02d%02d%02d%03d"), hour, min, sec, logger_last_temp / 10);
+		igc_writeline(line);
+	}
 	igc_write_grecord();
 }
 
