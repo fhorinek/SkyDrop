@@ -56,14 +56,14 @@ void gui_splash_init()
 
 			disp.SetDrawLayer(1);
 			disp.ClearBuffer();
-			if (f_read(&logo_fil, disp.GetActiveLayerPtr(), lcb_layer_size, &rd) != FR_OK)
+			if (f_read(&logo_fil, disp.GetActiveLayerPtr(), lcd_layer_size, &rd) != FR_OK)
 				return;
 
 			disp.SetDrawLayer(0);
 
 			DEBUG("rd = %d\n", rd);
 
-			if (rd != lcb_layer_size)
+			if (rd != lcd_layer_size)
 				return;
 
 			assert(f_close(&logo_fil) == FR_OK);
@@ -76,8 +76,6 @@ void gui_splash_init()
 		}
 	}
 }
-
-void gui_splash_stop() {}
 
 void gui_splash_loop()
 {
@@ -168,7 +166,5 @@ void gui_splash_loop()
 		}
 	}
 }
-
-void gui_splash_irqh(uint8_t type, uint8_t * buff) {}
 
 

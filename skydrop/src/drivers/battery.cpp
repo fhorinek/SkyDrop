@@ -1,7 +1,7 @@
 #include "battery.h"
 #include "../tasks/tasks.h"
 
-// #include "../debug_on.h"
+#include "../debug_on.h"
 
 #define BATTERY_STATE_IDLE		0
 #define BATTERY_STATE_PREPARE	1
@@ -26,10 +26,10 @@ int8_t battery_per = 0;
 uint16_t bat_adc_max;
 uint16_t bat_adc_dif;
 
-#define BAT_CAL_REMIND_INTERVAL 10          // Interval in seconds to remind user of wrong charging/discharging
+#define BAT_CAL_REMIND_INTERVAL 10          // Interval in seconds to remind user to discharge
 #define BAT_CAL_INTERVAL 60                 // Interval in seconds to save calibration data
 
-#define BAT_CAL_FILE_RAW "/BAT-CAL.RAW"     // file to store raw calibration data collected during callibration
+
 
 /** This is the ADC value where the next lower percent value starts. */
 uint16_t bat_next_level = 0;
@@ -40,28 +40,25 @@ bool bat_cal_available = false;
 /**
  * This is a state machine for battery calibration:
  *
- * BATTERY_CAL_BOOT: System is booting, check for BAT_CAL_FILE_RAW and work with it.
- *                   Then go to BATTERY_CAL_NONE
  * BATTERY_CAL_NONE: No calibration is running, normal operation.
  * BATTERY_CAL_START: A battery calibration is starting. Inform user of what is going on. Then go to
- * BATTERY_CAL_CHARGE: wait until battery is fully charged.
  * BATTERY_CAL_DISCHARGE: wait until battery is fully discharged, store calibration data every BAT_CAL_INTERVAL.
  */
-uint8_t battery_calibrating_state = BATTERY_CAL_BOOT;
+uint8_t battery_calibrating_state = BATTERY_CAL_NONE;
 
 /**
  * Check, if we have calibration data for the battery in EEPROM.
  *
  * @return true if data is available, false otherwise.
  */
-bool bat_calibrated()
+bool battery_calibrated()
 {
 	uint16_t value;
 
 	eeprom_busy_wait();
 	value = eeprom_read_word(&config_ro.bat_runtime_minutes);
-	DEBUG("config_ro.bat_runtime_minutes=%u\n", value);
-	return ( value != 0xffff );
+	//DEBUG("config_ro.bat_runtime_minutes=%u\n", value);
+	return (value != BATTERY_CAL_INVALID);
 }
 
 /**
@@ -79,13 +76,10 @@ uint8_t read_battery_per_from_calibration(uint16_t battery_adc_raw)
 
 	bat_next_level = 0;
 
-	if ( !bat_calibrated() )
-		return 101;                  // No calibration available
-
-	for (percent = 100; percent > 0; percent-- )
+	for (percent = 100; percent > 0; percent--)
 	{
 		eeprom_busy_wait();
-		battery = eeprom_read_word(&config_ro.bat_calibration[100-percent]);
+		battery = eeprom_read_word(&config_ro.bat_calibration[100 - percent]);
 		if ( battery_adc_raw > battery )
 		{
 			bat_next_level = battery;
@@ -102,27 +96,20 @@ uint8_t read_battery_per_from_calibration(uint16_t battery_adc_raw)
  *
  * @param battery_adc_raw the ADC value to search for
  *
- * @return the corresponding percent value or 101 for error
+ * @return the corresponding percent value
  */
 int8_t get_battery_per_from_calibration(uint16_t battery_adc_raw)
 {
 	uint8_t percent;
 
-	/* Check, if we have a calibration available: */
-	if ( bat_cal_available )
-	{
-		/* Check, if we reached the next level. If not return identical percent */
-		if ( bat_next_level != 0 && battery_adc_raw > bat_next_level )
-			return battery_per;
+	/* Check, if we reached the next level. If not return identical percent */
+	if (bat_next_level != 0 && battery_adc_raw > bat_next_level)
+		return battery_per;
 
-		percent = read_battery_per_from_calibration(battery_adc_raw);
-		DEBUG("get_battery_per_from_calibration(%d)=%d ", battery_adc_raw, percent);
-		print_datetime(time_get_local());
-	}
-	else
-	{
-		percent = 101;
-	}
+	percent = read_battery_per_from_calibration(battery_adc_raw);
+	DEBUG("get_battery_per_from_calibration(%d)=%d\n", battery_adc_raw, percent);
+	print_datetime(time_get_local());
+
 
 	return percent;
 }
@@ -149,6 +136,9 @@ void battery_init()
 		battery_reset_calibration();
 
 	bat_adc_dif = bat_adc_max - BAT_ADC_MIN;
+
+	if (battery_calibrated())
+		bat_cal_available = true;
 
 	BATTERY_ADC_PWR_ON;
 	BATTERY_ADC_ENABLE;
@@ -212,7 +202,7 @@ void save_bat_cal_value(uint16_t battery_adc_raw)
  * operations. To do it creates 100 values which correspond to 100% until 0%. Each value is computed by using
  * the average to multiple available ADC values.
  */
-void resort_bat_cal()
+void battery_finish_calibration()
 {
 	uint8_t res;
 	FIL cal_file_raw;
@@ -226,163 +216,171 @@ void resort_bat_cal()
 		return;
 
 	DEBUG("resort_bat_cal: f_size(raw): %ld\n", f_size(&cal_file_raw));
-	/* This can be saved in eeprom to store the number of minutes, the battery lasts. */
+	DEBUG("---Start---\n");
+	/* This can be saved to eeprom to store the number of minutes, the battery lasts. */
 	num = f_size(&cal_file_raw) / sizeof(uint16_t);
 
-	for ( int i = 0; i < 100; i++ )
+	for (uint8_t i = 0; i < 100; i++)
 	{
-		int32_t start = (int32_t)num * i / 100;
-		res = f_lseek(&cal_file_raw, (DWORD)start * sizeof(uint16_t));
+		uint16_t start = (num * i) / 100;
+		res = f_lseek(&cal_file_raw, (uint32_t)start * sizeof(uint16_t));
+
 		if (res != FR_OK)
 		{
 			DEBUG("resort_bat_cal: f_lseek failed\n");
+			error = true;
 			break;
 		}
-		int32_t sum = 0;
-		int16_t num_values = 0;
-		for (unsigned int j = 0; j < f_size(&cal_file_raw) / 100; j++ )
+
+		uint32_t sum = 0;
+		uint16_t num_values = 0;
+
+		for (uint16_t j = 0; j <= num / 100; j++)
 		{
 			res = f_read(&cal_file_raw, &battery, sizeof(battery), &wt);
-			if ( res == FR_OK && wt == sizeof(battery) )
+			if (res == FR_OK && wt == sizeof(battery))
 			{
 				sum += battery;
 				num_values++;
-				// DEBUG("Battery cal: num_values=%d, sum=%ld\n", num_values, sum);
+				//DEBUG("Battery cal: num_values=%u, val=%u sum=%lu\n", num_values, battery, sum);
 			}
 		}
-		if ( num_values == 0 )
+
+		if (num_values == 0)
 		{
 			error = true;
 			break;
 		}
+
 		battery = sum / num_values;
 
-		DEBUG("Battery resort_bat_cal: bat_calibration[%d]=%u\n", i, battery);
+		DEBUG("%d,%u\n", i, battery);
 		eeprom_busy_wait();
-		eeprom_write_word(&config_ro.bat_calibration[i], battery);
+		eeprom_update_word(&config_ro.bat_calibration[i], battery);
 	}
 
-	eeprom_busy_wait();
-	eeprom_write_word(&config_ro.bat_runtime_minutes, num);
-
 	f_close(&cal_file_raw);
+	//f_unlink(BAT_CAL_FILE_RAW);
 
+	DEBUG("---End---\n");
 	DEBUG("resort_bat_cal error: %d\n", (int)error);
 
-	if ( !error)
+	if (!error)
 	{
-		f_unlink(BAT_CAL_FILE_RAW);
-        gui_showmessage_P(PSTR("Battery Cal:\nFinished."));
+        gui_showmessage_P(PSTR("Battery\nCalibration\nFinished."));
+    	eeprom_busy_wait();
+    	eeprom_update_word(&config_ro.bat_runtime_minutes, num);
+
+		bat_cal_available = true;
 	}
 	else
 	{
-        gui_showmessage_P(PSTR("Battery Cal:\nError!\nPlease retry."));
+        gui_showmessage_P(PSTR("Battery\nCalibration\nError."));
+    	eeprom_busy_wait();
+    	eeprom_update_word(&config_ro.bat_runtime_minutes, BATTERY_CAL_INVALID);
 	}
+}
+
+void battery_abort_calibration()
+{
+	f_unlink(BAT_CAL_FILE_RAW);
+	battery_calibrating_state = BATTERY_CAL_NONE;
+	gui_showmessage_P(PSTR("Battery\nCalibration\nAborted."));
+	DEBUG("Battery Cal.\nAborted!");
 }
 
 /**
  * This is the main function for battery calibration. If uses battery_calibrating_state to keep
  * track of where the operation is.
  */
-void battery_cal()
+void battery_calibration_step()
 {
-	static uint8_t charge_counter = 0;
+	#define BAT_CAL_MESSAGE_DURATION 5
+
 	static uint32_t battery_calibrating_next_message = 0;
 	static uint32_t battery_calibrating_next_cal = 0;
-	FILINFO fno;
-
-#define BAT_CAL_MESSAGE_DURATION 5
 
 	switch (battery_calibrating_state)
 	{
-	case BATTERY_CAL_BOOT:
-		if (!storage_ready() || gui_task != GUI_PAGES)
-			break;                 // wait for system to operate normally
-		if (f_stat(BAT_CAL_FILE_RAW, &fno) == FR_OK)
-			resort_bat_cal();      // check, if calibration raw is available
-		if ( bat_calibrated() )
-			bat_cal_available = true;
-
-		battery_calibrating_state = BATTERY_CAL_NONE;
-		break;
-	case BATTERY_CAL_NONE:
-		break;
-
-	case BATTERY_CAL_START:
-		DEBUG("Battery Cal: Start\n");
-		charge_counter = 0;
-		gui_showmessage_P(PSTR("Battery Cal:\nCharge to full,\nthen discharge."));
-		gui_messageduration(BAT_CAL_MESSAGE_DURATION);
-		battery_calibrating_next_message = task_get_ms_tick() + BAT_CAL_MESSAGE_DURATION * 1000L;
-		battery_calibrating_state = BATTERY_CAL_CHARGE;
-		break;
-
-	case BATTERY_CAL_CHARGE:
-		switch (battery_per) {
-		case ( BATTERY_FULL ):
-			// Battery is now full, go to DISCHARGE state
-			battery_calibrating_state = BATTERY_CAL_DISCHARGE;
-			DEBUG("Battery Cal: BATTERY FULL.\n");
+		case BATTERY_CAL_NONE:
 			break;
-		case BATTERY_CHARGING:
-			charge_counter = 0;
-			break;
-		default:
-			// We are discharging, which is wrong here. We first want to charge until BATTERY_FULL
-			if ( task_get_ms_tick() > battery_calibrating_next_message)
+
+		case BATTERY_CAL_START:
+			DEBUG("Battery Cal: Start\n");
+
+			if (battery_per == BATTERY_FULL)
 			{
-				battery_calibrating_next_message = task_get_ms_tick() + BAT_CAL_REMIND_INTERVAL * 1000L;
-				charge_counter++;
-				if ( charge_counter >= 4 )
+				f_unlink(BAT_CAL_FILE_RAW);
+
+				battery_calibrating_state = BATTERY_CAL_DISCHARGE;
+				battery_calibrating_next_message = 0;
+
+				//force on gps, bt and full backlight to increase the battery drain
+				//temporary settings are not stored to eeprom
+				if (!bt_ready())
 				{
-					gui_showmessage_P(PSTR("Battery Cal:\nCharge missing.\nNow discharge."));
-					battery_calibrating_state = BATTERY_CAL_DISCHARGE;
-					DEBUG("Battery Cal.\nunplugged...\n");
+					bt_module_init();
+					config.connectivity.use_bt = true;
 				}
-				else
-				{
-					DEBUG("Battery Cal.\nPlease charge!\n");
-					gui_showmessage_P(PSTR("Battery Cal:\nPlease charge!"));
-				}
-			}
-			break;
-		}
-		break;
 
-	case BATTERY_CAL_DISCHARGE:
-		switch (battery_per) {
-		case (BATTERY_CHARGING):
-			// BAD: The user has plugged in charging in the middle of the discharge. Go back to full charge.
-			f_unlink(BAT_CAL_FILE_RAW);
-			battery_calibrating_state = BATTERY_CAL_CHARGE;
-			DEBUG("Battery cal: recharged.\n");
-			break;
-		case BATTERY_FULL:
-			battery_calibrating_next_cal = 0;
-			f_unlink(BAT_CAL_FILE_RAW);
-			if ( task_get_ms_tick() > battery_calibrating_next_message)
+				if (!gps_selftest())
+				{
+					gps_start();
+					config.connectivity.use_gps = true;
+				}
+
+				config.gui.brightness = 100;
+				config.gui.brightness_timeout = 30;
+			}
+			else
 			{
-				battery_calibrating_next_message = task_get_ms_tick() + BAT_CAL_REMIND_INTERVAL * 1000L;
-				gui_showmessage_P(PSTR("Battery Cal.\nPlease\ndischarge!"));
-				DEBUG("Battery Cal.\nPlease discharge!");
+				gui_showmessage_P(PSTR("Please plug\nUSB and wait\nfor full charge!"));
+				battery_calibrating_state = BATTERY_CAL_NONE;
 			}
 			break;
-		default:
-			if ( task_get_ms_tick() > battery_calibrating_next_cal)
+
+		case BATTERY_CAL_DISCHARGE:
+			switch (battery_per)
 			{
-				battery_calibrating_next_cal = task_get_ms_tick() + BAT_CAL_INTERVAL * 1000L;
-				save_bat_cal_value(battery_adc_raw);
+				case BATTERY_CHARGING:
+					// BAD: The user has plugged in charging in the middle of the discharge. Abort
+					battery_calibrating_state = BATTERY_CAL_STOP;
+					break;
+
+				case BATTERY_FULL:
+					battery_calibrating_next_cal = 0;
+
+					if (task_get_ms_tick() > battery_calibrating_next_message)
+					{
+						battery_calibrating_next_message = task_get_ms_tick() + BAT_CAL_REMIND_INTERVAL * 1000L;
+						gui_showmessage_P(PSTR("Please unplug\nUSB and wait\nfor full discharge!"));
+						DEBUG("Battery Cal.\nUnplug USB!");
+					}
+					break;
+
+				default:
+					//do not turn off backlight during discharge
+					gui_trigger_backlight();
+
+					if (task_get_ms_tick() > battery_calibrating_next_cal)
+					{
+						battery_calibrating_next_cal = task_get_ms_tick() + BAT_CAL_INTERVAL * 1000L;
+						save_bat_cal_value(battery_adc_raw);
+					}
+					break;
 			}
 			break;
-		}
-		break;
-	case BATTERY_CAL_STOP:
-		f_unlink(BAT_CAL_FILE_RAW);
-		battery_calibrating_state = BATTERY_CAL_NONE;
-		gui_showmessage_P(PSTR("Battery Cal.\nAborted."));
-		DEBUG("Battery Cal.\nAborted!");
-		break;
+
+		case BATTERY_CAL_STOP:
+			battery_abort_calibration();
+			break;
 	}
+}
+
+void battery_stop()
+{
+	if (battery_calibrating_state != BATTERY_CAL_NONE)
+		battery_abort_calibration();
 }
 
 bool battery_step()
@@ -391,7 +389,7 @@ bool battery_step()
 		return false;
 	#endif
 
-	battery_cal();
+	battery_calibration_step();
 
 	if (battery_next_meas > task_get_ms_tick())
 		return false;
@@ -451,13 +449,13 @@ bool battery_step()
 			eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
 		}
 
-		battery_per = get_battery_per_from_calibration(battery_adc_raw);
+		if (bat_cal_available)
+			//if callibration table is avalible
+			battery_per = get_battery_per_from_calibration(battery_adc_raw);
+		else
+			//else use old linear method
+			battery_per = (((int32_t)battery_adc_raw - (int32_t)BAT_ADC_MIN) * 105) / bat_adc_dif; //5% is planned overshoot
 
-		if ( battery_per > 100 )
-		{
-			//5% is planned overshoot
-			battery_per = (((int32_t)battery_adc_raw - (int32_t)BAT_ADC_MIN) * 105) / bat_adc_dif;
-		}
 		if (battery_per > 100)
 			battery_per = 100;
 		if (battery_per < 0)

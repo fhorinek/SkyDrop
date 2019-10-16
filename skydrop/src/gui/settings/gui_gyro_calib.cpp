@@ -36,8 +36,6 @@ void gui_gyro_calib_init()
 
 }
 
-void gui_gyro_calib_stop() {}
-
 void gui_gyro_calib_loop()
 {
 	uint8_t value;

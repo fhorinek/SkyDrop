@@ -37,7 +37,7 @@ void suppress_alarm()
 	}
 }
 
-void gui_set_alarm_init()
+void gui_alarm_init()
 {
 	gui_alarm_switch_back = 0;
 	gui_alarm_started = 0;
@@ -56,12 +56,12 @@ void gui_set_alarm_init()
 	}
 }
 
-void gui_set_alarm_stop()
+void gui_alarm_stop()
 {
 	seq_stop();
 }
 
-void gui_set_alarm_loop()
+void gui_alarm_loop()
 {
 	char tmp[12];
 
@@ -118,8 +118,10 @@ void gui_set_alarm_loop()
 	else
 	{
 		if (gui_alarm_started == 0)
+		{
 			// The alarm is new and started right now. Save the time.
 			gui_alarm_started = task_get_ms_tick();
+		}
 		else
 		{
 			// This is an already running alarm.
@@ -144,7 +146,13 @@ void gui_set_alarm_loop()
 
 	disp.LoadFont(F_TEXT_S);
 	uint8_t f_h = disp.GetAHeight();
-	gui_caligh_text_P(PSTR("Confirm"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DISP_HEIGHT - f_h -1);
+	gui_caligh_text_P(PSTR("Confirm"), GUI_DISP_WIDTH / 2, GUI_DISP_HEIGHT - f_h -1);
+
+	if (config.altitude.alarm_confirm_secs != 0)
+	{
+		sprintf_P(tmp, PSTR("%u"), config.altitude.alarm_confirm_secs - ((task_get_ms_tick() - gui_alarm_started) / 1000));
+		gui_raligh_text(tmp, GUI_DISP_WIDTH, GUI_DISP_HEIGHT - f_h -1);
+	}
 
 	//blink if alarm is active
 	if (n != 0)
@@ -158,7 +166,7 @@ void gui_set_alarm_loop()
 		}
 }
 
-void gui_set_alarm_irqh(uint8_t type, uint8_t * buff)
+void gui_alarm_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == TASK_IRQ_BUTTON_M)
 	{

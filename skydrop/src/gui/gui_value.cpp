@@ -36,10 +36,6 @@ void gui_value_conf_P(const char * label, uint8_t type, const char * format, flo
 	gui_value_index = 0;
 }
 
-void gui_value_init() {}
-
-void gui_value_stop() {}
-
 void gui_value_draw_bar()
 {
 	uint8_t pad = 3;
@@ -68,8 +64,6 @@ void gui_value_loop()
 	uint8_t wday;
 	uint8_t month;
 	uint16_t year;
-
-
 
 	gui_dialog(gui_value_label);
 	disp.LoadFont(F_TEXT_L);
@@ -104,8 +98,6 @@ void gui_value_loop()
 			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_TOP + 8 + f_h * 3);
 			fprintf(lcd_out, "pf=%4u pl=%4u", audio_vario_prebeep_frequency, audio_vario_prebeep_length / 31);
 		break;
-
-
 
 		case(GUI_VAL_TIME):
 			time_from_epoch(time_get_local(), &sec, &min, &hour);

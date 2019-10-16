@@ -134,8 +134,6 @@ void gui_pages_init()
 	}
 }
 
-void gui_pages_stop() {}
-
 //returns true if this is a first time
 bool gui_enter_widget_menu()
 {

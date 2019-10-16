@@ -84,7 +84,7 @@ void gui_update_fail(uint16_t line)
 	{
 		DEBUG("Same version\n");
 		strcpy_P(tmp1, PSTR("Update"));
-		sprintf_P(tmp2, PSTR("Same version\nLoad\nconfiguration?"), line);
+		sprintf_P(tmp2, PSTR("Same version\nLoad only\nconfiguration?"), line);
 		gui_dialog_set(tmp1, tmp2, GUI_STYLE_OKCANCEL, gui_update_eeprom_cb);
 	}
 
@@ -96,8 +96,6 @@ void gui_update_init()
 	//Temporarily disable logging on SD card
 	config.system.debug_log = false;
 }
-
-void gui_update_stop() {}
 
 void gui_update_bar()
 {
@@ -175,18 +173,7 @@ void gui_update_loop()
 			}
 
 			//sucessfull header read
-			if (f_read(update_file, &update_head, sizeof(update_head), &rd) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			//correct bytes read
-			if (rd != sizeof(update_head))
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
+			f_read(update_file, &update_head, sizeof(update_head), &rd);
 
 			//check file size
 			if (update_head.file_size != update_file->fsize)
@@ -209,17 +196,7 @@ void gui_update_loop()
 			else
 				to_read = update_head.eeprom_size - update_file_pos;
 
-			if (f_read(update_file, buff, to_read, &rd) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (rd != to_read)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
+			f_read(update_file, buff, to_read, &rd);
 
 			for (i = 0; i < rd; i++)
 				update_file_crc = CalcCRC(update_file_crc, UPDATE_CRC, buff[i]);
@@ -245,11 +222,7 @@ void gui_update_loop()
 						update_state = UPDATE_EE;
 						update_file_pos = 0;
 
-						if (f_lseek(update_file, sizeof(update_head)) != FR_OK)
-						{
-							gui_update_fail(__LINE__);
-							break;
-						}
+						f_lseek(update_file, sizeof(update_head));
 					}
 
 				}
@@ -268,29 +241,8 @@ void gui_update_loop()
 			else
 				to_read = update_head.flash_size - update_file_pos;
 
-			if (f_read(update_file, buff, to_read, &rd) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (rd != to_read)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (f_write(update_file_out, buff, to_read, &wr) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (rd != wr)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
+			f_read(update_file, buff, to_read, &rd);
+			f_write(update_file_out, buff, to_read, &wr);
 
 			update_file_pos += to_read;
 
@@ -300,11 +252,7 @@ void gui_update_loop()
 				update_file_pos = 0;
 				update_file_crc = 0;
 
-				if (f_close(update_file_out) != FR_OK)
-				{
-					gui_update_fail(__LINE__);
-					break;
-				}
+				f_close(update_file_out);
 
 				if (f_open(update_file_out, "UPDATE.FW", FA_READ) != FR_OK)
 				{
@@ -321,17 +269,7 @@ void gui_update_loop()
 			else
 				to_read = update_head.flash_size - update_file_pos;
 
-			if (f_read(update_file_out, buff, to_read, &rd) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (rd != to_read)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
+			f_read(update_file_out, buff, to_read, &rd);
 
 			for (i = 0; i < rd; i++)
 				update_file_crc = CalcCRC(update_file_crc, UPDATE_CRC, buff[i]);
@@ -344,17 +282,8 @@ void gui_update_loop()
 					update_state = UPDATE_EE;
 					update_file_pos = 0;
 
-					if (f_close(update_file_out) != FR_OK)
-					{
-						gui_update_fail(__LINE__);
-						break;
-					}
-
-					if (f_lseek(update_file, sizeof(update_head)) != FR_OK)
-					{
-						gui_update_fail(__LINE__);
-						break;
-					}
+					f_close(update_file_out);
+					f_lseek(update_file, sizeof(update_head));
 				}
 				else
 				{
@@ -371,18 +300,7 @@ void gui_update_loop()
 			else
 				to_read = update_head.eeprom_size - update_file_pos;
 
-			if (f_read(update_file, buff, to_read, &rd) != FR_OK)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
-			if (rd != to_read)
-			{
-				gui_update_fail(__LINE__);
-				break;
-			}
-
+			f_read(update_file, buff, to_read, &rd);
 
 			eeprom_busy_wait();
 			eeprom_update_block(buff, (uint8_t *)(APP_INFO_EE_offset + update_file_pos), to_read);
@@ -404,5 +322,3 @@ void gui_update_loop()
 	}
 //	DEBUG(" *** update_loop_end ***\n");
 }
-
-void gui_update_irqh(uint8_t type, uint8_t * buff) {}

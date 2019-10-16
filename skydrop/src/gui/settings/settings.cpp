@@ -9,18 +9,6 @@ void gui_settings_init()
 	gui_list_set(gui_settings_item, gui_settings_action, 9, GUI_PAGES);
 }
 
-void gui_settings_stop() {}
-
-void gui_settings_loop()
-{
-	gui_list_draw();
-}
-
-void gui_settings_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
 	switch (index)
@@ -51,21 +39,26 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		break;
 
 		case (5):
-			strcpy_P(text, PSTR("GPS"));
+			strcpy_P(text, PSTR("Airspaces"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
-			strcpy_P(text, PSTR("Bluetooth"));
+			strcpy_P(text, PSTR("GPS"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (7):
-			strcpy_P(text, PSTR("Settings"));
+			strcpy_P(text, PSTR("Bluetooth"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (8):
+			strcpy_P(text, PSTR("Settings"));
+			*flags |= GUI_LIST_FOLDER;
+		break;
+
+		case (9):
 			strcpy_P(text, PSTR("Debug"));
 			*flags |= GUI_LIST_FOLDER;
 		break;
@@ -101,18 +94,22 @@ void gui_settings_action(uint8_t index)
 		break;
 
 	case (5):
-		gui_switch_task(GUI_SET_GPS);
+		gui_switch_task(GUI_SET_AIRSPACE);
 		break;
 
 	case (6):
-		gui_switch_task(GUI_SET_BLUETOOTH);
+		gui_switch_task(GUI_SET_GPS);
 		break;
 
 	case (7):
-		gui_switch_task(GUI_SET_SYSTEM);
+		gui_switch_task(GUI_SET_BLUETOOTH);
 		break;
 
 	case (8):
+		gui_switch_task(GUI_SET_SYSTEM);
+		break;
+
+	case (9):
 		gui_switch_task(GUI_SET_DEBUG);
 		break;
 	}

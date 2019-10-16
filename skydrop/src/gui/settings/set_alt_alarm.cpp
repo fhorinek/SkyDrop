@@ -15,13 +15,6 @@ void gui_set_alt_alarm_init()
 	gui_list_set(gui_set_alt_alarm_item, gui_set_alt_alarm_action, 6, GUI_SET_ALTIMETERS);
 }
 
-void gui_set_alt_alarm_stop() {}
-
-void gui_set_alt_alarm_loop()
-{
-	gui_list_draw();
-}
-
 void gui_set_alt_alarm_alarm1_cb(float val)
 {
 	gui_switch_task(GUI_SET_ALT_ALARM);
@@ -66,13 +59,23 @@ void gui_set_alt_alarm_confirm_secs_cb(float val)
 	eeprom_update_byte(&config_ee.altitude.alarm_confirm_secs, config.altitude.alarm_confirm_secs);
 }
 
-void gui_set_alt_alarm_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_alt_alarm_action(uint8_t index)
 {
+	const char * alt_format;
+	float mul;
+
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	{
+		alt_format = PSTR("%0.0f ft");
+		mul = FC_METER_TO_FEET;
+	}
+	else
+	{
+		alt_format = PSTR("%0.0f m");
+		mul = 1;
+
+	}
+
 	switch(index)
 	{
 		case (0):
@@ -87,38 +90,22 @@ void gui_set_alt_alarm_action(uint8_t index)
 		break;
 
 		case (2):
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				gui_value_conf_P(PSTR("Alarm 1 (Low)"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_1, config.altitude.alarm_2 + ALARM_SEPARATION, 10000, 5, gui_set_alt_alarm_alarm1_cb, FC_METER_TO_FEET);
-			else
-				gui_value_conf_P(PSTR("Alarm 1 (Low)"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_1, config.altitude.alarm_2 + ALARM_SEPARATION, 10000, 5, gui_set_alt_alarm_alarm1_cb);
-
+			gui_value_conf_P(PSTR("Alarm 1 (Low)"), GUI_VAL_NUMBER, alt_format, config.altitude.alarm_1, config.altitude.alarm_2 + ALARM_SEPARATION, 10000, 5, gui_set_alt_alarm_alarm1_cb, mul);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case (3):
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				gui_value_conf_P(PSTR("Alarm 2 (Lowest)"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_2, 0, config.altitude.alarm_1 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb, FC_METER_TO_FEET);
-			else
-				gui_value_conf_P(PSTR("Alarm 2 (Lowest)"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_2, 0, config.altitude.alarm_1 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb);
-
+			gui_value_conf_P(PSTR("Alarm 2 (Lowest)"), GUI_VAL_NUMBER, alt_format, config.altitude.alarm_2, 0, config.altitude.alarm_1 - ALARM_SEPARATION, 5, gui_set_alt_alarm_alarm2_cb, mul);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case (4):
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				gui_value_conf_P(PSTR("Alarm 3 (High)"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_h1, config.altitude.alarm_1 - ALARM_SEPARATION, 5000, 5, gui_set_alt_alarm_alarm_h1_cb, FC_METER_TO_FEET);
-			else
-				gui_value_conf_P(PSTR("Alarm 3 (High)"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_h1, config.altitude.alarm_1 - ALARM_SEPARATION, 5000, 5, gui_set_alt_alarm_alarm_h1_cb);
-
+			gui_value_conf_P(PSTR("Alarm 3 (High)"), GUI_VAL_NUMBER, alt_format, config.altitude.alarm_h1, config.altitude.alarm_1 - ALARM_SEPARATION, 5000, 5, gui_set_alt_alarm_alarm_h1_cb, mul);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case (5):
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				gui_value_conf_P(PSTR("Alarm reset"), GUI_VAL_NUMBER, PSTR("%0.0f ft"), config.altitude.alarm_reset, 10, 1000, 1, gui_set_alt_alarm_reset_cb, FC_METER_TO_FEET);
-			else
-				gui_value_conf_P(PSTR("Alarm reset"), GUI_VAL_NUMBER, PSTR("%0.0f m"), config.altitude.alarm_reset, 10, 1000, 1, gui_set_alt_alarm_reset_cb);
-
+			gui_value_conf_P(PSTR("Alarm reset"), GUI_VAL_NUMBER, alt_format, config.altitude.alarm_reset, 10, 1000, 1, gui_set_alt_alarm_reset_cb, mul);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 	}

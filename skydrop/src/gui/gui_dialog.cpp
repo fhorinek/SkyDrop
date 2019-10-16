@@ -51,9 +51,6 @@ void gui_dialog_set(char * title, char * msg, uint8_t style, uint8_cb * cb)
 	}
 }
 
-void gui_dialog_init() {}
-void gui_dialog_stop() {}
-
 void gui_dialog_loop()
 {
 	if (gui_dialog_style & GUI_STYLE_NO_TITLE)
@@ -172,6 +169,13 @@ void gui_dialog_loop()
 		case(GUI_STYLE_FORMAT):
 			gui_caligh_text_P(PSTR("No"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
 			gui_raligh_text_P(PSTR("Yes"), GUI_DIALOG_RIGHT - 1, GUI_DIALOG_BOTTOM - f_h);
+		break;
+
+		case(GUI_STYLE_AIRSPACE):
+			disp.GotoXY(GUI_DIALOG_LEFT + 1, GUI_DIALOG_BOTTOM - f_h);
+			fprintf_P(lcd_out, PSTR("Back"));
+			gui_caligh_text_P(PSTR("Now"), GUI_DIALOG_LEFT + GUI_DIALOG_WIDTH / 2, GUI_DIALOG_BOTTOM - f_h);
+			gui_raligh_text_P(PSTR("Forever"), GUI_DIALOG_RIGHT + 2, GUI_DIALOG_BOTTOM - f_h);
 		break;
 	}
 }

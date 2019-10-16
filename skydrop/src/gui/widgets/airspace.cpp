@@ -11,7 +11,7 @@
 
 void widget_invert_if_forbidden(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	if (fc.airspace.forbidden)
+	if (fc.airspace.inside)
 	{
 		if (GUI_BLINK_TGL(1000))
 		{
@@ -96,7 +96,7 @@ void widget_airspace_limits_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uin
 	char text1[15];
 	char text2[15];
 
-	if (fc.airspace.forbidden)
+	if (fc.airspace.inside)
 	{
 		strcpy_P(text1, PSTR("Inside!"));
 		widget_value_txt(text1, x, y + lh, w, h - lh);

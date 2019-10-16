@@ -10,7 +10,7 @@ void lcd_display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void lcd_display::GotoXY(int16_t x, int16_t y)
+void lcd_display::GotoXY(int16_t x, int8_t y)
 {
 	text_x = x;
 	text_y = y;
@@ -67,35 +67,29 @@ void lcd_display::Write(uint8_t ascii = 0)
 		for (uint8_t x = 0; x < width; x++)
 		{
 			uint16_t index = adr + x * font_lines;
-			for (uint8_t n = 0; n < font_lines; n++)
-			{
-				uint8_t data = pgm_read_byte(&this->font_data[index + n]);
 
-				for (uint8_t a = 0; a < 8; a++)
+			if (text_x < lcd_width && text_x > 0)
+			{
+				for (uint8_t n = 0; n < font_lines; n++)
 				{
-					if (data & (1 << a))
-						this->PutPixel(text_x, text_y + a + n * 8, 1);
+					uint8_t data = pgm_read_byte(&this->font_data[index + n]);
+
+					for (uint8_t a = 0; a < 8; a++)
+					{
+						if (data & (1 << a))
+							this->PutPixel(text_x, text_y + a + n * 8, 1);
+					}
 				}
 			}
 
 			text_x++;
-//			if (text_x >= lcd_width)
-//			{
-//				text_x = 0;
-//				text_y += this->font_height;
-//			}
 		}
 	}
 
 	text_x += font_spacing;
-//	if (text_x >= lcd_width)
-//	{
-//		text_x = 0;
-//		text_y += this->font_height;
-//	}
 }
 
-uint8_t lcd_display::GetTextWidth_P(const char * text)
+uint16_t lcd_display::GetTextWidth_P(const char * text)
 {
 	char textRAM[100];
 
@@ -103,9 +97,9 @@ uint8_t lcd_display::GetTextWidth_P(const char * text)
 	return GetTextWidth(textRAM);
 }
 
-uint8_t lcd_display::GetTextWidth(char * text)
+uint16_t lcd_display::GetTextWidth(char * text)
 {
-	uint8_t ret = 0;
+	uint16_t ret = 0;
 
 	while (*text != 0)
 	{
@@ -129,9 +123,9 @@ uint8_t lcd_display::GetTextWidth(char * text)
 	return ret;
 }
 
-uint8_t lcd_display::GetTextWidthN(char * text, uint8_t n)
+uint16_t lcd_display::GetTextWidthN(char * text, uint8_t n)
 {
-	uint8_t ret = 0;
+	uint16_t ret = 0;
 
 	for (uint8_t i = 0; i < n && *text != 0; i++)
 	{
@@ -271,7 +265,7 @@ void lcd_display::Stop()
  * Draw line (works in any direction)
  *
  */
-void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8_t color)
+void lcd_display::DrawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1, uint8_t color)
 {
 	int dx = abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
 	int dy = -abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
@@ -303,10 +297,10 @@ void lcd_display::DrawLine(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint8
  * /param y the y position in pixel
  * /param color the color which could be either DISP_COLOR_WHITE or "0" for black
  */
-void lcd_display::PutPixel(int16_t x, int16_t y, uint8_t color)
+void lcd_display::PutPixel(int8_t x, int8_t y, uint8_t color)
 {
 	if (x < clip_x1|| y < clip_y1 || x >= clip_x2 || y >= clip_y2
-	|| x < 0 || y < 0 || x >= lcd_width || y >= lcd_height)
+	|| x >= lcd_width || y >= lcd_height)
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);

@@ -11,10 +11,11 @@
 
 #include "../gui.h"
 
+#define gui_home_stop gui_dummy
+#define gui_home_loop gui_list_draw
+#define gui_home_irqh gui_list_irqh
+
 void gui_home_init();
-void gui_home_stop();
-void gui_home_loop();
-void gui_home_irqh(uint8_t type, uint8_t * buff);
 void gui_home_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);
 void gui_home_action(uint8_t index);
 

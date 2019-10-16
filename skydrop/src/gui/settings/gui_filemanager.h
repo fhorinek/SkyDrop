@@ -12,8 +12,10 @@
 
 void gui_filemanager_init();
 void gui_filemanager_stop();
-void gui_filemanager_loop();
-void gui_filemanager_irqh(uint8_t type, uint8_t * buff);
+
+#define gui_filemanager_loop gui_list_draw
+#define gui_filemanager_irqh gui_list_irqh
+
 void gui_filemanager_item(uint8_t index, char * text, uint8_t * flags, char * sub_text);
 void gui_filemanager_action(uint8_t index);
 

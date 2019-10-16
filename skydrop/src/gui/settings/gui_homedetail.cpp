@@ -130,7 +130,3 @@ void gui_homedetail_init()
 
 	fc.flight.home_valid = true;
 }
-
-void gui_homedetail_stop() {}
-void gui_homedetail_loop() {}
-void gui_homedetail_irqh(uint8_t type, uint8_t * buff) {}

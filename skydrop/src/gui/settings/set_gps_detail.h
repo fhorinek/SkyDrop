@@ -10,8 +10,9 @@
 
 #include "../gui.h"
 
+#define gui_set_gps_detail_stop gui_dummy
+
 void gui_set_gps_detail_init();
-void gui_set_gps_detail_stop();
 void gui_set_gps_detail_loop();
 void gui_set_gps_detail_irqh(uint8_t type, uint8_t * buff);
 

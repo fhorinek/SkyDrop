@@ -50,6 +50,11 @@ void task_special_files_handle()
 		gui_load_eeprom();
 	}
 
+	if (f_stat(BAT_CAL_FILE_RAW, &fno) == FR_OK)
+	{
+		battery_finish_calibration();
+	}
+
 	//preserve EE and FW file if NO_WIPE file found (factory programming)
 	if (f_stat("NO_WIPE", &fno) != FR_OK)
 	{
@@ -61,6 +66,8 @@ void task_special_files_handle()
 
 void task_active_stop()
 {
+	battery_stop();
+
 	StoreEEPROM();
 
 	led_notify_disable();

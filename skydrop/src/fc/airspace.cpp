@@ -3,7 +3,7 @@
 
 #include "../drivers/storage/storage.h"
 
-#include "debug_off.h"
+//#include "debug_on.h"
 
 //#index
 //#   1000 0000 - inside (128, 0x80)
@@ -54,7 +54,7 @@ void airspace_init()
     DEBUG("airspace_init\n");
     fc.airspace.file_valid = false;
 
-    fc.airspace.airspace_name_index = AIR_INDEX_INVALID;
+    fc.airspace.airspace_index = AIR_INDEX_INVALID;
     fc.airspace.airspace_name[0] = 0;
 
 	fc.airspace.min_alt = AIRSPACE_INVALID;
@@ -62,14 +62,94 @@ void airspace_init()
 
     fc.airspace.angle = AIRSPACE_INVALID;
     memset((void *) fc.airspace.filename, 0, sizeof(fc.airspace.filename));
+
+    fc.airspace.cache_index = 0xFFFF;
+    fc.airspace.hidden = AIR_INDEX_INVALID;
+
+    char path[32];
+    strcpy_P(path, PSTR("/AIR/IGN_SOFT"));
+
+    f_delete_node(path, sizeof(path));
 }
+
+//"A":            0,
+//"B":            1,
+//"C":            2,
+//"D":            3,
+//"E":            4,
+//"F":            5,
+//"G":            6,
+//"CTR":          7,
+//"CTA":          8,
+//"TMA":          9,
+//"DANGER":       10,
+//"RESTRICTED":   11,
+//"PROHIBITED":   12,
+//"TMZ":          13,
+//"RMZ":          14,
+//"FIR":          15,
+void airspace_class_to_text(char * text, uint8_t index)
+{
+	switch (index)
+	{
+		case(0):
+		case(1):
+		case(2):
+		case(3):
+		case(4):
+		case(5):
+		case(6):
+			sprintf_P(text, PSTR("Class %c"), 'A' + index);
+		break;
+		case(7):
+			sprintf_P(text, PSTR("CTR"));
+		break;
+		case(8):
+			sprintf_P(text, PSTR("CTA"));
+		break;
+		case(9):
+			sprintf_P(text, PSTR("TMA"));
+		break;
+		case(10):
+			sprintf_P(text, PSTR("Danger"));
+		break;
+		case(11):
+			sprintf_P(text, PSTR("Restricted"));
+		break;
+		case(12):
+			sprintf_P(text, PSTR("Prohibited"));
+		break;
+		case(13):
+			sprintf_P(text, PSTR("TMZ"));
+		break;
+		case(14):
+			sprintf_P(text, PSTR("RMZ"));
+		break;
+		case(15):
+			sprintf_P(text, PSTR("FIR"));
+		break;
+	}
+}
+
+
 
 void airspace_open_file(char * fn)
 {
     //copy filename to fc struct
     strcpy((char *) fc.airspace.filename, fn);
 
-    char path[20];
+    char path[32];
+    uint8_t ret;
+
+    fc.airspace.hidden = AIR_INDEX_INVALID;
+
+    //Load ignore list
+    memset((void *)&fc.airspace.ignore, 0, sizeof(fc.airspace.ignore));
+
+    airspace_read_ignore_file(&airspace_data_file, true, (uint8_t *)fc.airspace.ignore, (char *)fc.airspace.filename);
+    airspace_read_ignore_file(&airspace_data_file, false, (uint8_t *)fc.airspace.ignore, (char *)fc.airspace.filename);
+
+    //load data file
     sprintf_P(path, PSTR("/AIR/%s.AIR"), fc.airspace.filename);
 
     DEBUG("AIR data path is '%s'\n", path);
@@ -77,7 +157,7 @@ void airspace_open_file(char * fn)
     if (fc.airspace.file_valid)
         assert(f_close(&airspace_data_file) == FR_OK);
 
-    uint8_t ret = f_open(&airspace_data_file, path, FA_READ);
+    ret = f_open(&airspace_data_file, path, FA_READ);
 
     if (ret == FR_OK)
     {
@@ -163,8 +243,8 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     uint16_t x = int((NDIV(lon, GPS_COORD_MUL)) * AIR_RESOLUTION / GPS_COORD_MUL);
 	uint16_t y = int((NDIV(lat, GPS_COORD_MUL)) * AIR_RESOLUTION / GPS_COORD_MUL);
 
-	DEBUG("x %u\n", x);
-	DEBUG("y %u\n", y);
+//	DEBUG("x %u\n", x);
+//	DEBUG("y %u\n", y);
 
     //seek to position
     uint32_t index = x * AIR_RESOLUTION + y;
@@ -206,6 +286,24 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 			fc.airspace.cache[i].ceil = as_index_data.ceil;
 			fc.airspace.cache[i].airspace_class = as_index_data.airspace_class;
 
+			//if not enabled -> skip
+			if (!(config.airspaces.class_enabled & (1 << as_index_data.airspace_class)))
+			{
+				fc.airspace.cache[i].flags |= AIR_CACHE_SKIP;
+				DEBUG("class %u ignored\n", as_index_data.airspace_class);
+				continue;
+			}
+
+			//if ignored -> skip
+			uint8_t ignore_index = fc.airspace.cache[i].index / 8;
+			uint8_t ignore_bit = 1 << (fc.airspace.cache[i].index % 8);
+			if (fc.airspace.ignore[ignore_index] & ignore_bit)
+			{
+				fc.airspace.cache[i].flags |= AIR_CACHE_SKIP;
+				DEBUG("airspace %u ignored\n", fc.airspace.cache[i].index);
+				continue;
+			}
+
 			uint8_t mode = (as_point.level[i].a & 0x80) >> 6 | (as_point.level[i].b & 0x80) >> 7;
 
 			int16_t lon_n = (lon / GPS_COORD_MUL) - (lon < 0 ? 1 : 0);
@@ -214,8 +312,8 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 			int32_t origin_lat = lat_n * GPS_COORD_MUL + (((y * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
 			int32_t origin_lon = lon_n * GPS_COORD_MUL + (((x * 2 + 1) * (GPS_COORD_MUL / 2)) / AIR_RESOLUTION);
 
-	        DEBUG(" origin_lat: %ld\n", origin_lat);
-	        DEBUG(" origin_lon: %ld\n", origin_lon);
+//	        DEBUG(" origin_lat: %ld\n", origin_lat);
+//	        DEBUG(" origin_lon: %ld\n", origin_lon);
 
 			int8_t lat_offset = (as_point.level[i].a & 0x3F) * ((as_point.level[i].a & 0x40) ? -1 : 1);
 	        int8_t lon_offset = (as_point.level[i].b & 0x3F) * ((as_point.level[i].b & 0x40) ? -1 : 1);
@@ -254,24 +352,24 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
 	        fc.airspace.cache_index = index;
 
-	        DEBUG(" flags: %02X\n", fc.airspace.cache[i].flags);
-
-	        DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
-	        DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
-
-	        DEBUG(" lat_offset: %d\n", fc.airspace.cache[i].lat_offset);
-	        DEBUG(" lon_offset: %d\n", fc.airspace.cache[i].lon_offset);
-
-	        DEBUG(" floor: %u %c\n", fc.airspace.cache[i].floor & 0x7FFF, fc.airspace.cache[i].floor & 0x8000 ? 'A' : 'M');
-	        DEBUG(" ceil: %u %c\n", fc.airspace.cache[i].ceil & 0x7FFF, fc.airspace.cache[i].ceil & 0x8000 ? 'A' : 'M');
-
-	        DEBUG(" index: %u\n", fc.airspace.cache[i].index);
-	        DEBUG(" airspace_class: %u\n", fc.airspace.cache[i].airspace_class);
-	        DEBUG("\n");
+//	        DEBUG(" flags: %02X\n", fc.airspace.cache[i].flags);
+//
+//	        DEBUG(" latitude: %ld\n", fc.airspace.cache[i].latitude);
+//	        DEBUG(" longitude: %ld\n", fc.airspace.cache[i].longitude);
+//
+//	        DEBUG(" lat_offset: %d\n", fc.airspace.cache[i].lat_offset);
+//	        DEBUG(" lon_offset: %d\n", fc.airspace.cache[i].lon_offset);
+//
+//	        DEBUG(" floor: %u %c\n", fc.airspace.cache[i].floor & 0x7FFF, fc.airspace.cache[i].floor & 0x8000 ? 'A' : 'M');
+//	        DEBUG(" ceil: %u %c\n", fc.airspace.cache[i].ceil & 0x7FFF, fc.airspace.cache[i].ceil & 0x8000 ? 'A' : 'M');
+//
+//	        DEBUG(" index: %u\n", fc.airspace.cache[i].index);
+//	        DEBUG(" airspace_class: %u\n", fc.airspace.cache[i].airspace_class);
+//	        DEBUG("\n");
 		}
     }
 
-	fc.airspace.forbidden = false;
+	fc.airspace.inside = false;
 	fc.airspace.angle = AIRSPACE_INVALID;
 
 	//limits
@@ -285,8 +383,8 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 	uint16_t msl_alt = fc_press_to_alt(fc.vario.pressure, 101325);
 	uint16_t gps_alt = fc.gps_data.altitude;
 
-	DEBUG("msl_alt: %d\n", msl_alt);
-	DEBUG("gps_alt: %d\n", gps_alt);
+//	DEBUG("msl_alt: %d\n", msl_alt);
+//	DEBUG("gps_alt: %d\n", gps_alt);
 
 	uint16_t nearest_dist;
 	uint8_t name_i = 0xFF;
@@ -299,7 +397,10 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     	if (fc.airspace.cache[i].flags == 0)
     		break; //no data
 
-        DEBUG("level %d\n", i);
+    	if (fc.airspace.cache[i].flags & AIR_CACHE_SKIP)
+    		continue; //skip
+
+//        DEBUG("level %d\n", i);
 
     	have_data = true;
 
@@ -320,14 +421,14 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
             float k = fc.airspace.cache[i].lat_offset / (float)fc.airspace.cache[i].lon_offset;
             float kn = -fc.airspace.cache[i].lon_offset / (float)fc.airspace.cache[i].lat_offset;
 
-            DEBUG("k %0.5f\n", k);
-            DEBUG("kn %0.5f\n", kn);
+//            DEBUG("k %0.5f\n", k);
+//            DEBUG("kn %0.5f\n", kn);
 
             int64_t q1 = lat - k * lon;
             int64_t q2 = fc.airspace.cache[i].latitude - kn * fc.airspace.cache[i].longitude;
 
-            DEBUG("q1 %ld\n", q1);
-            DEBUG("q2 %ld\n", q2);
+//            DEBUG("q1 %ld\n", q1);
+//            DEBUG("q2 %ld\n", q2);
 
             tx = (-q1 + q2) / (k - kn);
             ty = k * tx + q1;
@@ -374,18 +475,19 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     		//check if inside
     		if (inside)
     		{
-    			fc.airspace.forbidden = true;
+    			fc.airspace.inside = true;
     			name_i = fc.airspace.cache[i].index;
 
     			fc.airspace.angle = angle;
     			fc.airspace.distance_m = distance;
     			fc.airspace.ceiling = fc.airspace.cache[i].ceil;
     			fc.airspace.floor = fc.airspace.cache[i].floor;
+    			fc.airspace.airspace_class = fc.airspace.cache[i].airspace_class;
     		}
     	}
 
     	//arrow point to nearest or outside of forbidden
-    	if (!fc.airspace.forbidden)
+    	if (!fc.airspace.inside)
     	{
 			if ((i == 0) || ((nearest_dist > distance) && !inside))
 			{
@@ -396,6 +498,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     			fc.airspace.distance_m = distance;
     			fc.airspace.ceiling = fc.airspace.cache[i].ceil;
     			fc.airspace.floor = fc.airspace.cache[i].floor;
+    			fc.airspace.airspace_class = fc.airspace.cache[i].airspace_class;
 			}
     	}
 
@@ -421,9 +524,9 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
     if (have_data)
     {
-		if (name_i != fc.airspace.airspace_name_index)
+		if (name_i != fc.airspace.airspace_index)
 		{
-			fc.airspace.airspace_name_index = name_i;
+			fc.airspace.airspace_index = name_i;
 
 			if (name_i != AIR_INDEX_INVALID)
 			{
@@ -439,10 +542,10 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 			}
 		}
 
-//		DEBUG("airspace_name_index: %u\n", name_i);
+		DEBUG("airspace_name_index: %u\n", name_i);
 //		DEBUG("airspace_name: %s\n", fc.airspace.airspace_name);
 //
-//		DEBUG("forbidden: %u\n", fc.airspace.forbidden);
+//		DEBUG("inside: %u\n", fc.airspace.inside);
 //		DEBUG("angle: %u\n", fc.airspace.angle);
 //		DEBUG("distance_m: %u\n", fc.airspace.distance_m);
 //		DEBUG("ceiling: %u\n", fc.airspace.ceiling);
@@ -450,6 +553,25 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 //		DEBUG("min_alt: %u\n", fc.airspace.min_alt);
 //		DEBUG("max_alt: %u\n", fc.airspace.max_alt);
 //		DEBUG("\n");
+
+		uint8_t hide_index = fc.airspace.airspace_index | (fc.airspace.inside ? AIR_HIDE_INSIDE : 0x00);
+		DEBUG("hidden: %u\n", fc.airspace.hidden);
+		DEBUG("hide_index: %u\n", hide_index);
+
+		if (hide_index != fc.airspace.hidden)
+		{
+			if (fc.airspace.inside && config.airspaces.alert_on)
+			{
+				if (gui_task != GUI_DIALOG)
+					gui_switch_task(GUI_AIRSPACE_ALARM);
+			}
+
+			if (fc.airspace.distance_m <= config.airspaces.warning_m && config.airspaces.warning_m > 0)
+			{
+				if (gui_task != GUI_DIALOG)
+					gui_switch_task(GUI_AIRSPACE_ALARM);
+			}
+		}
     }
     else
     {
@@ -494,8 +616,66 @@ void airspace_step()
 
         if (fc.airspace.angle != AIRSPACE_INVALID)
         {
-        	DEBUG("AIR: lat/lon: %f %f FORBIDDEN: %d ANGLE: %d DIST: %u\n", fc.gps_data.latitude * 1.0 / GPS_COORD_MUL, fc.gps_data.longtitude * 1.0 / GPS_COORD_MUL, fc.airspace.forbidden, fc.airspace.angle, fc.airspace.distance_m);
+        	DEBUG("AIR: lat/lon: %f %f FORBIDDEN: %d ANGLE: %d DIST: %u\n", fc.gps_data.latitude * 1.0 / GPS_COORD_MUL, fc.gps_data.longtitude * 1.0 / GPS_COORD_MUL, fc.airspace.inside, fc.airspace.angle, fc.airspace.distance_m);
         }
     }
 }
 
+void airspace_read_ignore_file(FIL * handle, bool hard, uint8_t * array, char * filename)
+{
+    char path[32];
+
+    const char * p_soft = PSTR("IGN_SOFT");
+    const char * p_hard = PSTR("IGN_HARD");
+
+    sprintf_P(path, PSTR("/AIR/%S/%s"), hard ? p_hard : p_soft, filename);
+
+    DEBUG("RI,%s\n", path);
+    uint8_t ret = f_open(handle, path, FA_READ);
+	if (ret == FR_OK)
+	{
+		uint8_t buff[sizeof(fc.airspace.ignore)];
+		uint16_t br = 0;
+
+		f_read(handle, buff, sizeof(buff), &br);
+
+		DEBUG(" ");
+		if (br == sizeof(buff))
+		{
+			for (uint8_t i = 0; i < sizeof(fc.airspace.ignore); i++)
+			{
+				array[i] |= buff[i];
+				DEBUG("%02X ", buff[i]);
+			}
+		}
+		DEBUG("\n");
+
+		assert(f_close(handle) == FR_OK);
+	}
+}
+
+void airspace_write_ignore_file(FIL * handle, bool hard, uint8_t * array, char * filename)
+{
+    char path[32];
+
+    const char * p_soft = PSTR("IGN_SOFT");
+    const char * p_hard = PSTR("IGN_HARD");
+
+    sprintf_P(path, PSTR("/AIR/%S"), hard ? p_hard : p_soft);
+    uint8_t ret = f_mkdir(path);
+
+    DEBUG("WI,%s,%u\n", path, ret);
+    sprintf_P(path, PSTR("/AIR/%S/%s"), hard ? p_hard : p_soft, filename);
+	ret = f_open(handle, path, FA_WRITE | FA_CREATE_ALWAYS);
+	if (ret == FR_OK)
+	{
+		uint16_t bw;
+
+		f_write(handle, array, sizeof(fc.airspace.ignore), &bw);
+
+		assert(bw == sizeof(fc.airspace.ignore));
+		assert(f_close(handle) == FR_OK);
+	}
+	else
+		DEBUG("Not opened\n");
+}

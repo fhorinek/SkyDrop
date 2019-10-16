@@ -98,16 +98,16 @@ void Usart::Init(uint32_t baud)
 void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t baud)
 {
 	//TODO:why is 1M not working?
-	uint32_t new_baud;
+//	uint32_t new_baud;
 
-	uint16_t bsel; //12 bit
-	int8_t bscale; //-7 - 7
+//	uint16_t bsel; //12 bit
+//	int8_t bscale; //-7 - 7
 
 	uint16_t bsel_best = 0;
 	int8_t bscale_best = 0;
-	float error = 1;
+//	float error = 1;
 
-	uint8_t mul = 16;
+//	uint8_t mul = 16;
 
 	uint8_t i;
 
@@ -142,8 +142,16 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 	switch (baud)
 	{
 		case(9600ul):
-			bsel_best = 3317;
-			bscale_best = -4;
+			if (freq_cpu == 2000000ul)
+			{
+				bsel_best = 1539;
+				bscale_best = -7;
+			}
+			else
+			{
+				bsel_best = 3317;
+				bscale_best = -4;
+			}
 		break;
 
 		case(19200ul):

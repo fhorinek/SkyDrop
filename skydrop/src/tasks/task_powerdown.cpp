@@ -1,9 +1,10 @@
 #include "task_powerdown.h"
 
 extern SleepLock powerdown_lock;
-// extern Usart uart;
 
 volatile bool powerdown_loop_break = false;
+
+//#include "../debug_on.h"
 
 void task_powerdown_init()
 {
@@ -70,7 +71,6 @@ void powerdown_sleep()
 		if (time_rtc_irq)
 			wdt_reset();
 
-
 	} while (time_rtc_irq == true);
 
 	//start task timer in low speed mode
@@ -90,6 +90,10 @@ void task_powerdown_loop()
 
 		uart_low_speed();
 	}
+
+	DEBUG("tsl = %d\n", task_sleep_lock);
+	DEBUG("pla = %d\n",  powerdown_lock.Active());
+	DEBUG("pbl = %d\n", powerdown_loop_break);
 }
 
 void task_powerdown_irqh(uint8_t type, uint8_t * buff)

@@ -9,6 +9,7 @@
 #define FC_AIRSPACE_H
 
 #include "../common.h"
+#include "../drivers/storage/storage.h"
 
 void airspace_init();
 void airspace_read_pos(int32_t latitude, int32_t longtitude);
@@ -33,5 +34,9 @@ void airspace_step();
 
 uint16_t airspace_convert_alt_ft(uint16_t raw_alt);
 uint16_t airspace_convert_alt_m(uint16_t raw_alt);
+
+void airspace_class_to_text(char * text, uint8_t index);
+void airspace_read_ignore_file(FIL * handle, bool hard, uint8_t * array, char * filename);
+void airspace_write_ignore_file(FIL * handle, bool hard, uint8_t * array, char * filename);
 
 #endif /* FC_AIRSPACE_H */

@@ -12,18 +12,6 @@ void gui_set_logger_init()
 	gui_list_set(gui_set_logger_item, gui_set_logger_action, 7, GUI_SETTINGS);
 }
 
-void gui_set_logger_stop() {}
-
-void gui_set_logger_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_logger_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_logger_pilot_cb(uint8_t ret, char * buff)
 {
 	if (ret == GUI_TEXT_OK)

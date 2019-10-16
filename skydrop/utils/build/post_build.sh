@@ -41,6 +41,10 @@ echo " * Creating configuration image"
 ../utils/hex2bin/main.py skydrop.eep UPDATE.EE ee
 echo
 
+echo " * Injecting default configuration"
+../utils/build/place_default_cfg.py
+echo
+
 #pack to SKYBEAN.FW
 echo " * Packing update files"
 ../utils/hex2bin/pack.py

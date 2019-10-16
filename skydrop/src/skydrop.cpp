@@ -3,6 +3,8 @@
 int free_ram_at_start;
 uint8_t system_rst;
 
+#include "debug_on.h"
+
 void Setup()
 {
 	//set clock to max for init 32MHz

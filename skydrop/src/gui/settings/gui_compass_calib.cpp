@@ -17,18 +17,6 @@ void gui_compass_calib_init()
 	gui_list_set(gui_compass_calib_item, gui_compass_calib_action, 2, GUI_SET_CALIB);
 }
 
-void gui_compass_calib_stop() {}
-
-void gui_compass_calib_loop()
-{
-	gui_list_draw();
-}
-
-void gui_compass_calib_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_compass_calib_declination(float val)
 {
 	gui_switch_task(GUI_SET_COMPASS);

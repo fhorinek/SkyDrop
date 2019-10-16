@@ -107,8 +107,11 @@ void gui_statusbar();
 #define GUI_SET_AUTOSET         38
 #define GUI_SET_AUTOSET_CONFIG  39
 #define GUI_WAYPOINTDETAIL		40
+#define GUI_SET_AIRSPACE		41
+#define GUI_SET_AIRSPACE_CLASS  42
+#define GUI_AIRSPACE_ALARM		43
 
-#define NUMBER_OF_GUI_TASKS		41
+#define NUMBER_OF_GUI_TASKS		44
 
 #define GUI_LAST_TASK			0xFF
 
@@ -118,5 +121,9 @@ extern uint8_t lcd_contrast_max;
 extern volatile uint8_t gui_task;
 extern volatile uint8_t gui_new_task;
 extern volatile bool gui_buttons_override;
+
+void gui_dummy();
+void gui_dummy(uint8_t index);
+void gui_dummy(uint8_t type, uint8_t * buff);
 
 #endif /* GUI_H_ */

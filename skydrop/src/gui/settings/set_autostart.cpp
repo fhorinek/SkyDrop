@@ -7,19 +7,7 @@
 
 void gui_set_autostart_init()
 {
-	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 6, GUI_SET_LOGGER);
-}
-
-void gui_set_autostart_stop() {}
-
-void gui_set_autostart_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_autostart_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
+	gui_list_set(gui_set_autostart_item, gui_set_autostart_action, 5, GUI_SET_LOGGER);
 }
 
 void gui_set_autostart_start_threshold_cb(float val)
@@ -56,28 +44,28 @@ void gui_set_autostart_action(uint8_t index)
 {
 	switch(index)
 	{
-		case(1):
+		case(0):
 			gui_value_conf_P(PSTR("Start threshold"), GUI_VAL_NUMBER_DISABLE, PSTR("+/-%0.0fm"), config.autostart.start_sensititvity, 0, 100, 1, gui_set_autostart_start_threshold_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(2):
+		case(1):
 			gui_value_conf_P(PSTR("Land threshold"), GUI_VAL_NUMBER_DISABLE, PSTR("+/-%0.0fm"), config.autostart.land_sensititvity, 0, 100, 1, gui_set_autostart_land_threshold_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(3):
+		case(2):
 			gui_value_conf_P(PSTR("Timeout"), GUI_VAL_NUMBER, PSTR("%0.0f sec"), config.autostart.timeout, 30, 240, 1, gui_set_autostart_timeout_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
-		case(4):
+		case(3):
 			config.autostart.flags ^= AUTOSTART_SUPRESS_AUDIO;
 			eeprom_busy_wait();
 			eeprom_update_byte(&config_ee.autostart.flags, config.autostart.flags);
 		break;
 
-		case(5):
+		case(4):
 			config.autostart.flags ^= AUTOSTART_ALWAYS_ENABLED;
 			eeprom_busy_wait();
 			eeprom_update_byte(&config_ee.autostart.flags, config.autostart.flags);
@@ -90,23 +78,6 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 	switch (index)
 	{
 		case (0):
-			strcpy_P(text, PSTR("State"));
-			*flags |= GUI_LIST_SUB_TEXT;
-			switch (fc.flight.state)
-			{
-				case(FLIGHT_WAIT):
-					strcpy_P(sub_text, PSTR("Waiting"));
-				break;
-				case(FLIGHT_FLIGHT):
-					strcpy_P(sub_text, PSTR("Flying"));
-				break;
-				case(FLIGHT_LAND):
-					strcpy_P(sub_text, PSTR("Landed"));
-				break;
-			}
-		break;
-
-		case (1):
 			strcpy_P(text, PSTR("Start threshold"));
 			if (config.autostart.start_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.start_sensititvity);
@@ -117,7 +88,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 		break;
 
 
-		case (2):
+		case (1):
 			strcpy_P(text, PSTR("Land threshold"));
 			if (config.autostart.land_sensititvity > 0)
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.land_sensititvity);
@@ -126,13 +97,13 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (3):
+		case (2):
 			strcpy_P(text, PSTR("Timeout"));
 			sprintf_P(sub_text, PSTR("%d sec"), config.autostart.timeout);
 			*flags |= GUI_LIST_SUB_TEXT;
 		break;
 
-		case (4):
+		case (3):
 			strcpy_P(text, PSTR("Suppress audio"));
 			if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
 				*flags |= GUI_LIST_CHECK_ON;
@@ -140,7 +111,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 				*flags |= GUI_LIST_CHECK_OFF;
 		break;
 
-		case (5):
+		case (4):
 			strcpy_P(text, PSTR("Record always"));
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
 				*flags |= GUI_LIST_CHECK_ON;

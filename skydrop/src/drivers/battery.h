@@ -23,14 +23,18 @@ extern uint8_t battery_calibrating_state;
 #define BATTERY_FULL		(102)
 
 #define BATTERY_CAL_NONE      (0)
-#define BATTERY_CAL_BOOT      (1)
-#define BATTERY_CAL_START     (2)
-#define BATTERY_CAL_CHARGE    (3)
-#define BATTERY_CAL_DISCHARGE (4)
-#define BATTERY_CAL_STOP      (5)
+#define BATTERY_CAL_START     (1)
+#define BATTERY_CAL_DISCHARGE (2)
+#define BATTERY_CAL_STOP      (3)
+
+#define BATTERY_CAL_INVALID		0xFFFF
+
+#define BAT_CAL_FILE_RAW "/BAT-CAL.RAW"     // file to store raw calibration data collected during calibration
 
 void battery_init();
 bool battery_step();
 void battery_force_update();
+void battery_stop();
+void battery_finish_calibration();
 
 #endif /* BATTERY_H_ */

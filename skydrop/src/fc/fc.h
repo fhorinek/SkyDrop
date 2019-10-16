@@ -279,6 +279,7 @@ struct agl_data_t
 #define AIR_CACHE_INSIDE	0x02
 #define AIR_CACHE_NORMAL	0x04
 #define AIR_CACHE_FAR		0x08
+#define AIR_CACHE_SKIP		0x80
 
 struct airspace_cache_t
 {
@@ -302,6 +303,7 @@ struct airspace_cache_t
 #define AIR_LEVELS					5
 #define AIR_LEVEL_SIZE				3
 #define AIR_INDEX_SIZE				64
+#define AIR_HIDE_INSIDE				0x80
 
 struct airspace_data_t
 {
@@ -309,19 +311,22 @@ struct airspace_data_t
 
 	char filename[10];        // The filename of the currently opened airspace file
 
-	bool forbidden;           // Is the pilot currently inside the forbidden airspace?
+	bool inside;           // Is the pilot currently inside the forbidden airspace?
 	uint16_t angle;           // The angle out of the airspace or "AGL_INVALID".
 	uint16_t distance_m;      // The distance to (or out) of the airspace in meter.
 	uint16_t ceiling;
 	uint16_t floor;
+	uint8_t airspace_class;
 
 	uint16_t min_alt;
 	uint16_t max_alt;
 
-	uint8_t airspace_name_index;
+	uint8_t airspace_index;
 	char airspace_name[50];
 
 	uint16_t cache_index;
+	uint8_t ignore[16];
+	uint8_t hidden;
 	airspace_cache_t cache[AIR_LEVELS];
 };
 

@@ -92,8 +92,9 @@
 								<option id="de.innot.avreclipse.objcopy.option.eeprom.stdopts.1107809496" name="Options to create eeprom image" superClass="de.innot.avreclipse.objcopy.option.eeprom.stdopts" useByScannerDiscovery="false" value="-j .eeprom --no-change-warnings --change-section-lma .eeprom=0x20 -O ihex" valueType="string"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.size.winavr.app.release.1454308947" name="Print Size" superClass="de.innot.avreclipse.tool.size.winavr.app.release">
-								<option id="de.innot.avreclipse.size.option.format.401859948" name="Size Format" superClass="de.innot.avreclipse.size.option.format" useByScannerDiscovery="false" value="de.innot.avreclipse.size.option.format.sysv" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.size.option.format.401859948" name="Size Format" superClass="de.innot.avreclipse.size.option.format" useByScannerDiscovery="false" value="de.innot.avreclipse.size.option.format.berkeley" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.size.option.formatwithavr.941622691" name="Size Format" superClass="de.innot.avreclipse.size.option.formatwithavr" useByScannerDiscovery="false" value="de.innot.avreclipse.size.option.format.avr" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.size.option.totals.809487089" name="Show Totals" superClass="de.innot.avreclipse.size.option.totals" useByScannerDiscovery="false" value="false" valueType="boolean"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.avrdude.app.release.1616035555" name="AVRDude" superClass="de.innot.avreclipse.tool.avrdude.app.release"/>
 						</toolChain>

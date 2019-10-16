@@ -10,18 +10,6 @@ void gui_set_vario_advanced_init()
 	gui_list_set(gui_set_vario_advanced_item, gui_set_vario_advanced_action, 9, GUI_SET_VARIO);
 }
 
-void gui_set_vario_advanced_stop() {}
-
-void gui_set_vario_advanced_loop()
-{
-	gui_list_draw();
-}
-
-void gui_set_vario_advanced_irqh(uint8_t type, uint8_t * buff)
-{
-	gui_list_irqh(type, buff);
-}
-
 void gui_set_vario_advanced_weak_cb(float val)
 {
 	uint16_t tmp = val * 100;

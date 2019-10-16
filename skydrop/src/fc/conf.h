@@ -243,6 +243,14 @@ struct cfg_home
     char info[80];
 };
 
+struct cfg_airspaces
+{
+	uint16_t class_enabled;
+	uint16_t warning_m;
+	uint8_t alert_on;
+	uint8_t alarm_confirm_secs; // Number of secs to confirm an alarm. "0" means forever.
+};
+
 //Main user configurations
 //start address				32	0x20
 struct cfg_t
@@ -259,8 +267,8 @@ struct cfg_t
 	cfg_logger logger;
 	cfg_connectivity connectivity;
 	cfg_home home;
+	cfg_airspaces airspaces;
 };
-
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 
@@ -285,7 +293,7 @@ struct debug_info
 };
 
 //0xFF or 0b11111111 is default value
-#define CALIB_DEFAULT_LOADED	0x12	//if you need to replace calibration defaults, increase this number
+#define CALIB_DEFAULT_LOADED	0x13	//if you need to replace calibration defaults, increase this number
 
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
@@ -347,5 +355,6 @@ extern cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 #define USB_MODE_MASSSTORAGE	1
 
 void cfg_load();
+void cfg_restore_defaults();
 
 #endif /* CONF_H_ */
