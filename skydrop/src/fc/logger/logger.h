@@ -22,7 +22,7 @@
 
 extern FIL log_file;
 extern uint8_t logger_flight_number;
-extern int16_t logger_last_temp;
+extern int8_t logger_last_temp;
 
 void logger_init();
 void logger_step();

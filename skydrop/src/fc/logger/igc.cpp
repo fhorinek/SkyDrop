@@ -315,8 +315,8 @@ void igc_step()
 	//K record (OTA=temp)
 	if ( fc.temp.temp / 10 != logger_last_temp )
 	{
-		logger_last_temp = fc.temp.temp / 10;
-		sprintf_P(line, PSTR("K%02d%02d%02d%03d"), hour, min, sec, logger_last_temp);
+		logger_last_temp = (int8_t)(fc.temp.temp / 10);
+		sprintf_P(line, PSTR("K%02d%02d%02d%03d"), hour, min, sec, (int)logger_last_temp);
 		igc_writeline(line);
 	}
 	igc_write_grecord();
