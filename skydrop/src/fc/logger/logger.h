@@ -14,7 +14,7 @@
 #define LOG_DIR_ABS	 "/" LOG_DIR
 #define LOG_MID		"XSB"
 #define LOG_MID_P	PSTR("XSB")
-#define LOGGER_NO_TEMP  9999
+#define LOGGER_NO_TEMP  99
 
 
 #include "../../common.h"
