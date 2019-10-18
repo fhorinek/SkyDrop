@@ -1,9 +1,16 @@
-Build XXXX - XX. XX. 2019
+Build 4820 - 18. 10. 2019
 ========================================================
 ADDED:
  * Long middle button press on HAGL widget resets
    altitude1 to ground level. This can be used to
    calibrate altitude1 when standing on ground.
+ * Airspace alert screen
+ * Airspace class filter
+ * Airspace ignore list 
+    - "Now" option (soft, until device reboots)
+    - "Forever" option (hard)
+ * Battery callibration (bubeck)
+ * Reset to factory settings from menu
 
 FIX:
  * AGL fixed (bubeck)
@@ -11,6 +18,7 @@ FIX:
 CHANGES:
  * Removing Factory test from public firmware 
  * Creating dedicated firmware for Factory test
+ * Memory optimisation
  
 Build 4520 - 09. 07. 2019
 ========================================================
