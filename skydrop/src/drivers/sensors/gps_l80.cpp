@@ -731,11 +731,6 @@ void gps_start()
 	fc.gps_data.vdop = fc.gps_data.hdop = fc.gps_data.pdop = 0.0;
 }
 
-void gps_init()
-{
-	DEBUG("gps init\n");
-}
-
 bool gps_selftest()
 {
 	return gps_init_ok;

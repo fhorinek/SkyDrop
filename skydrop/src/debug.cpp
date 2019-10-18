@@ -5,6 +5,8 @@
 #include "drivers/storage/storage.h"
 #include "fc/conf.h"
 
+#include "debug_on.h"
+
 FIL debug_file;
 volatile uint8_t debug_file_open;
 Timer debug_timer;
@@ -58,31 +60,29 @@ void debug_print_ram()
 
 void debug_last_dump()
 {
-	DEBUG("\nLast WDT reset\n");
+	DEBUG("\nWDT info\n");
 
 	eeprom_busy_wait();
 	debug_last_pc = eeprom_read_dword(&config_ro.debug.program_counter);
 
-	DEBUG(" time: ");
-	print_datetime(eeprom_read_dword(&config_ro.debug.time));
-	DEBUG(" Build: %d\n", eeprom_read_word(&config_ro.debug.build_number));
-	DEBUG(" PC: 0x%06lX (byte address)\n", debug_last_pc);
-	DEBUG(" Min stack: 0x%04X\n", eeprom_read_word(&config_ro.debug.min_stack));
-	DEBUG(" Max heap: 0x%04X\n", eeprom_read_word(&config_ro.debug.max_heap));
+	//time of the event
+	DEBUG(" time:%lu\n", eeprom_read_dword(&config_ro.debug.time));
+	//build number
+	DEBUG(" build:%d\n", eeprom_read_word(&config_ro.debug.build_number));
+	//program counter byte address (same as in lss)
+	DEBUG(" PC:%06lX\n", debug_last_pc);
+	//smallest stack address
+	DEBUG(" stack::%04X\n", eeprom_read_word(&config_ro.debug.min_stack));
+	//biggest heap address
+	DEBUG(" heap:%04X\n\n", eeprom_read_word(&config_ro.debug.max_heap));
 }
 
 void debug_timeout_handler()
 {
-//	DEBUG("[debug_timeout_handler]\n");
-
-//	DEBUG("RP: %04X\n", debug_return_pointer);
-//	DEBUG("RP adr: %04X\n", &debug_return_pointer);
 
 	uint8_t r0 = *((uint8_t *)(debug_return_pointer + 0));
 	uint8_t r1 = *((uint8_t *)(debug_return_pointer + 1));
 	uint8_t r2 = *((uint8_t *)(debug_return_pointer + 2));
-
-//	DEBUG("RA: %02X %02X %02X\n", r0, r1, r2);
 
 	//push decrement PC
 	uint32_t ra = (((uint32_t)r0 << 16) & 0x00FF0000) | (((uint16_t)r1 <<  8) & 0xFF00) | (r2);
@@ -97,11 +97,7 @@ void debug_timeout_handler()
 	eeprom_update_word(&config_ro.debug.min_stack, debug_min_stack_pointer);
 	eeprom_update_word(&config_ro.debug.max_heap, debug_max_heap_pointer);
 
-	DEBUG(" *** Warning: I feel WDT is near! ***\n");
 	debug_last_dump();
-
-//	debug_print_ram();
-//	for(;;);
 }
 
 /**
@@ -193,7 +189,7 @@ void debug_timer_init()
 {
 	DEBUG_TIMER_PWR_ON;
 	debug_timer.Init(DEBUG_TIMER, timer_div1024);
-	debug_timer.SetTop(0xDBBA); //1.8s
+	debug_timer.SetTop(0xEE09); //1.95s
 	debug_timer.EnableInterrupts(timer_overflow);
 	debug_timer.SetInterruptPriority(MEDIUM);
 	debug_timer.Start();
@@ -215,7 +211,7 @@ void debug_flush()
 
 void debug_end()
 {
-	DEBUG("=== CLOSING FILE ===\n");
+	DEBUG("=== END ===\n");
 	debug_flush();
 }
 
@@ -269,21 +265,6 @@ void debug_step()
 
 		//file is ready
 		debug_file_open = true;
-//
-//		char id[23];
-//		GetID_str(id);
-//		DEBUG("=========================================\n");
-//
-//		DEBUG("Device serial number ... %s\n", id);
-//
-//		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
-//		print_fw_info();
-//
-//		print_reset_reason();
-//
-//		debug_last_dump();
-//
-//		DEBUG("=========================================\n");
 	}
 
 	uint8_t * tmp = 0;

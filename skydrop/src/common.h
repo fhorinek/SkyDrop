@@ -318,7 +318,6 @@ public:
 //--------------------------------------------
 
 //memory
-void test_memory();
 int freeRam();
 
 //common

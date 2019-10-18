@@ -1,7 +1,7 @@
 #include "battery.h"
 #include "../tasks/tasks.h"
 
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 #define BATTERY_STATE_IDLE		0
 #define BATTERY_STATE_PREPARE	1
@@ -28,8 +28,6 @@ uint16_t bat_adc_dif;
 
 #define BAT_CAL_REMIND_INTERVAL 10          // Interval in seconds to remind user to discharge
 #define BAT_CAL_INTERVAL 60                 // Interval in seconds to save calibration data
-
-
 
 /** This is the ADC value where the next lower percent value starts. */
 uint16_t bat_next_level = 0;
@@ -108,8 +106,6 @@ int8_t get_battery_per_from_calibration(uint16_t battery_adc_raw)
 
 	percent = read_battery_per_from_calibration(battery_adc_raw);
 	DEBUG("get_battery_per_from_calibration(%d)=%d\n", battery_adc_raw, percent);
-	print_datetime(time_get_local());
-
 
 	return percent;
 }
@@ -260,7 +256,7 @@ void battery_finish_calibration()
 	}
 
 	f_close(&cal_file_raw);
-	//f_unlink(BAT_CAL_FILE_RAW);
+	f_unlink(BAT_CAL_FILE_RAW);
 
 	DEBUG("---End---\n");
 	DEBUG("resort_bat_cal error: %d\n", (int)error);

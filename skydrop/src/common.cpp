@@ -5,6 +5,8 @@
 #include "gui/gui.h"
 #include "fc/conf.h"
 
+#include "debug_on.h"
+
 
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
@@ -14,27 +16,27 @@ uint8_t hw_revision = HW_REW_UNKNOWN;
 void print_reset_reason()
 {
 	//Print reset reason
-	DEBUG("Reset reason ... ");
+	DEBUG("Rst:");
 
 	if (system_rst & 0b00100000)
-		DEBUG("Software ");
+		DEBUG("Soft");
 	else
 	if (system_rst & 0b00010000)
-		DEBUG("Programming ");
+		DEBUG("Prog");
 	else
 	if (system_rst & 0b00001000)
-		DEBUG("Watchdog ");
+		DEBUG("Wdt");
 	else
 	if (system_rst & 0b00000100)
-		DEBUG("Brownout ");
+		DEBUG("Brwn");
 	else
 	if (system_rst & 0b00000010)
-		DEBUG("External ");
+		DEBUG("Ext");
 	else
 	if (system_rst & 0b00000001)
-		DEBUG("Power On ");
+		DEBUG("Pwr");
 	else
-		DEBUG("Unknown: %02X", system_rst);
+		DEBUG("%02X", system_rst);
 
 	DEBUG("\n");
 }
@@ -45,7 +47,7 @@ void print_fw_info()
 	eeprom_busy_wait();
 	eeprom_read_block(&fw_info, &ee_fw_info, sizeof(fw_info));
 
-	DEBUG("App name: ");
+	DEBUG("App:");
 	for (uint8_t i = 0; i < APP_INFO_NAME_len; i++)
 	{
 		uint8_t c = fw_info.app_name[i];
@@ -54,11 +56,6 @@ void print_fw_info()
 		DEBUG("%c", c);
 	}
 	DEBUG("\n");
-}
-
-void test_memory()
-{
-	DEBUG("Free RAM now ... %d\n", freeRam());
 }
 
 //----------------------------------------------------------
@@ -251,7 +248,7 @@ bool LoadEEPROM()
 
 	if (f_stat("UPDATE.EE", &fno) == FR_OK)
 	{
-		DEBUG("EE update found.\n");
+//		DEBUG("EE update found.\n");
 
 		FIL ee_file;
 
@@ -264,7 +261,7 @@ bool LoadEEPROM()
 		if (tmp.uint32 != BUILD_NUMBER)
 		{
 			gui_showmessage_P(PSTR("UPDATE.EE is not\ncompatibile!"));
-			DEBUG("Rejecting update file %lu != %lu\n", tmp.uint32, BUILD_NUMBER);
+//			DEBUG("Rejecting update file %lu != %lu\n", tmp.uint32, BUILD_NUMBER);
 			return false;
 		}
 
@@ -290,11 +287,11 @@ bool LoadEEPROM()
 bool StoreEEPROM()
 {
 	ewdt_reset();
-	DEBUG("Storing settings\n");
+//	DEBUG("Storing settings\n");
 
 	if (!storage_ready())
 	{
-		DEBUG("Error: Storage not available\n");
+//		DEBUG("Error: Storage not available\n");
 		return false;
 	}
 
@@ -302,7 +299,7 @@ bool StoreEEPROM()
 
 	if (f_open(&ee_file, "CFG.EE", FA_WRITE | FA_CREATE_ALWAYS) != FR_OK)
 	{
-		DEBUG("Unable to create file\n");
+//		DEBUG("Unable to create file\n");
 
 		return false;
 	}

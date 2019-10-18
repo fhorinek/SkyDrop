@@ -146,7 +146,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.x > treshold_lo && !(gui_acc_calib.valid & VALID_XP))
 	{
 		flag = VALID_XP;
-		dest = &gui_acc_calib.calc.neg_val.x;
+		dest = &gui_acc_calib.calc.pos_val.x;
 		raw_val = fc.acc.raw.x;
 	}
 
@@ -160,7 +160,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.y > treshold_lo && !(gui_acc_calib.valid & VALID_YP))
 	{
 		flag = VALID_YP;
-		dest = &gui_acc_calib.calc.neg_val.y;
+		dest = &gui_acc_calib.calc.pos_val.y;
 		raw_val = fc.acc.raw.y;
 	}
 
@@ -174,7 +174,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.z > treshold_lo && !(gui_acc_calib.valid & VALID_ZP))
 	{
 		flag = VALID_ZP;
-		dest = &gui_acc_calib.calc.neg_val.z;
+		dest = &gui_acc_calib.calc.pos_val.z;
 		raw_val = fc.acc.raw.z;
 	}
 

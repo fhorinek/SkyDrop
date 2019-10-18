@@ -38,10 +38,7 @@ void logger_init()
 		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
-	DEBUG("date is: ");
-	print_datetime(today);
 	DEBUG("flight number is: %d\n", logger_flight_number);
-
 }
 
 void logger_next_flight()
@@ -71,8 +68,6 @@ void logger_next_flight()
 		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
-	DEBUG("date is: ");
-	print_datetime(today);
 	DEBUG("flight number is: %d\n", logger_flight_number);
 }
 

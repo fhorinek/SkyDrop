@@ -35,6 +35,7 @@ void gui_set_airspaces_reset_cb(uint8_t ret)
 		f_delete_node(path, sizeof(path));
 
 	    memset((void *)&fc.airspace.ignore, 0, sizeof(fc.airspace.ignore));
+	    gui_showmessage_P(PSTR("Done"));
 	}
 
 	gui_switch_task(GUI_SET_AIRSPACE);

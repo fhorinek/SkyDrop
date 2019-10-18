@@ -91,7 +91,6 @@ void fc_init()
 	vario_init();
 	compass_init();
 
-	gps_init();
 	if (config.connectivity.use_gps)
 		gps_start();
 

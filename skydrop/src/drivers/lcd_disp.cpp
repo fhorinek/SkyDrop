@@ -68,7 +68,7 @@ void lcd_display::Write(uint8_t ascii = 0)
 		{
 			uint16_t index = adr + x * font_lines;
 
-			if (text_x < lcd_width && text_x > 0)
+			if (text_x < lcd_width && text_x >= 0)
 			{
 				for (uint8_t n = 0; n < font_lines; n++)
 				{

@@ -23,9 +23,7 @@ void task_powerdown_init()
 	uart_low_speed();
 	_delay_ms(10);
 
-	DEBUG(" *** POWER DOWN INIT ***\n");
-
-	test_memory();
+	DEBUG(" *** POWER DOWN ***\n");
 
 	//we do not want to enter sleep
 	powerdown_loop_break = false;
