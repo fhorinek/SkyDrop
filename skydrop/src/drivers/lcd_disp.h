@@ -66,7 +66,8 @@ public:
 	void Write(uint8_t ascii);
 	void SetRowCol(unsigned char row,unsigned char col);
 	void Draw();
-	void GotoXY(int16_t x, int8_t y);
+	void GotoXY(int8_t x, int8_t y);
+	void GotoXY_16(int16_t x, int16_t y);
 	void InvertPixel(uint8_t x ,uint8_t  y);
 	void Invert(int8_t x1,int8_t y1,int8_t x2,int8_t y2);
 	void LoadFont(const uint8_t * font);

@@ -131,7 +131,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="fc/protocols/skybean|fc/kalman_old.cpp|fc/kalman_old.h|drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="fc/kalman_old.cpp|fc/kalman_old.h|drivers/bluetooth/pan_yuht.cc|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -231,7 +231,7 @@
 					</folderInfo>
 					<sourceEntries>
 						<entry excluding="doc/pan1026/PAN1026_ATmega128_V1.0|bt|src" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
-						<entry excluding="fc/protocols/skybean|fc/kalman_old.cpp|fc/kalman_old.h|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="fc/kalman_old.cpp|fc/kalman_old.h|tasks/task_usb/LUFA/Drivers/USB/Class|hrvAnalyser.cpp|main.cc" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

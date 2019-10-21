@@ -354,20 +354,20 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 	}
 
 	uint16_t text_w = disp.GetTextWidth(text);
-	if ( text_w > w )
+	if (text_w > w)
 	{
 		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
 
 		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 10);
 		int16_t scroll_x = x - (int16_t)offset;
 
-		disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
+		disp.GotoXY_16(scroll_x, y + h / 2 - text_h / 2);
 		fputs(text, lcd_out);
 
-		scroll_x += text_w + 10;
+		scroll_x += text_w + 15;
 		if (scroll_x < x + w)
 		{
-			disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
+			disp.GotoXY_16(scroll_x, y + h / 2 - text_h / 2);
 			fputs(text, lcd_out);
 		}
 

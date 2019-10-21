@@ -10,7 +10,13 @@ void lcd_display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void lcd_display::GotoXY(int16_t x, int8_t y)
+void lcd_display::GotoXY(int8_t x, int8_t y)
+{
+	text_x = x;
+	text_y = y;
+}
+
+void lcd_display::GotoXY_16(int16_t x, int16_t y)
 {
 	text_x = x;
 	text_y = y;
