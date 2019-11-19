@@ -1,8 +1,3 @@
-#include <gui/settings/gui_compass_calib.h>
-#include <gui/settings/gui_filemanager.h>
-#include <gui/settings/gui_filemanager.h>
-#include <gui/settings/gui_flightdetail.h>
-#include <gui/settings/set_vario_advanced.h>
 #include "gui.h"
 
 #include "../drivers/audio/sequencer.h"
@@ -12,48 +7,76 @@
 
 #include "widgets/widgets.h"
 
-#include "pages.h"
+//base screens
 #include "splash.h"
-#include "settings/settings.h"
-#include "settings/set_vario.h"
-#include "settings/set_audio.h"
-#include "gui_value.h"
-#include "settings/set_widgets.h"
-#include "settings/layouts.h"
-#include "settings/set_layout.h"
-#include "settings/set_display.h"
+#include "pages.h"
 #include "usb.h"
-#include "settings/set_system.h"
-#include "settings/set_autostart.h"
-#include "settings/set_gps.h"
-#include "settings/set_gps_detail.h"
-#include "settings/set_debug.h"
-#include "settings/set_altimeters.h"
-#include "settings/set_altimeter.h"
-#include "settings/set_time.h"
-#include "settings/set_logger.h"
-#include "gui_dialog.h"
-#include "settings/set_bluetooth.h"
 #include "update.h"
-#include "settings/set_menu_audio.h"
+
+//components
+#include "gui_value.h"
+#include "gui_filemanager.h"
+#include "gui_dialog.h"
 #include "gui_text.h"
-#include "settings/set_advanced.h"
-#include "settings/set_calib.h"
+
+//navigation
+#include "settings/gui_task_editor.h"
+#include "settings/gui_task_settings.h"
+#include "settings/gui_waypoint_list.h"
+#include "settings/gui_waypoint_editor.h"
+
+//calibration
 #include "settings/gui_accel_calib.h"
 #include "settings/gui_mag_calib.h"
 #include "settings/gui_gyro_calib.h"
 #include "settings/gui_compass_calib.h"
-#include "settings/gui_flightdetail.h"
-#include "settings/gui_homedetail.h"
-#include "settings/gui_home.h"
-#include "settings/gui_waypointdetail.h"
+
+//stand alone pop-up
 #include "gui_alarm.h"
+#include "gui_airspace.h"
+
+//settings
+#include "settings/settings.h"
+#include "settings/set_vario.h"
+#include "settings/set_vario_advanced.h"
+
+#include "settings/set_navigation.h"
+#include "settings/set_altimeters.h"
+#include "settings/set_altimeter.h"
 #include "settings/set_alt_alarm.h"
-#include "settings/set_autoset.h"
-#include "settings/set_autoset_config.h"
+
+#include "settings/set_logger.h"
+#include "settings/set_autostart.h"
+
+#include "settings/gui_flightdetail.h"
+
 #include "settings/set_airspaces.h"
 #include "settings/set_airspaces_class.h"
-#include "gui_airspace.h"
+
+#include "settings/set_gps.h"
+#include "settings/set_gps_detail.h"
+
+#include "settings/set_bluetooth.h"
+
+#include "settings/set_system.h"
+#include "settings/set_time.h"
+#include "settings/set_display.h"
+#include "settings/set_audio.h"
+#include "settings/set_menu_audio.h"
+#include "settings/set_advanced.h"
+#include "settings/set_calib.h"
+
+#include "settings/set_debug.h"
+
+//layouts
+#include "settings/layouts.h"
+#include "settings/set_widgets.h"
+#include "settings/set_layout.h"
+#include "settings/set_autoset.h"
+#include "settings/set_autoset_config.h"
+
+
+
 
 /**
  * By defining SHOW_FPS you enable code to show the current
@@ -80,9 +103,10 @@ void (* gui_init_array[])() =
 	gui_dialog_init, gui_set_bluetooth_init, gui_update_init, gui_set_vario_advanced_init,
 	gui_set_menu_audio_init, gui_text_init, gui_set_advanced_init, gui_set_calib_init,
 	gui_accelerometer_calib_init, gui_mag_calib_init, gui_filemanager_init, gui_flightdetail_init,
-	gui_gyro_calib_init, gui_compass_calib_init, gui_homedetail_init, gui_home_init,
+	gui_gyro_calib_init, gui_compass_calib_init, gui_home_init,
     gui_alarm_init, gui_set_alt_alarm_init, gui_set_autoset_init, gui_set_autoset_config_init,
-    gui_waypointdetail_init, gui_set_airspaces_init, gui_set_airspaces_class_init, gui_airspace_init};
+    gui_task_editor_init, gui_set_airspaces_init, gui_set_airspaces_class_init, gui_airspace_init,
+	gui_waypoint_list_init, gui_waypoint_editor_init, gui_task_settings_init};
 
 void (* gui_stop_array[])() =
 	{gui_pages_stop, gui_settings_stop, gui_splash_stop, gui_set_vario_stop, gui_value_stop,
@@ -93,9 +117,10 @@ void (* gui_stop_array[])() =
 	gui_dialog_stop, gui_set_bluetooth_stop, gui_update_stop, gui_set_vario_advanced_stop,
 	gui_set_menu_audio_stop, gui_text_stop, gui_set_advanced_stop, gui_set_calib_stop,
 	gui_accelerometer_calib_stop, gui_mag_calib_stop, gui_filemanager_stop, gui_flightdetail_stop,
-	gui_gyro_calib_stop, gui_compass_calib_stop, gui_homedetail_stop, gui_home_stop,
+	gui_gyro_calib_stop, gui_compass_calib_stop, gui_home_stop,
 	gui_alarm_stop, gui_set_alt_alarm_stop, gui_set_autoset_stop, gui_set_autoset_config_stop,
-    gui_waypointdetail_stop, gui_set_airspaces_stop, gui_set_airspaces_class_stop, gui_airspace_stop};
+    gui_task_editor_stop, gui_set_airspaces_stop, gui_set_airspaces_class_stop, gui_airspace_stop,
+	gui_waypoint_list_stop, gui_waypoint_editor_stop, gui_task_settings_stop};
 
 void (* gui_loop_array[])() =
 	{gui_pages_loop, gui_settings_loop, gui_splash_loop, gui_set_vario_loop, gui_value_loop,
@@ -106,9 +131,10 @@ void (* gui_loop_array[])() =
 	gui_dialog_loop, gui_set_bluetooth_loop, gui_update_loop, gui_set_vario_advanced_loop,
 	gui_set_menu_audio_loop, gui_text_loop, gui_set_advanced_loop, gui_set_calib_loop,
 	gui_accelerometer_calib_loop, gui_mag_calib_loop, gui_filemanager_loop, gui_flightdetail_loop,
-	gui_gyro_calib_loop, gui_compass_calib_loop, gui_homedetail_loop, gui_home_loop,
+	gui_gyro_calib_loop, gui_compass_calib_loop, gui_home_loop,
 	gui_alarm_loop, gui_set_alt_alarm_loop, gui_set_autoset_loop, gui_set_autoset_config_loop,
-    gui_waypointdetail_loop, gui_set_airspaces_loop, gui_set_airspaces_class_loop, gui_airspace_loop};
+    gui_task_editor_loop, gui_set_airspaces_loop, gui_set_airspaces_class_loop, gui_airspace_loop,
+	gui_waypoint_list_loop, gui_waypoint_editor_loop, gui_task_settings_loop};
 
 void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	{gui_pages_irqh, gui_settings_irqh, gui_splash_irqh, gui_set_vario_irqh, gui_value_irqh,
@@ -119,9 +145,10 @@ void (* gui_irqh_array[])(uint8_t type, uint8_t * buff) =
 	gui_dialog_irqh, gui_set_bluetooth_irqh, gui_update_irqh, gui_set_vario_advanced_irqh,
 	gui_set_menu_audio_irqh, gui_text_irqh, gui_set_advanced_irqh, gui_set_calib_irqh,
 	gui_accelerometer_calib_irqh, gui_mag_calib_irqh, gui_filemanager_irqh, gui_flightdetail_irqh,
-	gui_gyro_calib_irqh, gui_compass_calib_irqh, gui_homedetail_irqh, gui_home_irqh,
+	gui_gyro_calib_irqh, gui_compass_calib_irqh, gui_home_irqh,
 	gui_alarm_irqh, gui_set_alt_alarm_irqh, gui_set_autoset_irqh, gui_set_autoset_config_irqh,
-    gui_waypointdetail_irqh, gui_set_airspaces_irqh, gui_set_airspaces_class_irqh, gui_airspace_irqh};
+    gui_task_editor_irqh, gui_set_airspaces_irqh, gui_set_airspaces_class_irqh, gui_airspace_irqh,
+	gui_waypoint_list_irqh, gui_waypoint_editor_irqh, gui_task_settings_irqh};
 
 #define GUI_ANIM_STEPS	20
 

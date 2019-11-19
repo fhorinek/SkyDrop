@@ -64,7 +64,7 @@ void gui_compass_calib_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 	case (0):
 		strcpy_P(text, PSTR("Compass mode"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 
 		if(fc.compass.declination == 0.0)
 			strcpy_P(sub_text, PSTR("magnetic north"));
@@ -76,7 +76,7 @@ void gui_compass_calib_item(uint8_t index, char * text, uint8_t * flags, char * 
 	case(1):
 		strcpy_P(text, PSTR("Declination"));
 		sprintf_P(sub_text, PSTR("%d deg"), fc.compass.declination);
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 	break;
 	}
 }

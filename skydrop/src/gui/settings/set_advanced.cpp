@@ -101,20 +101,19 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 	{
 		case (0):
 			strcpy_P(text, PSTR("Device id"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Mass Storage"));
 			if (config.connectivity.usb_mode == USB_MODE_MASSSTORAGE)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Uart function"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.uart_function)
 			{
 				case(UART_FORWARD_DEBUG):
@@ -143,17 +142,14 @@ void gui_set_advanced_item(uint8_t index, char * text, uint8_t * flags, char * s
 
 		case (3):
 			strcpy_P(text, PSTR("Format SD"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Calibration"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (5):
 			strcpy_P(text, PSTR("Factory reset"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 	}
 }

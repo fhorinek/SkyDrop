@@ -69,30 +69,26 @@ void gui_set_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 	{
 		case (0):
 			strcpy_P(text, PSTR("Accelerometer"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Magnetometer"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Gyroscope"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Compass"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Battery"));
 			if (battery_calibrating_state != BATTERY_CAL_NONE)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 
 		break;
 	}

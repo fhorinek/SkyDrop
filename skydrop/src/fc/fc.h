@@ -190,15 +190,31 @@ struct vario_data_t
 	float error_over_time;                     // This stores the error asscoiated with altitude1 in m.
 };
 
+struct waypoint_cache_t
+{
+	char name[20];
+	char code[8];
+	int32_t latitude;	//* 10^7
+	int32_t longtitude;	//* 10^7
+	int16_t elevation;   //in meters
+};
+
+struct task_waypoint_t
+{
+	waypoint_cache_t wpt;
+	uint16_t radius_m;
+	uint32_t dist_cm;
+
+	int32_t opti_latitude;	//* 10^7
+	int32_t opti_longtitude;	//* 10^7
+	uint32_t opti_dist_cm;
+};
+
 struct waypoint_t
 {
-	uint8_t flags;
-	int32_t lat;
-	int32_t lon;
-	char name[20];
-	uint16_t radius_m;
 	int16_t bearing;
 	float distance;          // in km.
+	task_waypoint_t twpt;
 };
 
 
@@ -242,11 +258,6 @@ struct flight_data_t
 	uint32_t total_time; //in seconds
 
 	uint32_t autostart_odo;   // odometer at start time.
-
-    //waypoints
-	uint8_t waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
-	uint8_t waypoints_count;			 // The number of waypoints in the file.
-	waypoint_t next_waypoint;        // The next waypoint where we need to fly
 
     //last gps heading
 	int16_t last_heading;
@@ -330,6 +341,43 @@ struct airspace_data_t
 	airspace_cache_t cache[AIR_LEVELS];
 };
 
+
+#define CFG_TASK_FLAGS_FAI_SPHERE		0b00000001
+#define CFG_TASK_FLAGS_START_EXIT		0b00000010
+#define CFG_TASK_FLAGS_GOAL_LINE		0b00000100
+
+#define CFG_TASK_HOUR_DISABLED			0xFF
+
+#define NUMBER_OF_TASK_MODE		3
+
+struct task_header_t
+{
+	uint8_t flags;
+
+	uint8_t start_hour;
+	uint8_t start_min;
+
+	uint8_t deadline_hour;
+	uint8_t deadline_min;
+
+	uint8_t reserved[11];
+};
+
+
+
+struct task_t
+{
+    //task
+	bool active;
+	char name[10];
+
+	task_header_t head;
+
+	uint8_t waypoint_index;  	// The number of the next waypoint where we need to fly. The first waypoint is "1".
+	uint8_t waypoint_count;	// The number of waypoints in the file.
+	waypoint_t next_waypoint;  // The next waypoint where we need to fly
+};
+
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
 
@@ -373,6 +421,8 @@ struct flight_computer_data_t
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
 	uint8_t altitude_alarm_status;
+
+	task_t task;
 };
 
 void fc_init();

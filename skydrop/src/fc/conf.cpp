@@ -267,21 +267,13 @@ EEMEM cfg_t config_ee = {
 	//Home
 	{
 		//flags
-		HOME_SET_AS_TAKEOFF,
+		HOME_TAKEOFF,
 		//lat
 		0,
 		//lon
 		0,
 		//name
 		empty20,
-		//freq
-		empty10,
-		//rwy
-		empty20,
-		//traffic_pattern
-		empty20,
-		//info
-		empty80
 	},
 	//Airspaces
 	{

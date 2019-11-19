@@ -8,7 +8,7 @@
 #ifndef gui_filemanager_H_
 #define gui_filemanager_H_
 
-#include "../gui.h"
+#include "gui.h"
 
 void gui_filemanager_init();
 void gui_filemanager_stop();

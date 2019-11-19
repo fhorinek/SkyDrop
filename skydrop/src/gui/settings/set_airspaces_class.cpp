@@ -35,9 +35,9 @@ void gui_set_airspaces_class_item(uint8_t index, char * text, uint8_t * flags, c
 	airspace_class_to_text(text, index);
 
 	if (config.airspaces.class_enabled & (1 << index))
-		*flags |= GUI_LIST_CHECK_ON;
+		*flags =  GUI_LIST_CHECK_ON;
 	else
-		*flags |= GUI_LIST_CHECK_OFF;
+		*flags =  GUI_LIST_CHECK_OFF;
 
 }
 

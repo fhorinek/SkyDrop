@@ -31,6 +31,7 @@ void imu_init()
 
 void imu_MadgwickQuaternionUpdate()
 {
+#ifndef NEED_LOT_OF_SPACE_FOR_DEBUG
 
 	float ax = fc.acc.vector.x;
 	float ay = fc.acc.vector.y;
@@ -148,6 +149,7 @@ void imu_MadgwickQuaternionUpdate()
     fc.imu.quat[2] = q2;
     fc.imu.quat[3] = q3;
 
+#endif
 }
 
 

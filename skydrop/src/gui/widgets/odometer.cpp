@@ -87,9 +87,9 @@ void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 {
 	float distance;
 
-	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid && fc.flight.waypoint_no)
+	if (waypoint_task_active() && fc.gps_data.valid)
 	{
-		distance = fc.flight.next_waypoint.distance;
+		distance = fc.task.next_waypoint.distance;
 	}
 	else
 	{
@@ -140,13 +140,13 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 {
 	float min = INFINITY;
 
-	if (fc.flight.next_waypoint.radius_m != 0 && fc.gps_data.valid) {
+	if (waypoint_task_active() && fc.gps_data.valid) {
 		//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
-		int16_t relative_direction = fc.flight.next_waypoint.bearing - fc.gps_data.heading;
+		int16_t relative_direction = fc.task.next_waypoint.bearing - fc.gps_data.heading;
 		if (abs(relative_direction) < 45) {
 			// Pilot is heading towards home.
 			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-			min = ((fc.flight.next_waypoint.distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
+			min = ((fc.task.next_waypoint.distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
 		}
 	}
 
@@ -155,78 +155,34 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 {
-	uint32_t oldClip;
+	uint8_t lh = widget_label_P(PSTR("Home"), x, y);
 
-	oldClip = disp.clip(x, y, x + w, y + h);
+	char text[21];
+	//strings are not always n null term
+	text[20] = 0;
 
-	const char *Home_P = PSTR("Home info");
-
-	uint8_t lh = widget_label_P(Home_P, x, y);
-
-	disp.LoadFont(F_TEXT_M);
-
-	uint8_t text_h = disp.GetTextHeight();
-
-	char tmp[80];
-
-	if (config.home.flags & HOME_SET_AS_TAKEOFF)
+	if (config.home.flags & HOME_TAKEOFF)
 	{
-		sprintf_P(tmp, PSTR("Take-off"));
-		widget_value_txt(tmp, x, y + lh, w, h - lh);
+		strcpy_P(text, PSTR("Take off"));
+	}
+	else if(config.home.flags  & HOME_LOADED)
+	{
+		strcpy(text, (char *)config.home.name);
 	}
 	else
 	{
-		if (config.home.flags & HOME_LOADED_FROM_SD)
-		{
-			y += lh + 1;
-
-			if (config.home.name[0])
-			{
-				disp.GotoXY(x, y);
-				fputs((const char *) config.home.name, lcd_out);
-				y += text_h + 1;
-			}
-
-			if (config.home.freq[0])
-			{
-				disp.GotoXY(x, y);
-				fprintf_P(lcd_out, PSTR("Freq: %s"), config.home.freq);
-				y += text_h + 1;
-			}
-
-			if (config.home.rwy[0])
-			{
-				disp.GotoXY(x, y);
-				sprintf_P(tmp, PSTR("Rwy: %s, %s"), config.home.rwy, config.home.traffic_pattern);
-				widget_value_scroll(tmp, x, y, w, h);
-				y += text_h + 1;
-			}
-
-			if (config.home.info[0])
-			{
-				disp.GotoXY(x, y);
-				widget_value_scroll((char *) config.home.info, x, y, w, h);
-			}
-		}
-		else //no home loaded
-		{
-			char text[7];
-			sprintf_P(text, PSTR("Load"));
-
-			widget_value_txt(text, x, y + lh, w, h - lh);
-		}
+		strcpy_P(text, PSTR("Load"));
 	}
 
-
-	disp.clip(oldClip);
+	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
 void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
-		gui_switch_task(GUI_HOME);
-		gui_list_set_index(GUI_HOME, 2);
+		gui_switch_task(GUI_NAVIGATION);
+		gui_list_set_index(GUI_NAVIGATION, 4);
 	}
 }
 
@@ -249,8 +205,8 @@ void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
-		gui_switch_task(GUI_HOME);
-		gui_list_set_index(GUI_HOME, 4);
+		gui_switch_task(GUI_NAVIGATION);
+		gui_list_set_index(GUI_NAVIGATION, 1);
 	}
 }
 
@@ -266,15 +222,15 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	disp.LoadFont(F_TEXT_M);
 
-	if (fc.flight.waypoints_count)
+	if (fc.task.active)
 	{
-		if (fc.flight.waypoint_no)
+		if (fc.task.waypoint_index < fc.task.waypoint_count - 1)
 		{
 			char text1[16];
 			char text2[16];
 
-			sprintf_P(text1, PSTR("%u/%u"), fc.flight.waypoint_no, fc.flight.waypoints_count);
-			sprintf_P(text2, PSTR("%s"), fc.flight.next_waypoint.name);
+			sprintf_P(text1, PSTR("%u/%u"), fc.task.waypoint_index, fc.task.waypoint_count);
+			sprintf_P(text2, PSTR("%s"), fc.task.next_waypoint.twpt.wpt.name);
 
 			widget_value_int_sub(text1, text2, x, y + lh, w, h - lh);
 		}
@@ -337,9 +293,9 @@ void widget_waypoint_direction_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, 
 {
 	int16_t relative_direction;
 
-	if (fc.flight.waypoint_no != 0 && fc.gps_data.valid)
+	if (waypoint_task_active() && fc.gps_data.valid)
 	{
-		relative_direction = fc.flight.next_waypoint.bearing - fc.compass.azimuth_filtered;
+		relative_direction = fc.task.next_waypoint.bearing - fc.compass.azimuth_filtered;
 	}
 	else
 	{

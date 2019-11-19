@@ -189,6 +189,8 @@ struct cfg_logger
 #define GPS_DIST_UNIT_M	   0b00000000
 #define GPS_DIST_UNIT_I	   0b00010000
 
+#define GPS_EARTH_MODEL_FAI	   0b00100000
+
 #define PROTOCOL_DIGIFLY	0
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
@@ -228,8 +230,8 @@ struct cfg_connectivity
 	char password[LOGIN_PASSWORD_LEN];
 };
 
-#define HOME_SET_AS_TAKEOFF		0b00000001
-#define HOME_LOADED_FROM_SD		0b00000010
+#define HOME_TAKEOFF		0b00000001
+#define HOME_LOADED		0b00000010
 
 struct cfg_home
 {
@@ -237,10 +239,6 @@ struct cfg_home
 	int32_t lat;
 	int32_t lon;
 	char name[20];
-    char freq[10];
-    char rwy[20];
-    char traffic_pattern[20];
-    char info[80];
 };
 
 struct cfg_airspaces

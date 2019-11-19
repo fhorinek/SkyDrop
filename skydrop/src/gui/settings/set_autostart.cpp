@@ -84,7 +84,7 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 			else
 				strcpy_P(sub_text, PSTR("disabled"));
 
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 
@@ -94,29 +94,29 @@ void gui_set_autostart_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("+/-%dm"), config.autostart.land_sensititvity);
 			else
 				strcpy_P(sub_text, PSTR("disabled"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Timeout"));
 			sprintf_P(sub_text, PSTR("%d sec"), config.autostart.timeout);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Suppress audio"));
 			if (config.autostart.flags & AUTOSTART_SUPRESS_AUDIO)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Record always"));
 			if (config.autostart.flags & AUTOSTART_ALWAYS_ENABLED)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 	}
 }

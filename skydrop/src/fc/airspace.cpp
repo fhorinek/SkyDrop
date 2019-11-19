@@ -235,6 +235,8 @@ bool airspace_is_inside(uint16_t raw_min, uint16_t raw_max, uint16_t gps_alt, ui
  */
 void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 {
+#ifndef NEED_LOT_OF_SPACE_FOR_DEBUG
+
     airspace_data_point_t as_point;
     int i;
 
@@ -578,6 +580,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 		DEBUG("AIRSPACE_INVALID\n");
 		DEBUG("\n");
     }
+#endif
 }
 
 /**

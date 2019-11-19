@@ -118,9 +118,9 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 		case (0):
 			strcpy_P(text, PSTR("Enabled"));
 			if (config.altitude.alarm_enabled)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (1):
@@ -129,7 +129,7 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("Disabled"));
 			else
 				sprintf_P(sub_text, PSTR("%u secs"), config.altitude.alarm_confirm_secs);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
@@ -138,7 +138,7 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("%d ft"), config.altitude.alarm_1 * FC_METER_TO_FEET);
 			else
 				sprintf_P(sub_text, PSTR("%d m"), config.altitude.alarm_1);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
@@ -147,7 +147,7 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("%d ft"), config.altitude.alarm_2 * FC_METER_TO_FEET);
 			else
 				sprintf_P(sub_text, PSTR("%d m"), config.altitude.alarm_2);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
@@ -156,7 +156,7 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("%d ft"), config.altitude.alarm_h1 * FC_METER_TO_FEET);
 			else
 				sprintf_P(sub_text, PSTR("%d m"), config.altitude.alarm_h1);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (5):
@@ -165,7 +165,7 @@ void gui_set_alt_alarm_item(uint8_t index, char * text, uint8_t * flags, char * 
 				sprintf_P(sub_text, PSTR("%d ft"), config.altitude.alarm_reset * FC_METER_TO_FEET);
 			else
 				sprintf_P(sub_text, PSTR("%d m"), config.altitude.alarm_reset);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 	}
 }

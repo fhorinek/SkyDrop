@@ -73,12 +73,11 @@ void gui_set_airspaces_item(uint8_t index, char * text, uint8_t * flags, char * 
 	{
 		case (0):
 			strcpy_P(text, PSTR("Enabled classes"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Alert near"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 			strcpy_P(sub_text, PSTR("500m"));
 		break;
 
@@ -86,15 +85,14 @@ void gui_set_airspaces_item(uint8_t index, char * text, uint8_t * flags, char * 
 			strcpy_P(text, PSTR("Alert inside"));
 
 			if (config.airspaces.alert_on)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Reset ignore list"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 	}
 }

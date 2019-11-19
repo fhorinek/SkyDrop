@@ -6,14 +6,13 @@
  *      Author: tilmann@bubecks.de
  */
 
-#include <gui/settings/gui_filemanager.h>
-#include "gui_flightdetail.h"
+#include "gui_filemanager.h"
 
-#include "../gui_list.h"
+#include "gui_list.h"
+#include "settings/gui_flightdetail.h"
 
 #include "../../fc/logger/logger.h"
 #include "../../drivers/storage/storage.h"
-
 
 char gui_filemanager_path[32];
 char gui_filemanager_name[13];
@@ -22,10 +21,13 @@ uint8_t gui_filemanager_level = 0;
 uint8_t filemanager_action;
 uint8_t filemanager_return = GUI_SETTINGS;
 
+bool gui_filemanager_hide_dir = 0;
+
 void gui_filemanager_set_dir(char * path)
 {
 	gui_list_set_index(GUI_FILEMANAGER, 0);
 	strcpy(gui_filemanager_path, path);
+//	gui_filemanager_hide_dir = hide_dir;
 }
 
 /**
@@ -111,7 +113,7 @@ void gui_filemanager_item(uint8_t ind, char * text, uint8_t * flags, char * sub_
 {
 	if (ind == 0)
 	{
-		*flags |= GUI_LIST_TITLE;
+		*flags = GUI_LIST_TITLE;
 
 		if (gui_filemanager_level == 0)
 		{
@@ -131,7 +133,7 @@ void gui_filemanager_item(uint8_t ind, char * text, uint8_t * flags, char * sub_
 
 	storage_dir_list(text, &f);
 
-	if (f & STORAGE_IS_DIR)
-		*flags |= GUI_LIST_FOLDER;
+//	if (f & STORAGE_IS_DIR)
+//		*flags =  GUI_LIST_ENTRY;
 }
 

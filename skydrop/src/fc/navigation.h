@@ -5,8 +5,8 @@
  *      Author: tilmann@bubecks.de
  */
 
-#ifndef FC_ODOMETER_H_
-#define FC_ODOMETER_H_
+#ifndef FC_NAVIGATION_H_
+#define FC_NAVIGATION_H_
 
 #include <stdint.h>
 
@@ -66,7 +66,7 @@ uint32_t gps_distance_3d(int32_t lat1, int32_t lon1, double alt1,
  * The GPS position has changed. Compute the distance to the previous
  * position and update the odometer accordingly.
  */
-void odometer_step();
+void navigation_step();
 
 
-#endif /* FC_ODOMETER_H_ */
+#endif /* FC_NAVIGATION_H_ */

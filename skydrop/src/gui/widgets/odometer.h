@@ -8,8 +8,8 @@
 #ifndef GUI_WIDGETS_ODOMETER_H_
 #define GUI_WIDGETS_ODOMETER_H_
 
+#include <fc/navigation.h>
 #include "widgets.h"
-#include "../../fc/odometer.h"
 
 extern widget w_odo_meter;
 extern widget w_odo_home_direction;

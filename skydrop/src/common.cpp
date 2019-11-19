@@ -330,7 +330,7 @@ bool StoreEEPROM()
 	} while (i < sizeof(cfg_t));
 
 	f_close(&ee_file);
-	DEBUG("File closed\n");
+//	DEBUG("File closed\n");
 
 	return true;
 }

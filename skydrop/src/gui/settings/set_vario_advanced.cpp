@@ -134,60 +134,59 @@ void gui_set_vario_advanced_item(uint8_t index, char * text, uint8_t * flags, ch
 		case (0):
 			strcpy_P(text, PSTR("Fluid audio"));
 			if (config.audio_profile.flags & AUDIO_FLUID)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Weak lift"));
 			if (config.audio_profile.flags & AUDIO_WEAK)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Weak lift threshold"));
 			sprintf_P(sub_text, PSTR("%+0.1f m/s"), (float)(config.audio_profile.lift - config.audio_profile.weak) / 100.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Beep sink"));
 			if (config.audio_profile.flags & AUDIO_BEEP_SINK)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Weak/Beep offset"));
 			sprintf_P(sub_text, PSTR("%u Hz"), config.audio_profile.prebeep_offset);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (5):
 			strcpy_P(text, PSTR("Weak/Beep duration"));
 			sprintf_P(sub_text, PSTR("%u ms"), config.audio_profile.prebeep_length);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (6):
 			strcpy_P(text, PSTR("Digital vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.digital_vario_dampening));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (7):
 			strcpy_P(text, PSTR("Average vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.avg_vario_dampening));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (8):
 			strcpy_P(text, PSTR("Vario demo"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 	}
 }

@@ -1,3 +1,4 @@
+#include <fc/navigation.h>
 #include "fc.h"
 
 #include "../drivers/sensors/devices.h"
@@ -9,7 +10,6 @@
 #include "vario.h"
 #include "agl.h"
 #include "airspace.h"
-#include "odometer.h"
 #include "compass.h"
 #include "waypoint.h"
 #include "alt_calibration.h"
@@ -50,13 +50,13 @@ void fc_init()
 	fc_reset();
 
 	//home valid if loaded from SD
-	if (config.home.flags & HOME_LOADED_FROM_SD)
+	if (config.home.flags & HOME_LOADED)
 		fc.flight.home_valid = true;
 	else
 		fc.flight.home_valid = false;
 
 	// We do not have a valid waypoint
-	set_waypoint_file((const char *)"");
+	fc.task.active = false;
 
 	// Todo: read/write into eeprom
 	fc.odometer = 0;
@@ -79,7 +79,6 @@ void fc_init()
 	DMA_PWR_ON;
 
 	//init calculators
-
 	audio_init();
 	logger_init();
 	protocol_init();
@@ -466,7 +465,7 @@ void fc_takeoff()
 	//set start position
 	if (fc.gps_data.valid)
 	{
-		if (config.home.flags & HOME_SET_AS_TAKEOFF)
+		if (config.home.flags & HOME_TAKEOFF)
 		{
 			fc.flight.home_valid = true;
 			config.home.lat = fc.gps_data.latitude;
@@ -590,7 +589,7 @@ void fc_step()
 
 	compass_step();
 
-	odometer_step();
+	navigation_step();
 
 	circling_step();
 

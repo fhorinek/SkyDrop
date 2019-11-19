@@ -42,7 +42,7 @@ void set_baro_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub
 
 	case (0):
 		strcpy_P(text, PSTR("Pressure"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 
 		if(fc.compass.declination == 0.0)
 			strcpy_P(sub_text, PSTR("magnetic north"));
@@ -54,7 +54,7 @@ void set_baro_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	case(1):
 		strcpy_P(text, PSTR("Declination"));
 		sprintf_P(sub_text, PSTR("%d deg"), fc.compass.declination);
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 	break;
 	}
 }

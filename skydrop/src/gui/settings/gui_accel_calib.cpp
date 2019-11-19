@@ -135,6 +135,7 @@ int16_t acc_calib_get_value(uint8_t flag, int16_t in_value)
 
 void gui_accelerometer_calib_loop()
 {
+#ifndef NEED_LOT_OF_SPACE_FOR_DEBUG
 	gui_acc_calib.sampling = 0;
 
 	//DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
@@ -303,6 +304,7 @@ void gui_accelerometer_calib_loop()
 		sprintf_P(tmp, PSTR("%0.2f"), gui_acc_calib.filtered_total_new);
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20, GUI_DIALOG_TOP  + h_t + h_t -2);
 	}
+#endif
 }
 
 

@@ -5,7 +5,7 @@
  *      Author: tilmann@bubecks.de
  */
 
-#include "odometer.h"
+#include "navigation.h"
 #include "waypoint.h"
 #include "fc.h"
 
@@ -65,38 +65,12 @@ uint32_t gps_distance_2d(int32_t lat1, int32_t lon1,
 	return (uint32_t)sqrt(dx * dx + dy * dy);
 }
 
-/**
- * Compute the distance between two GPS points in 3 dimensions
- * (including altitude). Latitude and longitude parameters must be
- * given as fixed integers multiplied with GPS_MULT.
- *
- * \param lat1 the latitude of the 1st GPS point
- * \param lon1 the longitude of the 1st GPS point
- * \param alt1 the altitude of the 1st GPS point (in m)
- * \param lat2 the latitude of the 2nd GPS point
- * \param lon2 the longitude of the 2nd GPS point
- * \param alt2 the altitude of the 2nd GPS point (in m)
- *
- * \return the distance in cm.
- */
-uint32_t gps_distance_3d(int32_t lat1, int32_t lon1, double alt1,
-			 	 	 	 int32_t lat2, int32_t lon2, double alt2)
-{
-	uint32_t dx, dy;
-	float da;
-
-	dx = gps_distance_2d(lat1, lon1, lat1, lon2);
-	dy = gps_distance_2d(lat1, lon1, lat2, lon1);
-	da = abs(alt1 - alt2) * 100;                 // convert from m to cm
-
-	return (uint32_t)sqrt((double)dx * dx + (double)dy * dy + da * da);
-}
 
 /**
  * The GPS position has changed. Compute the distance to the previous
  * position and update the odometer accordingly.
  */
-void odometer_step()
+void navigation_step()
 {
 	#define NO_LAT_DATA  ((int32_t)2147483647)
 
@@ -115,32 +89,31 @@ void odometer_step()
 		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, config.home.lat, config.home.lon) / 100000.0;   // cm to km
 	}
 
-	if ( fc.flight.waypoint_no != 0 )
+	if ( fc.task.waypoint_index != 0 )
 	{
-//		DEBUG("lat1 %ld\n", fc.flight.next_waypoint.lat);
-//		DEBUG("lon1 %ld\n", fc.flight.next_waypoint.lon);
+//		DEBUG("lat1 %ld\n", fc.task.next_waypoint.lat);
+//		DEBUG("lon1 %ld\n", fc.task.next_waypoint.lon);
 //		DEBUG("lat2 %ld\n", fc.gps_data.latitude);
 //		DEBUG("lon2 %ld\n", fc.gps_data.longtitude);
 
 
-		fc.flight.next_waypoint.bearing = gps_bearing(fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
-		fc.flight.next_waypoint.distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.flight.next_waypoint.lat, fc.flight.next_waypoint.lon) / 100.0;   // cm to m
-		fc.flight.next_waypoint.distance -= fc.flight.next_waypoint.radius_m;
+		fc.task.next_waypoint.bearing = gps_bearing(fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude, fc.gps_data.latitude, fc.gps_data.longtitude );
+		fc.task.next_waypoint.distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude) / 100.0;   // cm to m
+		fc.task.next_waypoint.distance -= fc.task.next_waypoint.twpt.radius_m;
 
-//		DEBUG("ber %d\n", fc.flight.next_waypoint.bearing);
-//		DEBUG("dis %0.2f\n", fc.flight.next_waypoint.distance);
+//		DEBUG("ber %d\n", fc.task.next_waypoint.bearing);
+//		DEBUG("dis %0.2f\n", fc.task.next_waypoint.distance);
 
 
-		if ( fc.flight.next_waypoint.distance <= 0 )
+		if ( fc.task.next_waypoint.distance <= 0 )
 		{
 
 			// We reached the waypoint. Go to next.
 			if (!waypoint_goto_next() )
 			{
-				fc.flight.waypoint_no = 0;
-				fc.flight.next_waypoint.bearing = 0;
-				fc.flight.next_waypoint.distance = 0;
-				fc.flight.next_waypoint.name[0] = 0;
+				fc.task.waypoint_index = fc.task.waypoint_count;
+				fc.task.next_waypoint.bearing = 0;
+				fc.task.next_waypoint.distance = 0;
 				gui_showmessage_P(PSTR("Navigation\nfinished."));
 
 				seq_start(&last_wpt, config.gui.alert_volume);
@@ -151,13 +124,13 @@ void odometer_step()
 			}
 		}
 
-		fc.flight.next_waypoint.distance /= 1000;             // m to km.
+		fc.task.next_waypoint.distance /= 1000;             // m to km.
 	}
 
 	// Do we already have a previous GPS point?
 	if (last_lat != NO_LAT_DATA)
 	{
-		uint32_t v = gps_distance_3d(last_lat, last_lon, last_alt, fc.gps_data.latitude, fc.gps_data.longtitude, fc.gps_data.altitude);
+		uint32_t v = gps_distance_2d(last_lat, last_lon, fc.gps_data.latitude, fc.gps_data.longtitude);
 
 		//calculated speed in knots
 		uint16_t calc_speed = (v * FC_MPS_TO_KNOTS) / 100;

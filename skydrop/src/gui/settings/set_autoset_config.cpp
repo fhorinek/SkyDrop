@@ -52,13 +52,13 @@ void gui_set_autoset_config_item(uint8_t index, char * text, uint8_t * flags, ch
         case (0):
             strcpy_P(text, PSTR("Circling timeout"));
             sprintf_P(sub_text, PSTR("%d s"), config.gui.page_circling_timeout);
-            *flags |= GUI_LIST_SUB_TEXT;
+            *flags =  GUI_LIST_SUB_TEXT;
         break;
 
         case (1):
             strcpy_P(text, PSTR("Acro thold."));
             sprintf_P(sub_text, PSTR("%0.1f m/s"), config.gui.page_acro_thold / 10.0);
-            *flags |= GUI_LIST_SUB_TEXT;
+            *flags =  GUI_LIST_SUB_TEXT;
         break;
     }
 }

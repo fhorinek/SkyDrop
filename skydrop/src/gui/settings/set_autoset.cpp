@@ -31,7 +31,6 @@ void gui_set_autoset_item(uint8_t index, char * text, uint8_t * flags, char * su
     if (index == 5)
     {
         strcpy_P(text, PSTR("Configure"));
-        *flags |= GUI_LIST_FOLDER;
         return;
     }
 
@@ -60,8 +59,8 @@ void gui_set_autoset_item(uint8_t index, char * text, uint8_t * flags, char * su
     }
 
     if (config.gui.page_mode[index] == active_page)
-        *flags |= GUI_LIST_CHECK_ON;
+        *flags =  GUI_LIST_CHECK_ON;
     else
-        *flags |= GUI_LIST_CHECK_OFF;
+        *flags =  GUI_LIST_CHECK_OFF;
 }
 

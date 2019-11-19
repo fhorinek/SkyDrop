@@ -88,35 +88,35 @@ void gui_set_time_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		case (0):
 			strcpy_P(text, PSTR("Time"));
 			sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Date"));
 			sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Time Zone"));
 			sprintf_P(sub_text, PSTR("UTC %+0.1f"), config.system.time_zone / 2.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("DST"));
 			if (config.system.time_flags & TIME_DST)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Sync with GPS"));
 			if (config.system.time_flags & TIME_SYNC)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 	}
 }

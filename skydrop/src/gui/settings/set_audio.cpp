@@ -77,32 +77,31 @@ void gui_set_audio_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		case (0):
 			strcpy_P(text, PSTR("Vario volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.vario_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Vario mute"));
 			if (config.gui.vario_mute)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Alert volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.alert_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Menu volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.menu_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Menu sounds"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 	}
 }

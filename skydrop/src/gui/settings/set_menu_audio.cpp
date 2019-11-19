@@ -43,33 +43,33 @@ void gui_set_menu_audio_item(uint8_t index, char * text, uint8_t * flags, char *
 		case (0):
 			strcpy_P(text, PSTR("On/Off sound"));
 			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_SPLASH)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Page sound"));
 			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_PAGES)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Button sound"));
 			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_BUTTONS)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("GPS ready"));
 			if (config.gui.menu_audio_flags & CFG_AUDIO_MENU_GPS)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 	}
 }
