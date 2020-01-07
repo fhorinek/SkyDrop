@@ -57,7 +57,12 @@ void gui_waypoint_list_action(uint8_t index)
 		//add new waypoint to the task
 		if (gui_waypoint_list_return == GUI_TASK_EDITOR)
 		{
+			//if there is no wp add first as Take-off
+			if (fc.task.waypoint_count == 0)
+				waypoint_task_add_wpt(&wpt);
+
 			waypoint_task_add_wpt(&wpt);
+
 			waypoint_task_calc();
 		}
 

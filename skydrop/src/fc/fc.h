@@ -157,6 +157,7 @@ struct compass_data_t
 	float azimuth;				//in degrees < 0 ; 360 )
 	float azimuth_filtered;
 	int16_t declination;		//magnetic declination offset in degrees +-180
+	int8_t on_riser;
 };
 
 #define FC_TEMP_PERIOD	100
@@ -199,15 +200,18 @@ struct waypoint_cache_t
 	int16_t elevation;   //in meters
 };
 
+#define TASK_WAYPOINT_DEFAULT_RADIUS	500
+
 struct task_waypoint_t
 {
 	waypoint_cache_t wpt;
 	uint16_t radius_m;
-	uint32_t dist_cm;
+	uint32_t dist_m;
 
 	int32_t opti_latitude;	//* 10^7
 	int32_t opti_longtitude;	//* 10^7
-	uint32_t opti_dist_cm;
+	uint32_t opti_dist_m;
+	int16_t opti_angle; //*10
 };
 
 struct waypoint_t
@@ -345,6 +349,7 @@ struct airspace_data_t
 #define CFG_TASK_FLAGS_FAI_SPHERE		0b00000001
 #define CFG_TASK_FLAGS_START_EXIT		0b00000010
 #define CFG_TASK_FLAGS_GOAL_LINE		0b00000100
+#define CFG_TASK_FLAGS_OPTIMIZE			0b00001000
 
 #define CFG_TASK_HOUR_DISABLED			0xFF
 
@@ -362,8 +367,6 @@ struct task_header_t
 
 	uint8_t reserved[11];
 };
-
-
 
 struct task_t
 {

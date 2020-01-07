@@ -246,7 +246,7 @@ bool LoadEEPROM()
 {
 	FILINFO fno;
 
-	if (f_stat("UPDATE.EE", &fno) == FR_OK)
+	if (storage_file_exist_P(PSTR("UPDATE.EE")))
 	{
 //		DEBUG("EE update found.\n");
 

@@ -39,7 +39,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
-		w_airspace_angle, w_airspace_distance, w_airspace_limits, w_airspace_info, w_airspace_name
+		w_airspace_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -94,11 +94,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_WAYPOINT_INFO,
 
 	//airspace
-	WIDGET_AIRSPACE_ARROW,
-	WIDGET_AIRSPACE_DISTANCE,
-	WIDGET_AIRSPACE_LIMITS,
 	WIDGET_AIRSPACE_INFO,
-	WIDGET_AIRSPACE_NAME,
 
 	//wind
 	WIDGET_WIND_DIR,

@@ -208,8 +208,6 @@ struct cfg_logger
 
 #define NUMBER_OF_UART_FORWARD	7
 
-#define LOGIN_PASSWORD_LEN 16
-
 struct cfg_connectivity
 {
 	uint8_t usb_mode;
@@ -226,8 +224,6 @@ struct cfg_connectivity
 	uint8_t protocol;
 
 	uint8_t uart_function;
-
-	char password[LOGIN_PASSWORD_LEN];
 };
 
 #define HOME_TAKEOFF		0b00000001
@@ -249,6 +245,11 @@ struct cfg_airspaces
 	uint8_t alarm_confirm_secs; // Number of secs to confirm an alarm. "0" means forever.
 };
 
+struct cfg_tasks
+{
+	char name[10];
+};
+
 //Main user configurations
 //start address				32	0x20
 struct cfg_t
@@ -266,7 +267,10 @@ struct cfg_t
 	cfg_connectivity connectivity;
 	cfg_home home;
 	cfg_airspaces airspaces;
+	cfg_tasks tasks;
 };
+
+// CONFIG RO ------------------------------------------------------------
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 

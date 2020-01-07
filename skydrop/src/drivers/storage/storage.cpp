@@ -15,6 +15,28 @@ DIR storage_dir_h;
 
 #define SD_CARD_DETECT	(GpioRead(SD_IN) == LOW)
 
+void storage_create_default_dirs(const char * path, const char * readme)
+{
+	char buff[64];
+
+	//create task directory
+	strcpy_P(buff, path);
+	if (f_mkdir(buff) == FR_OK)
+	{
+		FIL handle;
+
+		sprintf_P(buff, PSTR("%S/_readme.txt"), path);
+		if (f_open(&handle, buff, FA_WRITE | FA_CREATE_NEW) == FR_OK)
+		{
+			uint16_t bw;
+
+			strcpy_P(buff, readme);
+			f_write(&handle, buff, strlen(buff), &bw);
+			f_close(&handle);
+		}
+	}
+}
+
 bool storage_init()
 {
 	uint8_t res;
@@ -91,6 +113,13 @@ bool storage_init()
 	DEBUG(" total space  %12lu kB\n", storage_space);
 	DEBUG(" free space   %12lu\n", storage_free_space);
 
+	//create
+
+	storage_create_default_dirs(PSTR("/AIR"), PSTR("Place airspace data here"));
+	storage_create_default_dirs(PSTR("/WPT"), PSTR("Place waypoint list in CUP format here"));
+	storage_create_default_dirs(PSTR("/AGL"), PSTR("Place AGL data here"));
+	storage_create_default_dirs(PSTR("/TASKS"), PSTR("SkyDrop task will be stored here"));
+
 	sd_avalible = true;
 	sd_error = false;
 
@@ -158,6 +187,9 @@ uint8_t storage_get_files()
 		if (f_info.fname[0] == 0)
 			break;
 
+		if (f_info.fname[0] == '_') //hidden files
+			continue;
+
 		if(f_info.fname[0] == 0xFF) //bugs in FatFs?
 			continue;
 
@@ -197,6 +229,9 @@ bool storage_dir_list(char * fname, uint8_t * flags)
 		if (f_info.fname[0] == 0)
 			break;
 
+		if (f_info.fname[0] == '_') //hidden files
+			continue;
+
 		if(f_info.fname[0] == 0xFF) //bugs in FatFs?
 			continue;
 
@@ -212,4 +247,17 @@ bool storage_dir_list(char * fname, uint8_t * flags)
 	return false;
 }
 
+bool storage_file_exist_P(const char * path)
+{
+	char mem_path[64];
 
+	strcpy_P(mem_path, path);
+	return storage_file_exist(mem_path);
+}
+
+bool storage_file_exist(char * path)
+{
+	FILINFO fno;
+
+	return (f_stat(path, &fno) == FR_OK);
+}

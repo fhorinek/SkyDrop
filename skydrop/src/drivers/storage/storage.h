@@ -32,6 +32,8 @@ void storage_dir_close();
 void storage_dir_rewind();
 bool storage_dir_list(char * fname, uint8_t * flags);
 
+bool storage_file_exist(char * path);
+bool storage_file_exist_P(const char * path);
 
 
 #endif /* STORAGE_H_ */

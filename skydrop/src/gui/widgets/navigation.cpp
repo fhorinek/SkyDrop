@@ -5,7 +5,7 @@
  *      Author: tilmann@bubecks.de
  */
 
-#include "odometer.h"
+#include "navigation.h"
 #include "../../fc/waypoint.h"
 #include "../gui_list.h"
 
@@ -224,12 +224,20 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	if (fc.task.active)
 	{
-		if (fc.task.waypoint_index < fc.task.waypoint_count - 1)
+		if (fc.task.waypoint_count <= 1)
+		{
+			char text[6];
+			sprintf_P(text, PSTR("Empty"));
+
+			widget_value_txt(text, x, y + lh, w, h - lh);
+		}
+
+		if (fc.task.waypoint_index < fc.task.waypoint_count)
 		{
 			char text1[16];
 			char text2[16];
 
-			sprintf_P(text1, PSTR("%u/%u"), fc.task.waypoint_index, fc.task.waypoint_count);
+			sprintf_P(text1, PSTR("%u/%u"), fc.task.waypoint_index, fc.task.waypoint_count - 1);
 			sprintf_P(text2, PSTR("%s"), fc.task.next_waypoint.twpt.wpt.name);
 
 			widget_value_int_sub(text1, text2, x, y + lh, w, h - lh);

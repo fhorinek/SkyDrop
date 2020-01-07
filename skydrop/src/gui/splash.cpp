@@ -41,7 +41,7 @@ void gui_splash_init()
 	{
 		FILINFO fno;
 
-		if (f_stat("LOGO", &fno) == FR_OK)
+		if (storage_file_exist_P(PSTR("LOGO")))
 		{
 			DEBUG("Custom logo found!\n");
 

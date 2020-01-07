@@ -586,20 +586,13 @@ void gui_loop()
 		disp.DrawLine(x - 1 - pad, 		y - 1 - pad, 		x - 1 - pad, 		y + h + pad, 	1);
 		disp.DrawLine(x + w + 1 + pad, 	y - 1 - pad, 		x + w + 1 + pad, 	y + h + pad, 	1);
 
-		disp.GotoXY(x, y);
-		fprintf_P(lcd_out, PSTR("%s"), gui_message_line1);
+		gui_caligh_text(gui_message_line1, GUI_DISP_WIDTH / 2, y);
 
 		if (gui_message_line2[0] != 0)
-		{
-			disp.GotoXY(x, y + disp.GetTextHeight());
-			fprintf_P(lcd_out, PSTR("%s"), gui_message_line2);
-		}
+			gui_caligh_text(gui_message_line2, GUI_DISP_WIDTH / 2, y + disp.GetTextHeight());
 
 		if (gui_message_line3[0] != 0)
-		{
-			disp.GotoXY(x, y + disp.GetTextHeight() * 2);
-			fprintf_P(lcd_out, PSTR("%s"), gui_message_line3);
-		}
+			gui_caligh_text(gui_message_line3, GUI_DISP_WIDTH / 2, y + disp.GetTextHeight() * 2);
 	}
 
 #ifdef SHOW_FPS

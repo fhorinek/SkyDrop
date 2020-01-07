@@ -452,15 +452,12 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
         if (dx * fc.airspace.cache[i].lon_offset < 0 || dy * fc.airspace.cache[i].lat_offset < 0)
             inside = !inside;
 
-        uint16_t angle = gps_bearing(ty, tx, lat, lon);
-
-
-        uint16_t distance;
+        bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
+        int16_t angle;
+        uint16_t distance = gps_distance(lat, lon, ty, tx, use_fai, &angle);
 
         if (fc.airspace.cache[i].flags & AIR_CACHE_FAR)
         	distance = AIRSPACE_TOO_FAR;
-        else
-        	distance = gps_distance_2d(lat, lon, ty, tx) / 100;
 
 //        DEBUG(" target x %ld\n", tx);
 //        DEBUG(" target y %ld\n", ty);

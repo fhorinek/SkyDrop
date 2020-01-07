@@ -89,6 +89,7 @@ void fc_init()
 	imu_init();
 	vario_init();
 	compass_init();
+	navigation_init();
 
 	if (config.connectivity.use_gps)
 		gps_start();

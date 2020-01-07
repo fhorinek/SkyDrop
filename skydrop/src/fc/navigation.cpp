@@ -16,55 +16,114 @@
 MK_SEQ(next_wpt, ARR({750, 0, 1000, 0, 1000, 0}), ARR({250, 150, 250, 150, 250, 150}));
 MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
-/**
- * Returns the bearing from lat1/lon1 to lat2/lon2. All parameters
- * must be given as fixed integers multiplied with GPS_MULT.
- *
- * \param lat1 the latitude of the 1st GPS point
- * \param lon1 the longitude of the 1st GPS point
- * \param lat2 the latitude of the 2nd GPS point
- * \param lon2 the longitude of the 2nd GPS point
- *
- * \return the bearing in degrees (0-359, where 0 is north, 90 is east, ...).
- */
-int16_t gps_bearing(int32_t lat1, int32_t lon1,
-					int32_t lat2, int32_t lon2)
-{
-	double dX = ((double)lon1 - lon2) / GPS_MULT;
-	double dY = ((double)lat1 - lat2) / GPS_MULT;
-	return ((int16_t)to_degrees(atan2(dX, dY)) + 360) % 360;
-}
+#define FAI_EARTH_RADIUS 6378
+
 
 /**
  * Compute the distance between two GPS points in 2 dimensions
  * (without altitude). Latitude and longitude parameters must be given as fixed integers
- * multiplied with GPS_MULT.
+ * multiplied with GPS_COORD_MULT.
  *
  * \param lat1 the latitude of the 1st GPS point
  * \param lon1 the longitude of the 1st GPS point
  * \param lat2 the latitude of the 2nd GPS point
  * \param lon2 the longitude of the 2nd GPS point
+ * \param FAI use FAI sphere instead of WGS ellipsoid
+ * \param bearing pointer to bearing (NULL if not used)
  *
- * \return the distance in cm.
+ * \return the distance in m.
  */
-uint32_t gps_distance_2d(int32_t lat1, int32_t lon1,
-			 	 	 	 int32_t lat2, int32_t lon2)
+uint32_t gps_distance(int32_t lat1, int32_t lon1,
+			 	 	 	  int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
 {
-	double dx, dy;   // in cm
-	double lat;
+	DEBUG("*gps_distance\n");
 
-	// Compute the average lat of lat1 and lat2 to get the width of a
-	// 1 degree cell at that position of the earth:
-	lat = (lat1 + lat2) / 2 / GPS_MULT * (M_PI / 180.0);
 
-	// 111.3 km (in cm) is the width of 1 degree
-	// disp.get_cos() is not usable here, because we deal with fractions of a degree.
-	dx = cos(lat) * 11130000 * abs(lon1 - lon2) / GPS_MULT;
-	dy = 1.0      * 11130000 * abs(lat1 - lat2) / GPS_MULT;
+	float d_lon = (lon2 - lon1) / (float)GPS_COORD_MUL;
+	float d_lat = (lat2 - lat1) / (float)GPS_COORD_MUL;
 
-	return (uint32_t)sqrt(dx * dx + dy * dy);
+	DEBUG("#d_lon=%0.10f\n", d_lon);
+	DEBUG("#d_lat=%0.10f\n", d_lat);
+
+	DEBUG("lat1=%li\n", lat1);
+	DEBUG("lon1=%li\n", lon1);
+	DEBUG("lat2=%li\n", lat2);
+	DEBUG("lon2=%li\n", lon2);
+
+	uint32_t dist;
+
+	if (FAI)
+	{
+		DEBUG("f=1\n");
+
+		d_lon = to_radians(d_lon / 2);
+		d_lat = to_radians(d_lat / 2);
+
+//		DEBUG("#d_lon=%0.10f\n", d_lon);
+//		DEBUG("#d_lat=%0.10f\n", d_lat);
+
+		float q = pow(sin(d_lat), 2) + pow(sin(d_lon), 2) * cos(to_radians(lat1 / (float)GPS_COORD_MUL)) * cos(to_radians(lat2 / (float)GPS_COORD_MUL));
+
+//		DEBUG("#q=%0.10f\n", q);
+
+		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 1000.0;
+	}
+	else
+	{
+		DEBUG("f=0\n");
+		DEBUG("#lat=%0.10f\n", (lat1 + lat2) / ((float)GPS_COORD_MUL * 2));
+
+		float fcos = cos(to_radians((lat1 + lat2) / ((float)GPS_COORD_MUL * 2)));
+		float cos2 = 2. * fcos * fcos - 1.;
+		float cos3 = 2. * fcos * cos2 - fcos;
+		float cos4 = 2. * fcos * cos3 - cos2;
+		float cos5 = 2. * fcos * cos4 - cos3;
+
+        //multipliers for converting longitude and latitude
+        //degrees into distance (http://1.usa.gov/1Wb1bv7)
+		float kx = (111.41513 * fcos - 0.09455 * cos3 + 0.00012 * cos5);
+        float ky = (111.13209 - 0.56605 * cos2 + 0.0012 * cos4);
+
+		DEBUG("#kx=%0.10f\n", kx);
+		DEBUG("#ky=%0.10f\n", ky);
+
+        d_lon *= kx;
+        d_lat *= ky;
+
+		DEBUG("#d_lon=%0.10f\n", d_lon);
+		DEBUG("#d_lat=%0.10f\n", d_lat);
+
+        dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 1000.0;
+	}
+
+    if (bearing || 1)
+    {
+        if (d_lon  == 0 and d_lat == 0)
+			*bearing = 0;
+
+		*bearing = ((int16_t)to_degrees(atan2(d_lon, d_lat)) + 360) % 360;
+		DEBUG("a=%d\n", *bearing);
+    }
+	DEBUG("d=%lu\n\n", dist);
+
+    return dist;
 }
 
+void navigation_init()
+{
+	char full_path[64];
+
+	if (config.tasks.name[0])
+	{
+		const char * task_root = PSTR("/TASKS");
+		sprintf_P(full_path, PSTR("%S/%s"), task_root, config.tasks.name);
+
+		if (storage_file_exist(full_path))
+		{
+			waypoint_task_open((char *)config.tasks.name);
+		}
+	}
+}
 
 /**
  * The GPS position has changed. Compute the distance to the previous
@@ -76,7 +135,6 @@ void navigation_step()
 
 	static int32_t last_lat = NO_LAT_DATA;
 	static int32_t last_lon;
-	static float last_alt;
 
 	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO)
 		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
@@ -85,31 +143,40 @@ void navigation_step()
 
 	if (fc.flight.home_valid)
 	{
-		fc.flight.home_bearing = gps_bearing(config.home.lat, config.home.lon, fc.gps_data.latitude, fc.gps_data.longtitude );
-		fc.flight.home_distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, config.home.lat, config.home.lon) / 100000.0;   // cm to km
+		bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
+
+		fc.flight.home_distance = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
+											   config.home.lat, config.home.lon,
+											   use_fai, (int16_t *)&fc.flight.home_bearing) / 1000.0;   // m to km
 	}
 
-	if ( fc.task.waypoint_index != 0 )
+	if (waypoint_task_active())
 	{
 //		DEBUG("lat1 %ld\n", fc.task.next_waypoint.lat);
 //		DEBUG("lon1 %ld\n", fc.task.next_waypoint.lon);
 //		DEBUG("lat2 %ld\n", fc.gps_data.latitude);
 //		DEBUG("lon2 %ld\n", fc.gps_data.longtitude);
 
+		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
 
-		fc.task.next_waypoint.bearing = gps_bearing(fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude, fc.gps_data.latitude, fc.gps_data.longtitude );
-		fc.task.next_waypoint.distance = gps_distance_2d(fc.gps_data.latitude, fc.gps_data.longtitude, fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude) / 100.0;   // cm to m
+		fc.task.next_waypoint.distance = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
+						fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
+						use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
 		fc.task.next_waypoint.distance -= fc.task.next_waypoint.twpt.radius_m;
 
 //		DEBUG("ber %d\n", fc.task.next_waypoint.bearing);
 //		DEBUG("dis %0.2f\n", fc.task.next_waypoint.distance);
 
-
-		if ( fc.task.next_waypoint.distance <= 0 )
+		if (fc.task.next_waypoint.distance <= 0)
 		{
 
 			// We reached the waypoint. Go to next.
-			if (!waypoint_goto_next() )
+			if (waypoint_goto_next())
+			{
+				seq_start(&next_wpt, config.gui.alert_volume);
+				waypoint_show();
+			}
+			else
 			{
 				fc.task.waypoint_index = fc.task.waypoint_count;
 				fc.task.next_waypoint.bearing = 0;
@@ -117,10 +184,6 @@ void navigation_step()
 				gui_showmessage_P(PSTR("Navigation\nfinished."));
 
 				seq_start(&last_wpt, config.gui.alert_volume);
-			}
-			else
-			{
-				seq_start(&next_wpt, config.gui.alert_volume);
 			}
 		}
 
@@ -130,7 +193,8 @@ void navigation_step()
 	// Do we already have a previous GPS point?
 	if (last_lat != NO_LAT_DATA)
 	{
-		uint32_t v = gps_distance_2d(last_lat, last_lon, fc.gps_data.latitude, fc.gps_data.longtitude);
+		bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
+		uint32_t v = gps_distance(last_lat, last_lon, fc.gps_data.latitude, fc.gps_data.longtitude, use_fai);
 
 		//calculated speed in knots
 		uint16_t calc_speed = (v * FC_MPS_TO_KNOTS) / 100;
@@ -144,5 +208,4 @@ void navigation_step()
 	// Save the current GPS position for the next step
 	last_lat = fc.gps_data.latitude;
 	last_lon = fc.gps_data.longtitude;
-	last_alt = fc.gps_data.altitude;
 }

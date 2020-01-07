@@ -10,7 +10,7 @@
 
 void gui_set_airspaces_init()
 {
-	gui_list_set(gui_set_airspaces_item, gui_set_airspaces_action, 4, GUI_SETTINGS);
+	gui_list_set(gui_set_airspaces_item, gui_set_airspaces_action, 5, GUI_SETTINGS);
 }
 
 
@@ -41,6 +41,15 @@ void gui_set_airspaces_reset_cb(uint8_t ret)
 	gui_switch_task(GUI_SET_AIRSPACE);
 }
 
+void gui_set_airspace_confirm_secs_cb(float val)
+{
+	gui_switch_task(GUI_SET_AIRSPACE);
+
+	config.airspaces.alarm_confirm_secs = val;
+	eeprom_update_byte(&config_ee.airspaces.alarm_confirm_secs, config.airspaces.alarm_confirm_secs);
+}
+
+
 void gui_set_airspaces_action(uint8_t index)
 {
 	switch(index)
@@ -61,6 +70,12 @@ void gui_set_airspaces_action(uint8_t index)
 		break;
 
 		case(3):
+			gui_value_conf_P(PSTR("Confirm time"), GUI_VAL_NUMBER_DISABLE, PSTR("%0.0f secs"), config.airspaces.alarm_confirm_secs, 0, 255, 1, gui_set_airspace_confirm_secs_cb);
+
+			gui_switch_task(GUI_SET_VAL);
+		break;
+
+		case(4):
 				gui_dialog_set_P(PSTR("Confirm"), PSTR("Reset airspace\nignore list?"), GUI_STYLE_YESNO, gui_set_airspaces_reset_cb);
 				gui_switch_task(GUI_DIALOG);
 		break;
@@ -78,7 +93,7 @@ void gui_set_airspaces_item(uint8_t index, char * text, uint8_t * flags, char * 
 		case (1):
 			strcpy_P(text, PSTR("Alert near"));
 			*flags =  GUI_LIST_SUB_TEXT;
-			strcpy_P(sub_text, PSTR("500m"));
+			sprintf_P(sub_text, PSTR("%um"), config.airspaces.warning_m);
 		break;
 
 		case (2):
@@ -92,6 +107,15 @@ void gui_set_airspaces_item(uint8_t index, char * text, uint8_t * flags, char * 
 		break;
 
 		case (3):
+			strcpy_P(text, PSTR("Auto confirm"));
+			if (config.airspaces.alarm_confirm_secs == 0)
+				sprintf_P(sub_text, PSTR("Disabled"));
+			else
+				sprintf_P(sub_text, PSTR("%u secs"), config.airspaces.alarm_confirm_secs);
+			*flags =  GUI_LIST_SUB_TEXT;
+		break;
+
+		case (4):
 			strcpy_P(text, PSTR("Reset ignore list"));
 		break;
 	}

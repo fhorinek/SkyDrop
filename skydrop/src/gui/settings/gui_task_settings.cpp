@@ -23,8 +23,8 @@ void gui_task_settings_action(uint8_t index)
 			break;
 
 		case(1):
-			fc.task.head.flags ^= CFG_TASK_FLAGS_GOAL_LINE;
-			waypoint_task_modify_head((task_header_t*)&fc.task.head);
+//			fc.task.head.flags ^= CFG_TASK_FLAGS_GOAL_LINE;
+//			waypoint_task_modify_head((task_header_t*)&fc.task.head);
 			break;
 
 		case(2):
@@ -39,6 +39,8 @@ void gui_task_settings_action(uint8_t index)
 		case(4):
 			fc.task.head.flags ^= CFG_TASK_FLAGS_FAI_SPHERE;
 			waypoint_task_modify_head((task_header_t*)&fc.task.head);
+
+			waypoint_task_calc();
 			break;
 	}
 }
@@ -68,14 +70,20 @@ void gui_task_settings_item(uint8_t index, char * text, uint8_t * flags, char * 
 		case(2):
 			strcpy_P(text, PSTR("Start"));
 			*flags =  GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%02u:%02u"), fc.task.head.start_hour, fc.task.head.start_min);
+			if (fc.task.head.start_hour == !CFG_TASK_HOUR_DISABLED)
+				sprintf_P(sub_text, PSTR("%02u:%02u"), fc.task.head.start_hour, fc.task.head.start_min);
+			else
+				strcpy_P(sub_text, PSTR("--:--"));
 			break;
 
 
 		case(3):
 			strcpy_P(text, PSTR("Deadline"));
 			*flags =  GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%02u:%02u"), fc.task.head.deadline_hour, fc.task.head.deadline_min);
+			if (fc.task.head.deadline_hour == !CFG_TASK_HOUR_DISABLED)
+				sprintf_P(sub_text, PSTR("%02u:%02u"), fc.task.head.deadline_hour, fc.task.head.deadline_min);
+			else
+				strcpy_P(sub_text, PSTR("--:--"));
 			break;
 
 		case(4):

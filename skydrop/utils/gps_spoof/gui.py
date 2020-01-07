@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import math
 import pygame
@@ -45,12 +46,65 @@ class GPS_Spoof(object):
     
     need_redraw = True
     
-    def add_waypoints(self):
-        self.waypoints.append([48.1492265, 17.1082577])
-        self.waypoints.append([48.150286, 17.110068])
+    def add_waypoints(self, filename):
+        print("Loading file", filename)
+        f = open(filename, "r")
+        lines = f.readlines()[1:]
+        f.close()
+        
+        lat_min = 999999999999999
+        lat_max = -lat_min
+        
+        lon_min = lat_min
+        lon_max = -lat_min
+        
+        for line in lines:
+            f = line.replace("\n", "").split(",")
+            #print(f)
+            
+            if f[0] == "-----Related Tasks-----":
+                break
+            
+            name = f[1].replace("\"", "")
+            lat = f[3]
+            lon = f[4]
+            
+            lat_deg = int(lat[:2])
+            lat_m = float(lat[2:][:-1]) / 60.0
+            
+            lat = (lat_deg + lat_m) * (-1.0 if lat[-1] == 'S' else 1.0)
+            
+            lon_deg = int(lon[:3])
+            lon_m = float(lon[3:][:-1]) / 60.0
+            
+            lon = (lon_deg + lon_m) * (-1.0 if lon[-1] == 'W' else 1.0)
+
+            print(name, lat, lon)
+            
+            lat_min = min(lat_min, lat)
+            lat_max = max(lat_max, lat)
+            lon_min = min(lon_min, lon)
+            lon_max = max(lon_max, lon)
+            
+            self.waypoints.append([lat, lon, name])
+        
+        
+        border = 0.1
+        lat_min -= border
+        lat_max += border
+        lon_min -= border
+        lon_max += border
+        
+        self.lat_start = lat_min
+        self.lon_start = lon_min
+        
+        delta = max(lat_max - lat_min, lon_max - lon_min)
+        self.gain = delta / max(self.win_size)
+        
+        print(len(self.waypoints), "points loaded")
     
-    def main(self, port):
-        self.add_waypoints()
+    def main(self, port, filename):
+        self.add_waypoints(filename)
         
         pygame.init()
         self.screen = pygame.display.set_mode(self.win_size, RESIZABLE)
@@ -92,11 +146,11 @@ class GPS_Spoof(object):
         
         self.points.append(a)
         
-    def coord_to_point(self, lat, lon):
+    def coord_to_point(self, lat, lon, __):
         y = int((lat - self.lat_start) / self.gain)
         x = int((lon - self.lon_start) / self.gain)       
 
-        return x, y
+        return x, self.win_size[1] - y
             
                     
     def send_point(self, point):
@@ -106,7 +160,7 @@ class GPS_Spoof(object):
         time = utc.strftime("%H%M%S")
         date = utc.strftime("%d%m%y")
         
-        latitude = self.lat_start + y * self.gain
+        latitude = self.lat_start + (self.win_size[1] - y) * self.gain
         longitude = self.lon_start + x * self.gain
         
         self.lat = latitude
@@ -123,16 +177,16 @@ class GPS_Spoof(object):
         if self.last_point:
             ox, oy = self.last_point[0:2]
 
-            olatitude = self.lat_start + oy * self.gain
+            olatitude = self.lat_start + (self.win_size[1] - oy) * self.gain
             olongitude = self.lon_start + ox * self.gain 
                     
             R = 6371e3 # metres
-            φ1 = math.radians(latitude)
-            φ2 = math.radians(olatitude)
-            Δφ = math.radians(olatitude - latitude);
-            Δλ = math.radians(olongitude - longitude);
+            phi_1 = math.radians(latitude)
+            phi_2 = math.radians(olatitude)
+            delta_phi_ = math.radians(olatitude - latitude);
+            delta_lambda = math.radians(olongitude - longitude);
             
-            a = math.sin(Δφ/2) * math.sin(Δφ/2) + math.cos(φ1) * math.cos(φ2) * math.sin(Δλ/2) * math.sin(Δλ/2)
+            a = math.sin(delta_phi_/2) * math.sin(delta_phi_/2) + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda/2) * math.sin(delta_lambda/2)
             c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
             
             d = R * c
@@ -246,7 +300,7 @@ class GPS_Spoof(object):
         for wpt in self.waypoints:
             point = self.coord_to_point(*wpt)
             pygame.draw.circle(self.screen, self.wpt_color, point, self.wpt_radius)
-            
+            self.draw_text(wpt[2], point[0] - 40, point[1] + 8)
             
         self.draw_text("Alt: %d" % self.altitiude, 0, 0)
         self.draw_text("Hdg: %d" % self.heading, 0, 20)
@@ -260,6 +314,6 @@ class GPS_Spoof(object):
         
 if __name__ == '__main__':
     o = GPS_Spoof()
-    o.main("/dev/ttyUSB1")
+    o.main("/dev/ttyUSB1", "route.cup")
     
     

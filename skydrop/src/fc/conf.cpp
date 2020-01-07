@@ -23,7 +23,7 @@ EEMEM cfg_t config_ee = {
 	//gui
 	{
 		//contrast
-		GUI_CONTRAST_STEPS / 2 + 1,
+		4,
 		//brightness
 		20,
 		//brightness_timeout
@@ -261,8 +261,6 @@ EEMEM cfg_t config_ee = {
 		PROTOCOL_LK8EX1,
 		//uart_function
 		UART_FORWARD_OFF,
-		//password
-		{'1', '2', '3', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	},
 	//Home
 	{
@@ -285,6 +283,11 @@ EEMEM cfg_t config_ee = {
 		true,
 		//alarm_confirm_secs
 		30,
+	},
+	//Tasks
+	{
+		//task name
+		empty10,
 	}
 };
 

@@ -9,12 +9,12 @@
 
 //#include "../debug_on.h"
 
-void show_waypoint()
+void waypoint_show()
 {
 	char message[50];
 
 	sprintf_P(message, PSTR("Next WPT %d/%d\n\"%s\""),
-			fc.task.waypoint_index + 1, fc.task.waypoint_index,
+			fc.task.waypoint_index, fc.task.waypoint_count - 1,
 			fc.task.next_waypoint.twpt.wpt.name);
 	gui_showmessage(message);
 }
@@ -26,11 +26,10 @@ void show_waypoint()
  */
 bool waypoint_goto_next()
 {
-	if (fc.task.waypoint_index < fc.task.waypoint_count)
+	if (fc.task.waypoint_index < fc.task.waypoint_count - 1)
 	{
 		fc.task.waypoint_index++;
 		waypoint_task_get_wpt(fc.task.waypoint_index, (task_waypoint_t *)&fc.task.next_waypoint.twpt);
-		show_waypoint();
 		return true;
 	}
 	else
@@ -46,11 +45,10 @@ bool waypoint_goto_next()
  */
 bool waypoint_goto_prev()
 {
-	if (fc.task.waypoint_index > 0)
+	if (fc.task.waypoint_index > 1)
 	{
 		fc.task.waypoint_index--;
 		waypoint_task_get_wpt(fc.task.waypoint_index, (task_waypoint_t *)&fc.task.next_waypoint.twpt);
-		show_waypoint();
 		return true;
 	}
 	else
@@ -69,7 +67,7 @@ void waypoint_list_cache(char * name)
 	uint16_t br_bw;
 
 	//create cache directory
-	strcpy_P(line, PSTR("/WPT/CACHE"));
+	strcpy_P(line, PSTR("/WPT/_CACHE"));
 	f_mkdir(line);
 
 	//get info about source file
@@ -78,7 +76,7 @@ void waypoint_list_cache(char * name)
 	f_stat(line, &fno);
 
 	//open cache file first and check if it is up-to-date
-	sprintf_P(line, PSTR("/WPT/CACHE/%s"), name);
+	sprintf_P(line, PSTR("/WPT/_CACHE/%s"), name);
 	if (f_open(&cache_file, line, FA_READ) == FR_OK)
 	{
 		uint32_t index = f_size(&cache_file) - sizeof(info);
@@ -229,7 +227,7 @@ void waypoint_list_open(char * name)
 
 	waypoint_list_cache(name);
 
-	const char * wpt_root = PSTR("/WPT/CACHE");
+	const char * wpt_root = PSTR("/WPT/_CACHE");
 	sprintf_P(line, PSTR("%S/%s"), wpt_root, waypoint_list_name);
 
 	f_open(&handle, line, FA_READ);
@@ -251,7 +249,7 @@ void waypoint_list_get_wpt(uint8_t windex, waypoint_cache_t * wpt)
 	char line[32];
 	uint16_t br;
 
-	const char * wpt_root = PSTR("/WPT/CACHE");
+	const char * wpt_root = PSTR("/WPT/_CACHE");
 	sprintf_P(line, PSTR("%S/%s"), wpt_root, waypoint_list_name);
 	f_open(&handle, line, FA_READ);
 
@@ -281,6 +279,15 @@ void waypoint_task_remove()
 	fc.task.waypoint_count -= 1;
 }
 
+void waypoint_task_close()
+{
+	fc.task.active = false;
+	config.tasks.name[0] = 0;
+
+	eeprom_busy_wait();
+	eeprom_update_block((void *)config.tasks.name, config_ee.tasks.name, 1);
+}
+
 void waypoint_task_open(char * name)
 {
 	char line[32];
@@ -288,7 +295,7 @@ void waypoint_task_open(char * name)
 
 	const char * task_root = PSTR("/TASKS");
 
-	//create cache directory
+	//create task directory
 	strcpy_P(line, task_root);
 	f_mkdir(line);
 
@@ -308,6 +315,11 @@ void waypoint_task_open(char * name)
 	{
 		strcpy((char *)fc.task.name, name);
 	}
+
+	//store name to EE
+	strcpy((char *)config.tasks.name, (char *)fc.task.name);
+	eeprom_busy_wait();
+	eeprom_update_block((void *)config.tasks.name, config_ee.tasks.name, sizeof(config_ee.tasks.name));
 
 	waypoint_task_open_handle(&handle, FA_READ | FA_WRITE | FA_OPEN_ALWAYS);
 	f_lseek(&handle, 0);
@@ -332,9 +344,12 @@ void waypoint_task_open(char * name)
 		f_read(&handle, (void *)&fc.task.head, sizeof(task_header_t), &bw_br);
 	}
 
-	fc.task.waypoint_index = 0;
+	fc.task.waypoint_index = 1;
 	fc.task.waypoint_count = (f_size(&handle) - sizeof(task_header_t)) / sizeof(task_waypoint_t);
 	f_close(&handle);
+
+	if (fc.task.waypoint_count > 1)
+		waypoint_task_get_wpt(fc.task.waypoint_index, (task_waypoint_t *)&fc.task.next_waypoint.twpt);
 
 	fc.task.active = true;
 }
@@ -370,8 +385,8 @@ void waypoint_task_add_wpt(waypoint_cache_t * wpt)
 
 	task_waypoint_t twpt;
 	memcpy(&twpt.wpt, wpt, sizeof(waypoint_cache_t));
-	twpt.dist_cm = 0;
-	twpt.radius_m = 500;
+	twpt.dist_m = 0;
+	twpt.radius_m = TASK_WAYPOINT_DEFAULT_RADIUS;
 
 	waypoint_task_open_handle(&handle, FA_WRITE);
 	f_lseek(&handle, f_size(&handle));
@@ -451,7 +466,9 @@ void waypoint_task_calc()
 	for (uint8_t i = 1; i < fc.task.waypoint_count; i++)
 	{
 		waypoint_task_get_wpt(i, &twpt);
-		twpt.dist_cm = gps_distance_2d(lat, lon, twpt.wpt.latitude, twpt.wpt.longtitude);
+
+		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
+		twpt.dist_m = gps_distance(lat, lon, twpt.wpt.latitude, twpt.wpt.longtitude, use_fai);
 
 		lat = twpt.wpt.latitude;
 		lon = twpt.wpt.longtitude;
@@ -469,5 +486,34 @@ void waypoint_task_optimise()
 
 bool waypoint_task_active()
 {
-	return fc.task.waypoint_index < fc.task.waypoint_count - 1 && fc.task.active;
+	return fc.task.waypoint_index < fc.task.waypoint_count && fc.task.active;
+}
+
+uint32_t waypoint_task_time_to_start()
+{
+	return (fc.task.head.start_hour * 3600 + fc.task.head.start_min * 60) - (time_get_local() % 86400ul);
+}
+
+uint32_t waypoint_task_time_to_deadline()
+{
+	return (fc.task.head.deadline_hour * 3600 + fc.task.head.deadline_hour * 60) - (time_get_local() % 86400ul);
+}
+
+uint8_t waypoint_task_mode()
+{
+	if (waypoint_task_active())
+	{
+		uint32_t actual_epoch = time_get_local() % 86400ul;
+		uint32_t start_epoch = (fc.task.head.start_hour != CFG_TASK_HOUR_DISABLED) ? (fc.task.head.start_hour * 3600 + fc.task.head.start_min * 60) : 0;
+		uint32_t deadline_epoch = (fc.task.head.deadline_hour != CFG_TASK_HOUR_DISABLED) ? (fc.task.head.deadline_hour * 3600 + fc.task.head.deadline_min * 60) : 86400ul;
+
+		if (start_epoch < actual_epoch)
+			return TASK_MODE_PREPARE;
+		if (actual_epoch <= deadline_epoch)
+			return TASK_MODE_ACTIVE;
+
+		return TASK_MODE_ENDED;
+	}
+
+	return TASK_MODE_NOT_ACTIVE;
 }

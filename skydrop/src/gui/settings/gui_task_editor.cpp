@@ -47,12 +47,11 @@ void gui_task_editor_name_cb(uint8_t ret, char * buff)
 {
 	if (ret == GUI_TEXT_OK && strcmp(buff, (char *)fc.task.name) != 0)
 	{
-		FILINFO fno;
 		char line[32];
 
 		const char * task_root = PSTR("/TASKS");
 		sprintf_P(line, PSTR("%S/%s"), task_root, buff);
-		if (f_stat(line, &fno) == FR_OK)
+		if (storage_file_exist(line))
 		{
 			sprintf_P(line, PSTR("Task name\n%s\nexists!"), buff);
 			gui_showmessage(line);
@@ -159,21 +158,21 @@ void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * su
 		else
 		{
 			if (windex == 1)
-				sprintf_P(sub_text, PSTR("SSS D:%0.2fkm R:%um"), twpt.dist_cm / 100000.0, twpt.radius_m);
+				sprintf_P(sub_text, PSTR("SSS D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
 			else if (windex == fc.task.waypoint_count - 2 || (windex == 2 && fc.task.waypoint_count == 3))
-				sprintf_P(sub_text, PSTR("ESS D:%0.2fkm R:%um"), twpt.dist_cm / 100000.0, twpt.radius_m);
+				sprintf_P(sub_text, PSTR("ESS D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
 			else if (windex == fc.task.waypoint_count - 1)
-				sprintf_P(sub_text, PSTR("Goal D:%0.2fkm R:%um"), twpt.dist_cm / 100000.0, twpt.radius_m);
+				sprintf_P(sub_text, PSTR("Goal D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
 			else
-				sprintf_P(sub_text, PSTR("D:%0.2fkm R:%um"), twpt.dist_cm / 100000.0, twpt.radius_m);
+				sprintf_P(sub_text, PSTR("D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
 
-			gui_task_editor_total_dist += twpt.dist_cm;
+			gui_task_editor_total_dist += twpt.dist_m;
 		}
 	}
 
 	if (index == fc.task.waypoint_count + 3)
 	{
-		sprintf_P(text, PSTR("Total:%0.2fkm"), gui_task_editor_total_dist / 100000.0);
+		sprintf_P(text, PSTR("Total:%0.2fkm"), gui_task_editor_total_dist / 1000.0);
 		*flags =  GUI_LIST_TITLE;
 	}
 

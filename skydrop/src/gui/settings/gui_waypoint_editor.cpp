@@ -33,6 +33,9 @@ void gui_waypoint_editor_action(uint8_t index)
 		break;
 
 		case(1):
+			if (gui_waypoint_editor_wpt_index == 0)
+				break;
+
 			gui_value_conf_P(PSTR("Radius"), GUI_VAL_NUMBER, PSTR("%0.0f m"), gui_waypoint_editor_wpt.radius_m, 50, 30000, 50, gui_waypoint_editor_radius_cb);
 			gui_switch_task(GUI_SET_VAL);
 			break;
@@ -70,7 +73,11 @@ void gui_waypoint_editor_item(uint8_t index, char * text, uint8_t * flags, char 
 		case(1):
 			strcpy_P(text, PSTR("Radius"));
 			*flags =  GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%um"), gui_waypoint_editor_wpt.radius_m);
+
+			if (gui_waypoint_editor_wpt_index == 0)
+				strcpy_P(sub_text, PSTR("Take-off"));
+			else
+				sprintf_P(sub_text, PSTR("%um"), gui_waypoint_editor_wpt.radius_m);
 			break;
 		case(2):
 			strcpy_P(text, PSTR("Move up"));
