@@ -146,6 +146,35 @@ app.directive('ctrlDoubleselect', ['memory', function(memory, $parse, $rootScope
     };
 }]);
 
+app.directive('ctrlTripleselect', ['memory', function(memory, $parse, $rootScope) {
+    return {
+        restrict: 'E',
+        scope: {
+            ngModel: '=',
+            label1: '=',
+            options1: '=',
+            mask1: '=',
+            label2: '=',
+            options2: '=',
+            mask2: '=',
+            label3: '=',
+            options3: '=',
+            mask3: '=',
+        },
+        template: function(element, attrs) {
+            var html = '<div>';
+            html += '<b>{{label1}}</b><br>';
+            html += '<ctrl-select ng-model="ngModel.select1" options="options1"></ctrl-select><br>';
+            html += '<b>{{label2}}</b><br>';
+            html += '<ctrl-select ng-model="ngModel.select2" options="options2"></ctrl-select><br>';
+            html += '<b>{{label3}}</b><br>';
+            html += '<ctrl-select ng-model="ngModel.select3" options="options3"></ctrl-select><br>';
+            html += '</div>';
+            return html;
+        },
+    };
+}]);
+
 app.directive('ctrlDampening', function() {
     return {
         restrict: 'E',

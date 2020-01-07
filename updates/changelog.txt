@@ -1,3 +1,21 @@
+Build 5027 - 07. 01. 2020
+========================================================
+
+ADDED:
+ * GPS distance calculation can be FAI Sphere (R=6378) or WGS84 Ellipsoid
+ * Cup file parser for waypoint list
+ * Task editor
+ * SkyDrop will automaticali create default directory for user data input
+ 
+CHANGES:
+ * Old waypoint navigation is replaced with task navigation
+ * Home position now use waypoints instead of dedicated home files
+ * Airspace is now single widget
+ * filemanager will hide filenames begining with underscore "_"
+ 
+REMOVED:
+ * Airspace widgets (name, info, distance, linit) 
+
 Build 4831 - 21. 10. 2019
 ========================================================
 

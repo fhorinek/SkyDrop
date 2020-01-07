@@ -467,6 +467,28 @@ app.service("memory", ["$http", "$q", function($http, $q){
     		
     		break;
     		
+    		case("tripleselect"):
+    			var mask1 = this.value_from_macro(arr["mask1"]);
+				var mask2 = this.value_from_macro(arr["mask2"]);
+				var mask3 = this.value_from_macro(arr["mask3"]);
+    			
+                value.select1 = {};
+                value.select2 = {};
+                value.select3 = {};
+                for (var i=0; i < arr["options1"].length; i++)
+                    if ((value_in & mask1) == this.value_from_macro(arr["options1"][i][0]))
+                    	value.select1.option = arr["options1"][i][0];
+    		
+ 	    		for (var i=0; i < arr["options2"].length; i++)
+	                if ((value_in & mask2) == this.value_from_macro(arr["options2"][i][0]))
+	                	value.select2.option = arr["options2"][i][0];
+
+ 	    		for (var i=0; i < arr["options3"].length; i++)
+	                if ((value_in & mask3) == this.value_from_macro(arr["options3"][i][0]))
+	                	value.select3.option = arr["options3"][i][0];
+    		
+    		break;    		
+    		
     		default:
     			value = value_in;
     	}
@@ -520,6 +542,19 @@ app.service("memory", ["$http", "$q", function($http, $q){
 				
 				return ret;
     		break;
+    		
+    		case("tripleselect"):
+    			var mask1 = this.value_from_macro(arr["mask1"]);
+				var mask2 = this.value_from_macro(arr["mask2"]);
+				var mask3 = this.value_from_macro(arr["mask3"]);
+    			
+				var ret = 0;
+	   			ret |= this.value_from_macro(arr.value.select1.option) & mask1;
+    			ret |= this.value_from_macro(arr.value.select2.option) & mask2;
+    			ret |= this.value_from_macro(arr.value.select3.option) & mask3;
+				
+				return ret;
+    		break;    		
     		
     		default:
     			return arr.value;

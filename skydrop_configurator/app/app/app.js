@@ -56,6 +56,9 @@ app.config(['$routeProvider',
 		when('/screens', {
             templateUrl: 'pages/screens.html',
         }).      
+		when('/airspaces', {
+            templateUrl: 'pages/airspaces.html',
+        }).      
         otherwise({
             redirectTo: '/wizard'
         });
@@ -72,6 +75,7 @@ app.controller("menuList", ["$scope", function ($scope) {
          	{"title": "Display", "ref": "display"},
          	{"title": "Logger", "ref": "logger"},
          	{"title": "Connectivity", "ref": "connectivity"},
+         	{"title": "Airspaces", "ref": "airspaces"},
          	{"title": "System", "ref": "system"}
         ],
         [

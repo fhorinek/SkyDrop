@@ -50,6 +50,19 @@
                         label2="item.label2"></ctrl-doubleselect>	 	                
 	            </div>	 	            
 
+	            <div ng-switch-when="tripleselect" class="panel-body">
+		            <ctrl-tripleselect ng-model="item.value"
+		                options1="item.options1"
+			            mask1="item.mask1" 
+			            label1="item.label1" 
+			            options2="item.options2"
+			            mask2="item.mask2" 
+			            label2="item.label2" 
+			            options3="item.options3"
+			            mask2="item.mask3" 
+			            label3="item.label3"></ctrl-tripleselect>
+	            </div>
+
 	            <div ng-switch-when="dampening" class="panel-body">
 	                <ctrl-dampening ng-model="item.value" 
 	                    min="item.min" 

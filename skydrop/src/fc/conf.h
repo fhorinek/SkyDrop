@@ -189,6 +189,7 @@ struct cfg_logger
 #define GPS_DIST_UNIT_M	   0b00000000
 #define GPS_DIST_UNIT_I	   0b00010000
 
+#define GPS_EARTH_MODEL_MASK   0b00010000
 #define GPS_EARTH_MODEL_FAI	   0b00100000
 
 #define PROTOCOL_DIGIFLY	0
