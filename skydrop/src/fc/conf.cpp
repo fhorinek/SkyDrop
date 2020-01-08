@@ -194,11 +194,13 @@ EEMEM cfg_t config_ee = {
 		//weak
 		30,
 		//flags
-		AUDIO_FLUID | AUDIO_BEEP_SINK,// | AUDIO_WEAK,
+		AUDIO_FLUID | AUDIO_SINK_CONT,// | AUDIO_WEAK,
 		//prebeep_offset in Hz
-		40,
+		100,
 		//prebeep_length in ms
-		50
+		160,
+		//weak_start_freq
+		10
 	},
 	//System
 	{

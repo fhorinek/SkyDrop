@@ -105,24 +105,39 @@ struct cfg_altitude
 	uint16_t alarm_reset;
 };
 
-#define AUDIO_FLUID		0b00000001
-#define AUDIO_WEAK		0b00000010
-#define AUDIO_BEEP_SINK	0b00000100
+#define AUDIO_SINK_MASK		0b00000011
+#define AUDIO_SINK_OFF		0b00000000
+#define AUDIO_SINK_BEEP		0b00000001
+#define AUDIO_SINK_CONT		0b00000010
+#define AUDIO_SINK_MODES			 3
+
+#define AUDIO_WEAK_MASK		0b00001100
+#define AUDIO_WEAK_OFF		0b00000000
+#define AUDIO_WEAK_BEEP		0b00000100
+#define AUDIO_WEAK_CONT		0b00001000
+#define AUDIO_WEAK_MODES			 3
+
+#define AUDIO_FLUID			0b00010000
 
 struct cfg_audio_profile
 {
+	//audioprofile table
 	uint16_t freq[41];	//in Hz
 	uint16_t pause[41];	//in ms
 	uint16_t length[41];//in ms
 
+	//tresholds
 	int16_t lift;		//in cm
 	int16_t sink;		//in cm
 	int16_t weak;		//in cm
 
+	//flags
 	uint8_t	flags;
 
-	uint8_t prebeep_offset; //in Hz
+	uint16_t prebeep_offset; //in Hz
 	uint8_t prebeep_length; //in ms
+
+	uint16_t weak_start_freq; //in Hz
 };
 
 #define TIME_DST	0b00000001
@@ -156,10 +171,10 @@ struct cfg_autostart
 
 #define LOGGER_IGC	0
 #define LOGGER_KML	1
-#define LOGGER_RAW	2
+//#define LOGGER_RAW	2
 //#define LOGGER_AERO	3
 
-#define NUMBER_OF_FORMATS	3
+#define NUMBER_OF_FORMATS	2
 #define LOG_TEXT_LEN		50
 
 struct cfg_logger
