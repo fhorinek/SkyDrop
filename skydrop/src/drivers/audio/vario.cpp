@@ -273,7 +273,7 @@ void audio_vario_step(float vario)
 				break;
 
 				case(AUDIO_SINK_CONT):
-					//if sink is continous
+					//if sink is continuous
 					audio_vario_length = 0;
 					audio_vario_pause = 0;
 				break;

@@ -1,3 +1,12 @@
+Build 5041 - 08. 01. 2020
+========================================================
+
+ADDED:
+ * Legacy weak lift
+
+CHANGES:
+ * Weak lift and sink lift behavior (Off, Beep, Continuous)
+
 Build 5027 - 07. 01. 2020
 ========================================================
 

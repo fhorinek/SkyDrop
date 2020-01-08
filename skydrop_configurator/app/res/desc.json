@@ -134,12 +134,27 @@
             ]
         },
         "cfg_audio_profile_flags" : {
-            "name": "Audio vario options",
-            "mode": "flags",
-            "flags": [
-                ["AUDIO_FLUID", "Enable fluid frequency change"],
-                ["AUDIO_WEAK", "Enable weak lift"],
-                ["AUDIO_BEEP_SINK", "Enable sink beep"]
+            "name": "Vario vario options",
+            "mode": "tripleselect",
+            "label1" : "Sink mode",
+            "mask1" : "AUDIO_SINK_MASK",
+            "options1": [
+                ["AUDIO_SINK_OFF", "Disabled"],
+                ["AUDIO_SINK_BEEP", "Beep"],
+                ["AUDIO_SINK_CONT", "Continuous"]
+            ],
+            "label2" : "Weak lift mode",
+            "mask2" : "AUDIO_WEAK_MASK",
+            "options2": [
+                ["AUDIO_WEAK_OFF", "Disabled"],
+                ["AUDIO_WEAK_BEEP", "Beep"],
+                ["AUDIO_WEAK_CONT", "Continuous"]
+            ],
+            "label3" : "Fluid audio",
+            "mask3" : "AUDIO_FLUID",
+            "options3": [
+                ["AUDIO_FLUID", "Enabled"],
+                [0, "Disabled"]
             ]
         }, 
         "cfg_audio_profile_lift" : {
@@ -171,8 +186,8 @@
             "desc": "in Hz",
             "mode": "number",
             "min": 10,
-            "max": 250,
-            "step": 1
+            "max": 3000,
+            "step": 10
         },
         "cfg_audio_profile_prebeep_length" : {
             "name": "Prebeep duration",
@@ -182,6 +197,14 @@
             "max": 250,
             "step": 1
         },
+        "cfg_audio_profile_weak_start_freq" : {
+            "name": "Weak lift start frequency",
+            "desc": "in Hz",
+            "mode": "number",
+            "min": 10,
+            "max": 250,
+            "step": 1
+        },        
         "cfg_connectivity_use_gps" : {
             "name": "Enable GPS",
             "desc": "",
@@ -225,8 +248,7 @@
             "mode": "select",
             "options": [
                 ["LOGGER_IGC", "IGC"],
-                ["LOGGER_KML", "KML"],
-                ["LOGGER_RAW", "RAW"]
+                ["LOGGER_KML", "KML"]
             ]
         },
         "cfg_connectivity_protocol" : {
