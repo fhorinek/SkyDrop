@@ -92,7 +92,7 @@ void gui_task_settings_item(uint8_t index, char * text, uint8_t * flags, char * 
 			if (fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE)
 				strcpy_P(sub_text, PSTR("FAI Sphere"));
 			else
-				strcpy_P(sub_text, PSTR("WGS-87"));
+				strcpy_P(sub_text, PSTR("WGS-84"));
 			break;
 	}
 }

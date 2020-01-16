@@ -31,10 +31,10 @@ void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 		return;
 	}
 
-	if (fc.airspace.airspace_index == AIRSPACE_INVALID)
+	if (fc.airspace.airspace_index == AIR_INDEX_INVALID)
 	{
-		char text[8];
-		strcpy_P(text, PSTR("---"));
+		char text[16];
+		strcpy_P(text, PSTR("No restriction"));
 		widget_value_txt(text, x, y, w, h);
 
 		return;
@@ -63,25 +63,59 @@ void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 			disp.Invert(8, 10, 10 + f_w, 13 + f_h);
 		}
 	}
+	else if (fc.airspace.distance_m <= config.airspaces.warning_m && config.airspaces.warning_m > 0)
+	{
+		strcpy_P(text1, PSTR("NEAR!"));
+		fprintf(lcd_out, text1);
+		if (GUI_BLINK_TGL(1500))
+		{
+			uint8_t f_w = disp.GetTextWidth(text1);
+			disp.Invert(8, 10, 10 + f_w, 13 + f_h);
+		}
+	}
 	else
 	{
 		strcpy_P(text1, PSTR("Outside"));
 		fprintf(lcd_out, text1);
 	}
 
-	//Direction
-	int16_t relative_direction;
-	relative_direction = fc.airspace.angle - fc.compass.azimuth_filtered;
-	widget_arrow(relative_direction, 0, 18 + y_spc / 2, 22, 20);
+	if (GUI_BLINK_TGL(5000))
+	{
+		//Direction
+		int16_t relative_direction;
+		relative_direction = fc.airspace.angle - fc.compass.azimuth_filtered;
+		widget_arrow(relative_direction, 0, 18 + y_spc / 2, 22, 20);
 
-	//Distance
-	sprintf_distance(text1, fc.airspace.distance_m / 1000.0);
-	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
-		strcpy_P(text2, PSTR("mi"));
+		//Distance
+		sprintf_distance(text1, fc.airspace.distance_m / 1000.0);
+		if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+			strcpy_P(text2, PSTR("mi"));
+		else
+			strcpy_P(text2, PSTR("km"));
+
+		widget_value_int_sub(text1, text2, w - 60, 18 + y_spc / 2, 20, 20);
+	}
 	else
-		strcpy_P(text2, PSTR("km"));
+	{
+		widget_alt_draw(16, 20 + y_spc / 4, 20, 20, 1);
 
-	widget_value_int_sub(text1, text2, w - 60, 18 + y_spc / 2, 20, 20);
+		/*
+		if (fc.agl.ground_level != AGL_INVALID || !(fc.airspace.floor & AIR_AGL_FLAG || fc.airspace.ceiling & AIR_AGL_FLAG))
+		{
+			uint8_t line_x = w - 39;
+			uint8_t line_y = 17 + y_spc / 4;
+			uint8_t line_h = line_y - h - 2;
+			disp.DrawLine(line_x, line_y, line_x, line_h + line_y, 1);
+
+			int16_t flr = airspace_convert_alt_m(fc.airspace.floor) + (fc.airspace.floor & AIR_AGL_FLAG) ? fc.agl.ground_level : 0;
+			int16_t cei = airspace_convert_alt_m(fc.airspace.ceiling) + (fc.airspace.ceiling & AIR_AGL_FLAG) ? fc.agl.ground_level : 0;
+
+			int16_t delta = cei - flr;
+
+			widget_arrow(90, 0, 18 + y_spc / 2, 20, 20);
+		}
+		*/
+	}
 
 	//Floor & ceil
 	disp.LoadFont(F_TEXT_S);

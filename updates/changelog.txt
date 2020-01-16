@@ -1,3 +1,13 @@
+Build 5068 - 16. 01. 2020
+========================================================
+
+ADDED:
+ * Altitude1 in airspace widget
+
+FIX:
+ * Ignore function was not clearing cache correctly #399
+
+
 Build 5041 - 08. 01. 2020
 ========================================================
 

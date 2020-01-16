@@ -236,7 +236,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 			if (config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI)
 				strcpy_P(sub_text, PSTR("FAI Sphere"));
 			else
-				strcpy_P(sub_text, PSTR("WGS-87"));
+				strcpy_P(sub_text, PSTR("WGS-84"));
 			break;
 
 	}

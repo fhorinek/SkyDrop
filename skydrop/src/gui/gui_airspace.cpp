@@ -109,6 +109,9 @@ void gui_airspace_ignore_cb(uint8_t ret)
 		if (strcmp(gui_airspace_ignore_filename, (char *)fc.airspace.filename) == 0)
 			fc.airspace.ignore[ignore_index] |= ignore_bit;
 
+		//invalidate the cache
+		fc.airspace.cache_index = AIR_INDEX_INVALID;
+
 		//write it to sd card ignore
 		airspace_write_ignore_file(&f, hard, buff, gui_airspace_ignore_filename);
 
