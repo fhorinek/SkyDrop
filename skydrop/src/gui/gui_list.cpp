@@ -50,6 +50,9 @@ void gui_list_draw()
 
 		if (i < gui_list_size - 1)
 		{
+			if (y < -GUI_DISP_HEIGHT || y > GUI_DISP_HEIGHT)
+				flags |= GUI_LIST_NOT_VISIBLE;
+
 			gui_list_gen_f(i, tmp_text, &flags, tmp_sub_text);
 		}
 		else

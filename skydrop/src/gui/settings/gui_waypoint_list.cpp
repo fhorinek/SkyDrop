@@ -100,6 +100,9 @@ void gui_waypoint_list_item(uint8_t index, char * text, uint8_t * flags, char * 
 	}
 	else
 	{
+		if (*flags & GUI_LIST_NOT_VISIBLE)
+			return;
+
 		waypoint_cache_t wpt;
 
 		waypoint_list_get_wpt(index - 1, &wpt);
