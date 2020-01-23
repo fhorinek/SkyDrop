@@ -139,11 +139,13 @@ extern float widget_menu_fvalue1;
 #define WIDGET_WAYPOINT_INFO        44
 
 #define WIDGET_AIRSPACE_INFO	    45
+#define WIDGET_AIRSPACE_VERTICAL    46
+
 #include "airspace.h"
 
-#define NUMBER_OF_WIDGETS			46
+#define NUMBER_OF_WIDGETS			47
 
-#define NUMBER_OF_SORTED_WIDGETS	46
+#define NUMBER_OF_SORTED_WIDGETS	47
 
 /**
  * Format a distance in a human readable format.
@@ -163,6 +165,17 @@ uint8_t widget_label(char * label, uint8_t x, uint8_t y);
 
 void widget_value_int(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+
+/**
+ * Write the given text at the given position right aligned.
+ *
+ * @param text the text to write
+ * @param x the right side of the text. Text will be left of this.
+ * @param y the y position of the text.
+ *
+ * @return the width of the text in pixel
+ */
+int widget_value_textr(char * text, uint8_t x, uint8_t y);
 
 void widget_value_txt(char * value, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8_t w, uint8_t h);
