@@ -63,7 +63,7 @@ void gui_waypoint_list_action(uint8_t index)
 
 			waypoint_task_add_wpt(&wpt);
 
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 		}
 
 		//change active waypoint
@@ -71,7 +71,7 @@ void gui_waypoint_list_action(uint8_t index)
 		{
 			memcpy(&gui_waypoint_editor_wpt.wpt, &wpt, sizeof(wpt));
 			waypoint_task_modify_wpt(gui_waypoint_editor_wpt_index, &gui_waypoint_editor_wpt);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 		}
 
 		//set new home position

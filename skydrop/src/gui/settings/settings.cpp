@@ -7,7 +7,7 @@
 
 void gui_settings_init()
 {
-	gui_list_set(gui_settings_item, gui_settings_action, 9, GUI_PAGES);
+	gui_list_set(gui_settings_item, gui_settings_action, 10, GUI_PAGES);
 }
 
 void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)

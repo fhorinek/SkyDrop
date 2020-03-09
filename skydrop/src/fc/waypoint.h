@@ -44,15 +44,21 @@ void waypoint_list_close();
 
 //work with task
 bool waypoint_task_active();
-void waypoint_task_close();
+
 void waypoint_task_open(char * name);
-void waypoint_task_modify_head(task_header_t * head);
-void waypoint_task_get_wpt(uint8_t windex, task_waypoint_t * twpt);
+void waypoint_task_close();
+
+void waypoint_task_modify_head(task_header_t * head, bool use_temp = false);
+void waypoint_task_get_wpt(uint8_t windex, task_waypoint_t * twpt, bool use_tmp = false);
+void waypoint_task_modify_wpt(uint8_t windex, task_waypoint_t * twpt, bool use_tmp = false);
+
 void waypoint_task_add_wpt(waypoint_cache_t * wpt);
 void waypoint_task_switch_wpt(uint8_t windex_a, uint8_t windex_b);
-void waypoint_task_modify_wpt(uint8_t windex, task_waypoint_t * twpt);
 void waypoint_task_remove_wpt(uint8_t windex);
-void waypoint_task_remove();
-void waypoint_task_calc();
 
+void waypoint_task_remove();
+void waypoint_task_calc_distance();
+
+void waypoint_task_optimise_now();
+void waypoint_task_optimise_step();
 #endif /* FC_WAYPOINT_H_ */

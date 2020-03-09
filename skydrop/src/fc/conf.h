@@ -29,6 +29,7 @@ struct cfg_gui_layout
 #define CFG_DISP_FLIP			0b00000010
 #define CFG_DISP_ANIM			0b00000100
 #define CFG_DISP_CYCLE			0b00001000               // Automatically cycle screens
+#define CFG_DISP_FAHRENHEIT		0b00010000
 
 #define CFG_AUDIO_MENU_SPLASH	0b10000000
 #define CFG_AUDIO_MENU_PAGES	0b01000000
@@ -137,7 +138,8 @@ struct cfg_audio_profile
 	uint16_t prebeep_offset; //in Hz
 	uint8_t prebeep_length; //in ms
 
-	uint16_t weak_start_freq; //in Hz
+	uint16_t weak_low_freq; //in Hz
+	uint16_t weak_high_freq; //in Hz
 };
 
 #define TIME_DST	0b00000001

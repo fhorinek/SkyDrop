@@ -252,10 +252,10 @@ void audio_vario_step(float vario)
 					audio_vario_length = 0;
 					audio_vario_pause = 0;
 
-					int16_t lift_start_freq = get_near(config.audio_profile.lift / 100.0, config.audio_profile.freq);
+					int16_t lift_start_freq = config.audio_profile.weak_high_freq;
 
-					audio_vario_freq = config.audio_profile.weak_start_freq;
-					audio_vario_freq += ((lift_start_freq - config.audio_profile.weak_start_freq) * (ivario - (config.audio_profile.lift - config.audio_profile.weak))) / config.audio_profile.weak;
+					audio_vario_freq = config.audio_profile.weak_low_freq;
+					audio_vario_freq += ((lift_start_freq - config.audio_profile.weak_low_freq) * (ivario - (config.audio_profile.lift - config.audio_profile.weak))) / config.audio_profile.weak;
 				break;
 
 			}

@@ -84,7 +84,7 @@
  * This can be used to measure, how many display updates 
  * you get.
  */
-// #define SHOW_FPS
+//#define SHOW_FPS
 
 lcd_display disp;
 CreateStdOut(lcd_out, disp.Write);
@@ -636,7 +636,6 @@ void gui_loop()
 			gui_record_cnt++;
 		}
 	}
-
 
 	if (gui_task != GUI_SPLASH)
 	{

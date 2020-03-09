@@ -221,10 +221,10 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 					    audio_vario_length = 0;
 					    audio_vario_pause = 0;
 
-					    var lift_start_freq = get_near($scope.list["cfg_audio_profile_lift"].value / 100.0, $scope.data[0]);
+					    var lift_start_freq = $scope.list["cfg_audio_profile_weak_high_freq"].value;
 
-					    audio_vario_freq = $scope.list["cfg_audio_profile_weak_start_freq"].value;
-					    audio_vario_freq += ((lift_start_freq - $scope.list["cfg_audio_profile_weak_start_freq"].value) * (ivario - ($scope.list["cfg_audio_profile_lift"].value - $scope.list["cfg_audio_profile_weak"].value))) / $scope.list["cfg_audio_profile_weak"].value;			        
+					    audio_vario_freq = $scope.list["cfg_audio_profile_weak_low_freq"].value;
+					    audio_vario_freq += ((lift_start_freq - $scope.list["cfg_audio_profile_weak_low_freq"].value) * (ivario - ($scope.list["cfg_audio_profile_lift"].value - $scope.list["cfg_audio_profile_weak"].value))) / $scope.list["cfg_audio_profile_weak"].value;			        
 
                         $scope.c_state = "Weak cont.";
                     break;

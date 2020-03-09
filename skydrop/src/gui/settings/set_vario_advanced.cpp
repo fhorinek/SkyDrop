@@ -7,7 +7,7 @@
 
 void gui_set_vario_advanced_init()
 {
-	gui_list_set(gui_set_vario_advanced_item, gui_set_vario_advanced_action, 10, GUI_SET_VARIO);
+	gui_list_set(gui_set_vario_advanced_item, gui_set_vario_advanced_action, 11, GUI_SET_VARIO);
 }
 
 void gui_set_vario_advanced_weak_cb(float val)
@@ -30,13 +30,24 @@ void gui_set_vario_advanced_poffset_cb(float val)
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
-void gui_set_vario_advanced_start_weak_cb(float val)
+void gui_set_vario_advanced_low_weak_cb(float val)
 {
 	uint16_t tmp = val;
 
-	config.audio_profile.weak_start_freq = tmp;
+	config.audio_profile.weak_low_freq = tmp;
 	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.audio_profile.weak_start_freq, config.audio_profile.weak_start_freq);
+	eeprom_update_word(&config_ee.audio_profile.weak_low_freq, config.audio_profile.weak_low_freq);
+	gui_switch_task(GUI_SET_VARIO_ADVANCED);
+}
+
+void gui_set_vario_advanced_high_weak_cb(float val)
+{
+	uint16_t tmp = val;
+
+	config.audio_profile.weak_high_freq = tmp;
+
+	eeprom_busy_wait();
+	eeprom_update_word(&config_ee.audio_profile.weak_high_freq, config.audio_profile.weak_high_freq);
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
@@ -123,21 +134,26 @@ void gui_set_vario_advanced_action(uint8_t index)
 		break;
 
 		case(6):
-			gui_value_conf_P(PSTR("Weak start freq."), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.prebeep_offset, 10, 3000, 10, gui_set_vario_advanced_start_weak_cb);
+			gui_value_conf_P(PSTR("Weak low freq."), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.weak_low_freq, 10, 3000, 10, gui_set_vario_advanced_low_weak_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(7):
-			gui_value_conf_P(PSTR("Digital vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.digital_vario_dampening), 0, 30, 0.1, gui_set_vario_advanced_dig_int_cb);
+			gui_value_conf_P(PSTR("Weak high freq."), GUI_VAL_NUMBER, PSTR("%1.0f Hz"), config.audio_profile.weak_high_freq, 10, 3000, 10, gui_set_vario_advanced_high_weak_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(8):
-			gui_value_conf_P(PSTR("Average vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.avg_vario_dampening), 1, 90, 0.1, gui_set_vario_advanced_avg_int_cb);
+			gui_value_conf_P(PSTR("Digital vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.digital_vario_dampening), 0, 30, 0.1, gui_set_vario_advanced_dig_int_cb);
 			gui_switch_task(GUI_SET_VAL);
 		break;
 
 		case(9):
+			gui_value_conf_P(PSTR("Average vario int."), GUI_VAL_NUMBER, PSTR("%0.1f sec"), mul_to_sec(config.vario.avg_vario_dampening), 1, 90, 0.1, gui_set_vario_advanced_avg_int_cb);
+			gui_switch_task(GUI_SET_VAL);
+		break;
+
+		case(10):
 			gui_value_conf_P(PSTR("Vario demo"), GUI_VAL_VARIO_TEST, PSTR("%+0.1f m/s"), 0.0, -10.0, +10.0, 0.1, gui_set_vario_advanced_demo_cb);
 			gui_switch_task(GUI_SET_VAL);
 			audio_demo_val = 0;
@@ -212,24 +228,30 @@ void gui_set_vario_advanced_item(uint8_t index, char * text, uint8_t * flags, ch
 		break;
 
 		case (6):
-			strcpy_P(text, PSTR("Weak start freq."));
-			sprintf_P(sub_text, PSTR("%u Hz"), config.audio_profile.weak_start_freq);
+			strcpy_P(text, PSTR("Weak low freq."));
+			sprintf_P(sub_text, PSTR("%u Hz"), config.audio_profile.weak_low_freq);
 			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (7):
+			strcpy_P(text, PSTR("Weak high freq."));
+			sprintf_P(sub_text, PSTR("%u Hz"), config.audio_profile.weak_high_freq);
+			*flags = GUI_LIST_SUB_TEXT;
+		break;
+
+		case (8):
 			strcpy_P(text, PSTR("Digital vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.digital_vario_dampening));
 			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
-		case (8):
+		case (9):
 			strcpy_P(text, PSTR("Average vario int."));
 			sprintf_P(sub_text, PSTR("%0.1f s"), mul_to_sec(config.vario.avg_vario_dampening));
 			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
-		case (9):
+		case (10):
 			strcpy_P(text, PSTR("Vario demo"));
 		break;
 	}

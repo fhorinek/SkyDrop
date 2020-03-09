@@ -109,7 +109,7 @@
             "max": 200,
             "step": 10
         },              
-        "cfg_audio_profile_weak_lift_freq_low" : {
+        "cfg_audio_profile_weak_low_freq" : {
             "name": "Weak lift buzzer low frequency",
             "desc": "in Hz",
             "mode": "number",
@@ -117,7 +117,7 @@
             "max": 2000,
             "step": 10
         },
-        "cfg_audio_profile_weak_lift_freq_high" : {
+        "cfg_audio_profile_weak_high_freq" : {
             "name": "Weak lift buzzer high frequency",
             "desc": "in Hz",
             "mode": "number",
@@ -130,7 +130,8 @@
             "name": "Altimeter 1 flags",
             "mode": "flags",
             "flags": [
-                ["ALT_UNIT_I", "Use imperial units"]
+                ["ALT_UNIT_I", "Use imperial units"],
+                ["ALT_AUTO_GPS", "Auto correct from GPS"]
             ]
         },
         "cfg_audio_profile_flags" : {
@@ -197,14 +198,6 @@
             "max": 250,
             "step": 1
         },
-        "cfg_audio_profile_weak_start_freq" : {
-            "name": "Weak lift start frequency",
-            "desc": "in Hz",
-            "mode": "number",
-            "min": 10,
-            "max": 250,
-            "step": 1
-        },        
         "cfg_connectivity_use_gps" : {
             "name": "Enable GPS",
             "desc": "",
@@ -765,6 +758,10 @@
                 ["WIDGET_GHEADING_POINTS", "GPS heading points"],
                 ["WIDGET_POSITION", "GPS position"],
 
+                ["WIDGET_THERMAL_TIME", "Thermal time"],
+                ["WIDGET_THERMAL_GAIN", "Thermal gain"],
+		        ["WIDGET_THERMAL_ASS", "Thermal assistant"],
+
                 ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TIME", "Actual time"],
                 ["WIDGET_DATE", "Actual date"],
@@ -1220,13 +1217,6 @@
             "desc": "Display info about curren waypoint list",
             "label": "WP",
             "value": "Load"
-        },
-        "WIDGET_AIRSPACE_ARROW":
-        {
-            "type": "arrow",
-            "name": "Airspace Arrow",
-            "desc": "Arrow pointing to nearest airspace or shortest way out",
-            "label": "AS near"
         },
         "WIDGET_AIRSPACE_INFO":
         {

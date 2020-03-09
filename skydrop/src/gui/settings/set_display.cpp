@@ -131,6 +131,14 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 			else
 				*flags = GUI_LIST_CHECK_OFF;
 		break;
+		case (6):
+			strcpy_P(text, PSTR("Temperature"));
+			*flags = GUI_LIST_SUB_TEXT;
+			if (config.gui.disp_flags & CFG_DISP_FAHRENHEIT)
+				strcpy_P(sub_text, PSTR("Fahrenheit"));
+			else
+				strcpy_P(sub_text, PSTR("Celsius"));
+		break;
 	}
 }
 

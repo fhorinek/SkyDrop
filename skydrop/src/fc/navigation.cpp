@@ -19,6 +19,34 @@ MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 
 #define FAI_EARTH_RADIUS 6378
 
 
+void gps_get_kx_ky(float lat, float * kx, float * ky)
+{
+	float fcos = cos(to_radians(lat));
+	float cos2 = 2. * fcos * fcos - 1.;
+	float cos3 = 2. * fcos * cos2 - fcos;
+	float cos4 = 2. * fcos * cos3 - cos2;
+	float cos5 = 2. * fcos * cos4 - cos3;
+
+    //multipliers for converting longitude and latitude
+    //degrees into distance (http://1.usa.gov/1Wb1bv7)
+	*kx = (111.41513 * fcos - 0.09455 * cos3 + 0.00012 * cos5);
+    *ky = (111.13209 - 0.56605 * cos2 + 0.0012 * cos4);
+}
+
+void gps_destination(float lat1, float lon1, float angle, float distance_km,
+					float * lat2, float * lon2)
+{
+	angle = to_radians(angle);
+	float dx = sin(angle) * distance_km;
+	float dy = cos(angle) * distance_km;
+
+	float kx, ky;
+	gps_get_kx_ky(lat1, &kx, &ky);
+
+	*lon2 = lon1 + dx / kx;
+	*lat2 = lat1 + dy / ky;
+}
+
 /**
  * Compute the distance between two GPS points in 2 dimensions
  * (without altitude). Latitude and longitude parameters must be given as fixed integers
@@ -34,7 +62,7 @@ MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 
  * \return the distance in m.
  */
 uint32_t gps_distance(int32_t lat1, int32_t lon1,
-			 	 	 	  int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
+			 	 	  int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
 {
 	DEBUG("*gps_distance\n");
 
@@ -68,21 +96,13 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 
 		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 1000.0;
 	}
-	else
+	else //WGS
 	{
 		DEBUG("f=0\n");
 		DEBUG("#lat=%0.10f\n", (lat1 + lat2) / ((float)GPS_COORD_MUL * 2));
 
-		float fcos = cos(to_radians((lat1 + lat2) / ((float)GPS_COORD_MUL * 2)));
-		float cos2 = 2. * fcos * fcos - 1.;
-		float cos3 = 2. * fcos * cos2 - fcos;
-		float cos4 = 2. * fcos * cos3 - cos2;
-		float cos5 = 2. * fcos * cos4 - cos3;
-
-        //multipliers for converting longitude and latitude
-        //degrees into distance (http://1.usa.gov/1Wb1bv7)
-		float kx = (111.41513 * fcos - 0.09455 * cos3 + 0.00012 * cos5);
-        float ky = (111.13209 - 0.56605 * cos2 + 0.0012 * cos4);
+		float kx, ky;
+		gps_get_kx_ky((lat1 + lat2) / ((float)GPS_COORD_MUL * 2), &kx, &ky);
 
 		DEBUG("#kx=%0.10f\n", kx);
 		DEBUG("#ky=%0.10f\n", ky);
@@ -137,9 +157,15 @@ void navigation_step()
 	static int32_t last_lon;
 
 	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_ODO)
+	{
 		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_ODO;
+	}
 	else
+	{
+	/*	if (waypoint_task_active() && 1) //TODO:optimisation flag
+			waypoint_task_optimise_step();*/
 		return;
+	}
 
 	if (fc.flight.home_valid)
 	{

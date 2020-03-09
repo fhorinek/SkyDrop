@@ -199,8 +199,10 @@ EEMEM cfg_t config_ee = {
 		100,
 		//prebeep_length in ms
 		160,
-		//weak_start_freq
-		10
+		//weak_low_freq
+		60,
+		//weak_high_freq
+		400
 	},
 	//System
 	{

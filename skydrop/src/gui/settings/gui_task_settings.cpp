@@ -23,8 +23,10 @@ void gui_task_settings_action(uint8_t index)
 			break;
 
 		case(1):
-//			fc.task.head.flags ^= CFG_TASK_FLAGS_GOAL_LINE;
-//			waypoint_task_modify_head((task_header_t*)&fc.task.head);
+			fc.task.head.flags ^= CFG_TASK_FLAGS_GOAL_LINE;
+			waypoint_task_modify_head((task_header_t*)&fc.task.head);
+
+			waypoint_task_calc_distance();
 			break;
 
 		case(2):
@@ -40,7 +42,7 @@ void gui_task_settings_action(uint8_t index)
 			fc.task.head.flags ^= CFG_TASK_FLAGS_FAI_SPHERE;
 			waypoint_task_modify_head((task_header_t*)&fc.task.head);
 
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 	}
 }

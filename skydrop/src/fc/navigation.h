@@ -12,6 +12,7 @@
 
 
 uint32_t gps_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing = NULL);
+void gps_destination(float lat1, float lon1, float angle, float distance_km, float * lat2, float * lon2);
 
 void navigation_init();
 

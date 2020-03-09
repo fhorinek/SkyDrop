@@ -105,6 +105,18 @@ void gui_task_editor_action(uint8_t index)
 		gui_switch_task(GUI_WAYPOINT_EDITOR);
 	}
 
+	if (index == fc.task.waypoint_count + 3)
+	{
+		//if (!fc.task.head.optimised)
+			waypoint_task_optimise_now();
+
+		char text[64];
+		sprintf_P(text, PSTR("Track length\nCenter:%0.1fkm\nOptimal:%0.1fkm"), fc.task.head.center_dist_m / 1000.0, fc.task.head.opti_dist_m / 1000.0);
+
+		gui_showmessage(text);
+		gui_forcemessage();
+	}
+
 	if (index == fc.task.waypoint_count + 4)
 	{
 		gui_switch_task(GUI_WAYPOINT_LIST);
@@ -118,7 +130,6 @@ void gui_task_editor_action(uint8_t index)
 	}
 }
 
-uint32_t gui_task_editor_total_dist;
 
 void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
 {
@@ -127,8 +138,6 @@ void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * su
 		strcpy_P(text, PSTR("Task name"));
 		*flags =  GUI_LIST_SUB_TEXT;
 		strcpy(sub_text, (char *)fc.task.name);
-
-		gui_task_editor_total_dist = 0;
 	}
 
 	if (index == 1)
@@ -147,10 +156,13 @@ void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * su
 		task_waypoint_t twpt;
 		uint8_t windex = index - 3;
 
+		*flags |= GUI_LIST_SUB_TEXT_SMALL;
+		if (*flags & GUI_LIST_NOT_VISIBLE)
+			return;
+
 		waypoint_task_get_wpt(windex, &twpt);
 
 		sprintf_P(text, PSTR("#%u:%s"), windex + 1, twpt.wpt.name);
-		*flags =  GUI_LIST_SUB_TEXT_SMALL;
 		if (windex == 0)
 		{
 			strcpy_P(sub_text, PSTR("Take-off"));
@@ -165,14 +177,12 @@ void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * su
 				sprintf_P(sub_text, PSTR("Goal D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
 			else
 				sprintf_P(sub_text, PSTR("D:%0.2fkm R:%um"), twpt.dist_m / 1000.0, twpt.radius_m);
-
-			gui_task_editor_total_dist += twpt.dist_m;
 		}
 	}
 
 	if (index == fc.task.waypoint_count + 3)
 	{
-		sprintf_P(text, PSTR("Total:%0.2fkm"), gui_task_editor_total_dist / 1000.0);
+		sprintf_P(text, PSTR("Distance:%0.2fkm"), fc.task.head.center_dist_m / 1000.0);
 		*flags =  GUI_LIST_TITLE;
 	}
 

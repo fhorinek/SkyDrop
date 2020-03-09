@@ -191,6 +191,7 @@ struct vario_data_t
 	float error_over_time;                     // This stores the error asscoiated with altitude1 in m.
 };
 
+//in cache file
 struct waypoint_cache_t
 {
 	char name[20];
@@ -201,7 +202,24 @@ struct waypoint_cache_t
 };
 
 #define TASK_WAYPOINT_DEFAULT_RADIUS	500
+#define TASK_OPTI_CACHE_SIZE			3
 
+struct opti_waypoint_cache_t
+{
+	int32_t latitude;	//* 10^7		4
+	int32_t longtitude;	//* 10^7		8
+	uint16_t radius_m;			//		10
+
+	int32_t opti_latitude;	//* 10^7	14
+	int32_t opti_longtitude;//* 10^7	18
+
+	float opti_angle;		//			22
+	uint32_t opti_dist_m;	    //			26
+
+	uint8_t index;			//			27
+};
+
+//in task
 struct task_waypoint_t
 {
 	waypoint_cache_t wpt;
@@ -209,11 +227,13 @@ struct task_waypoint_t
 	uint32_t dist_m;
 
 	int32_t opti_latitude;	//* 10^7
-	int32_t opti_longtitude;	//* 10^7
+	int32_t opti_longtitude;//* 10^7
 	uint32_t opti_dist_m;
-	int16_t opti_angle; //*10
+
+	float opti_angle;
 };
 
+//in FC
 struct waypoint_t
 {
 	int16_t bearing;
@@ -365,7 +385,10 @@ struct task_header_t
 	uint8_t deadline_hour;
 	uint8_t deadline_min;
 
-	uint8_t reserved[11];
+	int32_t center_dist_m;
+	int32_t opti_dist_m;
+
+	bool optimised;
 };
 
 struct task_t
@@ -379,6 +402,12 @@ struct task_t
 	uint8_t waypoint_index;  	// The number of the next waypoint where we need to fly. The first waypoint is "1".
 	uint8_t waypoint_count;	// The number of waypoints in the file.
 	waypoint_t next_waypoint;  // The next waypoint where we need to fly
+
+	uint8_t opti_step;
+	uint8_t opti_sweep_step;
+	uint8_t opti_wp_index;
+	bool opti_itter_improved;
+	opti_waypoint_cache_t opti_cache[TASK_OPTI_CACHE_SIZE];
 };
 
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h

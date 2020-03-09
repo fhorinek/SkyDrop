@@ -67,6 +67,7 @@ void widget_ctrl_wlift_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 		config.audio_profile.flags = (config.audio_profile.flags & ~AUDIO_WEAK_MASK) | (mode << 2);
 		eeprom_busy_wait();
 		eeprom_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
+		gui_enter_widget_menu();
 	}
 }
 

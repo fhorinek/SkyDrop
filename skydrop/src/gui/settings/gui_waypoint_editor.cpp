@@ -43,19 +43,19 @@ void gui_waypoint_editor_action(uint8_t index)
 		case(2):
 			waypoint_task_switch_wpt(gui_waypoint_editor_wpt_index, gui_waypoint_editor_wpt_index - 1);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 
 		case(3):
 			waypoint_task_switch_wpt(gui_waypoint_editor_wpt_index, gui_waypoint_editor_wpt_index + 1);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 
 		case(4):
 			waypoint_task_remove_wpt(gui_waypoint_editor_wpt_index);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 	}
 }
