@@ -39,7 +39,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
-		w_airspace_info
+		w_airspace_info, w_airspace_vertical
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -95,6 +95,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 
 	//airspace
 	WIDGET_AIRSPACE_INFO,
+	WIDGET_AIRSPACE_VERTICAL,
 
 	//wind
 	WIDGET_WIND_DIR,
@@ -165,6 +166,23 @@ uint8_t widget_label(char * label, uint8_t x, uint8_t y)
 	disp.GotoXY(x + 1, y);
 	fprintf_P(lcd_out, PSTR("%s"), label);
 	return disp.GetAHeight() + 1;
+}
+
+/**
+ * Write the given text at the given position right aligned.
+ *
+ * @param text the text to write
+ * @param x the right side of the text. Text will be left of this.
+ * @param y the y position of the text.
+ *
+ * @return the width of the text in pixel
+ */
+int widget_value_textr(char * text, uint8_t x, uint8_t y)
+{
+	uint8_t text_ws = disp.GetTextWidth(text);
+	disp.GotoXY(x - text_ws, y);
+	fprintf_P(lcd_out, PSTR("%s"), text);
+	return text_ws;
 }
 
 void widget_value_int_sub(char * value, char * sub, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
