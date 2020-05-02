@@ -22,18 +22,18 @@ void logger_init()
 	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 	today = datetime_to_epoch(0, 0, 0, day, month, year);
 
-	eeprom_busy_wait();
-	eeprom_read_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-	logger_flight_number = eeprom_read_byte(&config_ro.flight_number);
+	
+	ee_read_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+	ee_read_byte(&config_ro.flight_number, logger_flight_number);
 
 	if (logger_flight_day != today)
 	{
 		logger_flight_number = 0;
 		logger_flight_day = today;
 
-		eeprom_busy_wait();
-		eeprom_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
 	DEBUG("flight number is: %d\n", logger_flight_number);
@@ -53,17 +53,17 @@ void logger_next_flight()
 	{
 		logger_flight_number++;
 
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 	else
 	{
 		logger_flight_number = 0;
 		logger_flight_day = today;
 
-		eeprom_busy_wait();
-		eeprom_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
 	DEBUG("flight number is: %d\n", logger_flight_number);

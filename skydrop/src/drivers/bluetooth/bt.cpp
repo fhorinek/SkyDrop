@@ -104,8 +104,8 @@ void bt_init()
 	DEBUG("bt_init\n");
 
 	//get module type
-	eeprom_busy_wait();
-	bt_module_type = eeprom_read_byte(&config_ro.bt_module_type);
+	
+	ee_read_byte(&config_ro.bt_module_type, bt_module_type);
 
 	//pin init
 	GpioSetDirection(BT_EN, OUTPUT);

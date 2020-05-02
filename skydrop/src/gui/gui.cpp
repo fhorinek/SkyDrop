@@ -2,7 +2,6 @@
 
 #include "../drivers/audio/sequencer.h"
 #include "../drivers/bluetooth/bt.h"
-#include "gui_storage.h"
 #include "gui_list.h"
 
 #include "widgets/widgets.h"
@@ -76,7 +75,7 @@
 #include "settings/set_autoset_config.h"
 
 
-
+//#include "debug_on.h"
 
 /**
  * By defining SHOW_FPS you enable code to show the current
@@ -202,10 +201,12 @@ const uint8_t PROGMEM img_logger_error[] = {
 		0xFF, 0xC5, 0xA9, 0x91, 0xAA, 0xFC
 };
 
+#ifndef DISABLE_DEBUG
 const uint8_t PROGMEM img_debug[] = {
 		6, 8, // width, heigth
 		0x93, 0x54, 0x3D, 0x3D, 0x54, 0x93
 };
+#endif
 
 const uint8_t PROGMEM img_alarm[] = {
 		6, 8, // width, heigth
@@ -383,14 +384,13 @@ void gui_init()
 	gui_disp_spi.SetDataOrder(MSB);
 
 	disp.Init(&gui_disp_spi);
+
 	gui_load_eeprom();
 	gui_idle_timer = task_get_ms_tick();
 }
 
 void gui_load_eeprom()
 {
-	eeprom_busy_wait();
-
 	if (config.gui.brightness == 0xFF)
 		config.gui.brightness = 100;
 
@@ -400,11 +400,11 @@ void gui_load_eeprom()
 	if (config.gui.contrast > GUI_CONTRAST_STEPS)
 		config.gui.contrast = GUI_CONTRAST_STEPS / 2;
 
-	lcd_contrast_min = eeprom_read_byte(&config_ro.lcd_contrast_min);
+	ee_read_byte(&config_ro.lcd_contrast_min, lcd_contrast_min);
 	if (lcd_contrast_min == 0xFF)
 		lcd_contrast_min = 16;
 
-	lcd_contrast_max = eeprom_read_byte(&config_ro.lcd_contrast_max);
+	ee_read_byte(&config_ro.lcd_contrast_max, lcd_contrast_max);
 	if (lcd_contrast_max == 0xFF)
 		lcd_contrast_max = 127;
 
@@ -470,7 +470,6 @@ void gui_update_disp_cfg()
 
 //		DEBUG(" ** gui_update_disp_cfg **\n");
 //		DEBUG("lcd_contrast %d\n", config.gui.contrast);
-
 
 		uint8_t new_contrast = lcd_contrast_min + ((lcd_contrast_max - lcd_contrast_min) * config.gui.contrast) / GUI_CONTRAST_STEPS;
 
@@ -555,6 +554,8 @@ void gui_loop()
 	//display message pop-up
 	if (gui_message_end > task_get_ms_tick())
 	{
+		gui_reset_timeout();
+
 		disp.LoadFont(F_TEXT_M);
 		uint8_t w = disp.GetTextWidth(gui_message_line1);
 		uint8_t h = disp.GetAHeight();
@@ -617,6 +618,7 @@ void gui_loop()
 
 	disp.Draw();
 
+#ifndef DISABLE_DEBUG
 	if (config.system.record_screen && storage_ready())
 	{
 		FIL fimg;
@@ -636,6 +638,7 @@ void gui_loop()
 			gui_record_cnt++;
 		}
 	}
+#endif
 
 	if (gui_task != GUI_SPLASH)
 	{
@@ -680,7 +683,7 @@ void gui_irqh(uint8_t type, uint8_t * buff)
 	switch(type)
 	{
 		case(TASK_IRQ_MOUNT_ERROR):
-			gui_storage_mount_error();
+			gui_showmessage_P(PSTR("Unable to mount\ndata storage.\nFormat SD card!"));
 		break;
 
 		default:
@@ -752,12 +755,13 @@ void gui_statusbar()
 		if (GUI_BLINK_TGL(500))
 			disp.Invert(GUI_DISP_WIDTH - 6, 26, GUI_DISP_WIDTH, 26 + 7);
 	}
+#ifndef DISABLE_DEBUG
 	else if (config.system.debug_log == DEBUG_MAGIC_ON)
 	{
 		//Debug.log indicator
 		disp.DrawImage(img_debug, GUI_DISP_WIDTH - 6, 26);
 	}
-
+#endif
 
 	if (battery_calibrating_state == BATTERY_CAL_NONE || GUI_BLINK_TGL(500))
 	{

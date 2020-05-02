@@ -167,6 +167,7 @@ struct cfg_autostart
 {
 	uint8_t start_sensititvity;
 	uint8_t land_sensititvity;
+	uint8_t gps_speed;
 	uint8_t timeout;
 	uint8_t flags;
 };
@@ -206,7 +207,7 @@ struct cfg_logger
 #define GPS_DIST_UNIT_M	   0b00000000
 #define GPS_DIST_UNIT_I	   0b00010000
 
-#define GPS_EARTH_MODEL_MASK   0b00010000
+#define GPS_EARTH_MODEL_MASK   0b00100000
 #define GPS_EARTH_MODEL_FAI	   0b00100000
 
 #define PROTOCOL_DIGIFLY	0
@@ -318,7 +319,7 @@ struct debug_info
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
 //
-//This data is accessible by using eeprom_read_byte/eeprom_update_byte...
+//This data is accessible by using ee_read_byte/ee_update_byte...
 //
 //						dec		hex
 //size 					384		0x180

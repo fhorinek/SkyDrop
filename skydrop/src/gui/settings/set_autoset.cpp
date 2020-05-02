@@ -22,8 +22,8 @@ void gui_set_autoset_action(uint8_t index)
     else
         config.gui.page_mode[index] = active_page;
 
-    eeprom_busy_wait();
-    eeprom_update_byte(&config_ee.gui.page_mode[index], config.gui.page_mode[index]);
+    
+    ee_update_byte(&config_ee.gui.page_mode[index], config.gui.page_mode[index]);
 }
 
 void gui_set_autoset_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)

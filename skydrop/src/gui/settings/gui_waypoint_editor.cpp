@@ -21,6 +21,8 @@ void gui_waypoint_editor_radius_cb(float val)
 
 	gui_waypoint_editor_wpt.radius_m = val;
 	waypoint_task_modify_wpt(gui_waypoint_editor_wpt_index, &gui_waypoint_editor_wpt);
+
+	waypoint_task_calc_distance();
 }
 
 void gui_waypoint_editor_action(uint8_t index)

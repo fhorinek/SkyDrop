@@ -1,6 +1,5 @@
 #include "spi.h"
 
-
 void Spi::InitMaster(SPI_t * spi, PORT_t * port, uint8_t n)
 {
 	this->spi = spi;
@@ -57,6 +56,7 @@ void Spi::SetDivider(xlib_core_spi_prescaler div)
 {
 	this->spi->CTRL = (this->spi->CTRL & 0b01111100) | div;
 }
+
 
 uint8_t Spi::SendRaw(uint8_t data)
 {

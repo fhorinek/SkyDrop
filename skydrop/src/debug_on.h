@@ -5,6 +5,7 @@
  *      Author: horinek
  */
 
+#ifndef DISABLE_DEBUG
 #ifndef DEBUG_ON_H_
 #define DEBUG_ON_H_
 
@@ -36,3 +37,4 @@
 
 
 #endif /* DEBUG_ON_H_ */
+#endif

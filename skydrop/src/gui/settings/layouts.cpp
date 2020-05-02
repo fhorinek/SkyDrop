@@ -14,8 +14,8 @@ void gui_set_layouts_pages_cb(float val)
 	uint8_t tmp = val;
 
 	config.gui.number_of_pages = tmp;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.gui.number_of_pages, tmp);
+	
+	ee_update_byte(&config_ee.gui.number_of_pages, tmp);
 
 	if (active_page >= tmp)
 		active_page = 0;
@@ -43,14 +43,14 @@ void gui_layouts_action(uint8_t index)
 
 	case(3):
 		config.gui.silent ^= (1 << active_page);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.silent, config.gui.silent);
+		
+		ee_update_byte(&config_ee.gui.silent, config.gui.silent);
 	break;
 
 	case(4):
 		config.gui.hide_label ^= (1 << active_page);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.hide_label, config.gui.hide_label);
+		
+		ee_update_byte(&config_ee.gui.hide_label, config.gui.hide_label);
 	break;
 
     case(5):

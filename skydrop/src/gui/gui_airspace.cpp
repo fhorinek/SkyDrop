@@ -52,7 +52,7 @@ void gui_airspace_loop()
 		}
 
 	//Draw the widget
-	widget_airspace_info_draw(0, 0, GUI_DISP_WIDTH, 40, 0);
+	widget_airspace_info_draw(0, 0, GUI_DISP_WIDTH, 40);
 
 	disp.LoadFont(F_TEXT_S);
 	uint8_t f_h = disp.GetAHeight();

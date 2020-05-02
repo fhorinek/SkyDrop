@@ -7,7 +7,11 @@
 
 void gui_settings_init()
 {
+#ifndef DISABLE_DEBUG
 	gui_list_set(gui_settings_item, gui_settings_action, 10, GUI_PAGES);
+#else
+	gui_list_set(gui_settings_item, gui_settings_action, 9, GUI_PAGES);
+#endif
 }
 
 void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
@@ -49,10 +53,11 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		case (8):
 			strcpy_P(text, PSTR("Settings"));
 		break;
-
+#ifndef DISABLE_DEBUG
 		case (9):
 			strcpy_P(text, PSTR("Debug"));
 		break;
+#endif
 	}
 }
 
@@ -100,8 +105,10 @@ void gui_settings_action(uint8_t index)
 		gui_switch_task(GUI_SET_SYSTEM);
 		break;
 
+#ifndef DISABLE_DEBUG
 	case (9):
 		gui_switch_task(GUI_SET_DEBUG);
 		break;
+#endif
 	}
 }

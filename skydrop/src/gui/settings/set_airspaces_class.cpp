@@ -3,7 +3,6 @@
 #include "../gui_list.h"
 #include "../gui_value.h"
 #include "../gui_dialog.h"
-#include "../gui_storage.h"
 #include "gui_accel_calib.h"
 
 #include "../../fc/conf.h"
@@ -21,9 +20,9 @@ void gui_set_airspaces_class_action(uint8_t index)
 	else
 		config.airspaces.class_enabled |= (1 << index);
 
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.airspaces.class_enabled, config.airspaces.class_enabled);
-	eeprom_busy_wait();
+	
+	ee_update_word(&config_ee.airspaces.class_enabled, config.airspaces.class_enabled);
+	
 
 	//Force to reload airspace cache
 	fc.airspace.cache_index = 0xFFFF;

@@ -13,18 +13,18 @@ void gui_set_vario_init()
 void gui_set_vario_lift_cb(float val)
 {
 	gui_switch_task(GUI_SET_VARIO);
-	eeprom_busy_wait();
+	
 	int16_t tmp = val * 100;
-	eeprom_update_word((uint16_t *)&config_ee.audio_profile.lift, tmp);
+	ee_update_word((uint16_t *)&config_ee.audio_profile.lift, tmp);
 	config.audio_profile.lift = tmp;
 }
 
 void gui_set_vario_sink_cb(float val)
 {
 	gui_switch_task(GUI_SET_VARIO);
-	eeprom_busy_wait();
+	
 	int16_t tmp = val * 100;
-	eeprom_update_word((uint16_t *)&config_ee.audio_profile.sink, tmp);
+	ee_update_word((uint16_t *)&config_ee.audio_profile.sink, tmp);
 	config.audio_profile.sink = tmp;
 }
 
@@ -46,14 +46,14 @@ void gui_set_vario_action(uint8_t index)
 
 		case(2):
 			config.vario.flags ^= VARIO_UNITS_I;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.vario.flags, config.vario.flags);
+			
+			ee_update_byte(&config_ee.vario.flags, config.vario.flags);
 		break;
 
 		case(3):
 			config.vario.flags ^= VARIO_USE_ACC;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.vario.flags, config.vario.flags);
+			
+			ee_update_byte(&config_ee.vario.flags, config.vario.flags);
 		break;
 
 		case(4):

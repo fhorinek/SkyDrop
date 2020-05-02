@@ -21,13 +21,13 @@ void gui_compass_calib_declination(float val)
 {
 	gui_switch_task(GUI_SET_COMPASS);
 
-
 	fc.compass.declination = int(val);
 	int16_t value = fc.compass.declination;
-	eeprom_busy_wait();
-	eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
-
+	
+	ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
+
+
 
 void gui_compass_calib_action(uint8_t index)
 {
@@ -42,9 +42,9 @@ void gui_compass_calib_action(uint8_t index)
 		else
 		{
 			fc.compass.declination = 0;
-			eeprom_busy_wait();
+			
 			int16_t value = 0;
-			eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+			ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 		}
 	break;
 

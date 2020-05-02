@@ -32,7 +32,7 @@ uint8_t skybean_special_change()
 	if (len < 4 || len > LOGIN_PASSWORD_LEN || login_level == 0)
 		return SB_FAIL;
 
-	eeprom_busy_wait();
+	
 
 	for (uint8_t i = 0; i < len; i++)
 		tmp_passwd[i] = skybean_stream.Read();
@@ -42,8 +42,8 @@ uint8_t skybean_special_change()
 
 	memcpy((void *)config.connectivity.password, tmp_passwd, LOGIN_PASSWORD_LEN);
 
-	eeprom_busy_wait();
-	eeprom_update_block((void *)config.connectivity.password, config_ee.connectivity.password, LOGIN_PASSWORD_LEN);
+	
+	ee_update_block((void *)config.connectivity.password, config_ee.connectivity.password, LOGIN_PASSWORD_LEN);
 
 	return ret;
 }

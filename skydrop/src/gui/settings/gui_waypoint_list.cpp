@@ -83,8 +83,8 @@ void gui_waypoint_list_action(uint8_t index)
 			config.home.flags = HOME_LOADED;
 			fc.flight.home_valid = true;
 
-			eeprom_busy_wait();
-			eeprom_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
+			
+			ee_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
 		}
 
 		gui_switch_task(gui_waypoint_list_return);

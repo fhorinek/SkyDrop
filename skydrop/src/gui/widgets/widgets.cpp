@@ -352,7 +352,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 	uint16_t text_w = disp.GetTextWidth(text);
 	if (text_w > w)
 	{
-		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
+		disp.clip(x, x + w);
 
 		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 15);
 		int16_t scroll_x = x - (int16_t)offset;
@@ -367,7 +367,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 			fputs(text, lcd_out);
 		}
 
-		disp.clip(oldClip);
+		disp.noclip();
 	}
 	else
 	{
@@ -419,7 +419,7 @@ void widgets_draw(uint8_t page)
 		uint8_t wtype = config.gui.pages[page].widgets[i];
 
 		if (wtype != WIDGET_OFF)
-			widget_array[wtype].draw(x, y, w, h, widget_array[wtype].flags);
+			widget_array[wtype].draw(x, y, w, h);
 	}
 }
 

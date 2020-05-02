@@ -15,8 +15,8 @@ void gui_set_vario_advanced_weak_cb(float val)
 	uint16_t tmp = val * 100;
 
 	config.audio_profile.weak = config.audio_profile.lift - tmp;
-	eeprom_busy_wait();
-	eeprom_update_block((void *)&config.audio_profile.weak, &config_ee.audio_profile.weak, sizeof(config.audio_profile.weak));
+	
+	ee_update_block((void *)&config.audio_profile.weak, &config_ee.audio_profile.weak, sizeof(config.audio_profile.weak));
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
@@ -25,8 +25,8 @@ void gui_set_vario_advanced_poffset_cb(float val)
 	uint16_t tmp = val;
 
 	config.audio_profile.prebeep_offset = tmp;
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.audio_profile.prebeep_offset, config.audio_profile.prebeep_offset);
+	
+	ee_update_word(&config_ee.audio_profile.prebeep_offset, config.audio_profile.prebeep_offset);
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
@@ -35,8 +35,8 @@ void gui_set_vario_advanced_low_weak_cb(float val)
 	uint16_t tmp = val;
 
 	config.audio_profile.weak_low_freq = tmp;
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.audio_profile.weak_low_freq, config.audio_profile.weak_low_freq);
+	
+	ee_update_word(&config_ee.audio_profile.weak_low_freq, config.audio_profile.weak_low_freq);
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
@@ -46,8 +46,8 @@ void gui_set_vario_advanced_high_weak_cb(float val)
 
 	config.audio_profile.weak_high_freq = tmp;
 
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ee.audio_profile.weak_high_freq, config.audio_profile.weak_high_freq);
+	
+	ee_update_word(&config_ee.audio_profile.weak_high_freq, config.audio_profile.weak_high_freq);
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
@@ -56,16 +56,16 @@ void gui_set_vario_advanced_plength_cb(float val)
 	uint16_t tmp = val;
 
 	config.audio_profile.prebeep_length = tmp;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.audio_profile.prebeep_length, config.audio_profile.prebeep_length);
+	
+	ee_update_byte(&config_ee.audio_profile.prebeep_length, config.audio_profile.prebeep_length);
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
 
 void gui_set_vario_advanced_dig_int_cb(float val)
 {
 	config.vario.digital_vario_dampening = sec_to_mul(val);
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
+	
+	ee_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
 
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
@@ -74,8 +74,8 @@ void gui_set_vario_advanced_avg_int_cb(float val)
 {
 	config.vario.avg_vario_dampening = sec_to_mul(val);
 	vario_update_history_delay();
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
+	
+	ee_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
 
 	gui_switch_task(GUI_SET_VARIO_ADVANCED);
 }
@@ -98,24 +98,24 @@ void gui_set_vario_advanced_action(uint8_t index)
 	{
 		case(0):
 			config.audio_profile.flags ^= AUDIO_FLUID;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
+			
+			ee_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
 		break;
 
 		case(1):
 			mode = (config.audio_profile.flags & AUDIO_SINK_MASK);
 			mode = (mode + 1) % AUDIO_SINK_MODES;
 			config.audio_profile.flags = (config.audio_profile.flags & ~AUDIO_SINK_MASK) | mode;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
+			
+			ee_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
 		break;
 
 		case(2):
 			mode = (config.audio_profile.flags & AUDIO_WEAK_MASK) >> 2;
 			mode = (mode + 1) % AUDIO_WEAK_MODES;
 			config.audio_profile.flags = (config.audio_profile.flags & ~AUDIO_WEAK_MASK) | (mode << 2);
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
+			
+			ee_update_byte(&config_ee.audio_profile.flags, config.audio_profile.flags);
 		break;
 
 		case(3):

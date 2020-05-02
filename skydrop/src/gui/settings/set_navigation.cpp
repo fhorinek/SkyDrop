@@ -82,8 +82,8 @@ void gui_home_action(uint8_t index)
 			config.home.flags = HOME_TAKEOFF;
 			config.home.name[0] = 0;
 		}
-		eeprom_busy_wait();
-		eeprom_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
+		
+		ee_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
 
 		break;
 	}

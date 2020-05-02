@@ -17,8 +17,8 @@ void gui_set_altimeters_qnh1_cb(float val)
 	val *= 100.0;
 
 	gui_switch_task(GUI_SET_ALTIMETERS);
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.altitude.QNH1, val);
+	
+	ee_update_float(&config_ee.altitude.QNH1, val);
 
 	config.altitude.QNH1 = val;
 
@@ -31,8 +31,8 @@ void gui_set_altimeters_qnh2_cb(float val)
 	val *= 100.0;
 
 	gui_switch_task(GUI_SET_ALTIMETERS);
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.altitude.QNH2, val);
+	
+	ee_update_float(&config_ee.altitude.QNH2, val);
 
 	config.altitude.QNH2 = val;
 }

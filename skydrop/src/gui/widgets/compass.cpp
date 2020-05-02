@@ -7,7 +7,7 @@
 
 #include "compass.h"
 
-void widget_compass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_compass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Comp"), x, y);
 
@@ -16,7 +16,7 @@ void widget_compass_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fla
 
 	widget_value_int(tmp, x, y + lh, w, h - lh);
 }
-void widget_compass_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_compass_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Comp"), x, y);
 
@@ -26,7 +26,7 @@ void widget_compass_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	widget_arrow(relative_direction, x, y, w, h);
 }
-void widget_compass_heading_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_compass_heading_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Comp"), x, y);
 

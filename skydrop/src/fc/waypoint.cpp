@@ -6,8 +6,8 @@
  */
 
 #include "waypoint.h"
-
-#include "../debug_on.h"
+#include "logger.h"
+//#include "../debug_on.h"
 
 void waypoint_show()
 {
@@ -30,6 +30,8 @@ bool waypoint_goto_next()
 	{
 		fc.task.waypoint_index++;
 		waypoint_task_get_wpt(fc.task.waypoint_index, (task_waypoint_t *)&fc.task.next_waypoint.twpt);
+
+		waypoint_task_optimise_reset();
 		return true;
 	}
 	else
@@ -49,6 +51,8 @@ bool waypoint_goto_prev()
 	{
 		fc.task.waypoint_index--;
 		waypoint_task_get_wpt(fc.task.waypoint_index, (task_waypoint_t *)&fc.task.next_waypoint.twpt);
+
+		waypoint_task_optimise_reset();
 		return true;
 	}
 	else
@@ -287,8 +291,8 @@ void waypoint_task_close()
 	fc.task.active = false;
 	config.tasks.name[0] = 0;
 
-	eeprom_busy_wait();
-	eeprom_update_block((void *)config.tasks.name, config_ee.tasks.name, 1);
+	
+	ee_update_block((void *)config.tasks.name, config_ee.tasks.name, 1);
 }
 
 void waypoint_task_open(char * name)
@@ -321,8 +325,8 @@ void waypoint_task_open(char * name)
 
 	//store name to EE
 	strcpy((char *)config.tasks.name, (char *)fc.task.name);
-	eeprom_busy_wait();
-	eeprom_update_block((void *)config.tasks.name, config_ee.tasks.name, sizeof(config_ee.tasks.name));
+	
+	ee_update_block((void *)config.tasks.name, config_ee.tasks.name, sizeof(config_ee.tasks.name));
 
 	waypoint_task_open_handle(&handle, FA_READ | FA_WRITE | FA_OPEN_ALWAYS);
 	f_lseek(&handle, 0);
@@ -332,17 +336,19 @@ void waypoint_task_open(char * name)
 	if (f_size(&handle) == 0)
 	{
 		//default header data
-		fc.task.head.flags = CFG_TASK_FLAGS_START_EXIT;
+		fc.task.head.flags = CFG_TASK_FLAGS_START_ENTER | CFG_TASK_FLAGS_OPTIMIZE;
 
-		fc.task.head.start_hour = CFG_TASK_HOUR_DISABLED;
+		if (config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI)
+			fc.task.head.flags |= CFG_TASK_FLAGS_FAI_SPHERE;
+
+		fc.task.head.start_hour = CFG_TASK_HOUR_DISABLED | 12;
 		fc.task.head.start_min = 0;
 
-		fc.task.head.deadline_hour = CFG_TASK_HOUR_DISABLED;
+		fc.task.head.deadline_hour = CFG_TASK_HOUR_DISABLED | 12;
 		fc.task.head.deadline_min = 0;
 
 		fc.task.head.center_dist_m = 0;
 		fc.task.head.opti_dist_m = 0;
-		fc.task.head.optimised = false;
 
 		f_write(&handle, (void *)&fc.task.head, sizeof(task_header_t), &bw_br);
 	}
@@ -395,13 +401,16 @@ void waypoint_task_add_wpt(waypoint_cache_t * wpt)
 	twpt.dist_m = 0;
 	twpt.radius_m = TASK_WAYPOINT_DEFAULT_RADIUS;
 
+	twpt.opti_latitude = 0;
+	twpt.opti_longtitude = 0;
+	twpt.opti_dist_m = 0;
+
 	waypoint_task_open_handle(&handle, FA_WRITE);
 	f_lseek(&handle, f_size(&handle));
 	f_write(&handle, &twpt, sizeof(twpt), &bw);
 	f_close(&handle);
 
 	fc.task.waypoint_count += 1;
-	fc.task.head.optimised = false;
 }
 
 void waypoint_task_switch_wpt(uint8_t windex_a, uint8_t windex_b)
@@ -429,8 +438,6 @@ void waypoint_task_modify_wpt(uint8_t windex, task_waypoint_t * twpt, bool use_t
 	f_lseek(&handle, index);
 	f_write(&handle, twpt, sizeof(task_waypoint_t), &bw);
 	f_close(&handle);
-
-	fc.task.head.optimised = false;
 }
 
 void waypoint_task_remove_wpt(uint8_t windex)
@@ -475,7 +482,6 @@ void waypoint_task_calc_distance()
 
 	fc.task.head.center_dist_m = 0;
 	fc.task.head.opti_dist_m = 0;
-	fc.task.head.optimised = false;
 
 	for (uint8_t i = 1; i < fc.task.waypoint_count; i++)
 	{
@@ -492,6 +498,8 @@ void waypoint_task_calc_distance()
 	}
 
 	waypoint_task_modify_head((task_header_t *)&fc.task.head);
+
+	waypoint_task_optimise_reset();
 }
 
 void waypoint_task_opti_angle(opti_waypoint_cache_t * twpt, float angle)
@@ -523,6 +531,9 @@ uint32_t waypoint_task_opti_distance(opti_waypoint_cache_t * twpt1, opti_waypoin
 
 void waypoint_task_optimise_init()
 {
+	//reset debug visualisation
+	DEBUG("r\n");
+
 	//create temporary copy of the actual task
 	waypoint_task_modify_head((task_header_t*)&fc.task.head, true);
 
@@ -532,8 +543,22 @@ void waypoint_task_optimise_init()
 		task_waypoint_t actual_wpt;
 		waypoint_task_get_wpt(i, &actual_wpt);
 
+		DEBUG("l %u %ld %ld\n", i, actual_wpt.opti_latitude, actual_wpt.opti_longtitude);
+
 		actual_wpt.opti_latitude = actual_wpt.wpt.latitude;
 		actual_wpt.opti_longtitude = actual_wpt.wpt.longtitude;
+
+		if (fc.flight.state == FLIGHT_FLIGHT && fc.gps_data.valid)
+		{
+			if (fc.task.waypoint_index == i + 1)
+			{
+				actual_wpt.opti_latitude = fc.gps_data.latitude;
+				actual_wpt.opti_longtitude = fc.gps_data.longtitude;
+
+				DEBUG("p %u %ld %ld\n", fc.task.waypoint_index, actual_wpt.opti_latitude, actual_wpt.opti_longtitude);
+			}
+		}
+
 		actual_wpt.opti_angle = 500;
 		actual_wpt.opti_dist_m = 0xFFFFFFFF;
 
@@ -546,8 +571,13 @@ void waypoint_task_optimise_init()
 	for (uint8_t i = 0; i < TASK_OPTI_CACHE_SIZE; i++)
 		fc.task.opti_cache[i].index = TASK_OPTI_INVALID;
 
-	fc.task.opti_wp_index = 1;
+	if (fc.flight.state == FLIGHT_FLIGHT)
+		fc.task.opti_wp_index = fc.task.waypoint_index;
+	else
+		fc.task.opti_wp_index = 1;
+
 	fc.task.opti_step = 1;
+	fc.task.opti_itter_cnt = 0;
 	fc.task.opti_sweep_step = 0;
 	fc.task.opti_itter_improved = false;
 }
@@ -558,10 +588,16 @@ bool waypoint_task_optimise_sweep(opti_waypoint_cache_t * prev_wpt, opti_waypoin
 	float start, end, step;
 	uint8_t opti_steps;
 
+	if (fc.task.opti_sweep_step == 0)
+	{
+		//waypoint angle itteration starts
+		fc.task.best_opti_angle = 500;
+		fc.task.best_opti_dist_m = 0xFFFFFFFF;
+	}
+
 	switch (fc.task.opti_step)
 	{
 		case(1):
-
 			start = 0;
 			end = 360;
 			step = 20;
@@ -588,70 +624,57 @@ bool waypoint_task_optimise_sweep(opti_waypoint_cache_t * prev_wpt, opti_waypoin
 			break;
 	}
 
-	uint32_t min_dist;
-
-	min_dist = actual_wpt->opti_dist_m;
-	if (fc.task.opti_step == 1)
-		min_dist &= 0x7FFFFFFF;
-
-	if (fc.task.opti_step == 2 && actual_wpt->opti_dist_m & 0x80000000)
-		min_dist = 0xFFFFFFFF;
-
-
-	float min_angle = actual_wpt->opti_angle;
-
-	DEBUG("--i min %lu\n", min_dist);
-
 	float sweep_delta = (end - start) / opti_steps;
 	start = start + sweep_delta * fc.task.opti_sweep_step;
 	end = start + sweep_delta;
 
-	uint32_t first = 0;
-
 	for (float angle = start; angle < end; angle += step)
 	{
-		DEBUG("--a %u %u %0.2f\n", fc.task.opti_step, actual_wpt->index, angle);
-
 		//recalculate opti lan/lot based on angle
 		waypoint_task_opti_angle(actual_wpt, angle);
 
-		first = waypoint_task_opti_distance(prev_wpt, actual_wpt);
-		uint32_t dist = first;
+		uint32_t total_dist = waypoint_task_opti_distance(prev_wpt, actual_wpt);
 
 		if (fc.task.opti_step > 1)
-			dist += waypoint_task_opti_distance(actual_wpt, next_wpt);
+			total_dist += waypoint_task_opti_distance(actual_wpt, next_wpt);
 
-		if (min_dist > dist)
+		if (fc.task.best_opti_dist_m > total_dist)
 		{
-			min_dist = dist;
-			min_angle = angle;
-
-			DEBUG("w %u %ld %ld %0.2f %lu\n", actual_wpt->index, actual_wpt->opti_latitude, actual_wpt->opti_longtitude, angle, dist);
+			fc.task.best_opti_dist_m = total_dist;
+			fc.task.best_opti_angle = angle;
 		}
 	}
-
-	//if change between last and best angle is larger than step
-	bool improved = (abs(actual_wpt->opti_angle - min_angle) > 0);
-	//bool improved = (abs(actual_wpt->opti_angle - min_angle) > step);
-
-	//set best opti angle
-	if (improved)
-	{
-		actual_wpt->opti_angle = min_angle;
-		actual_wpt->opti_dist_m = min_dist | ((fc.task.opti_step == 1) ? 0x80000000 : 0);
-
-		fc.task.opti_itter_improved = true;
-		DEBUG("--IMPROVED\n");
-	}
-
-	//calculate opti lat/lon
-	waypoint_task_opti_angle(actual_wpt, actual_wpt->opti_angle);
 
 	//increment the sweep step
 	fc.task.opti_sweep_step = (fc.task.opti_sweep_step + 1) % opti_steps;
 
 	//next iteration starts?
-	return (fc.task.opti_sweep_step == 0);
+	if (fc.task.opti_sweep_step == 0)
+	{
+		//if change between last and best angle is larger than step
+		//set best opti angle
+		bool improved = abs(actual_wpt->opti_angle - fc.task.best_opti_angle) > step;
+
+		if (improved)
+		{
+			actual_wpt->opti_angle = fc.task.best_opti_angle;
+			actual_wpt->opti_dist_m = fc.task.best_opti_dist_m;
+
+			fc.task.opti_itter_improved = true;
+		}
+
+		//calculate opti lat/lon
+		waypoint_task_opti_angle(actual_wpt, actual_wpt->opti_angle);
+
+		if (improved)
+		{
+			DEBUG("w %u %ld %ld %0.2f %lu\n", actual_wpt->index, actual_wpt->opti_latitude, actual_wpt->opti_longtitude, actual_wpt->opti_angle, actual_wpt->opti_dist_m);
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 void waypoint_task_optimise_store_cache_wpt(uint8_t cache_index)
@@ -720,7 +743,7 @@ bool waypoint_task_optimise_get_cache_wpt(uint8_t index, opti_waypoint_cache_t *
 //	DEBUG("opti_angle %0.2f\n", tmp.opti_angle);
 //	DEBUG("opti_latitude %ld\n", tmp.opti_latitude);
 //	DEBUG("opti_longtitude %ld\n", tmp.opti_longtitude);
-	DEBUG("opti_dist_m %lu\n", tmp.opti_dist_m);
+//	DEBUG("opti_dist_m %lu\n", tmp.opti_dist_m);
 //	DEBUG("\n");
 
 	*wpt = (opti_waypoint_cache_t *)&fc.task.opti_cache[new_index];
@@ -741,21 +764,31 @@ void waypoint_task_optimise_itter()
 	if (!waypoint_task_optimise_get_cache_wpt(fc.task.opti_wp_index + 1, &next_wpt))
 		return;
 
-	//get most optimal angle, return true if need another wpt
+
+	//get most optimal angle, return true if need to load next wpt
 	if (waypoint_task_optimise_sweep(prev_wpt, actual_wpt, next_wpt))
 	{
 		fc.task.opti_wp_index++;
-	}
 
-	if (fc.task.opti_wp_index > fc.task.waypoint_count - 2)
-	{
-		if (!fc.task.opti_itter_improved)
+		if (fc.task.opti_wp_index > fc.task.waypoint_count - 2)
 		{
-			fc.task.opti_step++;
+			if (!fc.task.opti_itter_improved)
+			{
+				DEBUG("---NOT IMPROVED\n");
+				fc.task.opti_step++;
+				fc.task.opti_itter_cnt = 0;
+			}
+			DEBUG("i %u %u\n", fc.task.opti_step, fc.task.opti_itter_cnt);
+			fc.task.opti_itter_cnt++;
+
+			fc.task.opti_itter_improved = false;
+
+			if (fc.flight.state == FLIGHT_FLIGHT)
+				fc.task.opti_wp_index = fc.task.waypoint_index;
+			else
+				fc.task.opti_wp_index = 1;
 		}
 
-		fc.task.opti_itter_improved = false;
-		fc.task.opti_wp_index = 1;
 
 	}
 
@@ -779,18 +812,18 @@ void waypoint_task_optimise_finalise()
 	sprintf_P(pto, PSTR("%S/%s"), task_root, fc.task.name);
 
 	f_unlink(pto);
-	uint8_t res = f_rename(pfrom, pto);
-	DEBUG("res = %u\n", res);
+	f_rename(pfrom, pto);
+//	DEBUG("res = %u\n", res);
 
 	//get optimal distance
 	task_waypoint_t twpt;
 
 	waypoint_task_get_wpt(0, &twpt);
-	fc.task.head.opti_dist_m = -(int32_t)twpt.radius_m;
+	fc.task.head.opti_dist_m = 0;
 	int32_t lon1 = twpt.opti_longtitude;
 	int32_t lat1 = twpt.opti_latitude;
 
-	DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
+//	DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
 
 	for (uint8_t i = 1; i < fc.task.waypoint_count; i++)
 	{
@@ -800,7 +833,7 @@ void waypoint_task_optimise_finalise()
 		int32_t lat2 = twpt.opti_latitude;
 
 		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
-		twpt.opti_dist_m =  gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL);
+		twpt.opti_dist_m = gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL);
 
 		lon1 = lon2;
 		lat1 = lat2;
@@ -809,24 +842,28 @@ void waypoint_task_optimise_finalise()
 //		DEBUG("opti_angle %0.2f\n", twpt.opti_angle);
 //		DEBUG("opti_latitude %ld\n", twpt.opti_latitude);
 //		DEBUG("opti_longtitude %ld\n", twpt.opti_longtitude);
-		DEBUG("dist_m %lu\n", twpt.dist_m);
-		DEBUG("opti_dist_m %lu\n", twpt.opti_dist_m);
+//		DEBUG("dist_m %lu\n", twpt.dist_m);
+//		DEBUG("opti_dist_m %lu\n", twpt.opti_dist_m);
 //		DEBUG("\n");
+
+		if (fc.flight.state == FLIGHT_FLIGHT && fc.gps_data.valid)
+		{
+			logger_comment(PSTR("W %u %ld %ld %0.2f"), i, twpt.opti_latitude, twpt.opti_longtitude, twpt.opti_angle);
+		}
 
 		fc.task.head.opti_dist_m += twpt.opti_dist_m;
 
-		DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
+//		DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
 
 		waypoint_task_modify_wpt(i, &twpt);
 	}
 
-	//remove radius if goal is line
+	//remove radius from total opti distance if goal is not line
 	if ((fc.task.head.flags & CFG_TASK_FLAGS_GOAL_LINE) == 0)
 		fc.task.head.opti_dist_m -= twpt.radius_m;
 
-	DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
+//	DEBUG("fc.task.head.opti_dist_m %ld\n", fc.task.head.opti_dist_m);
 
-	fc.task.head.optimised = true;
 	waypoint_task_modify_head((task_header_t *)&fc.task.head);
 
 	//reload actual wpt
@@ -836,38 +873,25 @@ void waypoint_task_optimise_finalise()
 	fc.task.opti_step = 6;
 }
 
-void waypoint_task_optimise_now()
+void waypoint_task_optimise_reset()
 {
-	DEBUG("--waypoint_task_optimise_now()\n");
-	//sanity check
-	if (fc.task.waypoint_count < 3)
-		return;
+	DEBUG("--waypoint_task_optimise_reset()\n");
 
-	uint32_t start_time = task_get_ms_tick_once();
-
+	fc.task.head.opti_dist_m = 0;
 	fc.task.opti_step = 0;
-	while (fc.task.opti_step < 6)
-	{
-		waypoint_task_optimise_step();
-		ewdt_reset();
-	}
-
-	DEBUG("--total duration %lu\n\n", task_get_ms_tick_once() - start_time);
-
-	for (uint8_t i = 0; i < fc.task.waypoint_count; i++)
-	{
-		task_waypoint_t actual_wpt;
-		waypoint_task_get_wpt(i, &actual_wpt);
-
-		DEBUG("w %u %ld %ld %0.2f\n", i, actual_wpt.opti_latitude, actual_wpt.opti_longtitude, actual_wpt.opti_angle);
-	}
 }
+
 
 void waypoint_task_optimise_step()
 {
+	if (fc.task.waypoint_count < 3)
+		return;
+
 	switch(fc.task.opti_step)
 	{
 		case(0):
+			DEBUG("--waypoint_optimise_start)\n");
+			fc.task.opti_timer = task_get_ms_tick();
 			waypoint_task_optimise_init();
 		break;
 		case(1):
@@ -878,9 +902,13 @@ void waypoint_task_optimise_step()
 		break;
 		case(5):
 			waypoint_task_optimise_finalise();
+			DEBUG("--waypoint_optimise_duration %lu\n\n", task_get_ms_tick() - fc.task.opti_timer);
+			fc.task.opti_timer = task_get_ms_tick() + 0;//TASK_OPTIMISE_WAIT;
 		break;
 		case(6):
 			//wait
+			if (fc.task.opti_timer < task_get_ms_tick())// && fc.task.head.opti_dist_m == 0)
+				fc.task.opti_step = 0;
 		break;
 
 	}
@@ -891,14 +919,20 @@ bool waypoint_task_active()
 	return fc.task.waypoint_index < fc.task.waypoint_count && fc.task.active;
 }
 
+bool waypoint_task_optimal()
+{
+	//if optimised!
+	return (fc.task.head.flags & CFG_TASK_FLAGS_OPTIMIZE);
+}
+
 uint32_t waypoint_task_time_to_start()
 {
-	return (fc.task.head.start_hour * 3600 + fc.task.head.start_min * 60) - (time_get_local() % 86400ul);
+	return ((uint32_t)fc.task.head.start_hour * 3600ul + (uint32_t)fc.task.head.start_min * 60ul) - (time_get_local() % 86400ul);
 }
 
 uint32_t waypoint_task_time_to_deadline()
 {
-	return (fc.task.head.deadline_hour * 3600 + fc.task.head.deadline_hour * 60) - (time_get_local() % 86400ul);
+	return ((uint32_t)fc.task.head.deadline_hour * 3600ul + (uint32_t)fc.task.head.deadline_min * 60ul) - (time_get_local() % 86400ul);
 }
 
 uint8_t waypoint_task_mode()
@@ -906,11 +940,22 @@ uint8_t waypoint_task_mode()
 	if (waypoint_task_active())
 	{
 		uint32_t actual_epoch = time_get_local() % 86400ul;
-		uint32_t start_epoch = (fc.task.head.start_hour != CFG_TASK_HOUR_DISABLED) ? (fc.task.head.start_hour * 3600 + fc.task.head.start_min * 60) : 0;
-		uint32_t deadline_epoch = (fc.task.head.deadline_hour != CFG_TASK_HOUR_DISABLED) ? (fc.task.head.deadline_hour * 3600 + fc.task.head.deadline_min * 60) : 86400ul;
+		uint32_t start_epoch;
+		if (fc.task.head.start_hour & CFG_TASK_HOUR_DISABLED)
+			start_epoch = 0;
+		else
+			start_epoch = (uint32_t)fc.task.head.start_hour * 3600ul + (uint32_t)fc.task.head.start_min * 60ul;
 
-		if (start_epoch < actual_epoch)
+
+		uint32_t deadline_epoch;
+		if (fc.task.head.deadline_hour & CFG_TASK_HOUR_DISABLED)
+			deadline_epoch = 3600ul * 24ul;
+		else
+			deadline_epoch = (uint32_t)fc.task.head.deadline_hour * 3600ul + (uint32_t)fc.task.head.deadline_min * 60ul;
+
+		if (actual_epoch < start_epoch && fc.task.waypoint_index == 1)
 			return TASK_MODE_PREPARE;
+
 		if (actual_epoch <= deadline_epoch)
 			return TASK_MODE_ACTIVE;
 

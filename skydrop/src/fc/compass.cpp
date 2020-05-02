@@ -44,8 +44,8 @@ void compass_init()
 
 	//load declination value from EEPROM
 	int16_t value;
-	eeprom_busy_wait();
-	eeprom_read_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+	
+	ee_read_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 	fc.compass.declination = value;
 }
 

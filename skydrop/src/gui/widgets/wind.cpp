@@ -1,6 +1,6 @@
 #include "wind.h"
 
-void widget_wdir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_wdir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
 
@@ -14,7 +14,7 @@ void widget_wdir_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	widget_value_int(tmp, x, y + lh, w, h - lh);
 }
 
-void widget_wspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_wspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("WSpd"), x, y);
 
@@ -51,7 +51,7 @@ void widget_wspd_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	widget_value_int(tmp, x, y + lh, w, h - lh);
 }
 
-void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
 
@@ -74,7 +74,7 @@ void widget_wdir_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t 
 
 }
 
-void widget_wdir_points_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_wdir_points_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("WDir"), x, y);
 

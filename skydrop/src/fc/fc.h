@@ -367,11 +367,11 @@ struct airspace_data_t
 
 
 #define CFG_TASK_FLAGS_FAI_SPHERE		0b00000001
-#define CFG_TASK_FLAGS_START_EXIT		0b00000010
+#define CFG_TASK_FLAGS_START_ENTER		0b00000010
 #define CFG_TASK_FLAGS_GOAL_LINE		0b00000100
 #define CFG_TASK_FLAGS_OPTIMIZE			0b00001000
 
-#define CFG_TASK_HOUR_DISABLED			0xFF
+#define CFG_TASK_HOUR_DISABLED			0x80
 
 #define NUMBER_OF_TASK_MODE		3
 
@@ -387,14 +387,15 @@ struct task_header_t
 
 	int32_t center_dist_m;
 	int32_t opti_dist_m;
-
-	bool optimised;
 };
+
+#define TASK_OPTIMISE_WAIT		20 * 1000
 
 struct task_t
 {
     //task
 	bool active;
+	bool inside_before_start;
 	char name[10];
 
 	task_header_t head;
@@ -403,10 +404,19 @@ struct task_t
 	uint8_t waypoint_count;	// The number of waypoints in the file.
 	waypoint_t next_waypoint;  // The next waypoint where we need to fly
 
+	//state step
 	uint8_t opti_step;
-	uint8_t opti_sweep_step;
-	uint8_t opti_wp_index;
+	uint8_t opti_itter_cnt;
+	uint32_t opti_timer;
+
+	//temporary variabiles for optimisation
 	bool opti_itter_improved;
+	uint8_t opti_wp_index;
+	uint8_t opti_sweep_step;
+
+	uint32_t best_opti_dist_m;
+	float best_opti_angle;
+
 	opti_waypoint_cache_t opti_cache[TASK_OPTI_CACHE_SIZE];
 };
 

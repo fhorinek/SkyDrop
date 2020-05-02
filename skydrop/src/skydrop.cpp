@@ -40,7 +40,6 @@ void Setup()
 	uart_init();
 	battery_init();
 
-
 	_delay_ms(100);
 }
 

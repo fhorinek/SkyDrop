@@ -46,8 +46,6 @@ enum l3g_bw
 
 struct l3gd20_settings
 {
-	bool enabled;
-
 	l3g_odr  odr;
 	l3g_scale scale;
 	l3g_bw bw;

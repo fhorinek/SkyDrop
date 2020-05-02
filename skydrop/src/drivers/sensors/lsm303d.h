@@ -66,8 +66,6 @@ enum lsm303d_mag_scale
 
 struct lsm303d_settings
 {
-	bool enabled;
-
 	lsm303d_acc_odr accOdr;
 	lsm303f_acc_scale accScale;
 

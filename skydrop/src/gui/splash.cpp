@@ -120,11 +120,7 @@ void gui_splash_loop()
 		disp.SetDrawLayer(0);
 
 		//progress bar
-		if (splash_cnt > 0)
-		{
-			disp.DrawLine(0, 0, splash_cnt * 2.4, 0, 1);
-			disp.DrawLine(0, 1, splash_cnt * 2.4, 1, 1);
-		}
+		disp.DrawRectangle(0, 0, splash_cnt * 2.4, 1, 1, 0);
 	}
 
 	disp.LoadFont(F_TEXT_S);

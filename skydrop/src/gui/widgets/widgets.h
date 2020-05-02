@@ -20,21 +20,10 @@
 struct widget
 {
 	const char * label;
-	void (* draw)(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags);
-	void (* menu_loop)(uint8_t flags);
-	void (* menu_irqh)(uint8_t type, uint8_t * buff, uint8_t flags);
-	uint8_t flags;
+	void (* draw)(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+	void (* menu_loop)();
+	void (* menu_irqh)(uint8_t type, uint8_t * buff);
 };
-
-#define register_widget3(name, label, draw, loop, irqh, flags) \
-	const char name ## _label[] PROGMEM = label;\
-	widget name = { \
-		name ## _label, \
-		draw, \
-		loop, \
-		irqh, \
-		flags, \
-	}; \
 
 #define register_widget2(name, label, draw, loop, irqh) \
 	const char name ## _label[] PROGMEM = label;\
@@ -43,7 +32,6 @@ struct widget
 		draw, \
 		loop, \
 		irqh, \
-		0, \
 	}; \
 
 #define register_widget1(name, label, draw) \
@@ -53,7 +41,6 @@ struct widget
 		draw, \
 		NULL, \
 		NULL, \
-		0, \
 	}; \
 
 

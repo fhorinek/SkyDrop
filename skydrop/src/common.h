@@ -25,6 +25,7 @@
 #include <xlib/ring.h>
 #include <xlib/stream.h>
 
+#include "ee.h"
 #include "build_defs.h"
 #include "build_number.h"
 #include "debug.h"

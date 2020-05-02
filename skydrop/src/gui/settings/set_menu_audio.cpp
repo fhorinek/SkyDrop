@@ -10,8 +10,8 @@ void gui_set_menu_audio_init()
 
 void gui_set_menu_audio_stop()
 {
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.gui.menu_audio_flags, config.gui.menu_audio_flags);
+	
+	ee_update_byte(&config_ee.gui.menu_audio_flags, config.gui.menu_audio_flags);
 }
 
 void gui_set_menu_audio_action(uint8_t index)

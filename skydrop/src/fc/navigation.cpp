@@ -16,7 +16,7 @@
 MK_SEQ(next_wpt, ARR({750, 0, 1000, 0, 1000, 0}), ARR({250, 150, 250, 150, 250, 150}));
 MK_SEQ(last_wpt, ARR({750, 0, 1000, 0, 1250, 0}), ARR({250, 150, 250, 150, 250, 150}));
 
-#define FAI_EARTH_RADIUS 6378
+#define FAI_EARTH_RADIUS 6371
 
 
 void gps_get_kx_ky(float lat, float * kx, float * ky)
@@ -64,25 +64,25 @@ void gps_destination(float lat1, float lon1, float angle, float distance_km,
 uint32_t gps_distance(int32_t lat1, int32_t lon1,
 			 	 	  int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
 {
-	DEBUG("*gps_distance\n");
+//	DEBUG("*gps_distance\n");
 
 
 	float d_lon = (lon2 - lon1) / (float)GPS_COORD_MUL;
 	float d_lat = (lat2 - lat1) / (float)GPS_COORD_MUL;
 
-	DEBUG("#d_lon=%0.10f\n", d_lon);
-	DEBUG("#d_lat=%0.10f\n", d_lat);
-
-	DEBUG("lat1=%li\n", lat1);
-	DEBUG("lon1=%li\n", lon1);
-	DEBUG("lat2=%li\n", lat2);
-	DEBUG("lon2=%li\n", lon2);
+//	DEBUG("#d_lon=%0.10f\n", d_lon);
+//	DEBUG("#d_lat=%0.10f\n", d_lat);
+//
+//	DEBUG("lat1=%li\n", lat1);
+//	DEBUG("lon1=%li\n", lon1);
+//	DEBUG("lat2=%li\n", lat2);
+//	DEBUG("lon2=%li\n", lon2);
 
 	uint32_t dist;
 
 	if (FAI)
 	{
-		DEBUG("f=1\n");
+//		DEBUG("f=1\n");
 
 		d_lon = to_radians(d_lon / 2);
 		d_lat = to_radians(d_lat / 2);
@@ -98,20 +98,20 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 	}
 	else //WGS
 	{
-		DEBUG("f=0\n");
-		DEBUG("#lat=%0.10f\n", (lat1 + lat2) / ((float)GPS_COORD_MUL * 2));
+//		DEBUG("f=0\n");
+//		DEBUG("#lat=%0.10f\n", (lat1 + lat2) / ((float)GPS_COORD_MUL * 2));
 
 		float kx, ky;
 		gps_get_kx_ky((lat1 + lat2) / ((float)GPS_COORD_MUL * 2), &kx, &ky);
 
-		DEBUG("#kx=%0.10f\n", kx);
-		DEBUG("#ky=%0.10f\n", ky);
+//		DEBUG("#kx=%0.10f\n", kx);
+//		DEBUG("#ky=%0.10f\n", ky);
 
         d_lon *= kx;
         d_lat *= ky;
 
-		DEBUG("#d_lon=%0.10f\n", d_lon);
-		DEBUG("#d_lat=%0.10f\n", d_lat);
+//		DEBUG("#d_lon=%0.10f\n", d_lon);
+//		DEBUG("#d_lat=%0.10f\n", d_lat);
 
         dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 1000.0;
 	}
@@ -122,9 +122,9 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 			*bearing = 0;
 
 		*bearing = ((int16_t)to_degrees(atan2(d_lon, d_lat)) + 360) % 360;
-		DEBUG("a=%d\n", *bearing);
+//		DEBUG("a=%d\n", *bearing);
     }
-	DEBUG("d=%lu\n\n", dist);
+//	DEBUG("d=%lu\n\n", dist);
 
     return dist;
 }
@@ -132,6 +132,10 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 void navigation_init()
 {
 	char full_path[64];
+
+	//go to wait mode
+	fc.task.opti_timer = TASK_OPTIMISE_WAIT;
+	fc.task.opti_step = 6;
 
 	if (config.tasks.name[0])
 	{
@@ -162,8 +166,8 @@ void navigation_step()
 	}
 	else
 	{
-	/*	if (waypoint_task_active() && 1) //TODO:optimisation flag
-			waypoint_task_optimise_step();*/
+		if (waypoint_task_active() && (fc.task.head.flags & CFG_TASK_FLAGS_OPTIMIZE))
+			waypoint_task_optimise_step();
 		return;
 	}
 
@@ -185,35 +189,89 @@ void navigation_step()
 
 		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
 
-		fc.task.next_waypoint.distance = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
-						fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
-						use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
-		fc.task.next_waypoint.distance -= fc.task.next_waypoint.twpt.radius_m;
+		int32_t center_dist;
+		int32_t wpt_dist;
 
-//		DEBUG("ber %d\n", fc.task.next_waypoint.bearing);
-//		DEBUG("dis %0.2f\n", fc.task.next_waypoint.distance);
+		//use optimal points if enabled and ready
+		bool use_optimal = fc.task.head.flags & CFG_TASK_FLAGS_OPTIMIZE && !(fc.task.next_waypoint.twpt.opti_latitude == 0 && fc.task.next_waypoint.twpt.opti_longtitude == 0);
 
-		if (fc.task.next_waypoint.distance <= 0)
+		//unless the task is set to exit and you are outside and only on first wp
+		if (waypoint_task_mode() == TASK_MODE_PREPARE && !fc.task.inside_before_start && !(fc.task.head.flags & CFG_TASK_FLAGS_START_ENTER) && fc.task.waypoint_index == 1)
+		{
+			use_optimal = false;
+		}
+
+		if (use_optimal)
+		{
+			//get optimal points
+			wpt_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
+					fc.task.next_waypoint.twpt.opti_latitude, fc.task.next_waypoint.twpt.opti_longtitude,
+					use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
+
+			center_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
+					fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
+					use_fai, NULL);
+
+			DEBUG("n %lu %lu\n", fc.task.next_waypoint.twpt.opti_latitude, fc.task.next_waypoint.twpt.opti_longtitude);
+		}
+		else
+		{
+			//get center points
+			wpt_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
+					fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
+					use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
+
+			center_dist = wpt_dist;
+
+			DEBUG("n %lu %lu\n", fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude);
+		}
+
+		center_dist -= fc.task.next_waypoint.twpt.radius_m;
+
+		if (center_dist <= 0)
 		{
 
-			// We reached the waypoint. Go to next.
-			if (waypoint_goto_next())
+			if (waypoint_task_mode() == TASK_MODE_PREPARE)
 			{
-				seq_start(&next_wpt, config.gui.alert_volume);
-				waypoint_show();
+				//before start
+				fc.task.inside_before_start = true;
 			}
 			else
 			{
-				fc.task.waypoint_index = fc.task.waypoint_count;
-				fc.task.next_waypoint.bearing = 0;
-				fc.task.next_waypoint.distance = 0;
-				gui_showmessage_P(PSTR("Navigation\nfinished."));
+				//active or after deadline
 
-				seq_start(&last_wpt, config.gui.alert_volume);
+				//if task start is enter and you are inside
+				if (fc.task.head.flags & CFG_TASK_FLAGS_START_ENTER && fc.task.inside_before_start)
+				{
+					//need to exit the cylinder first
+
+				}
+				else
+				{
+					if (waypoint_goto_next())
+					{
+						seq_start(&next_wpt, config.gui.alert_volume);
+						waypoint_show();
+					}
+					else
+					{
+						fc.task.waypoint_index = fc.task.waypoint_count;
+						fc.task.next_waypoint.bearing = 0;
+						fc.task.next_waypoint.distance = 0;
+						gui_showmessage_P(PSTR("Navigation\nfinished."));
+
+						seq_start(&last_wpt, config.gui.alert_volume);
+					}
+				}
 			}
 		}
+		else
+		{
+			//outside wpt
+			fc.task.inside_before_start = false;
+		}
 
-		fc.task.next_waypoint.distance /= 1000;             // m to km.
+		fc.task.next_waypoint.distance = wpt_dist / 1000.0;             // m to km.
 	}
 
 	// Do we already have a previous GPS point?

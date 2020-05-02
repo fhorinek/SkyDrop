@@ -28,8 +28,8 @@ void gui_set_gps_action(uint8_t index)
 	{
 	case(0):
 		config.connectivity.use_gps = !config.connectivity.use_gps;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.use_gps, config.connectivity.use_gps);
+		
+		ee_update_byte(&config_ee.connectivity.use_gps, config.connectivity.use_gps);
 		if (config.connectivity.use_gps)
 			gps_start();
 		else
@@ -75,28 +75,28 @@ void gui_set_gps_action(uint8_t index)
 		tmp = (config.connectivity.gps_format_flags & GPS_SPD_MASK) >> 0;
 		tmp = (tmp + 1) % 4;
 		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_SPD_MASK) | (tmp << 0);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
 	case(5):
 		tmp = (config.connectivity.gps_format_flags & GPS_FORMAT_MASK) >> 2;
 		tmp = (tmp + 1) % 3;
 		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
 	case(6):
 		config.connectivity.gps_format_flags ^= GPS_DIST_UNIT_I;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
 	case(7):
 		config.connectivity.gps_format_flags ^= GPS_EARTH_MODEL_FAI;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	}
 }
 

@@ -44,6 +44,7 @@ void waypoint_list_close();
 
 //work with task
 bool waypoint_task_active();
+bool waypoint_task_optimal();
 
 void waypoint_task_open(char * name);
 void waypoint_task_close();
@@ -59,6 +60,6 @@ void waypoint_task_remove_wpt(uint8_t windex);
 void waypoint_task_remove();
 void waypoint_task_calc_distance();
 
-void waypoint_task_optimise_now();
+void waypoint_task_optimise_reset();
 void waypoint_task_optimise_step();
 #endif /* FC_WAYPOINT_H_ */

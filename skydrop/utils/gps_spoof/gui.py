@@ -109,6 +109,7 @@ class GPS_Spoof(object):
         pygame.init()
         self.screen = pygame.display.set_mode(self.win_size, RESIZABLE)
         self.clock = pygame.time.Clock()
+        pygame.display.set_caption('SkyDrop GPS simulator')
         
         pygame.font.init()
         self.font = pygame.font.Font(pygame.font.get_default_font(), 20)
@@ -116,6 +117,7 @@ class GPS_Spoof(object):
         self.altitiude = 200
         self.heading = 0
         self.speed = 0
+        
         
         self.port = serial.Serial(port, 9600)
         

@@ -17,7 +17,7 @@ void gui_set_logger_pilot_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.pilot, buff);
-		eeprom_update_block((void *)config.logger.pilot, (void *)config_ee.logger.pilot, LOG_TEXT_LEN);
+		ee_update_block((void *)config.logger.pilot, (void *)config_ee.logger.pilot, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);
@@ -28,7 +28,7 @@ void gui_set_logger_glider_type_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.glider_type, buff);
-		eeprom_update_block((void *)config.logger.glider_type, (void *)config_ee.logger.glider_type, LOG_TEXT_LEN);
+		ee_update_block((void *)config.logger.glider_type, (void *)config_ee.logger.glider_type, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);
@@ -39,7 +39,7 @@ void gui_set_logger_glider_id_cb(uint8_t ret, char * buff)
 	if (ret == GUI_TEXT_OK)
 	{
 		strcpy((char *)config.logger.glider_id, buff);
-		eeprom_update_block((void *)config.logger.glider_id, (void *)config_ee.logger.glider_id, LOG_TEXT_LEN);
+		ee_update_block((void *)config.logger.glider_id, (void *)config_ee.logger.glider_id, LOG_TEXT_LEN);
 	}
 
 	gui_switch_task(GUI_SET_LOGGER);
@@ -49,8 +49,8 @@ void gui_set_total_time_cb(float val)
 {
 	fc.flight.total_time = (uint32_t)(val * 3600);
 
-	eeprom_busy_wait();
-	eeprom_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
+	
+	ee_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
 
 	gui_switch_task(GUI_SET_LOGGER);
 }
@@ -61,8 +61,8 @@ void gui_set_logger_action(uint8_t index)
 	{
 		case(0):
 			config.logger.enabled = !config.logger.enabled;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.logger.enabled, config.logger.enabled);
+			
+			ee_update_byte(&config_ee.logger.enabled, config.logger.enabled);
 		break;
 
 		case(1):
@@ -77,8 +77,8 @@ void gui_set_logger_action(uint8_t index)
 				return;
 			}
 			config.logger.format = (config.logger.format + 1) % NUMBER_OF_FORMATS;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.logger.format, config.logger.format);
+			
+			ee_update_byte(&config_ee.logger.format, config.logger.format);
 		break;
 
 		case(3):

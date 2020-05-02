@@ -93,7 +93,7 @@ void gui_pages_set_date_manual_cb(float ret)
 
 void gui_pages_set_time_manual_cb(float ret)
 {
-	gui_value_conf_P(PSTR("Date"), GUI_VAL_DATE, PSTR(""), 0, 0, 0, 1, gui_pages_set_date_manual_cb);
+	gui_value_conf_P(PSTR("Date"), GUI_VAL_SYSTEM_DATE, PSTR(""), 0, 0, 0, 1, gui_pages_set_date_manual_cb);
 	gui_switch_task(GUI_SET_VAL);
 }
 
@@ -114,7 +114,7 @@ void gui_pages_set_time_cb(uint8_t ret)
 	}
 	else
 	{
-		gui_value_conf_P(PSTR("Time"), GUI_VAL_TIME, PSTR(""), 0, 0, 0, 1, gui_pages_set_time_manual_cb);
+		gui_value_conf_P(PSTR("Time"), GUI_VAL_SYSTEM_TIME, PSTR(""), 0, 0, 0, 1, gui_pages_set_time_manual_cb);
 		gui_switch_task(GUI_SET_VAL);
 	}
 }
@@ -155,8 +155,8 @@ void gui_page_power_off()
 {
 	gui_splash_set_mode(SPLASH_OFF);
 	gui_switch_task(GUI_SPLASH);
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.gui.last_page, active_page);
+	
+	ee_update_byte(&config_ee.gui.last_page, active_page);
 }
 
 void gui_pages_loop()
@@ -207,7 +207,7 @@ void gui_pages_loop()
 
 	case(PAGE_WIDGET_MENU):
 		wtype = widget_get_type(active_page, active_widget);
-		widget_array[wtype].menu_loop(widget_array[wtype].flags);
+		widget_array[wtype].menu_loop();
 
 		if (page_state_timer < task_get_ms_tick())
 			page_state = PAGE_IDLE;
@@ -506,11 +506,11 @@ void gui_pages_select_irqh(uint8_t type, uint8_t * buff)
 	switch(type)
 	{
 	case(TASK_IRQ_BUTTON_L):
-		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
+		widget_array[wtype].menu_irqh(type, buff);
 	break;
 
 	case(TASK_IRQ_BUTTON_R):
-		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
+		widget_array[wtype].menu_irqh(type, buff);
 	break;
 
 	case(TASK_IRQ_BUTTON_M):
@@ -525,7 +525,7 @@ void gui_pages_select_irqh(uint8_t type, uint8_t * buff)
 				page_state = PAGE_IDLE;
 		}
 		else
-			widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
+			widget_array[wtype].menu_irqh(type, buff);
 	break;
 	}
 }
@@ -584,7 +584,7 @@ void gui_pages_irqh(uint8_t type, uint8_t * buff)
 
 	case(PAGE_WIDGET_MENU):
 		wtype = widget_get_type(active_page, active_widget);
-		widget_array[wtype].menu_irqh(type, buff, widget_array[wtype].flags);
+		widget_array[wtype].menu_irqh(type, buff);
 	break;
 
 	case(PAGE_MENU):

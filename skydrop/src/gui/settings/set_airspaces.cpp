@@ -3,7 +3,6 @@
 #include "../gui_list.h"
 #include "../gui_value.h"
 #include "../gui_dialog.h"
-#include "../gui_storage.h"
 #include "gui_accel_calib.h"
 
 #include "../../fc/conf.h"
@@ -19,8 +18,8 @@ void gui_set_airspaces_warning_cb(float val)
     gui_switch_task(GUI_SET_AIRSPACE);
 
     config.airspaces.warning_m = val;
-    eeprom_busy_wait();
-    eeprom_update_word(&config_ee.airspaces.warning_m, config.airspaces.warning_m);
+    
+    ee_update_word(&config_ee.airspaces.warning_m, config.airspaces.warning_m);
 }
 
 void gui_set_airspaces_reset_cb(uint8_t ret)
@@ -46,7 +45,7 @@ void gui_set_airspace_confirm_secs_cb(float val)
 	gui_switch_task(GUI_SET_AIRSPACE);
 
 	config.airspaces.alarm_confirm_secs = val;
-	eeprom_update_byte(&config_ee.airspaces.alarm_confirm_secs, config.airspaces.alarm_confirm_secs);
+	ee_update_byte(&config_ee.airspaces.alarm_confirm_secs, config.airspaces.alarm_confirm_secs);
 }
 
 
@@ -65,8 +64,8 @@ void gui_set_airspaces_action(uint8_t index)
 
 		case(2):
 				config.airspaces.alert_on = !config.airspaces.alert_on;
-				eeprom_busy_wait();
-				eeprom_update_byte((uint8_t *)&config_ee.airspaces.alert_on, config.airspaces.alert_on);
+				
+				ee_update_byte((uint8_t *)&config_ee.airspaces.alert_on, config.airspaces.alert_on);
 		break;
 
 		case(3):

@@ -222,10 +222,10 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	gui_dialog(title);
 
 	//NAMES
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + 2 + h_v - h_t);
+	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + h_v - h_t);
 	fprintf_P(lcd_out, PSTR("ALT%d"), alt_index);
 
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + 2 + h_v + h_v - h_t);
+	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + h_v + h_v - h_t);
 	switch (a_type)
 	{
 		case(ALT_ABS_QNH1):
@@ -291,9 +291,27 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2 + h_v);
 }
 
+void widget_alt_draw1(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 1);}
+void widget_alt_draw2(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 2);}
+void widget_alt_draw3(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 3);}
+void widget_alt_draw4(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 4);}
+void widget_alt_draw5(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 5);}
 
-register_widget3(w_alt1, "Altitude 1", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 1);
-register_widget3(w_alt2, "Altitude 2", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 2);
-register_widget3(w_alt3, "Altitude 3", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 3);
-register_widget3(w_alt4, "Altitude 4", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 4);
-register_widget3(w_alt5, "Altitude 5", widget_alt_draw, widget_alt_menu_loop, widget_alt_menu_irqh, 5);
+void widget_alt_menu_irqh1(uint8_t type, uint8_t * buff) {widget_alt_menu_irqh(type, buff, 1);}
+void widget_alt_menu_irqh2(uint8_t type, uint8_t * buff) {widget_alt_menu_irqh(type, buff, 2);}
+void widget_alt_menu_irqh3(uint8_t type, uint8_t * buff) {widget_alt_menu_irqh(type, buff, 3);}
+void widget_alt_menu_irqh4(uint8_t type, uint8_t * buff) {widget_alt_menu_irqh(type, buff, 4);}
+void widget_alt_menu_irqh5(uint8_t type, uint8_t * buff) {widget_alt_menu_irqh(type, buff, 5);}
+
+void widget_alt_menu_loop1() {widget_alt_menu_loop(1);}
+void widget_alt_menu_loop2() {widget_alt_menu_loop(2);}
+void widget_alt_menu_loop3() {widget_alt_menu_loop(3);}
+void widget_alt_menu_loop4() {widget_alt_menu_loop(4);}
+void widget_alt_menu_loop5() {widget_alt_menu_loop(5);}
+
+
+register_widget2(w_alt1, "Altitude 1", widget_alt_draw1, widget_alt_menu_loop1, widget_alt_menu_irqh1);
+register_widget2(w_alt2, "Altitude 2", widget_alt_draw2, widget_alt_menu_loop2, widget_alt_menu_irqh2);
+register_widget2(w_alt3, "Altitude 3", widget_alt_draw3, widget_alt_menu_loop3, widget_alt_menu_irqh3);
+register_widget2(w_alt4, "Altitude 4", widget_alt_draw4, widget_alt_menu_loop4, widget_alt_menu_irqh4);
+register_widget2(w_alt5, "Altitude 5", widget_alt_draw5, widget_alt_menu_loop5, widget_alt_menu_irqh5);

@@ -5,7 +5,7 @@
 #include "gui/gui.h"
 #include "fc/conf.h"
 
-#include "debug_on.h"
+//#include "debug_on.h"
 
 
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
@@ -44,8 +44,8 @@ void print_reset_reason()
 
 void print_fw_info()
 {
-	eeprom_busy_wait();
-	eeprom_read_block(&fw_info, &ee_fw_info, sizeof(fw_info));
+	
+	ee_read_block(&fw_info, &ee_fw_info, sizeof(fw_info));
 
 	DEBUG("App:");
 	for (uint8_t i = 0; i < APP_INFO_NAME_len; i++)
@@ -274,8 +274,8 @@ bool LoadEEPROM()
 
 			f_read(&ee_file, buf, sizeof(buf), &rd);
 
-			eeprom_busy_wait();
-			eeprom_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
+			
+			ee_update_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), rd);
 		}
 
 		gui_showmessage_P(PSTR("UPDATE.EE\napplied."));
@@ -305,8 +305,8 @@ bool StoreEEPROM()
 	}
 	uint16_t wd = 0;
 
-	eeprom_busy_wait();
-	eeprom_update_dword(&config_ee.build_number, BUILD_NUMBER);
+	uint16_t tmp = BUILD_NUMBER;
+	ee_update_dword(&config_ee.build_number, tmp);
 
 	uint16_t i = 0;
 	do
@@ -320,9 +320,8 @@ bool StoreEEPROM()
 			wd = sizeof(cfg_t) - i;
 
 
-		eeprom_busy_wait();
-		eeprom_read_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), wd);
-
+		
+		ee_read_block(buf, (uint8_t *)(APP_INFO_EE_offset + i), wd);
 
 		assert(f_write(&ee_file, buf, wd, &rwd) == FR_OK);
 
@@ -393,8 +392,7 @@ void io_write(uint8_t io, uint8_t level)
 
 void mems_power_init()
 {
-	eeprom_busy_wait();
-	hw_revision = eeprom_read_byte(&config_ro.hw_revision);
+	ee_read_byte(&config_ro.hw_revision, hw_revision);
 
 	GpioSetDirection(MEMS_EN, OUTPUT);
 

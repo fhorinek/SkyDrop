@@ -11,6 +11,9 @@
 
 #include <limits.h>
 
+#define DISABLE_ICONS
+
+#ifndef DISABLE_ICONS
 const uint8_t PROGMEM img_home[] =
 	{5, 8, // width, heigth
 		0x1C, 0x02, 0x19, 0x02, 0x1C };
@@ -22,8 +25,11 @@ const uint8_t PROGMEM img_time[] =
 const uint8_t PROGMEM img_distance[] =
 	{9, 8, // width, heigth
 		0x04, 0x0E, 0x1F, 0x04, 0x04, 0x04, 0x1F, 0x0E, 0x04 };
+#endif
 
-void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+#define NAV_INFO_PERIOD		10000
+
+void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Odo"), x, y);
 
@@ -35,7 +41,7 @@ void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t fl
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
-void widget_odometer_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+void widget_odometer_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
@@ -47,11 +53,13 @@ void widget_odometer_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(label_P, x, y);
+#ifndef DISABLE_ICONS
 	if (lh > 0)
 		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
+#endif
 
 	char text[10];
 
@@ -67,7 +75,7 @@ void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
-void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_home_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	float distance;
 
@@ -80,10 +88,10 @@ void widget_ododistance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t
 		distance = INFINITY;
 	}
 
-	widget_distance_draw(PSTR("Home"), distance, x, y, w, h, flags);
+	widget_distance_draw(PSTR("Home"), distance, x, y, w, h);
 }
 
-void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	float distance;
 
@@ -96,20 +104,22 @@ void widget_waypoint_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, u
 		distance = INFINITY;
 	}
 
-	widget_distance_draw(PSTR("WP"), distance, x, y, w, h, flags);
+	widget_distance_draw(PSTR("WP"), distance, x, y, w, h);
 }
 
-void widget_time_draw(const char *label_P, float min, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_nav_time_draw(const char *label_P, uint16_t sec, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(label_P, x, y);
+#ifndef DISABLE_ICONS
 	if (lh > 0)
 		disp.DrawImage(img_time, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
+#endif
 
 	char text[10];
 
-	if (min != INFINITY)
+	if (sec != 0xFFFF)
 	{
-		sprintf_P(text, PSTR("%.0f min"), min);
+		sprintf_P(text, PSTR("%u min"), sec / 60);
 	}
 	else
 	{
@@ -119,9 +129,9 @@ void widget_time_draw(const char *label_P, float min, uint8_t x, uint8_t y, uint
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
-void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	float min = INFINITY;
+	uint16_t sec = 0xFFFF;
 
 	if (fc.flight.home_valid && fc.gps_data.valid) {
 		//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
@@ -129,16 +139,16 @@ void widget_home_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 		if (abs(relative_direction) < 45) {
 			// Pilot is heading towards home.
 			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-			min = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
+			sec = ((fc.flight.home_distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS));
 		}
 	}
 
-	widget_time_draw(PSTR("Home"), min, x, y, w, h ,flags);
+	widget_nav_time_draw(PSTR("Home"), sec, x, y, w, h);
 }
 
-void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	float min = INFINITY;
+	uint16_t sec = 0xFFFF;
 
 	if (waypoint_task_active() && fc.gps_data.valid) {
 		//this must be GPS heading not compass, since we have to move towards the target, not just pointing to it!
@@ -146,14 +156,14 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 		if (abs(relative_direction) < 45) {
 			// Pilot is heading towards home.
 			// distance is in km, ground_speed in knots. This gives seconds, but we need minutes:
-			min = ((fc.task.next_waypoint.distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS)) / 60.0;
+			sec = ((fc.task.next_waypoint.distance * 1000.0) / (fc.gps_data.ground_speed * FC_KNOTS_TO_MPS));
 		}
 	}
 
-	widget_time_draw(PSTR("WP"), min, x, y, w, h ,flags);
+	widget_nav_time_draw(PSTR("WP"), sec, x, y, w, h);
 }
 
-void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Home"), x, y);
 
@@ -177,7 +187,7 @@ void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t f
 	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
-void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+void widget_home_info_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
@@ -186,7 +196,7 @@ void widget_home_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == TASK_IRQ_BUTTON_L || type == TASK_IRQ_BUTTON_R)
 	{
@@ -210,12 +220,10 @@ void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+
+
+void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	uint32_t oldClip;
-
-	oldClip = disp.clip(x, y, x + w, y + h);
-
 	const char *Home_P = PSTR("WP info");
 
 	uint8_t lh = widget_label_P(Home_P, x, y);
@@ -224,30 +232,136 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 	if (fc.task.active)
 	{
-		if (fc.task.waypoint_count <= 1)
-		{
-			char text[6];
-			sprintf_P(text, PSTR("Empty"));
+		bool show_next = true;
 
-			widget_value_txt(text, x, y + lh, w, h - lh);
+		char text1[16];
+		char text2[16];
+		uint8_t hour;
+		uint8_t min;
+		uint8_t sec;
+		uint32_t time;
+
+		switch (waypoint_task_mode())
+		{
+			case(TASK_MODE_PREPARE):
+
+				if (GUI_BLINK_TGL(NAV_INFO_PERIOD))
+				{
+					if (fc.task.head.flags & CFG_TASK_FLAGS_START_ENTER)
+					{
+						if (fc.task.inside_before_start)
+						{
+
+							sprintf_P(text1, PSTR("Exit"));
+							sprintf_P(text2, PSTR("TP"));
+							widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+
+							show_next = false;
+						}
+					}
+					else
+					{
+						if (!fc.task.inside_before_start)
+						{
+							sprintf_P(text1, PSTR("Enter"));
+							sprintf_P(text2, PSTR("TP"));
+							widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+							show_next = false;
+						}
+					}
+				}
+
+				if (show_next)
+				{
+					sprintf_P(text1, PSTR("Start in"));
+					time = waypoint_task_time_to_start();
+					hour = time / 3600;
+					min = (time % 3600) / 60;
+					sec = time % 60;
+					if (hour > 0)
+						sprintf_P(text2, PSTR("%02u:%02u"), hour, min);
+					else
+						sprintf_P(text2, PSTR("%02u.%02u"), min, sec);
+
+					widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+
+					show_next = false;
+				}
+				else
+				{
+					//if Exit of Enter warning is present blink
+					if (GUI_BLINK_TGL(1000))
+					{
+						disp.Invert(x, y + lh, x + w - 1, y + h - 1);
+
+						disp.PutPixel(x, 			y + lh,   DISP_COLOR_WHITE);
+						disp.PutPixel(x + w - 1, 	y + lh,   DISP_COLOR_WHITE);
+						disp.PutPixel(x, 			y + h -1, DISP_COLOR_WHITE);
+						disp.PutPixel(x + w - 1, 	y + h -1, DISP_COLOR_WHITE);
+					}
+				}
+
+
+			break;
+
+			case(TASK_MODE_ACTIVE):
+				if (!(fc.task.head.deadline_hour & CFG_TASK_HOUR_DISABLED) && GUI_BLINK_TGL(NAV_INFO_PERIOD))
+				{
+					sprintf_P(text1, PSTR("End in"));
+					time = waypoint_task_time_to_deadline();
+					hour = time / 3600;
+					min = (time % 3600) / 60;
+					sec = time % 60;
+
+					if (hour > 0)
+						sprintf_P(text2, PSTR("%02u:%02u"), hour, min);
+					else
+						sprintf_P(text2, PSTR("%02u.%02u"), min, sec);
+
+					widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+					show_next = false;
+				}
+			break;
+
+			case(TASK_MODE_ENDED):
+				if (GUI_BLINK_TGL(NAV_INFO_PERIOD))
+				{
+					sprintf_P(text1, PSTR("Ended"));
+					sprintf_P(text2, PSTR("%02u:%02u"), fc.task.head.deadline_hour, fc.task.head.deadline_min);
+					widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+					show_next = false;
+				}
+			break;
 		}
 
-		if (fc.task.waypoint_index < fc.task.waypoint_count)
+		if (show_next)
 		{
-			char text1[16];
-			char text2[16];
 
-			sprintf_P(text1, PSTR("%u/%u"), fc.task.waypoint_index, fc.task.waypoint_count - 1);
-			sprintf_P(text2, PSTR("%s"), fc.task.next_waypoint.twpt.wpt.name);
+			if (fc.task.waypoint_count <= 1)
+			{
+				char text[6];
+				sprintf_P(text, PSTR("Empty"));
 
-			widget_value_int_sub(text1, text2, x, y + lh, w, h - lh);
-		}
-		else
-		{
-			char text[6];
-			sprintf_P(text, PSTR("Done!"));
+				widget_value_txt(text, x, y + lh, w, h - lh);
+			}
 
-			widget_value_txt(text, x, y + lh, w, h - lh);
+			if (fc.task.waypoint_index < fc.task.waypoint_count)
+			{
+				char text1[16];
+				char text2[16];
+
+				sprintf_P(text1, PSTR("%u/%u"), fc.task.waypoint_index, fc.task.waypoint_count - 1);
+				sprintf_P(text2, PSTR("%s"), fc.task.next_waypoint.twpt.wpt.name);
+
+				widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+			}
+			else
+			{
+				char text[6];
+				sprintf_P(text, PSTR("Done!"));
+
+				widget_value_txt(text, x, y + lh, w, h - lh);
+			}
 		}
 
 	}
@@ -258,12 +372,9 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8
 
 		widget_value_txt(text, x, y + lh, w, h - lh);
 	}
-
-
-	disp.clip(oldClip);
 }
 
-void widget_direction_draw(const char *label_P, int16_t direction, uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_direction_draw(const char *label_P, int16_t direction, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(label_P, x, y);
 
@@ -281,42 +392,42 @@ void widget_direction_draw(const char *label_P, int16_t direction, uint8_t x, ui
 	}
 }
 
-void widget_odoback_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_home_arrow_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	int16_t relative_direction;
 
 	if (fc.flight.home_valid && fc.gps_data.valid)
 	{
-		relative_direction = fc.flight.home_bearing	- fc.compass.azimuth_filtered;
+		relative_direction = fc.flight.home_bearing - fc.gps_data.heading;
 	}
 	else
 	{
 		relative_direction = INT_MAX;
 	}
 
-	widget_direction_draw(PSTR("Home"), relative_direction, x, y, w, h, flags);
+	widget_direction_draw(PSTR("Home"), relative_direction, x, y, w, h);
 }
 
-void widget_waypoint_direction_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_waypoint_direction_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	int16_t relative_direction;
 
 	if (waypoint_task_active() && fc.gps_data.valid)
 	{
-		relative_direction = fc.task.next_waypoint.bearing - fc.compass.azimuth_filtered;
+		relative_direction = fc.task.next_waypoint.bearing - fc.gps_data.heading;
 	}
 	else
 	{
 		relative_direction = INT_MAX;
 	}
-	widget_direction_draw(PSTR("WP"), relative_direction, x, y, w, h, flags);
+	widget_direction_draw(PSTR("WP"), relative_direction, x, y, w, h);
 }
 
 register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odometer_irqh);
-register_widget1(w_odo_home_direction, "Home Arrow", widget_odoback_draw);
-register_widget1(w_odo_home_distance, "Home Distance", widget_ododistance_draw);
-register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
 
+register_widget1(w_odo_home_direction, "Home Arrow", widget_home_arrow_draw);
+register_widget1(w_odo_home_distance, "Home Distance", widget_home_distance_draw);
+register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
 register_widget2(w_home_info, "Home Info", widget_home_info_draw, 0, widget_home_info_irqh);
 
 register_widget1(w_waypoint_direction, "Waypoint Arrow", widget_waypoint_direction_draw);

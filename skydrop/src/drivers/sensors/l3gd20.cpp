@@ -10,9 +10,6 @@
 
 void L3gd20::Init(I2c *i2c, struct l3gd20_settings settings)
 {
-	if (!settings.enabled)
-		return;
-
 	this->i2c = i2c;
 
 //	GpioSetDirection(GY_INT1, INPUT);
@@ -23,14 +20,9 @@ void L3gd20::Init(I2c *i2c, struct l3gd20_settings settings)
 
 void L3gd20::Deinit()
 {
-	if (!settings.enabled)
-		return;
-
 	this->Stop();
 
 //	GpioSetInterrupt(GY_INT2, gpio_clear);
-
-	this->settings.enabled = false;
 }
 
 void L3gd20::Write(uint8_t adr, uint8_t data)
@@ -83,9 +75,6 @@ void L3gd20::WriteAnd(uint8_t adr, uint8_t data)
 
 void L3gd20::Reset()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->Write(0x24, 0b10000000); //CTRL_REG5 <- BOOT
 
 	_delay_ms(1);
@@ -95,9 +84,6 @@ void L3gd20::Reset()
 
 bool L3gd20::SelfTest()
 {
-	if (!this->settings.enabled)
-		return false;
-
 	uint8_t id = this->Read(0x0F);
 
 	return (id == L3G_ID);
@@ -105,8 +91,6 @@ bool L3gd20::SelfTest()
 
 void L3gd20::EnableGyro(l3g_odr odr, l3g_scale scale, l3g_bw bw)
 {
-	if (!this->settings.enabled)
-		return;
 
 	this->Write(0x20, 0b00001111 | odr | bw); //CTRL_REG1 <- DR | BW
 	this->WriteOr(0x23, scale); //CTRL_REG4 -< scale
@@ -114,8 +98,6 @@ void L3gd20::EnableGyro(l3g_odr odr, l3g_scale scale, l3g_bw bw)
 
 void L3gd20::EnableGyroFIFO(uint8_t thold)
 {
-	if (!this->settings.enabled)
-		return;
 
 	//enable FIFO
 	this->WriteOr(0x24, 0b01000000); //CTRL_REG5 <- FIFO_EN
@@ -129,9 +111,6 @@ void L3gd20::EnableGyroFIFO(uint8_t thold)
 
 void L3gd20::Start()
 {
-	if (!this->settings.enabled)
-		return;
-
 	uint8_t odrValue = this->settings.odr;
 	uint8_t scaleValue = this->settings.scale;
 	uint8_t bwValue = this->settings.bw;
@@ -142,9 +121,6 @@ void L3gd20::Start()
 
 void L3gd20::Stop()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->Write(0x20, 0b00000000); //CTRL1
 }
 
@@ -197,18 +173,12 @@ uint8_t L3gd20::ReadGyroStreamAvg(volatile int16_t * x, volatile int16_t * y, vo
 
 int8_t L3gd20::ReadTemp()
 {
-	if (!this->settings.enabled)
-		return 0xFF;
-
 	return to_dec_1(this->Read(0x26)); // TEMP_OUT
 }
 
 void L3gd20::Set(struct l3gd20_settings settings)
 {
 	this->settings = settings;
-
-	if (!this->settings.enabled)
-			return;
 
 	this->Reset();
 }

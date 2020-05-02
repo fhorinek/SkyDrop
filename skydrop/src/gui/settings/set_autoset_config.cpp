@@ -15,8 +15,8 @@ void gui_set_autoset_config_circling_timeout_cb(float val)
     gui_switch_task(GUI_SET_AUTOSET_CONFIG);
 
     config.gui.page_circling_timeout = val;
-    eeprom_busy_wait();
-    eeprom_update_byte(&config_ee.gui.page_circling_timeout, config.gui.page_circling_timeout);
+    
+    ee_update_byte(&config_ee.gui.page_circling_timeout, config.gui.page_circling_timeout);
 }
 
 void gui_set_autoset_config_acro_thold_cb(float val)
@@ -24,8 +24,8 @@ void gui_set_autoset_config_acro_thold_cb(float val)
     gui_switch_task(GUI_SET_AUTOSET_CONFIG);
 
     config.gui.page_acro_thold = val * 10.0;
-    eeprom_busy_wait();
-    eeprom_update_byte((uint8_t *)&config_ee.gui.page_acro_thold, config.gui.page_acro_thold);
+    
+    ee_update_byte((uint8_t *)&config_ee.gui.page_acro_thold, config.gui.page_acro_thold);
 }
 
 void gui_set_autoset_config_action(uint8_t index)

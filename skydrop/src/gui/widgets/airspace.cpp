@@ -9,7 +9,7 @@
 #include "../../fc/airspace.h"
 #include "../../fc/agl.h"
 
-void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	char text1[12];
 	char text2[12];

@@ -169,7 +169,7 @@ static void USB_Init_Device(void)
 		if (DescriptorAddressSpace == MEMSPACE_FLASH)
 		  USB_Device_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		else if (DescriptorAddressSpace == MEMSPACE_EEPROM)
-		  USB_Device_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+		  USB_Device_ControlEndpointSize = ee_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		else
 		  USB_Device_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
 	}
@@ -179,7 +179,7 @@ static void USB_Init_Device(void)
 		#if defined(USE_RAM_DESCRIPTORS)
 		USB_Device_ControlEndpointSize = DeviceDescriptorPtr->Endpoint0Size;
 		#elif defined(USE_EEPROM_DESCRIPTORS)
-		USB_Device_ControlEndpointSize = eeprom_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
+		USB_Device_ControlEndpointSize = ee_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		#else
 		USB_Device_ControlEndpointSize = pgm_read_byte(&DeviceDescriptorPtr->Endpoint0Size);
 		#endif

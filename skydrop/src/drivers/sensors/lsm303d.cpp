@@ -9,9 +9,6 @@
 
 void Lsm303d::Init(I2c *i2c, struct lsm303d_settings settings)
 {
-	if (!settings.enabled)
-			return;
-
 	this->i2c = i2c;
 
 	//need time to boot up
@@ -24,14 +21,9 @@ void Lsm303d::Init(I2c *i2c, struct lsm303d_settings settings)
 
 void Lsm303d::Deinit()
 {
-	if (!settings.enabled)
-			return;
-
 	this->Stop();
 
 	DisableAccFIFO();
-
-	this->settings.enabled = false;
 }
 
 void Lsm303d::Write(uint8_t adr, uint8_t data)
@@ -89,9 +81,6 @@ void Lsm303d::WriteAnd(uint8_t adr, uint8_t data)
 
 void Lsm303d::Reset()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->Write(0x1F, 0b10000000); //CTRL0 <- BOOT
 
 	_delay_ms(1);
@@ -101,9 +90,6 @@ void Lsm303d::Reset()
 
 bool Lsm303d::SelfTest()
 {
-	if (!this->settings.enabled)
-		return false;
-
 	uint8_t id = this->Read(0x0F);
 
 	return (id == LSM_ID);
@@ -111,9 +97,6 @@ bool Lsm303d::SelfTest()
 
 void Lsm303d::EnableAcc(lsm303d_acc_odr odr, lsm303f_acc_scale scale)
 {
-	if (!this->settings.enabled)
-		return;
-
 	//set sampling freq
 	this->WriteOr(0x20, odr); //CTRL1
 	//set scale
@@ -126,17 +109,11 @@ void Lsm303d::EnableAcc(lsm303d_acc_odr odr, lsm303f_acc_scale scale)
 
 void Lsm303d::DisableAcc()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->WriteAnd(0x20, 0b00001111); // CTRL1 < BDU, AZEN, AYEN, AXEN
 }
 
 void Lsm303d::EnableMag(lsm303d_mag_odr odr, lsm303d_mag_scale scale, bool hi_resolution)
 {
-	if (!this->settings.enabled)
-		return;
-
 	//set sampling freq & resolution
 	this->Write(0x24, odr | (hi_resolution ? 0b01100000 : 0b00000000)); //CTRL5
 	//set scale
@@ -147,33 +124,21 @@ void Lsm303d::EnableMag(lsm303d_mag_odr odr, lsm303d_mag_scale scale, bool hi_re
 
 void Lsm303d::DisableMag()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->WriteOr(0x26, 0b00000010); //CTRL7
 }
 
 void Lsm303d::EnableTemp()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->WriteOr(0x24, 0b10000000); //CTRL5
 }
 
 void Lsm303d::DisableTemp()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->WriteAnd(0x24, 0b01111111);
 }
 
 void Lsm303d::EnableAccFIFO(uint8_t thold)
 {
-	if (!this->settings.enabled)
-		return;
-
 	//enable fifo
 	this->WriteOr(0x1F, 0b01100000); //CTRL0 <- FIFO_EN | FTH_EN
 	//FIFO thold on INT2
@@ -184,18 +149,12 @@ void Lsm303d::EnableAccFIFO(uint8_t thold)
 
 void Lsm303d::DisableAccFIFO()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->WriteAnd(0x1F, 0b10011111); //CTRL0 <- FIFO_EN | FTH_EN
 }
 
 
 void Lsm303d::Start()
 {
-	if (!this->settings.enabled)
-		return;
-
 	if (this->settings.accOdr != lsm_acc_pd)
 	{
 		this->EnableAcc(this->settings.accOdr, this->settings.accScale);
@@ -213,9 +172,6 @@ void Lsm303d::Start()
 
 void Lsm303d::Stop()
 {
-	if (!this->settings.enabled)
-		return;
-
 	this->DisableAcc();
 	this->DisableMag();
 
@@ -311,9 +267,6 @@ int16_t Lsm303d::ReadTemp()
 void Lsm303d::Set(struct lsm303d_settings settings)
 {
 	this->settings = settings;
-
-	if (!this->settings.enabled)
-		return;
 
 	this->Reset();
 }

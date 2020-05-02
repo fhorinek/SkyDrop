@@ -3,19 +3,18 @@
 #include "../fc/fc.h"
 #include "../gui/splash.h"
 
+#include "debug_on.h"
+
 void task_active_init()
 {
 	DEBUG(" *** THIS IS TASK ACTIVE ***\n");
-
 	//init gui
 	gui_init();
 	gui_trigger_backlight();
 	ewdt_reset();
 
-
 	gui_splash_set_mode(SPLASH_ON);
 	gui_switch_task(GUI_SPLASH);
-
 
 	ewdt_reset();
 	if (storage_init())
