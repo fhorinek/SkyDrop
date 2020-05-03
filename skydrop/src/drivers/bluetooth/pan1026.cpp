@@ -369,8 +369,8 @@ void pan1026::ParseMNG()
 				for (uint8_t i = 0; i < 16; i++)
 					config.connectivity.bt_link_key[i] = this->parser_buffer[15 + i];
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
 
 				for (uint8_t i = 0; i < 6; i++)
 				{
@@ -379,8 +379,8 @@ void pan1026::ParseMNG()
 				}
 				DEBUG_BT("\n");
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_partner, &config_ee.connectivity.bt_link_partner, 6);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_partner, &config_ee.connectivity.bt_link_partner, 6);
 
 
 			}
@@ -391,8 +391,8 @@ void pan1026::ParseMNG()
 				memset((void *)config.connectivity.bt_link_partner, 0, sizeof(config.connectivity.bt_link_partner));
 				memset((void *)config.connectivity.bt_link_key, 0, sizeof(config.connectivity.bt_link_key));
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
 			}
 		break;
 
@@ -774,8 +774,8 @@ void pan1026::ParseMNG_LE()
 
 				DEBUG_BT("Storing new random address...\n");
 				memcpy((void *)config.connectivity.btle_mac, &this->parser_buffer[8], 6);
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.btle_mac, &config_ee.connectivity.btle_mac, 6);
+				
+				ee_update_block((void *)&config.connectivity.btle_mac, &config_ee.connectivity.btle_mac, 6);
 			}
 			else
 				PAN1026_ERROR;

@@ -27,10 +27,6 @@ typedef enum xlib_core_spi_prescaler_e
 } xlib_core_spi_prescaler;
 
 
-class Spi;
-
-typedef void (*spi_event_cb_t)(void);
-
 class Spi
 {
 public:

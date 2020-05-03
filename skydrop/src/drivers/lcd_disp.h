@@ -27,7 +27,7 @@ private:
 
 	int16_t text_x;
 	int16_t text_y;
-    uint8_t clip_x1, clip_y1, clip_x2, clip_y2;
+    uint8_t clip_x1, clip_x2;
 
 	const uint8_t * font_data;
 	uint8_t font_spacing;
@@ -37,6 +37,7 @@ private:
 
 	uint8_t font_begin;
 	uint8_t font_end;
+	uint8_t font_9bit;
 	uint8_t font_adr_start;
 
 	bool flip;
@@ -51,8 +52,8 @@ public:
 	void SetInvert(uint8_t invert);
 	void SetFlip(bool flip);
 
-	uint32_t clip(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
-	uint32_t clip(uint32_t x1y1x2y2);
+	void clip(uint8_t x1, uint8_t x2);
+	void noclip();
 
 	void ClearBuffer();
 	void PutPixel(int8_t x ,int8_t  y, uint8_t color);
@@ -75,9 +76,8 @@ public:
 	void ClearPart(uint8_t row1, uint8_t col1, uint8_t row2, uint8_t col2);
 	void InvertPart(uint8_t x1,uint8_t y1,uint8_t x2,uint8_t y2);
 
-	uint16_t GetTextWidth(char * text);
+	uint16_t GetTextWidth(char * text, uint16_t n = 0xFFFF);
 	uint16_t GetTextWidth_P(const char * text);
-	uint16_t GetTextWidthN(char * text, uint8_t n);
 	uint8_t GetTextHeight();
 	uint8_t GetAHeight();
 

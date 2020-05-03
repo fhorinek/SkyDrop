@@ -41,14 +41,14 @@ void gui_set_altimeter_stop()
 	if (set_alt_index == 0)
 	{
 		config.altitude.alt1_flags = set_alt_flags;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.altitude.alt1_flags, set_alt_flags);
+		
+		ee_update_byte(&config_ee.altitude.alt1_flags, set_alt_flags);
 	}
 	else
 	{
 		config.altitude.altimeter[set_alt_index - 1].flags = set_alt_flags;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
+		
+		ee_update_byte(&config_ee.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
 	}
 
 }

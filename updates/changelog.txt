@@ -1,8 +1,52 @@
+Build XXXX - DD. MM. 2020
+========================================================
 
 FIX:
  * "Airspace>Alert near" setting did not show current
    value (bubeck)
 
+Build 5070 - 16. 01. 2020
+========================================================
+
+FIX:
+ * Large waypoint list render list selection unusable
+
+Build 5068 - 16. 01. 2020
+========================================================
+
+ADDED:
+ * Altitude1 in airspace widget
+
+FIX:
+ * Ignore function was not clearing cache correctly #399
+
+
+Build 5041 - 08. 01. 2020
+========================================================
+
+ADDED:
+ * Legacy weak lift
+
+CHANGES:
+ * Weak lift and sink lift behavior (Off, Beep, Continuous)
+
+Build 5027 - 07. 01. 2020
+========================================================
+
+ADDED:
+ * GPS distance calculation can be FAI Sphere (R=6378) or WGS84 Ellipsoid
+ * Cup file parser for waypoint list
+ * Task editor
+ * SkyDrop will automaticali create default directory for user data input
+ 
+CHANGES:
+ * Old waypoint navigation is replaced with task navigation
+ * Home position now use waypoints instead of dedicated home files
+ * Airspace is now single widget
+ * filemanager will hide filenames begining with underscore "_"
+ 
+REMOVED:
+ * Airspace widgets (name, info, distance, linit) 
 
 Build 4831 - 21. 10. 2019
 ========================================================

@@ -51,83 +51,20 @@ void gui_airspace_loop()
 			}
 		}
 
-	char text1[12];
-	char text2[12];
+	//Draw the widget
+	widget_airspace_info_draw(0, 0, GUI_DISP_WIDTH, 40);
 
-	//Name
-	widget_value_scroll((char *)fc.airspace.airspace_name, 0, 0, GUI_DISP_WIDTH, 12);
-	//Class
-	airspace_class_to_text(text1, fc.airspace.airspace_class);
-
-	disp.LoadFont(F_LABEL);
-	uint8_t f_h = disp.GetAHeight();
-	gui_raligh_text(text1, GUI_DISP_WIDTH - 2, 10);
-
-	disp.GotoXY(10, 12);
-	if (fc.airspace.inside)
-	{
-		strcpy_P(text1, PSTR("INSIDE!"));
-		fprintf(lcd_out, text1);
-
-		if (GUI_BLINK_TGL(500))
-		{
-			uint8_t f_w = disp.GetTextWidth(text1);
-			disp.Invert(8, 10, 10 + f_w, 13 + f_h);
-		}
-	}
-	else
-	{
-		strcpy_P(text1, PSTR("Outside"));
-		fprintf(lcd_out, text1);
-	}
-
-	//Direction
-	int16_t relative_direction;
-	relative_direction = fc.airspace.angle - fc.compass.azimuth_filtered;
-	widget_arrow(relative_direction, 0, 18, 22, 20);
-
-	//Distance
-	sprintf_distance(text1, fc.airspace.distance_m / 1000.0);
-	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
-		strcpy_P(text2, PSTR("mi"));
-	else
-		strcpy_P(text2, PSTR("km"));
-
-	widget_value_int_sub(text1, text2, 22, 18, 20, 20);
-
-	//Floor & ceil
 	disp.LoadFont(F_TEXT_S);
-	f_h = disp.GetAHeight();
+	uint8_t f_h = disp.GetAHeight();
 
-	const char * msl = PSTR("Msl");
-	const char * agl = PSTR("Agl");
-
-	if (config.altitude.alt1_flags & ALT_UNIT_I)
-	{
-		sprintf_P(text1, PSTR("%u %S"), airspace_convert_alt_ft(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? agl : msl);
-		sprintf_P(text2, PSTR("%u %S"), airspace_convert_alt_ft(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? agl : msl);
-	}
-	else
-	{
-		sprintf_P(text1, PSTR("%u %S"), airspace_convert_alt_m(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? agl : msl);
-		sprintf_P(text2, PSTR("%u %S"), airspace_convert_alt_m(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? agl : msl);
-	}
-
-	disp.GotoXY(49, 17);
-	fprintf_P(lcd_out, PSTR("Ceiling"));
-	disp.GotoXY(53, 23);
-	fprintf(lcd_out, text1);
-
-	disp.GotoXY(49, 29);
-	fprintf_P(lcd_out, PSTR("Floor"));
-	disp.GotoXY(53, 35);
-	fprintf(lcd_out, text2);
 
 	//timeout
 	if (config.airspaces.alarm_confirm_secs != 0 && gui_airspace_started != DISABLE_COUNTER)
 	{
-		sprintf_P(text1, PSTR("%u"), config.airspaces.alarm_confirm_secs - ((task_get_ms_tick() - gui_airspace_started) / 1000));
-		gui_raligh_text(text1, GUI_DISP_WIDTH, GUI_DISP_HEIGHT - f_h -1);
+		char text[8];
+
+		sprintf_P(text, PSTR("%u"), config.airspaces.alarm_confirm_secs - ((task_get_ms_tick() - gui_airspace_started) / 1000));
+		gui_raligh_text(text, GUI_DISP_WIDTH, GUI_DISP_HEIGHT - f_h -1);
 	}
 
 	//Actions
@@ -171,6 +108,9 @@ void gui_airspace_ignore_cb(uint8_t ret)
 		//add to RAM ignore if the filename was not changed
 		if (strcmp(gui_airspace_ignore_filename, (char *)fc.airspace.filename) == 0)
 			fc.airspace.ignore[ignore_index] |= ignore_bit;
+
+		//invalidate the cache
+		fc.airspace.cache_index = AIR_INDEX_INVALID;
 
 		//write it to sd card ignore
 		airspace_write_ignore_file(&f, hard, buff, gui_airspace_ignore_filename);

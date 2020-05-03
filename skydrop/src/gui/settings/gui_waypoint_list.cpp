@@ -57,8 +57,13 @@ void gui_waypoint_list_action(uint8_t index)
 		//add new waypoint to the task
 		if (gui_waypoint_list_return == GUI_TASK_EDITOR)
 		{
+			//if there is no wp add first as Take-off
+			if (fc.task.waypoint_count == 0)
+				waypoint_task_add_wpt(&wpt);
+
 			waypoint_task_add_wpt(&wpt);
-			waypoint_task_calc();
+
+			waypoint_task_calc_distance();
 		}
 
 		//change active waypoint
@@ -66,7 +71,7 @@ void gui_waypoint_list_action(uint8_t index)
 		{
 			memcpy(&gui_waypoint_editor_wpt.wpt, &wpt, sizeof(wpt));
 			waypoint_task_modify_wpt(gui_waypoint_editor_wpt_index, &gui_waypoint_editor_wpt);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 		}
 
 		//set new home position
@@ -78,8 +83,8 @@ void gui_waypoint_list_action(uint8_t index)
 			config.home.flags = HOME_LOADED;
 			fc.flight.home_valid = true;
 
-			eeprom_busy_wait();
-			eeprom_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
+			
+			ee_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
 		}
 
 		gui_switch_task(gui_waypoint_list_return);
@@ -95,6 +100,9 @@ void gui_waypoint_list_item(uint8_t index, char * text, uint8_t * flags, char * 
 	}
 	else
 	{
+		if (*flags & GUI_LIST_NOT_VISIBLE)
+			return;
+
 		waypoint_cache_t wpt;
 
 		waypoint_list_get_wpt(index - 1, &wpt);

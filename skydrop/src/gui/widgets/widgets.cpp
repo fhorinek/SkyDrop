@@ -39,7 +39,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
-		w_airspace_angle, w_airspace_distance, w_airspace_limits, w_airspace_info, w_airspace_name
+		w_airspace_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -94,11 +94,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_WAYPOINT_INFO,
 
 	//airspace
-	WIDGET_AIRSPACE_ARROW,
-	WIDGET_AIRSPACE_DISTANCE,
-	WIDGET_AIRSPACE_LIMITS,
 	WIDGET_AIRSPACE_INFO,
-	WIDGET_AIRSPACE_NAME,
 
 	//wind
 	WIDGET_WIND_DIR,
@@ -356,7 +352,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 	uint16_t text_w = disp.GetTextWidth(text);
 	if (text_w > w)
 	{
-		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
+		disp.clip(x, x + w);
 
 		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 15);
 		int16_t scroll_x = x - (int16_t)offset;
@@ -371,7 +367,7 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 			fputs(text, lcd_out);
 		}
 
-		disp.clip(oldClip);
+		disp.noclip();
 	}
 	else
 	{
@@ -423,7 +419,7 @@ void widgets_draw(uint8_t page)
 		uint8_t wtype = config.gui.pages[page].widgets[i];
 
 		if (wtype != WIDGET_OFF)
-			widget_array[wtype].draw(x, y, w, h, widget_array[wtype].flags);
+			widget_array[wtype].draw(x, y, w, h);
 	}
 }
 

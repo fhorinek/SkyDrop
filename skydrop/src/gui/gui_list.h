@@ -32,4 +32,6 @@ void gui_list_irqh(uint8_t type, uint8_t * buff);
 #define GUI_LIST_TITLE			5     // Small text used as title in file manager
 #define GUI_LIST_SUB_TEXT_SMALL	6
 
+#define GUI_LIST_NOT_VISIBLE	0b10000000 //passed to the function just to inform that this line is not visible
+
 #endif /* GUI_LIST_H_ */

@@ -2,7 +2,7 @@
 
 #include "../../drivers/battery.h"
 
-void widget_battery_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_battery_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("Bat"), x, y);
 

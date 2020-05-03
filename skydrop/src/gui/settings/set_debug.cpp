@@ -3,6 +3,7 @@
 #include "../gui_dialog.h"
 #include "../../fc/conf.h"
 
+#ifndef DISABLE_DEBUG
 void gui_set_debug_init()
 {
 	gui_list_set(gui_set_debug_item, gui_set_debug_action, 6, GUI_SETTINGS);
@@ -27,8 +28,8 @@ void gui_set_debug_action(uint8_t index)
 				config.system.debug_log = 0;
 			else
 				config.system.debug_log = DEBUG_MAGIC_ON;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.debug_log, config.system.debug_log);
+			
+			ee_update_byte(&config_ee.system.debug_log, config.system.debug_log);
 		break;
 
 		case(3):
@@ -38,14 +39,14 @@ void gui_set_debug_action(uint8_t index)
 
 		case(4):
 			config.system.debug_gps = !config.system.debug_gps;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.debug_gps, config.system.debug_gps);
+			
+			ee_update_byte(&config_ee.system.debug_gps, config.system.debug_gps);
 		break;
 
 		case(5):
 			config.system.record_screen = !config.system.record_screen;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.system.record_screen, config.system.record_screen);
+			
+			ee_update_byte(&config_ee.system.record_screen, config.system.record_screen);
 		break;
 	}
 }
@@ -104,4 +105,4 @@ void gui_set_debug_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 
 	}
 }
-
+#endif

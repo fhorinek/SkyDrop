@@ -62,8 +62,7 @@ void fc_init()
 	fc.odometer = 0;
 
 	//total time
-	eeprom_busy_wait();
-	fc.flight.total_time = eeprom_read_dword(&config_ro.total_flight_time);
+	ee_read_dword(&config_ro.total_flight_time, fc.flight.total_time);
 	if (fc.flight.total_time == 0xFFFFFFFF)
 		fc.flight.total_time = 0;
 
@@ -89,6 +88,7 @@ void fc_init()
 	imu_init();
 	vario_init();
 	compass_init();
+	navigation_init();
 
 	if (config.connectivity.use_gps)
 		gps_start();
@@ -108,9 +108,9 @@ void fc_init()
 		DEBUG("ERROR I2C, Wrong board rev? (%02X)\n", hw_revision);
 
 		hw_revision = HW_REW_1504;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ro.hw_revision, hw_revision);
-		eeprom_busy_wait();
+		
+		ee_update_byte(&config_ro.hw_revision, hw_revision);
+		
 
 		mems_power_init();
 		io_init();
@@ -122,9 +122,9 @@ void fc_init()
 		if (hw_revision == HW_REW_UNKNOWN)
 		{
 			hw_revision = HW_REW_1506;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ro.hw_revision, hw_revision);
-			eeprom_busy_wait();
+			
+			ee_update_byte(&config_ro.hw_revision, hw_revision);
+			
 
 			mems_power_init();
 			io_init();
@@ -146,7 +146,6 @@ void fc_init()
 	//Magnetometer + Accelerometer
 	lsm303d_settings lsm_cfg;
 
-	lsm_cfg.enabled = true;
 	lsm_cfg.accOdr = lsm_acc_1600Hz;
 	lsm_cfg.accScale = lsm_acc_8g;
 
@@ -163,7 +162,6 @@ void fc_init()
 
 	//Gyro
 	l3gd20_settings l3g_cfg;
-	l3g_cfg.enabled = true;
 	l3g_cfg.bw = l3g_100Hz;
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
@@ -216,10 +214,10 @@ void fc_deinit()
 	if (fc.flight.state == FLIGHT_FLIGHT)
 		fc_landing();
 
-	eeprom_busy_wait();
+	
 	//store altimeter settings
-	eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
-	eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
+	ee_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
+	ee_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
 
 	if (config.connectivity.use_bt)
 		bt_stop();
@@ -229,7 +227,7 @@ void fc_deinit()
 
 	for (uint8_t i=0; i < NUMBER_OF_ALTIMETERS; i++)
 	{
-		eeprom_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
+		ee_update_word((uint16_t *)&config_ee.altitude.altimeter[i].delta, config.altitude.altimeter[i].delta);
 	}
 
 	mems_power_off();
@@ -509,8 +507,8 @@ void fc_landing()
 
 	fc.flight.total_time += fc.flight.timer / 1000;
 
-	eeprom_busy_wait();
-	eeprom_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
+	
+	ee_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
 
 	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
 	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
@@ -605,9 +603,10 @@ void fc_step()
 	{
 		//auto start
 		// baro valid, waiting to take off or landed, and enabled auto start
-		if (fc.vario.valid && (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND) && config.autostart.start_sensititvity > 0)
+		if (fc.vario.valid && (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND))
 		{
-			if (abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity)
+			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity  && config.autostart.start_sensititvity > 0)
+			|| (fc.gps_data.valid && fc.gps_data.ground_speed * FC_KNOTS_TO_KPH > config.autostart.gps_speed && config.autostart.gps_speed > 0))
 			{
 				fc_takeoff();
 			}

@@ -53,8 +53,8 @@ bool battery_calibrated()
 {
 	uint16_t value;
 
-	eeprom_busy_wait();
-	value = eeprom_read_word(&config_ro.bat_runtime_minutes);
+	
+	ee_read_word(&config_ro.bat_runtime_minutes, value);
 	//DEBUG("config_ro.bat_runtime_minutes=%u\n", value);
 	return (value != BATTERY_CAL_INVALID);
 }
@@ -76,8 +76,8 @@ uint8_t read_battery_per_from_calibration(uint16_t battery_adc_raw)
 
 	for (percent = 100; percent > 0; percent--)
 	{
-		eeprom_busy_wait();
-		battery = eeprom_read_word(&config_ro.bat_calibration[100 - percent]);
+		
+		ee_read_word(&config_ro.bat_calibration[100 - percent], battery);
 		if ( battery_adc_raw > battery )
 		{
 			bat_next_level = battery;
@@ -119,14 +119,14 @@ void battery_reset_calibration()
 
 	DEBUG("Resetting max ADC value\n");
 
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
+	
+	ee_update_word(&config_ro.bat_adc_max, bat_adc_max);
 }
 
 void battery_init()
 {
-	eeprom_busy_wait();
-	bat_adc_max = eeprom_read_word(&config_ro.bat_adc_max);
+	
+	ee_read_word(&config_ro.bat_adc_max, bat_adc_max);
 
 	if (bat_adc_max > 4095)
 		battery_reset_calibration();
@@ -251,8 +251,8 @@ void battery_finish_calibration()
 		battery = sum / num_values;
 
 		DEBUG("%d,%u\n", i, battery);
-		eeprom_busy_wait();
-		eeprom_update_word(&config_ro.bat_calibration[i], battery);
+		
+		ee_update_word(&config_ro.bat_calibration[i], battery);
 	}
 
 	f_close(&cal_file_raw);
@@ -264,16 +264,17 @@ void battery_finish_calibration()
 	if (!error)
 	{
         gui_showmessage_P(PSTR("Battery\nCalibration\nFinished."));
-    	eeprom_busy_wait();
-    	eeprom_update_word(&config_ro.bat_runtime_minutes, num);
+    	
+    	ee_update_word(&config_ro.bat_runtime_minutes, num);
 
 		bat_cal_available = true;
 	}
 	else
 	{
         gui_showmessage_P(PSTR("Battery\nCalibration\nError."));
-    	eeprom_busy_wait();
-    	eeprom_update_word(&config_ro.bat_runtime_minutes, BATTERY_CAL_INVALID);
+    	
+        uint16_t tmp = BATTERY_CAL_INVALID;
+    	ee_update_word(&config_ro.bat_runtime_minutes, tmp);
 	}
 }
 
@@ -441,8 +442,8 @@ bool battery_step()
 
 			DEBUG("Updating max ADC value to %u\n", bat_adc_max);
 
-			eeprom_busy_wait();
-			eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
+			
+			ee_update_word(&config_ro.bat_adc_max, bat_adc_max);
 		}
 
 		if (bat_cal_available)

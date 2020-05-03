@@ -44,8 +44,8 @@ void compass_init()
 
 	//load declination value from EEPROM
 	int16_t value;
-	eeprom_busy_wait();
-	eeprom_read_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+	
+	ee_read_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 	fc.compass.declination = value;
 }
 
@@ -56,12 +56,13 @@ void compass_calc()
 	float quat[] = { fc.imu.quat[0], fc.imu.quat[1], fc.imu.quat[2], fc.imu.quat[3] };
 	float azimut = 0;
 
-	if (abs(fc.acc.vector.y + fc.acc.vector.z) * 2 < abs(fc.acc.vector.x)) //riser position
+	if (fc.compass.on_riser > 0)
 	{
 		//roll
 		float a31 =   2.0f * (quat[0] * quat[1] + quat[2] * quat[3]);
 		float a33 =   quat[0] * quat[0] - quat[1] * quat[1] - quat[2] * quat[2] + quat[3] * quat[3];
 
+		//mix vertical calculation according to
 		azimut = -compass_atan2(a31, a33);
 	}
 
@@ -88,5 +89,18 @@ void compass_calc()
 
 void compass_step()
 {
+	if (-fc.acc.vector.x > sqrt(pow(fc.acc.vector.y, 2) + pow(fc.acc.vector.z, 2)))
+	{
+		if (fc.compass.on_riser < 127)
+			fc.compass.on_riser++;
+	}
+	else
+	{
+		if (fc.compass.on_riser > -128)
+			fc.compass.on_riser--;
+	}
+
+
+
 	compass_calc();
 }

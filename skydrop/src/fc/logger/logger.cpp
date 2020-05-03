@@ -4,8 +4,6 @@
 
 #include "igc.h"
 #include "kml.h"
-#include "raw.h"
-#include "aero.h"
 
 FIL log_file;
 uint32_t logger_next = 0;
@@ -24,18 +22,18 @@ void logger_init()
 	datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 	today = datetime_to_epoch(0, 0, 0, day, month, year);
 
-	eeprom_busy_wait();
-	eeprom_read_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-	logger_flight_number = eeprom_read_byte(&config_ro.flight_number);
+	
+	ee_read_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+	ee_read_byte(&config_ro.flight_number, logger_flight_number);
 
 	if (logger_flight_day != today)
 	{
 		logger_flight_number = 0;
 		logger_flight_day = today;
 
-		eeprom_busy_wait();
-		eeprom_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
 	DEBUG("flight number is: %d\n", logger_flight_number);
@@ -55,17 +53,17 @@ void logger_next_flight()
 	{
 		logger_flight_number++;
 
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 	else
 	{
 		logger_flight_number = 0;
 		logger_flight_day = today;
 
-		eeprom_busy_wait();
-		eeprom_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
-		eeprom_update_byte(&config_ro.flight_number, logger_flight_number);
+		
+		ee_update_block((void *)&logger_flight_day, &config_ro.flight_date, sizeof(logger_flight_day));
+		ee_update_byte(&config_ro.flight_number, logger_flight_number);
 	}
 
 	DEBUG("flight number is: %d\n", logger_flight_number);
@@ -79,14 +77,10 @@ void logger_step()
 	if (logger_next > task_get_ms_tick())
 		return;
 
-	//RAW is running as fast as it can!
-	if (config.logger.format != LOGGER_RAW/* && config.logger.format != LOGGER_AERO*/)
+	if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_LOGGER)
 	{
-		if (fc.gps_data.new_sample & FC_GPS_NEW_SAMPLE_LOGGER)
-		{
-			logger_next = task_get_ms_tick() + 1000;
-			fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_LOGGER;
-		}
+		logger_next = task_get_ms_tick() + 1000;
+		fc.gps_data.new_sample &= ~FC_GPS_NEW_SAMPLE_LOGGER;
 	}
 
 	if (!logger_active())
@@ -107,13 +101,6 @@ void logger_step()
 			kml_step();
 		break;
 
-		case(LOGGER_RAW):
-			raw_step();
-		break;
-
-//		case(LOGGER_AERO):
-//			aero_step();
-//		break;
 	}
 }
 
@@ -143,11 +130,6 @@ void logger_comment(const char *format, ...)
 
 		case(LOGGER_KML):
 			kml_comment(text);
-		break;
-
-		case(LOGGER_RAW):
-//		case(LOGGER_AERO):
-			DEBUG("%s\n", text);
 		break;
 	}
 }
@@ -202,14 +184,6 @@ void logger_start()
 		case(LOGGER_KML):
 			fc.logger_state = kml_start(path);
 		break;
-
-		case(LOGGER_RAW):
-			fc.logger_state = raw_start(path);
-		break;
-
-//		case(LOGGER_AERO):
-//			fc.logger_state = aero_start(path);
-//		break;
 	}
 }
 
@@ -245,14 +219,6 @@ void logger_stop()
 		case(LOGGER_KML):
 			kml_stop();
 		break;
-
-		case(LOGGER_RAW):
-			raw_stop();
-		break;
-
-//		case(LOGGER_AERO):
-//			aero_stop();
-//		break;
 	}
 }
 

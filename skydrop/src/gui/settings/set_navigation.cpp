@@ -19,7 +19,7 @@
 
 void gui_home_init()
 {
-	gui_list_set(gui_home_item, gui_home_action, 6, GUI_SETTINGS);
+	gui_list_set(gui_home_item, gui_home_action, 5, GUI_SETTINGS);
 }
 
 void load_task()
@@ -42,7 +42,14 @@ void gui_home_action(uint8_t index)
 		break;
 
 	case (1):
-		load_task();
+		if (fc.task.active)
+		{
+			fc.task.active = false;
+		}
+		else
+		{
+			load_task();
+		}
 		break;
 
 	case (2):
@@ -59,10 +66,6 @@ void gui_home_action(uint8_t index)
 		break;
 
 	case (3):
-		fc.task.active = false;
-		break;
-
-	case (4):
 		if (!(config.home.flags & HOME_TAKEOFF))
 		{
 			gui_switch_task(GUI_WAYPOINT_LIST);
@@ -70,7 +73,7 @@ void gui_home_action(uint8_t index)
 		}
 		break;
 
-	case (5):
+	case (4):
 		config.home.flags ^= HOME_TAKEOFF;
 		if (config.home.flags & HOME_TAKEOFF)
 		{
@@ -79,8 +82,8 @@ void gui_home_action(uint8_t index)
 			config.home.flags = HOME_TAKEOFF;
 			config.home.name[0] = 0;
 		}
-		eeprom_busy_wait();
-		eeprom_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
+		
+		ee_update_block((void*) &config.home, &config_ee.home, sizeof(config.home));
 
 		break;
 	}
@@ -95,7 +98,10 @@ void gui_home_item(uint8_t index, char *text, uint8_t *flags, char *sub_text)
 		break;
 
 	case 1:
-		strcpy_P(text, PSTR("Load Task"));
+		if (fc.task.active)
+			strcpy_P(text, PSTR("Close Task"));
+		else
+			strcpy_P(text, PSTR("Load Task"));
 		break;
 
 	case 2:
@@ -109,10 +115,6 @@ void gui_home_item(uint8_t index, char *text, uint8_t *flags, char *sub_text)
 		break;
 
 	case 3:
-		strcpy_P(text, PSTR("Cancel Task"));
-		break;
-
-	case 4:
 		strcpy_P(text, PSTR("Home position"));
 		*flags =  GUI_LIST_SUB_TEXT;
 		if (config.home.flags & HOME_TAKEOFF)
@@ -123,7 +125,7 @@ void gui_home_item(uint8_t index, char *text, uint8_t *flags, char *sub_text)
 			strcpy_P(sub_text, PSTR("<Load>"));
 		break;
 
-	case 5:
+	case 4:
 		strcpy_P(text, PSTR("Use take off"));
 		if (config.home.flags & HOME_TAKEOFF)
 			*flags =  GUI_LIST_CHECK_ON;

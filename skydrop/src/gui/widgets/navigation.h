@@ -5,8 +5,8 @@
  *      Author: tilmann@bubecks.de
  */
 
-#ifndef GUI_WIDGETS_ODOMETER_H_
-#define GUI_WIDGETS_ODOMETER_H_
+#ifndef GUI_WIDGETS_NAVIGATION_H_
+#define GUI_WIDGETS_NAVIGATION_H_
 
 #include <fc/navigation.h>
 #include "widgets.h"
@@ -21,4 +21,4 @@ extern widget w_waypoint_distance;
 extern widget w_waypoint_time;
 extern widget w_waypoint_info;
 
-#endif /* GUI_WIDGETS_ODOMETER_H_ */
+#endif /* GUI_WIDGETS_NAVIGATION_H_ */

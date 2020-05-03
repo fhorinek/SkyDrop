@@ -177,7 +177,7 @@ static void USB_Device_SetConfiguration(void)
 	}
 	else if (MemoryAddressSpace == MEMSPACE_EEPROM)
 	{
-		if (((uint8_t)USB_ControlRequest.wValue > eeprom_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
+		if (((uint8_t)USB_ControlRequest.wValue > ee_read_byte(&DevDescriptorPtr->NumberOfConfigurations)))
 		  return;
 	}
 	else

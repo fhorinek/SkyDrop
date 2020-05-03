@@ -17,7 +17,7 @@ float gui_value_mul;
 
 float_cb * gui_value_cb;
 
-MK_SEQ(audio_feedback, ARR({600}), ARR({750}));
+MK_SEQ(audio_feedback, ARR({600}), ARR({253}));
 
 void gui_value_conf_P(const char * label, uint8_t type, const char * format, float start, float min, float max, float step, float_cb * cb, float mul)
 {
@@ -99,7 +99,7 @@ void gui_value_loop()
 			fprintf(lcd_out, "pf=%4u pl=%4u", audio_vario_prebeep_frequency, audio_vario_prebeep_length / 31);
 		break;
 
-		case(GUI_VAL_TIME):
+		case(GUI_VAL_SYSTEM_TIME):
 			time_from_epoch(time_get_local(), &sec, &min, &hour);
 
 			sprintf_P(tmp, PSTR("%02d : %02d . %02d"), hour, min, sec);
@@ -112,7 +112,7 @@ void gui_value_loop()
 				disp.Invert(52, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 66, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 		break;
 
-		case(GUI_VAL_DATE):
+		case(GUI_VAL_SYSTEM_DATE):
 			datetime_from_epoch(time_get_local(), &sec, &min, &hour, &day, &wday, &month, &year);
 
 			sprintf_P(tmp, PSTR("%02d / %02d / %04d"), day, month, year);
@@ -135,6 +135,18 @@ void gui_value_loop()
 
 		case(GUI_VAL_VOLUME):
 			gui_value_draw_bar();
+		break;
+
+		case(GUI_VAL_TIME):
+			hour = (0xFF00 & (uint16_t)gui_value_tmp) >> 8;
+			min = (0x00FF & (uint16_t)gui_value_tmp) >> 0;
+
+			sprintf_P(tmp, PSTR("%02d : %02d"), hour, min);
+			gui_caligh_text(tmp, GUI_DISP_WIDTH / 2, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2 + 1);
+			if (gui_value_index == 0)
+				disp.Invert(26, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 39, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
+			if (gui_value_index == 1)
+				disp.Invert(43, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 - f_h / 2, 57, GUI_DIALOG_TOP + (GUI_DIALOG_BOTTOM - GUI_DIALOG_TOP) / 2 + f_h / 2 - 2);
 		break;
 	}
 
@@ -186,7 +198,7 @@ void gui_value_number_irqh(uint8_t type, uint8_t * buff)
 		gui_value_tmp = gui_value_min;
 }
 
-void gui_value_time_irqh(uint8_t type, uint8_t * buff)
+void gui_value_system_time_irqh(uint8_t type, uint8_t * buff)
 {
 	int16_t inc = 0;
 
@@ -231,7 +243,7 @@ void gui_value_time_irqh(uint8_t type, uint8_t * buff)
 	}
 }
 
-void gui_value_date_irqh(uint8_t type, uint8_t * buff)
+void gui_value_system_date_irqh(uint8_t type, uint8_t * buff)
 {
 	int16_t inc = 0;
 
@@ -311,6 +323,53 @@ void gui_value_date_irqh(uint8_t type, uint8_t * buff)
 	time_set_local(datetime_to_epoch(sec, min, hour, day, month, year));
 }
 
+void gui_value_time_irqh(uint8_t type, uint8_t * buff)
+{
+	int16_t inc = 0;
+
+	switch (type)
+	{
+	case(TASK_IRQ_BUTTON_L):
+		if (*buff == BE_CLICK)
+			inc += -gui_value_step;
+		if (*buff == BE_DBL_CLICK)
+			inc += -gui_value_step;
+	break;
+
+	case(TASK_IRQ_BUTTON_R):
+		if (*buff == BE_CLICK)
+			inc += +gui_value_step;
+		if (*buff == BE_DBL_CLICK)
+			inc += +gui_value_step;
+	break;
+
+	case(TASK_IRQ_BUTTON_M):
+		if (*buff == BE_CLICK)
+		{
+			if (gui_value_index == 1)
+				gui_value_cb(gui_value_tmp);
+			else
+				gui_value_index++;
+		}
+	break;
+	}
+
+	uint8_t hour = (0xFF00 & (uint16_t)gui_value_tmp) >> 8;
+	uint8_t min = (0x00FF & (uint16_t)gui_value_tmp) >> 0;
+
+	switch (gui_value_index)
+	{
+		case(0):
+			hour = (hour + inc) % 24;
+		break;
+		case(1):
+			min = (min + inc) % 60;
+		break;
+	}
+
+	gui_value_tmp = (hour << 8) | min;
+}
+
 void gui_value_irqh(uint8_t type, uint8_t * buff)
 {
 	float tmp;
@@ -322,12 +381,12 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 		gui_value_number_irqh(type, buff);
 	break;
 
-	case(GUI_VAL_TIME):
-		gui_value_time_irqh(type, buff);
+	case(GUI_VAL_SYSTEM_TIME):
+		gui_value_system_time_irqh(type, buff);
 	break;
 
-	case(GUI_VAL_DATE):
-		gui_value_date_irqh(type, buff);
+	case(GUI_VAL_SYSTEM_DATE):
+		gui_value_system_date_irqh(type, buff);
 	break;
 
 	case(GUI_VAL_CONTRAST):
@@ -358,6 +417,10 @@ void gui_value_irqh(uint8_t type, uint8_t * buff)
 			uint8_t vol = gui_value_tmp;
 			seq_start(&audio_feedback, vol);
 		}
+	break;
+
+	case(GUI_VAL_TIME):
+		gui_value_time_irqh(type, buff);
 	break;
 	}
 

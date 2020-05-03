@@ -3,7 +3,6 @@
 #include "../gui_list.h"
 #include "../gui_value.h"
 #include "../gui_dialog.h"
-#include "../gui_storage.h"
 
 #include "../../fc/conf.h"
 #include "../../drivers/storage/storage.h"
@@ -18,8 +17,8 @@ void gui_set_system_auto_power_off_cb(float ret)
 	uint8_t val = ret;
 
 	config.system.auto_power_off = val;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
+	
+	ee_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
 
 	gui_switch_task(GUI_SET_SYSTEM);
 }

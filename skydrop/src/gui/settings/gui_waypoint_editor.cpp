@@ -21,6 +21,8 @@ void gui_waypoint_editor_radius_cb(float val)
 
 	gui_waypoint_editor_wpt.radius_m = val;
 	waypoint_task_modify_wpt(gui_waypoint_editor_wpt_index, &gui_waypoint_editor_wpt);
+
+	waypoint_task_calc_distance();
 }
 
 void gui_waypoint_editor_action(uint8_t index)
@@ -33,6 +35,9 @@ void gui_waypoint_editor_action(uint8_t index)
 		break;
 
 		case(1):
+			if (gui_waypoint_editor_wpt_index == 0)
+				break;
+
 			gui_value_conf_P(PSTR("Radius"), GUI_VAL_NUMBER, PSTR("%0.0f m"), gui_waypoint_editor_wpt.radius_m, 50, 30000, 50, gui_waypoint_editor_radius_cb);
 			gui_switch_task(GUI_SET_VAL);
 			break;
@@ -40,19 +45,19 @@ void gui_waypoint_editor_action(uint8_t index)
 		case(2):
 			waypoint_task_switch_wpt(gui_waypoint_editor_wpt_index, gui_waypoint_editor_wpt_index - 1);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 
 		case(3):
 			waypoint_task_switch_wpt(gui_waypoint_editor_wpt_index, gui_waypoint_editor_wpt_index + 1);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 
 		case(4):
 			waypoint_task_remove_wpt(gui_waypoint_editor_wpt_index);
 			gui_switch_task(GUI_TASK_EDITOR);
-			waypoint_task_calc();
+			waypoint_task_calc_distance();
 			break;
 	}
 }
@@ -70,7 +75,11 @@ void gui_waypoint_editor_item(uint8_t index, char * text, uint8_t * flags, char 
 		case(1):
 			strcpy_P(text, PSTR("Radius"));
 			*flags =  GUI_LIST_SUB_TEXT;
-			sprintf_P(sub_text, PSTR("%um"), gui_waypoint_editor_wpt.radius_m);
+
+			if (gui_waypoint_editor_wpt_index == 0)
+				strcpy_P(sub_text, PSTR("Take-off"));
+			else
+				sprintf_P(sub_text, PSTR("%um"), gui_waypoint_editor_wpt.radius_m);
 			break;
 		case(2):
 			strcpy_P(text, PSTR("Move up"));

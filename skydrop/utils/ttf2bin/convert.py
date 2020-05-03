@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+
 import PIL
 import PIL.Image
 import PIL.ImageDraw
@@ -27,6 +29,10 @@ class FontChar:
         else:
             self.width = self.size[0]
 
+        if self.width == 0:
+            print " SKIPPED",
+            return
+
         self.im = PIL.Image.new('1', (self.width, self.height), 0)
         self.draw = PIL.ImageDraw.Draw(self.im)
 
@@ -46,9 +52,11 @@ class FontChar:
         print " width", self.width
         
     def copy(self, x, im):
-        box = (x, self.y)
         self.x = x
-        im.paste(self.im, box)
+    
+        if self.width != 0:
+            box = (x, self.y)
+            im.paste(self.im, box)
         return self.width
 
     def getFilename(self):
@@ -58,7 +66,8 @@ class FontChar:
         self.im = PIL.Image.open(filename)
         
     def save(self, filename):
-        self.im.save(filename)
+        if self.width > 0:
+            self.im.save(filename)
         
     def setX(self, x):
         self.x = x
@@ -96,8 +105,10 @@ class FontConvertor:
         filename = "font_%s_%d" % (filename, self.fontsize)
         return filename
 
-    def Generate(self, force_size = {}, move_xy = {}):
+    def Generate(self, force_size = {}, move_xy = {}, skip = []):
         print "generating %s, size %d" % (self.fontname, self.fontsize)
+        
+        self.skip = skip
         for i in range(self.start, self.end):
             print "  generating %d %c" % (i, chr(i)),
             sys.stdout.flush()
@@ -107,8 +118,9 @@ class FontConvertor:
             else:
                 item = FontChar(self, c, self.height)
 
-            if i in move_xy:
-                item.setY(move_xy[i][1])
+            if i in skip:
+                item = FontChar(self, c, self.height, force_width = 0)
+
 
             filename = item.getFilename() + ".png"
             item.save("tmp/" + filename)
@@ -116,18 +128,33 @@ class FontConvertor:
             if os.path.isfile(filename_improved):
                 item.load(filename_improved)
                     
+          
+            if i in move_xy:
+                item.setY(move_xy[i][1])          
+                    
+            if "y_offset" in force_size:
+                if i in move_xy:
+                    item.setY(move_xy[i][1] + force_size["y_offset"])    
+                else:        
+                    item.setY(force_size["y_offset"])
             self.width += item.copy(self.width, self.buffer)
             
             self.chars.append(item)
             
+
+            
+        bb = list(self.buffer.getbbox())
+        self.buffer = self.buffer.crop(bb)
+
         #get char A height
         tmp = FontChar(self, 'A', self.height)
         self.A_height = tmp.GetHeight()
-            
-        self.buffer = self.buffer.crop(self.buffer.getbbox())
-        self.height = self.buffer.size[1]
 
-        self.w, self.h = self.buffer.size
+        self.height = force_size["height"] if "height" in force_size else self.buffer.size[1]
+
+        self.w = self.buffer.size[0]
+        self.h = self.height
+
         if (self.h % 8 <> 0):
             self.h = ((self.h / 8 + 1) * 8) 
 
@@ -183,13 +210,22 @@ class FontConvertor:
         data.append(self.start)
         #font end
         data.append(self.end - 1)
+        #9th bit address from
+        data.append(0xFF) #placeholder #6
         
         print "header", len(data)
         
+        bit9_index = None
+
+        i = 0
         for char in self.chars:
-            data += u16to8(char.x)
+            data.append(char.x % 255)
+            if char.x / 255 == 1 and data[6] == 0xFF:
+                data[6] = i
+            i += 1
+
         
-        data += u16to8(self.chars[-1].x + self.chars[-1].width)
+        data.append((self.chars[-1].x + self.chars[-1].width) % 255)
 
         print "table", len(data)
         
@@ -234,6 +270,7 @@ class FontConvertor:
         file.write("// Bytes per line:    %d\n" % self.data[3])
         file.write("// Character start:   %d\n" % self.data[4])
         file.write("// Character end:     %d\n" % self.data[5])
+        file.write("// 9bit addr start:   %d\n" % self.data[6])
         file.write("//\n");
         file.write("// data size:         %0.1fkB (%db)\n\n" % (len(self.data) / 1024.0, len(self.data)))
         
@@ -245,7 +282,10 @@ class FontConvertor:
             else:
                 file.write("    ")
 
-            file.write("%3d 0x%02X = '%c'" % (c, c, chr(c)))
+            if c in self.skip:
+                file.write("%3d 0x%02X = SKP" % (c, c))
+            else:
+                file.write("%3d 0x%02X = '%c'" % (c, c, chr(c)))
             i += 1
                 
         file.write("\n\n")
@@ -267,30 +307,29 @@ class FontConvertor:
         file.close()
 
 '''Convert font'''
-
 tiny = FontConvertor("source/6px-Normal.ttf", 8, 1, 33, 127)
 tiny.Generate()
 tiny.Convert()
 tiny.Save()
 tiny.StoreBuffer()
 
-values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 42, 59)
-values_36.Generate({49: 17, 52: 17}) #number must have fixed width for values
+values_36 = FontConvertor("source/Arial_Bold.ttf", 36, 1, 43, 59)
+values_36.Generate({49: 17, 52: 17, "y_offset" : -2}, skip = [44, 47]) #number must have fixed width for values, we do not need ',' and '/'
 values_36.Convert()
 values_36.Save()
 values_36.StoreBuffer()
  
-values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 42, 59)
-values_16.Generate({49: 8}) #number must have fixed width for values
+values_16 = FontConvertor("source/Arial_Bold.ttf", 16, 1, 43, 59)
+values_16.Generate({49: 8}, skip = [44, 47]) #number must have fixed width for values, we do not need ',' and '/'
 values_16.Convert()
 values_16.Save()
 values_16.StoreBuffer()
   
-values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 42, 59)
-values_10.Generate({49: 5}) #number must have fixed width for values
-values_10.Convert()
-values_10.Save()
-values_10.StoreBuffer()
+#values_10 = FontConvertor("source/Arial_Bold.ttf", 10, 1, 43, 59)
+#values_10.Generate({49: 5, "height": 8, "y_offset" : -2}) #number must have fixed width for values
+#values_10.Convert()
+#values_10.Save()
+#values_10.StoreBuffer()
 
 text_L = FontConvertor("source/Arial.ttf", 12, 1, 33, 127)
 text_L.Generate({49: 5, 45:3}, {116: [0, 1]})
@@ -299,26 +338,28 @@ text_L.Save()
 text_L.StoreBuffer()
 
 text_M = FontConvertor("source/Arial.ttf", 10, 1, 33, 127)
-text_M.Generate({49: 5, 45:2, 52: 5}, {81: [0, -1]})
+text_M.Generate({49: 5, 45:2, 52: 5, "height": 8, "y_offset" : -2}, {81: [0, -1]})
 text_M.Convert()
 text_M.Save()
 text_M.StoreBuffer()
 
-text_M2 = FontConvertor("source/style-7_thin-pixel-7/thin_pixel-7.ttf", 20, 1, 33, 127)
-text_M2.Generate({}, {36: [0, +1]})
-text_M2.Convert()
-text_M2.Save()
-text_M2.StoreBuffer()
+
+#text_M2 = FontConvertor("source/style-7_thin-pixel-7/thin_pixel-7.ttf", 20, 1, 33, 127)
+#text_M2.Generate({}, {36: [0, +1]})
+#text_M2.Convert()
+#text_M2.Save()
+#text_M2.StoreBuffer()
 
 
-# data = conv.data
-# 
-# for a in data:
-#     for i in range(8):
-#         if (a & (1 << (7 - i))):
-#             print "X",
-#         else:
-#             print " ",
-#     print    
-
+'''
+data = text_M.data
+ 
+for a in data:
+    for i in range(8):
+        if (a & (1 << (7 - i))):
+            print "X",
+        else:
+            print " ",
+    print    
+'''
 

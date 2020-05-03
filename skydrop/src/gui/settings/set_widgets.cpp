@@ -112,7 +112,7 @@ void gui_set_widgets_item(uint8_t index, char * text, uint8_t * flags, char * su
 void gui_set_widgets_action(uint8_t index)
 {
 	config.gui.pages[active_page].widgets[set_widget_index] = widget_sorted_get_index(index);
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.gui.pages[active_page].widgets[set_widget_index], config.gui.pages[active_page].widgets[set_widget_index]);
+	
+	ee_update_byte(&config_ee.gui.pages[active_page].widgets[set_widget_index], config.gui.pages[active_page].widgets[set_widget_index]);
 	set_widget_mode = SET_WIDGETS_CHOOSE;
 }

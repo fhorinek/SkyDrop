@@ -1,0 +1,16 @@
+<div ng-controller="simple">
+    <h1>Airspace warning</h1>
+
+    <ctrl-tabs>
+        <ctrl-tab name="Airspace_alarm" open="1">
+            <ctrl item="list['cfg_airspaces_alert_on']"></ctrl>
+            <ctrl item="list['cfg_airspaces_warning_m']"></ctrl>
+            <ctrl item="list['cfg_airspaces_alarm_confirm_secs']"></ctrl>
+        </ctrl-tab>
+
+        <ctrl-tab name="Airspace_filter" open="0">
+            <ctrl item="list['cfg_airspaces_class_enabled']"></ctrl>
+        </ctrl-tab>
+    </ctrl-tabs>
+
+</div>

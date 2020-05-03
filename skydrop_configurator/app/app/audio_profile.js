@@ -186,13 +186,12 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 	    var prebeep_offset = $scope.list["cfg_audio_profile_prebeep_offset"].value;	 
 	    var prebeep_length = $scope.list["cfg_audio_profile_prebeep_length"].value;	 
 	    
-        var fluid = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_FLUID"];
-        var beep_sink = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_BEEP_SINK"];
-        var audio_weak = $scope.list["cfg_audio_profile_flags"].value.flags["AUDIO_WEAK"];
-
+        var sink_mode = $scope.list["cfg_audio_profile_flags"].value.select1.option;
+        var weak_mode = $scope.list["cfg_audio_profile_flags"].value.select2.option;
+        var fluid = $scope.list["cfg_audio_profile_flags"].value.select3.option	== "AUDIO_FLUID";
 
 	    if (ivario >= lift ||
-		    (ivario >= lift - weak && audio_weak) ||
+		    (ivario >= lift - weak && (weak_mode != "AUDIO_WEAK_OFF")) ||
 		     ivario <= sink)
 	    {
 		    //get frequency from the table
@@ -207,36 +206,59 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
 		    
             $scope.c_state = "Lift";
 
-		    if (ivario >= lift - weak && ivario < lift && audio_weak)
+		    if (ivario >= lift - weak && ivario < lift && weak_mode != "AUDIO_WEAK_OFF")
 		    {
-			    //if weak lift -> add prebeep
-			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
-			    var audio_vario_prebeep_frequency = audio_vario_freq - prebeep_offset;
+			    switch(weak_mode)
+			    {
+			        case("AUDIO_WEAK_BEEP"):
+			            var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
+			            var audio_vario_prebeep_frequency = audio_vario_freq - prebeep_offset;
 
-                $scope.c_state = "Weak lift";
+                        $scope.c_state = "Weak beep";
+                    break;
+                    
+			        case("AUDIO_WEAK_CONT"):
+					    audio_vario_length = 0;
+					    audio_vario_pause = 0;
+
+					    var lift_start_freq = $scope.list["cfg_audio_profile_weak_high_freq"].value;
+
+					    audio_vario_freq = $scope.list["cfg_audio_profile_weak_low_freq"].value;
+					    audio_vario_freq += ((lift_start_freq - $scope.list["cfg_audio_profile_weak_low_freq"].value) * (ivario - ($scope.list["cfg_audio_profile_lift"].value - $scope.list["cfg_audio_profile_weak"].value))) / $scope.list["cfg_audio_profile_weak"].value;			        
+
+                        $scope.c_state = "Weak cont.";
+                    break;
+                }
 		    }
 
-		    if (ivario <= sink && beep_sink)
+		    if (ivario <= sink)
 		    {
-			    //if sink and sink_prebeep -> add prebeep
-			    var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
-			    var audio_vario_prebeep_frequency = audio_vario_freq + prebeep_offset;
+		        switch(sink_mode)
+		        {
+		            case("AUDIO_SINK_BEEP"):
+			            //if sink and sink_prebeep -> add prebeep
+			            var audio_vario_prebeep_length = prebeep_length * MS_TO_TICKS;
+			            var audio_vario_prebeep_frequency = audio_vario_freq + prebeep_offset;
 
-                if (beep_sink)
-                    $scope.c_state = "Prebeep sink";
-                else
-                    $scope.c_state = "Sink";
+                        $scope.c_state = "Sink beep";
 
+                    break;
+                    
+		            case("AUDIO_SINK_CONT"):
+			            //if sink is continous
+			            audio_vario_length = 0;
+			            audio_vario_pause = 0;
+			            
+                        $scope.c_state = "Sink cont.";
+                    break;                    
+                    
+		            case("AUDIO_SINK_OFF"):
+                        $scope.c_state = "Sink off";
+                        return;
+                    break;                         
+                }
 		    }
 
-		    if (ivario <= sink && !beep_sink)
-		    {
-			    //if sink is continous
-			    audio_vario_length = 0;
-			    audio_vario_pause = 0;
-			    
-                $scope.c_state = "Sink";
-		    }
 
             var pb_leng = (audio_vario_prebeep_length) ? Math.round(audio_vario_prebeep_length) + " ms / " : "";
             var pb_freq = (audio_vario_prebeep_frequency) ? Math.round(audio_vario_prebeep_frequency) + " Hz / " : "";
@@ -296,10 +318,10 @@ app.controller("audioProfile", ['$scope', '$http', 'memory', "ChartJs", "$q", fu
                     var T = (rate / freq);
             
                 if (i % T < T/2)
-                    val = 255;
+                    val = 10;
                 else
                     val = 0;
-                    
+                   
                 data[i] = val;
             }
             //silent

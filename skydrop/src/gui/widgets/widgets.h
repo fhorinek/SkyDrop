@@ -20,21 +20,10 @@
 struct widget
 {
 	const char * label;
-	void (* draw)(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags);
-	void (* menu_loop)(uint8_t flags);
-	void (* menu_irqh)(uint8_t type, uint8_t * buff, uint8_t flags);
-	uint8_t flags;
+	void (* draw)(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
+	void (* menu_loop)();
+	void (* menu_irqh)(uint8_t type, uint8_t * buff);
 };
-
-#define register_widget3(name, label, draw, loop, irqh, flags) \
-	const char name ## _label[] PROGMEM = label;\
-	widget name = { \
-		name ## _label, \
-		draw, \
-		loop, \
-		irqh, \
-		flags, \
-	}; \
 
 #define register_widget2(name, label, draw, loop, irqh) \
 	const char name ## _label[] PROGMEM = label;\
@@ -43,7 +32,6 @@ struct widget
 		draw, \
 		loop, \
 		irqh, \
-		0, \
 	}; \
 
 #define register_widget1(name, label, draw) \
@@ -53,7 +41,6 @@ struct widget
 		draw, \
 		NULL, \
 		NULL, \
-		0, \
 	}; \
 
 
@@ -121,7 +108,7 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ODO_DISTANCE		32
 #define WIDGET_HOME_TIME		33
 #define WIDGET_HOME_INFO		34
-#include "odometer.h"
+#include <gui/widgets/navigation.h>
 
 #define WIDGET_COMPASS			35
 #define WIDGET_COMPASS_ARROW	36
@@ -138,16 +125,12 @@ extern float widget_menu_fvalue1;
 #define WIDGET_WAYPOINT_TIME        43
 #define WIDGET_WAYPOINT_INFO        44
 
-#define WIDGET_AIRSPACE_ARROW       45
-#define WIDGET_AIRSPACE_DISTANCE    46
-#define WIDGET_AIRSPACE_LIMITS	    47
-#define WIDGET_AIRSPACE_INFO	    48
-#define WIDGET_AIRSPACE_NAME	    49
+#define WIDGET_AIRSPACE_INFO	    45
 #include "airspace.h"
 
-#define NUMBER_OF_WIDGETS			50
+#define NUMBER_OF_WIDGETS			46
 
-#define NUMBER_OF_SORTED_WIDGETS	50
+#define NUMBER_OF_SORTED_WIDGETS	46
 
 /**
  * Format a distance in a human readable format.

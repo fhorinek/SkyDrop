@@ -20,8 +20,8 @@ void set_baro_calib_declination(float val)
 
 	fc.compass.declination = int(val);
 	int16_t value = fc.compass.declination;
-	eeprom_busy_wait();
-	eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+	
+	ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
 
 void set_baro_calib_action(uint8_t index)

@@ -17,8 +17,8 @@ void gui_set_bluetooth_action(uint8_t index)
 	{
 		case(1):
 			config.connectivity.use_bt = !config.connectivity.use_bt;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.connectivity.use_bt, config.connectivity.use_bt);
+			
+			ee_update_byte(&config_ee.connectivity.use_bt, config.connectivity.use_bt);
 
 			if (config.connectivity.use_bt)
 				bt_module_init();
@@ -28,14 +28,14 @@ void gui_set_bluetooth_action(uint8_t index)
 
 		case(2):
 			config.connectivity.protocol = (config.connectivity.protocol + 1) % NUMBER_OF_PROTOCOLS;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.connectivity.protocol, config.connectivity.protocol);
+			
+			ee_update_byte(&config_ee.connectivity.protocol, config.connectivity.protocol);
 		break;
 
 		case(3):
 			config.connectivity.forward_gps = !config.connectivity.forward_gps;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.connectivity.forward_gps, config.connectivity.forward_gps);
+			
+			ee_update_byte(&config_ee.connectivity.forward_gps, config.connectivity.forward_gps);
 		break;
 	}
 }

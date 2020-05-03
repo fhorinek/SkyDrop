@@ -32,8 +32,8 @@ void airspace_step();
 
 #define AIR_AGL_FLAG 				0x8000
 
-uint16_t airspace_convert_alt_ft(uint16_t raw_alt);
-uint16_t airspace_convert_alt_m(uint16_t raw_alt);
+int16_t airspace_convert_alt_ft(uint16_t raw_alt);
+int16_t airspace_convert_alt_m(uint16_t raw_alt);
 
 void airspace_class_to_text(char * text, uint8_t index);
 void airspace_read_ignore_file(FIL * handle, bool hard, uint8_t * array, char * filename);

@@ -20,9 +20,9 @@ void mag_save_calibration(vector_float_t sens_vf, vector_float_t bias_vf)
 	bias.y = int16_t(bias_vf.y * 2);
 	bias.z = int16_t(bias_vf.z * 2);
 
-	eeprom_busy_wait();
-	eeprom_update_block(&bias, &config_ro.calibration.mag_bias, sizeof(config_ro.calibration.mag_bias));
-	eeprom_update_block(&sens, &config_ro.calibration.mag_sensitivity, sizeof(config_ro.calibration.mag_sensitivity));
+	
+	ee_update_block(&bias, &config_ro.calibration.mag_bias, sizeof(config_ro.calibration.mag_bias));
+	ee_update_block(&sens, &config_ro.calibration.mag_sensitivity, sizeof(config_ro.calibration.mag_sensitivity));
 
 	//DEBUG("written float: bias %f %f %f sens %f %f %f\n", bias_vf.x, bias_vf.y, bias_vf.z, sens_vf.x, sens_vf.y, sens_vf.z);
 	//DEBUG("written int: bias %d %d %d sens %d %d %d\n", bias.x, bias.y, bias.z, sens.x, sens.y, sens.z);
@@ -33,9 +33,9 @@ void mag_load_calibration(volatile vector_float_t * sens_vf, volatile vector_flo
 	vector_i16_t bias;
 	vector_i16_t sens;
 
-	eeprom_busy_wait();
-	eeprom_read_block(&bias, &config_ro.calibration.mag_bias, sizeof(config_ro.calibration.mag_bias));
-	eeprom_read_block(&sens, &config_ro.calibration.mag_sensitivity, sizeof(config_ro.calibration.mag_sensitivity));
+	
+	ee_read_block(&bias, &config_ro.calibration.mag_bias, sizeof(config_ro.calibration.mag_bias));
+	ee_read_block(&sens, &config_ro.calibration.mag_sensitivity, sizeof(config_ro.calibration.mag_sensitivity));
 
 	sens_vf->x = (float(sens.x) / 2);
 	sens_vf->y = (float(sens.y) / 2);

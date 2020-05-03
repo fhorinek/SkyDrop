@@ -1,7 +1,7 @@
 #include "agl.h"
 #include "../../fc/agl.h"
 
-void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("HAGL"), x, y);
 
@@ -20,7 +20,7 @@ void widget_agl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_agl_irqh(uint8_t type, uint8_t * buff, uint8_t index)
+void widget_agl_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == B_MIDDLE && *buff == BE_LONG)
 	{
@@ -38,7 +38,7 @@ void widget_agl_irqh(uint8_t type, uint8_t * buff, uint8_t index)
 	}
 }
 
-void widget_gl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_gl_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("GLevel"), x, y);
 

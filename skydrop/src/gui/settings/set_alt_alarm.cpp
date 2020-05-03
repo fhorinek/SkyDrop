@@ -20,7 +20,7 @@ void gui_set_alt_alarm_alarm1_cb(float val)
 	gui_switch_task(GUI_SET_ALT_ALARM);
 
 	config.altitude.alarm_1 = val;
-	eeprom_busy_wait();
+	
 	eeprom_write_word(&config_ee.altitude.alarm_1, config.altitude.alarm_1);
 }
 
@@ -29,7 +29,7 @@ void gui_set_alt_alarm_alarm2_cb(float val)
 	gui_switch_task(GUI_SET_ALT_ALARM);
 
 	config.altitude.alarm_2 = val;
-	eeprom_busy_wait();
+	
 	eeprom_write_word(&config_ee.altitude.alarm_2, config.altitude.alarm_2);
 }
 
@@ -38,7 +38,7 @@ void gui_set_alt_alarm_alarm_h1_cb(float val)
 	gui_switch_task(GUI_SET_ALT_ALARM);
 
 	config.altitude.alarm_h1 = val;
-	eeprom_busy_wait();
+	
 	eeprom_write_word(&config_ee.altitude.alarm_h1, config.altitude.alarm_h1);
 }
 
@@ -47,7 +47,7 @@ void gui_set_alt_alarm_reset_cb(float val)
 	gui_switch_task(GUI_SET_ALT_ALARM);
 
 	config.altitude.alarm_reset = val;
-	eeprom_busy_wait();
+	
 	eeprom_write_word(&config_ee.altitude.alarm_reset, config.altitude.alarm_reset);
 }
 
@@ -56,7 +56,7 @@ void gui_set_alt_alarm_confirm_secs_cb(float val)
 	gui_switch_task(GUI_SET_ALT_ALARM);
 
 	config.altitude.alarm_confirm_secs = val;
-	eeprom_update_byte(&config_ee.altitude.alarm_confirm_secs, config.altitude.alarm_confirm_secs);
+	ee_update_byte(&config_ee.altitude.alarm_confirm_secs, config.altitude.alarm_confirm_secs);
 }
 
 void gui_set_alt_alarm_action(uint8_t index)
@@ -80,7 +80,7 @@ void gui_set_alt_alarm_action(uint8_t index)
 	{
 		case (0):
 			config.altitude.alarm_enabled =! config.altitude.alarm_enabled;
-			eeprom_update_byte(&config_ee.altitude.alarm_enabled, config.altitude.alarm_enabled);
+			ee_update_byte(&config_ee.altitude.alarm_enabled, config.altitude.alarm_enabled);
 		break;
 
 		case (1):

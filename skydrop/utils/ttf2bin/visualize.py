@@ -34,14 +34,16 @@ class FontConvertor:
         text_x = 1
         text_y = 1
 
-        # Header: 6, Skip character address table
-        font_adr_start = 6 + (self.end - self.start + 2) * 2
+        # Header: 76, Skip character address table
+        font_adr_start = 7 + (self.end - self.start + 2)
+        print(self.font_9bit)
 
         for ascii in range(self.start, self.end):
                 
-            adr = 6 + (ascii - self.start) * 2;
-            start = u8to16(self.data[adr + 0], self.data[adr + 1])
-            width = u8to16(self.data[adr + 2], self.data[adr + 3]) - start;
+            c_index = ascii - self.start
+            adr = 7 + c_index;
+            start = self.data[adr + 0] + (0xFF if c_index >= self.font_9bit else 0)
+            width = self.data[adr + 1] + (0xFF if c_index + 1 >= self.font_9bit else 0) - start;
 
             print ("  drawing %3d 0x%02x = '%c'     start=%3d, width=%d" % (ascii, ascii, chr(ascii), start, width))
 
@@ -91,6 +93,7 @@ class FontConvertor:
         self.start = self.data[4]
         #font end
         self.end = self.data[5]
+        self.font_9bit = self.data[6]
 
 # Check usage:
 if len(sys.argv) != 2:
@@ -101,6 +104,6 @@ if len(sys.argv) != 2:
 fc = FontConvertor()
 fc.readFontSource(sys.argv[1])
 fc.drawFont()
-fc.buffer.save("drawn.png", "PNG")
-print ("Font saved to drawn.png")
+fc.buffer.save("%s.png" % sys.argv[1], "PNG")
+print ("Font saved to %s.png" % sys.argv[1])
 #fc.buffer.show()

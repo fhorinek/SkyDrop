@@ -142,6 +142,7 @@ void airspace_open_file(char * fn)
     uint8_t ret;
 
     fc.airspace.hidden = AIR_INDEX_INVALID;
+    fc.airspace.airspace_index = AIR_INDEX_INVALID;
 
     //Load ignore list
     memset((void *)&fc.airspace.ignore, 0, sizeof(fc.airspace.ignore));
@@ -179,7 +180,7 @@ void airspace_open_file(char * fn)
  *
  * @return same altitude in feet
  */
-uint16_t airspace_convert_alt_ft(uint16_t raw_alt)
+int16_t airspace_convert_alt_ft(uint16_t raw_alt)
 {
 	return ~AIR_AGL_FLAG & raw_alt;
 }
@@ -191,35 +192,41 @@ uint16_t airspace_convert_alt_ft(uint16_t raw_alt)
  *
  * @return same altitude in meter
  */
-uint16_t airspace_convert_alt_m(uint16_t raw_alt)
+int16_t airspace_convert_alt_m(uint16_t raw_alt)
 {
 	return (~AIR_AGL_FLAG & raw_alt) / FC_METER_TO_FEET;
 }
 
 //is device altitude below raw_alt?
-bool airspace_alt_is_below(uint16_t raw_alt, uint16_t gps_alt, uint16_t msl_alt)
+bool airspace_alt_is_below(uint16_t raw_alt, int16_t agl_alt, int16_t msl_alt)
 {
-	if (airspace_convert_alt_m(raw_alt) > ((raw_alt & AIR_AGL_FLAG) ? gps_alt : msl_alt))
+	if (airspace_convert_alt_m(raw_alt) > ((raw_alt & AIR_AGL_FLAG) ? agl_alt : msl_alt))
 		return true;
 
 	return false;
 }
 
 //is device altitude above raw_alt?
-bool airspace_alt_is_above(uint16_t raw_alt, uint16_t gps_alt, uint16_t msl_alt)
+bool airspace_alt_is_above(uint16_t raw_alt, int16_t agl_alt, int16_t msl_alt)
 {
-	if (airspace_convert_alt_m(raw_alt) < ((raw_alt & AIR_AGL_FLAG) ? gps_alt : msl_alt))
+	if (airspace_convert_alt_m(raw_alt) < ((raw_alt & AIR_AGL_FLAG) ? agl_alt : msl_alt))
 		return true;
 
 	return false;
 }
 
-bool airspace_is_inside(uint16_t raw_min, uint16_t raw_max, uint16_t gps_alt, uint16_t msl_alt)
+bool airspace_is_inside(uint16_t raw_min, uint16_t raw_max, int16_t agl_alt, int16_t msl_alt)
 {
-	if (airspace_alt_is_below(raw_min, gps_alt, msl_alt))
+	if (agl_alt == AGL_INVALID)
+	{
+		if (raw_min & AIR_AGL_FLAG || raw_max & AIR_AGL_FLAG)
+			return true;
+	}
+
+	if (airspace_alt_is_below(raw_min, agl_alt, msl_alt))
 		return false;
 
-	if (airspace_alt_is_above(raw_max, gps_alt, msl_alt))
+	if (airspace_alt_is_above(raw_max, agl_alt, msl_alt))
 		return false;
 
 	return true;
@@ -382,18 +389,21 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 	fc.airspace.floor = 0;
 	fc.airspace.ceiling = 0;
 
-	uint16_t msl_alt = fc_press_to_alt(fc.vario.pressure, 101325);
-	uint16_t gps_alt = fc.gps_data.altitude;
+	int16_t msl_alt = fc_press_to_alt(fc.vario.pressure, 101325);
+	int16_t agl_alt = fc.altitude1 - fc.agl.ground_level;
 
-//	DEBUG("msl_alt: %d\n", msl_alt);
-//	DEBUG("gps_alt: %d\n", gps_alt);
+	if (fc.agl.ground_level == AGL_INVALID)
+		agl_alt = AGL_INVALID;
+
+	DEBUG("msl_alt: %d\n", msl_alt);
+	DEBUG("agl_alt: %d\n", agl_alt);
+	DEBUG("ground_level: %d\n", fc.agl.ground_level);
 
 	uint16_t nearest_dist;
 	uint8_t name_i = 0xFF;
 
 	bool have_data = false;
 	bool inside;
-
     for (i = 0; i < AIR_LEVELS; i++)
     {
     	if (fc.airspace.cache[i].flags == 0)
@@ -403,8 +413,6 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     		continue; //skip
 
 //        DEBUG("level %d\n", i);
-
-    	have_data = true;
 
     	int32_t tx, ty;
 
@@ -452,15 +460,12 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
         if (dx * fc.airspace.cache[i].lon_offset < 0 || dy * fc.airspace.cache[i].lat_offset < 0)
             inside = !inside;
 
-        uint16_t angle = gps_bearing(ty, tx, lat, lon);
-
-
-        uint16_t distance;
+        bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
+        int16_t angle;
+        uint16_t distance = gps_distance(lat, lon, ty, tx, use_fai, &angle);
 
         if (fc.airspace.cache[i].flags & AIR_CACHE_FAR)
         	distance = AIRSPACE_TOO_FAR;
-        else
-        	distance = gps_distance_2d(lat, lon, ty, tx) / 100;
 
 //        DEBUG(" target x %ld\n", tx);
 //        DEBUG(" target y %ld\n", ty);
@@ -469,14 +474,17 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 //        DEBUG(" dist %u km\n", distance);
 //        DEBUG("\n");
 
-        DEBUG(">>%d %ddeg %0.3fkm %c\n", i, angle, distance / 1000.0, inside ? 'I' : ' ');
+        DEBUG(">>%u [%u] %ddeg %0.3fkm %c\n", i, fc.airspace.cache[i].index, angle, distance / 1000.0, inside ? 'I' : ' ');
+        DEBUG("  f=%u c=%u\n", fc.airspace.cache[i].floor, fc.airspace.cache[i].ceil);
 
     	//is inside the as_point floor and ceil
-    	if (airspace_is_inside(fc.airspace.cache[i].floor, fc.airspace.cache[i].ceil, gps_alt, msl_alt))
+    	if (airspace_is_inside(fc.airspace.cache[i].floor, fc.airspace.cache[i].ceil, agl_alt, msl_alt))
     	{
+    		DEBUG("  between\n");
     		//check if inside
     		if (inside)
     		{
+    			have_data = true;
     			fc.airspace.inside = true;
     			name_i = fc.airspace.cache[i].index;
 
@@ -488,11 +496,12 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     		}
     	}
 
-    	//arrow point to nearest or outside of forbidden
+    	//arrow point to nearest
     	if (!fc.airspace.inside)
     	{
-			if ((i == 0) || ((nearest_dist > distance) && !inside))
+			if (((!have_data) || (nearest_dist > distance)) && !inside)
 			{
+				have_data = true;
 				nearest_dist = distance;
     			name_i = fc.airspace.cache[i].index;
 
@@ -504,17 +513,19 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 			}
     	}
 
-		//inside the as_point
+		//inside the airspace
+    	//TODO make visualization
+    	/*
 		if (inside)
 		{
-			if (airspace_alt_is_above(fc.airspace.cache[i].floor, gps_alt, msl_alt))
+			if (airspace_alt_is_above(fc.airspace.cache[i].floor, agl_alt, msl_alt))
 			{
 				if (fc.airspace.min_alt == AIRSPACE_INVALID)
 					fc.airspace.min_alt = fc.airspace.cache[i].ceil;
 				else
 					fc.airspace.min_alt = max(fc.airspace.min_alt, fc.airspace.cache[i].ceil);
 			}
-			if (airspace_alt_is_below(fc.airspace.cache[i].ceil, gps_alt, msl_alt))
+			if (airspace_alt_is_below(fc.airspace.cache[i].ceil, agl_alt, msl_alt))
 			{
 				if (fc.airspace.max_alt == AIRSPACE_INVALID)
 					fc.airspace.max_alt = fc.airspace.cache[i].floor;
@@ -522,6 +533,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 					fc.airspace.max_alt = min(fc.airspace.max_alt, fc.airspace.cache[i].floor);
 			}
 		}
+		*/
     }
 
     if (have_data)
@@ -577,6 +589,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
     }
     else
     {
+    	fc.airspace.airspace_index = AIR_INDEX_INVALID;
 		DEBUG("AIRSPACE_INVALID\n");
 		DEBUG("\n");
     }
@@ -670,6 +683,7 @@ void airspace_write_ignore_file(FIL * handle, bool hard, uint8_t * array, char *
     DEBUG("WI,%s,%u\n", path, ret);
     sprintf_P(path, PSTR("/AIR/%S/%s"), hard ? p_hard : p_soft, filename);
 	ret = f_open(handle, path, FA_WRITE | FA_CREATE_ALWAYS);
+
 	if (ret == FR_OK)
 	{
 		uint16_t bw;
