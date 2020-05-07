@@ -201,7 +201,7 @@ struct waypoint_cache_t
 	int16_t elevation;   //in meters
 };
 
-#define TASK_WAYPOINT_DEFAULT_RADIUS	500
+#define TASK_WAYPOINT_DEFAULT_RADIUS	1000
 #define TASK_OPTI_CACHE_SIZE			3
 
 struct opti_waypoint_cache_t
@@ -255,6 +255,7 @@ struct flight_stats_t
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
+#define FLIGHT_HIKE		3
 
 #define VARIO_CIRCLING_HISTORY_SCALE	12 // == 1m/s
 
@@ -489,6 +490,9 @@ void fc_sync_gps_time();
 void fc_takeoff();
 void fc_landing();
 void fc_reset();
+
+void fc_hike();
+void fc_end_hike();
 
 void fc_log_battery();
 

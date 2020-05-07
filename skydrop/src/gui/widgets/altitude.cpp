@@ -225,7 +225,7 @@ void widget_alt_menu_loop(uint8_t alt_index)
 	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + h_v - h_t);
 	fprintf_P(lcd_out, PSTR("ALT%d"), alt_index);
 
-	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + h_v + h_v - h_t);
+	disp.GotoXY(GUI_DIALOG_LEFT, GUI_DIALOG_TOP + h_v + h_v - h_t + 7);
 	switch (a_type)
 	{
 		case(ALT_ABS_QNH1):
@@ -288,7 +288,7 @@ void widget_alt_menu_loop(uint8_t alt_index)
 				strcpy_P(tmp, PSTR("invalid"));
 		break;
 	}
-	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 2 + h_v);
+	gui_raligh_text(tmp, GUI_DIALOG_RIGHT, GUI_DIALOG_TOP + 6 + h_v);
 }
 
 void widget_alt_draw1(uint8_t x, uint8_t y, uint8_t w, uint8_t h){widget_alt_draw(x, y, w, h, 1);}

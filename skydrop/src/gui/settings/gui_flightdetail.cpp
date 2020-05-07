@@ -87,6 +87,12 @@ void gui_flightdetail_parse_logfile(const char *filename)
 
 		p = strstr_P(line, PSTR("SKYDROP-ODO-cm: "));
 		if ( p != NULL ) {
+			log_odo = atol(p + 16) / 100;
+			continue;
+		}
+
+		p = strstr_P(line, PSTR("SKYDROP-ODO-m: "));
+		if ( p != NULL ) {
 			log_odo = atol(p + 16);
 			continue;
 		}
@@ -211,7 +217,7 @@ void gui_flightdetail_item(uint8_t idx, char * text, uint8_t * flags, char * sub
 				break;
 			}
 
-			sprintf_P(sub_text, PSTR("%0.1fkm"), log_odo / (100 * 1000.0));
+			sprintf_P(sub_text, PSTR("%0.1fkm"), log_odo / (1000.0));
 		break;
 //		case 7:
 //			strcpy_P(text, PSTR("Delete"));

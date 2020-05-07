@@ -193,7 +193,7 @@ class GPS_Spoof(object):
             
             d = R * c
             self.speed = 1.94384 * d
-            
+            self.speed /= 100.0
 
             #hdg
             dx = x - ox

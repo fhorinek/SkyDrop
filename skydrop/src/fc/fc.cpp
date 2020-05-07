@@ -211,6 +211,9 @@ void fc_deinit()
 {
 	fc_meas_timer.Stop();
 
+	if (fc.flight.state == FLIGHT_HIKE)
+		fc_end_hike();
+
 	if (fc.flight.state == FLIGHT_FLIGHT)
 		fc_landing();
 
@@ -443,10 +446,49 @@ ISR(FC_MEAS_TIMER_CMPC)
 	BT_ALLOW_TX
 }
 
+void fc_hike()
+{
+	if (!fc.gps_data.valid)
+		return;
+
+	fc_reset();
+
+	fc.flight.state = FLIGHT_HIKE;
+	fc.flight.autostart_timer = task_get_ms_tick();
+	fc.flight.autostart_odo = fc.odometer;
+
+	gui_showmessage_P(PSTR("Hike start"));
+}
+
+void fc_save_stats()
+{
+	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
+	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
+	logger_comment(PSTR(" SKYDROP-ALT-MAX-m: %d "), fc.flight.stats.max_alt);
+	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);
+	logger_comment(PSTR(" SKYDROP-CLIMB-MAX-cm: %d "), fc.flight.stats.max_climb);
+	logger_comment(PSTR(" SKYDROP-SINK-MAX-cm: %d "), fc.flight.stats.max_sink);
+	logger_comment(PSTR(" SKYDROP-ODO-m: %lu "), fc.odometer - fc.flight.autostart_odo);
+}
+
+void fc_end_hike()
+{
+	fc.flight.state = FLIGHT_WAIT;
+	gui_showmessage_P(PSTR("Hike end"));
+	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
+
+	fc_save_stats();
+
+	logger_stop();
+}
+
 void fc_takeoff()
 {
 	if (!fc.vario.valid)
 		return;
+
+	if (fc.flight.state == FLIGHT_HIKE)
+		fc_end_hike();
 
 	gui_showmessage_P(PSTR("Take off"));
 
@@ -510,13 +552,7 @@ void fc_landing()
 	
 	ee_update_dword(&config_ro.total_flight_time, fc.flight.total_time);
 
-	logger_comment(PSTR(" SKYDROP-START-s: %lu "), time_get_local() - (fc.flight.timer / 1000));
-	logger_comment(PSTR(" SKYDROP-DURATION-ms: %lu "), fc.flight.timer);
-	logger_comment(PSTR(" SKYDROP-ALT-MAX-m: %d "), fc.flight.stats.max_alt);
-	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);
-	logger_comment(PSTR(" SKYDROP-CLIMB-MAX-cm: %d "), fc.flight.stats.max_climb);
-	logger_comment(PSTR(" SKYDROP-SINK-MAX-cm: %d "), fc.flight.stats.max_sink);
-	logger_comment(PSTR(" SKYDROP-ODO-cm: %lu "), fc.odometer - fc.flight.autostart_odo);
+	fc_save_stats();
 
 	logger_stop();
 }
@@ -605,8 +641,12 @@ void fc_step()
 		// baro valid, waiting to take off or landed, and enabled auto start
 		if (fc.vario.valid && (fc.flight.state == FLIGHT_WAIT || fc.flight.state == FLIGHT_LAND))
 		{
-			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity  && config.autostart.start_sensititvity > 0)
-			|| (fc.gps_data.valid && fc.gps_data.ground_speed * FC_KNOTS_TO_KPH > config.autostart.gps_speed && config.autostart.gps_speed > 0))
+			//gps speed enabled and gps avalible
+			bool speed_hi = false;
+			if (config.autostart.gps_speed > 0 && fc.gps_data.valid)
+				speed_hi = fc.gps_data.ground_speed * FC_KNOTS_TO_KPH > config.autostart.gps_speed;
+
+			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity  && config.autostart.start_sensititvity > 0) || speed_hi)
 			{
 				fc_takeoff();
 			}
@@ -634,7 +674,12 @@ void fc_step()
 		// flying and auto land enabled
 		if (fc.flight.state == FLIGHT_FLIGHT && config.autostart.land_sensititvity > 0)
 		{
-			if (abs(fc.altitude1 - fc.flight.autostart_altitude) < config.autostart.land_sensititvity)
+			//gps speed enabled and gps avalible
+			bool speed_low = true;
+			if (config.autostart.gps_speed > 0 && fc.gps_data.valid)
+				speed_low = fc.gps_data.ground_speed * FC_KNOTS_TO_KPH < config.autostart.gps_speed;
+
+			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) < config.autostart.land_sensititvity) and speed_low)
 			{
 				uint32_t tick = task_get_ms_tick();
 
@@ -699,6 +744,11 @@ void fc_step()
 	if (config.logger.enabled)
 	{
 		if (fc.flight.state == FLIGHT_FLIGHT && !logger_active() && time_is_set() && !logger_error())
+		{
+			logger_start();
+		}
+
+		if (fc.flight.state == FLIGHT_HIKE && !logger_active() && time_is_set() && !logger_error())
 		{
 			logger_start();
 		}

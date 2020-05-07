@@ -768,6 +768,7 @@
                 ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TIME", "Actual time"],
                 ["WIDGET_DATE", "Actual date"],
+                ["WIDGET_HIKE", "Hike mode"],
 
                 ["WIDGET_ODO_METER", "Odometer"],
                 ["WIDGET_ODO_BACK", "Back"],
@@ -1000,6 +1001,14 @@
 			"label": "FTime", 
 			"value": "56.21"
         },
+        "WIDGET_HIKE":
+        {
+         	"type": "value",
+			"name": "Hike mode",
+			"desc": "Start/stop hike mode", 
+			"label": "Hike", 
+			"value": "Start Hike"
+        },        
         "WIDGET_TEMPERATURE":
         {
          	"type": "temperature",

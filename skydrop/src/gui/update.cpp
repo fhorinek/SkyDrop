@@ -43,7 +43,7 @@ void gui_update_fail_cb(uint8_t ret)
 
 void gui_update_done_cb(uint8_t ret)
 {
-	
+	eeprom_busy_wait();
 
 	gui_stop();
 
