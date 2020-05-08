@@ -344,7 +344,7 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 				widget_value_txt(text, x, y + lh, w, h - lh);
 			}
-
+			else
 			if (fc.task.waypoint_index < fc.task.waypoint_count)
 			{
 				char text1[16];

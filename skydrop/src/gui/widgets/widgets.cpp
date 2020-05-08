@@ -317,7 +317,10 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
 			uint8_t text_w = max(text_w1, text_w2);
 			text_h = disp.GetTextHeight() * 2;
 			if (w < text_w || h < text_h)
+			{
+				widget_value_txt(value1, x, y, w, h);
 				return;
+			}
 		}
 	}
 

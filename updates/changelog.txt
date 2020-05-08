@@ -1,3 +1,14 @@
+Build 5176 - 08. 05. 2020
+========================================================
+
+FIX:
+ * Widget text overlayed if waypoint count = 0
+ * Short path shows 120% if waypoint count < 2
+
+CHANGES:
+ * two line widget will try to fit first line when there is not enought space
+ * acro mode treshold
+
 Build 5172 - 07. 05. 2020
 ========================================================
 

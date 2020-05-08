@@ -38,7 +38,7 @@ void gui_set_autoset_config_action(uint8_t index)
         break;
 
         case (1):
-            gui_value_conf_P(PSTR("Acro thold."), GUI_VAL_NUMBER, PSTR("%0.1f m/s"), config.gui.page_acro_thold / 10.0, -10, 0, 0.5, gui_set_autoset_config_acro_thold_cb);
+            gui_value_conf_P(PSTR("Acro thold."), GUI_VAL_NUMBER, PSTR("%0.1f m/s"), config.gui.page_acro_thold / 10.0, -10, 0, 0.1, gui_set_autoset_config_acro_thold_cb);
             gui_switch_task(GUI_SET_VAL);
         break;
 
