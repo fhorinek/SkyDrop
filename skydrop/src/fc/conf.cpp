@@ -442,7 +442,7 @@ void cfg_restore_defaults()
 
 		memcpy_P(buff, progmem_adr, size);
 		
-		eeprom_write_block(buff, eeprom_adr, size);
+		ee_update_block(buff, eeprom_adr, size);
 
 		ewdt_reset();
 	}

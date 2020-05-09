@@ -305,7 +305,7 @@ bool StoreEEPROM()
 	}
 	uint16_t wd = 0;
 
-	uint16_t tmp = BUILD_NUMBER;
+	uint32_t tmp = BUILD_NUMBER;
 	ee_update_dword(&config_ee.build_number, tmp);
 
 	uint16_t i = 0;
