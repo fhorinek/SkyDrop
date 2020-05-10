@@ -9,6 +9,7 @@ FIL log_file;
 uint32_t logger_next = 0;
 uint8_t logger_flight_number;
 uint32_t logger_flight_day;
+int8_t logger_last_temp;
 
 void logger_init()
 {
@@ -149,6 +150,8 @@ void logger_start()
 
 		return;
 	}
+
+        logger_last_temp = LOGGER_NO_TEMP;
 
 	uint8_t sec;
 	uint8_t min;

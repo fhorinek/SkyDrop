@@ -14,6 +14,7 @@
 #define LOG_DIR_ABS	 "/" LOG_DIR
 #define LOG_MID		"XSB"
 #define LOG_MID_P	PSTR("XSB")
+#define LOGGER_NO_TEMP  99
 
 
 #include "../../common.h"
@@ -21,6 +22,7 @@
 
 extern FIL log_file;
 extern uint8_t logger_flight_number;
+extern int8_t logger_last_temp;
 
 void logger_init();
 void logger_step();
