@@ -574,13 +574,13 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
 		if (hide_index != fc.airspace.hidden)
 		{
-			if (fc.airspace.inside && config.airspaces.alert_on)
+			if (fc.airspace.inside && config.airspaces.alert_on && fc.flight.state == FLIGHT_FLIGHT)
 			{
 				if (gui_task != GUI_DIALOG)
 					gui_switch_task(GUI_AIRSPACE_ALARM);
 			}
 
-			if (fc.airspace.distance_m <= config.airspaces.warning_m && config.airspaces.warning_m > 0)
+			if (fc.airspace.distance_m <= config.airspaces.warning_m && config.airspaces.warning_m > 0 && fc.flight.state == FLIGHT_FLIGHT)
 			{
 				if (gui_task != GUI_DIALOG)
 					gui_switch_task(GUI_AIRSPACE_ALARM);

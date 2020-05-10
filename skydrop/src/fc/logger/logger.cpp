@@ -172,8 +172,12 @@ void logger_start()
 	sprintf_P(path, PSTR("%S/%04u/%02u-%02u"), LOG_DIR_P, year, month, day);
 	f_mkdir(path);
 
-	sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
-//	f_mkdir(path);
+	if (fc.flight.state == FLIGHT_FLIGHT)
+		sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
+	else
+		sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/H%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
+
+	//	f_mkdir(path);
 
 	switch (config.logger.format)
 	{

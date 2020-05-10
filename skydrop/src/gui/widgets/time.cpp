@@ -54,9 +54,7 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 		diff %= 60;
 
 		if (hour > 0)
-		{
 			sprintf_P(tmp, PSTR("%02d:%02d"), hour, min);
-		}
 		else
 			sprintf_P(tmp, PSTR("%02d.%02d"), min, diff);
 
@@ -134,19 +132,23 @@ void widget_hike_mode_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	char tmp1[7];
 	char tmp2[7];
 
-	if (!fc.gps_data.valid)
-	{
-		strcpy_P(tmp1, PSTR("No"));
-		strcpy_P(tmp2, PSTR("GPS"));
-		widget_value_txt2(tmp1, tmp2, x, y + lh, w, h - lh);
-		return;
-	}
-
 	if (fc.flight.state == FLIGHT_HIKE)
 	{
-		strcpy_P(tmp1, PSTR("Stop"));
-		strcpy_P(tmp2, PSTR("Hike"));
-		widget_value_txt2(tmp1, tmp2, x, y + lh, w, h - lh);
+		uint32_t diff = (task_get_ms_tick() - fc.flight.timer) / 1000;
+		uint8_t hour, min;
+
+		hour = diff / 3600;
+		diff %= 3600;
+
+		min = diff / 60;
+		diff %= 60;
+
+		if (hour > 0)
+			sprintf_P(tmp1, PSTR("%02d:%02d"), hour, min);
+		else
+			sprintf_P(tmp1, PSTR("%02d.%02d"), min, diff);
+
+		widget_value_int(tmp1, x, y + lh, w, h - lh);
 	}
 
 	if (fc.flight.state == FLIGHT_LAND || fc.flight.state == FLIGHT_WAIT)

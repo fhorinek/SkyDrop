@@ -448,13 +448,10 @@ ISR(FC_MEAS_TIMER_CMPC)
 
 void fc_hike()
 {
-	if (!fc.gps_data.valid)
-		return;
-
 	fc_reset();
 
 	fc.flight.state = FLIGHT_HIKE;
-	fc.flight.autostart_timer = task_get_ms_tick();
+	fc.flight.timer = task_get_ms_tick();
 	fc.flight.autostart_odo = fc.odometer;
 
 	gui_showmessage_P(PSTR("Hike start"));
@@ -755,7 +752,7 @@ void fc_step()
 	}
 
 	//flight statistic
-	if (fc.flight.state == FLIGHT_FLIGHT)
+	if (fc.flight.state == FLIGHT_FLIGHT || fc.flight.state == FLIGHT_HIKE)
 	{
 		int16_t t_vario = fc.vario.avg * 100;
 
