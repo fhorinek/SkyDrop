@@ -923,4 +923,6 @@ void fc_log_battery()
 		logger_comment(PSTR("bat: full"));
 	else
 		logger_comment(PSTR("bat: %u%% (%u)"),  battery_per, battery_adc_raw);
+
+	logger_comment(PSTR("temp: %d %d%%"), fc.temp.temp / 10, fc.temp.humid / 100);
 }
