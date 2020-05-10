@@ -214,7 +214,7 @@ void gui_task_editor_item(uint8_t index, char * text, uint8_t * flags, char * su
 
 	if (index == fc.task.waypoint_count + 4)
 	{
-		if (fc.task.head.opti_dist_m == 0)
+		if (fc.task.head.opti_dist_m == 0 && fc.task.head.center_dist_m > 0 )
 			sprintf_P(text, PSTR("Short: %u%%"), fc.task.opti_step * 20);
 		else
 			sprintf_P(text, PSTR("Short:%0.2fkm"), fc.task.head.opti_dist_m / 1000.0);

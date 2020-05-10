@@ -89,6 +89,12 @@ void widget_flight_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 		strcpy_P(tmp, PSTR("Start"));
 		widget_value_txt(tmp, x, y + lh, w, h - lh);
 	}
+
+	if (fc.flight.state == FLIGHT_HIKE)
+	{
+		strcpy_P(tmp, PSTR("Hiking"));
+		widget_value_txt(tmp, x, y + lh, w, h - lh);
+	}
 }
 
 void widget_flight_time_irqh(uint8_t type, uint8_t * buff)
@@ -112,9 +118,71 @@ void widget_flight_time_irqh(uint8_t type, uint8_t * buff)
 			fc_reset();
 			return;
 		}
+
+		if (fc.flight.state == FLIGHT_HIKE)
+		{
+			fc_end_hike();
+			return;
+		}
+	}
+}
+
+void widget_hike_mode_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	uint8_t lh = widget_label_P(PSTR("Hike"), x, y);
+
+	char tmp1[7];
+	char tmp2[7];
+
+	if (!fc.gps_data.valid)
+	{
+		strcpy_P(tmp1, PSTR("No"));
+		strcpy_P(tmp2, PSTR("GPS"));
+		widget_value_txt2(tmp1, tmp2, x, y + lh, w, h - lh);
+		return;
+	}
+
+	if (fc.flight.state == FLIGHT_HIKE)
+	{
+		strcpy_P(tmp1, PSTR("Stop"));
+		strcpy_P(tmp2, PSTR("Hike"));
+		widget_value_txt2(tmp1, tmp2, x, y + lh, w, h - lh);
+	}
+
+	if (fc.flight.state == FLIGHT_LAND || fc.flight.state == FLIGHT_WAIT)
+	{
+		strcpy_P(tmp1, PSTR("Start"));
+		strcpy_P(tmp2, PSTR("Hike"));
+		widget_value_txt2(tmp1, tmp2, x, y + lh, w, h - lh);
+	}
+
+	if (fc.flight.state == FLIGHT_FLIGHT)
+	{
+		strcpy_P(tmp1, PSTR("Flying"));
+		widget_value_txt(tmp1, x, y + lh, w, h - lh);
+	}
+}
+
+void widget_hike_mode_irqh(uint8_t type, uint8_t * buff)
+{
+	if (type == B_MIDDLE && *buff == BE_LONG)
+	{
+		if (fc.flight.state == FLIGHT_LAND || fc.flight.state == FLIGHT_WAIT)
+		{
+			fc_hike();
+			return;
+		}
+
+		if (fc.flight.state == FLIGHT_HIKE)
+		{
+			fc_end_hike();
+			return;
+		}
 	}
 }
 
 register_widget1(w_time, "Time", widget_time_draw);
 register_widget1(w_date, "Date", widget_date_draw);
 register_widget2(w_flight_time, "Flight time", widget_flight_time_draw, 0, widget_flight_time_irqh);
+register_widget2(w_hike_mode, "Hike mode", widget_hike_mode_draw, 0, widget_hike_mode_irqh);
+

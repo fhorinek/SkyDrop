@@ -77,13 +77,13 @@ Tools info
 Tools we are using:
 
 Eclipse IDE for C/C++ Developers<br>
-https://eclipse.org/downloads/packages/eclipse-ide-cc-developers/lunasr2<br>
+https://www.eclipse.org/eclipseide/<br>
 AVR Eclipse plugin<br>
 http://avr-eclipse.sourceforge.net/wiki/index.php/The_AVR_Eclipse_Plugin<br>
 PyDev Eclipse plugin<br>
 http://pydev.org/<br>
-Atmel AVR GCC Toolchain:<br>
-http://www.atmel.com/tools/ATMELAVRTOOLCHAINFORLINUX.aspx<br>
+AVR GCC Toolchain 7.2.0<br>
+skydrop/utils/avr-toolchain/build.sh<br>
 
 Build info
 =====

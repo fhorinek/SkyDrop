@@ -337,7 +337,8 @@ app.service("memory", ["$http", "$q", function($http, $q){
     this.init_step_1 = function(data, service)    
     {
         service.ee_buffer = new Uint8Array(data);
-        service.build_number = get_uint32(service.ee_buffer, 0);
+        //in builds 5172 and 5176 was error storing BUILD_NUMBER as uint16_t two upper bytes are random
+        service.build_number = get_uint32(service.ee_buffer, 0) & 0x0000FFFF;
         console.log("actual build_number is", service.build_number);        
         if (service.newest_build === false)
         	service.newest_build = service.build_number;

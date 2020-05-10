@@ -228,7 +228,7 @@ void navigation_step()
 
 		center_dist -= fc.task.next_waypoint.twpt.radius_m;
 
-		if (center_dist <= 0)
+		if (center_dist <= 0 && fc.flight.state == FLIGHT_FLIGHT)
 		{
 
 			if (waypoint_task_mode() == TASK_MODE_PREPARE)

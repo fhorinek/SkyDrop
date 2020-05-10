@@ -35,7 +35,7 @@ void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 	char text[10];
 
-	float distance = fc.odometer / 100000.0;        // cm to km
+	float distance = fc.odometer / 1000.0;        // cm to km
 	sprintf_distance(text, distance);
 
 	widget_value_txt(text, x, y + lh, w, h - lh);
@@ -344,7 +344,7 @@ void widget_waypoint_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 
 				widget_value_txt(text, x, y + lh, w, h - lh);
 			}
-
+			else
 			if (fc.task.waypoint_index < fc.task.waypoint_count)
 			{
 				char text1[16];

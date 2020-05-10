@@ -48,7 +48,7 @@ EEMEM cfg_t config_ee = {
 		//hide_label
 		0b00000000,
 	    //page_acro_thold; //*10
-		-4,
+		-50,
 	    //page_circling_timeout; //in  s
 		15,
 		//page mode
@@ -197,7 +197,7 @@ EEMEM cfg_t config_ee = {
 		//prebeep_offset in Hz
 		150,
 		//prebeep_length in ms
-		160,
+		150,
 		//weak_low_freq
 		100,
 		//weak_high_freq
@@ -442,7 +442,7 @@ void cfg_restore_defaults()
 
 		memcpy_P(buff, progmem_adr, size);
 		
-		eeprom_write_block(buff, eeprom_adr, size);
+		ee_update_block(buff, eeprom_adr, size);
 
 		ewdt_reset();
 	}

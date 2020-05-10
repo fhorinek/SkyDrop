@@ -15,7 +15,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//accelerometer
 		w_acc_total,
 		//time date
-		w_time, w_date, w_flight_time,
+		w_time, w_date, w_flight_time, w_hike_mode,
 		//temperature
 		w_temperature,
 		//gps
@@ -77,6 +77,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 
 	//time and date
 	WIDGET_FTIME,
+	WIDGET_HIKE,
 	WIDGET_TIME,
 	WIDGET_DATE,
 
@@ -130,9 +131,13 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 void sprintf_distance(char *text, float distance)
 {
 	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+	{
 		distance *= FC_KM_TO_MILE;
+	}
 
-	if (distance < 1.0)
+	if (distance < 1.0 && !(config.connectivity.gps_format_flags & GPS_DIST_UNIT_I))
+		sprintf_P(text, PSTR("%0.0fm"), distance * 1000);
+	else if (distance < 10.0)
 		sprintf_P(text, PSTR("%.2f"), distance);
 	else if (distance < 100.0)
 		sprintf_P(text, PSTR("%.1f"), distance);
@@ -312,7 +317,10 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
 			uint8_t text_w = max(text_w1, text_w2);
 			text_h = disp.GetTextHeight() * 2;
 			if (w < text_w || h < text_h)
+			{
+				widget_value_txt(value1, x, y, w, h);
 				return;
+			}
 		}
 	}
 
