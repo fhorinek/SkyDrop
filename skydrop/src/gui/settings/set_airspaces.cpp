@@ -95,7 +95,7 @@ void gui_set_airspaces_item(uint8_t index, char * text, uint8_t * flags, char * 
 			if (config.airspaces.warning_m == 0)
 				strcpy_P(sub_text, PSTR("disabled"));
 			else
-			  sprintf_P(sub_text, PSTR("%um"), config.airspaces.warning_m);
+				sprintf_P(sub_text, PSTR("%um"), config.airspaces.warning_m);
 		break;
 
 		case (2):

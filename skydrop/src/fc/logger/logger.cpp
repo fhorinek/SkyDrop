@@ -175,7 +175,7 @@ void logger_start()
 	if (fc.flight.state == FLIGHT_FLIGHT)
 		sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
 	else
-		sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/H%02d-%02d%02d."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
+		sprintf_P(path, PSTR("/%S/%04u/%02u-%02u/%02d-%02d%02dH."), LOG_DIR_P, year, month, day, logger_flight_number, hour, min);
 
 	//	f_mkdir(path);
 
