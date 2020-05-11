@@ -160,8 +160,6 @@ During startup animation, firmware version in bottom left and hardware revision 
 
 **Home Time** shows the time needed to get to _HOME_. This only shows up, if you fly towards _HOME_.
 
-**Home Info** Some textual information about _HOME_, taken from the home data file.
-
 **Waypoint arrow** shows the direction, where the next waypoint is.
 
 **Waypoint distance** shows the distance in miles/km to the next waypoint.

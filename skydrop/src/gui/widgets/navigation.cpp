@@ -163,39 +163,6 @@ void widget_waypoint_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	widget_nav_time_draw(PSTR("WP"), sec, x, y, w, h);
 }
 
-void widget_home_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
-{
-	uint8_t lh = widget_label_P(PSTR("Home"), x, y);
-
-	char text[21];
-	//strings are not always n null term
-	text[20] = 0;
-
-	if (config.home.flags & HOME_TAKEOFF)
-	{
-		strcpy_P(text, PSTR("Take off"));
-	}
-	else if(config.home.flags  & HOME_LOADED)
-	{
-		strcpy(text, (char *)config.home.name);
-	}
-	else
-	{
-		strcpy_P(text, PSTR("Load"));
-	}
-
-	widget_value_txt(text, x, y + lh, w, h - lh);
-}
-
-void widget_home_info_irqh(uint8_t type, uint8_t * buff)
-{
-	if (type == B_MIDDLE && *buff == BE_LONG)
-	{
-		gui_switch_task(GUI_NAVIGATION);
-		gui_list_set_index(GUI_NAVIGATION, 4);
-	}
-}
-
 void widget_waypoint_info_irqh(uint8_t type, uint8_t * buff)
 {
 	if (type == TASK_IRQ_BUTTON_L || type == TASK_IRQ_BUTTON_R)
@@ -428,7 +395,6 @@ register_widget2(w_odo_meter, "Odometer", widget_odometer_draw, 0, widget_odomet
 register_widget1(w_odo_home_direction, "Home Arrow", widget_home_arrow_draw);
 register_widget1(w_odo_home_distance, "Home Distance", widget_home_distance_draw);
 register_widget1(w_odo_home_time, "Home Time", widget_home_time_draw);
-register_widget2(w_home_info, "Home Info", widget_home_info_draw, 0, widget_home_info_irqh);
 
 register_widget1(w_waypoint_direction, "Waypoint Arrow", widget_waypoint_direction_draw);
 register_widget1(w_waypoint_distance, "Waypoint Distance", widget_waypoint_distance_draw);

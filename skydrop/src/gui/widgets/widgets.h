@@ -108,30 +108,29 @@ extern float widget_menu_fvalue1;
 #define WIDGET_ODO_BACK			32
 #define WIDGET_ODO_DISTANCE		33
 #define WIDGET_HOME_TIME		34
-#define WIDGET_HOME_INFO		35
 #include <gui/widgets/navigation.h>
 
-#define WIDGET_COMPASS			36
-#define WIDGET_COMPASS_ARROW	37
-#define WIDGET_COMPASS_POINTS	38
+#define WIDGET_COMPASS			35
+#define WIDGET_COMPASS_ARROW	36
+#define WIDGET_COMPASS_POINTS	37
 #include "compass.h"
 
-#define WIDGET_THERMAL_TIME     39
-#define WIDGET_THERMAL_GAIN     40
-#define WIDGET_THERMAL_ASS      41
+#define WIDGET_THERMAL_TIME     38
+#define WIDGET_THERMAL_GAIN     39
+#define WIDGET_THERMAL_ASS      40
 #include "thermal.h"
 
-#define WIDGET_WAYPOINT_ARROW       42
-#define WIDGET_WAYPOINT_DISTANCE    43
-#define WIDGET_WAYPOINT_TIME        44
-#define WIDGET_WAYPOINT_INFO        45
+#define WIDGET_WAYPOINT_ARROW       41
+#define WIDGET_WAYPOINT_DISTANCE    42
+#define WIDGET_WAYPOINT_TIME        43
+#define WIDGET_WAYPOINT_INFO        44
 
-#define WIDGET_AIRSPACE_INFO	    46
+#define WIDGET_AIRSPACE_INFO	    45
 #include "airspace.h"
 
-#define NUMBER_OF_WIDGETS			47
+#define NUMBER_OF_WIDGETS			46
 
-#define NUMBER_OF_SORTED_WIDGETS	47
+#define NUMBER_OF_SORTED_WIDGETS	46
 
 /**
  * Format a distance in a human readable format.

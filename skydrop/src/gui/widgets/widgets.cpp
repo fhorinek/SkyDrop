@@ -31,7 +31,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//agl
 		w_agl_height, w_agl_ground_level,
 		//odometer
-		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time, w_home_info,
+		w_odo_meter, w_odo_home_direction, w_odo_home_distance, w_odo_home_time,
 		//compass
 		w_compass_heading, w_compass_arrow, w_compass_points,
 		//thermal
@@ -86,7 +86,6 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_ODO_BACK,
 	WIDGET_ODO_DISTANCE,
 	WIDGET_HOME_TIME,
-	WIDGET_HOME_INFO,
   
    //waypoints
 	WIDGET_WAYPOINT_ARROW,

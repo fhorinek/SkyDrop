@@ -4,6 +4,7 @@ Build XXXX - DD. MM. 2020
 FIX:
  * "Airspace>Alert near" setting did not show current
    value (bubeck)
+ * Removed widget Home>Info
 
 Build 5179 - 09. 05. 2020
 ========================================================

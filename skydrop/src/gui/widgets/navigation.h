@@ -15,7 +15,6 @@ extern widget w_odo_meter;
 extern widget w_odo_home_direction;
 extern widget w_odo_home_distance;
 extern widget w_odo_home_time;
-extern widget w_home_info;
 extern widget w_waypoint_direction;
 extern widget w_waypoint_distance;
 extern widget w_waypoint_time;
