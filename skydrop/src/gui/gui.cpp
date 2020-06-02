@@ -520,11 +520,12 @@ void gui_loop()
 		//no activity for a long time -> power off
 		if (gui_task == GUI_PAGES)
 		{
-			//Power off if not in flight, auto power off is enabled and bluetooth device is not connected
-			if (fc.flight.state != FLIGHT_FLIGHT &&
-					config.system.auto_power_off > 0 &&
-					!bt_device_active() &&
-					battery_calibrating_state == BATTERY_CAL_NONE)
+			//Power off if not in flight, hike, auto power off is enabled and bluetooth device is not connected
+			if (fc.flight.state != FLIGHT_FLIGHT
+					&& fc.flight.state != FLIGHT_HIKE
+					&& config.system.auto_power_off > 0
+					&& !bt_device_active()
+					&& battery_calibrating_state == BATTERY_CAL_NONE)
 			{
 				if (task_get_ms_tick() - gui_idle_timer > (uint32_t)config.system.auto_power_off * 60ul * 1000ul)
 				{

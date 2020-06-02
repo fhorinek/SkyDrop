@@ -1,7 +1,11 @@
-Build XXXX - DD. MM. 2020
+Build 5192 - 02. 06. 2020
 ========================================================
 
+ADDED:
+ * Time to Hike widget
+
 FIX:
+ * Auto power off disabled during hike mode
  * "Airspace>Alert near" setting did not show current
    value (bubeck)
 
