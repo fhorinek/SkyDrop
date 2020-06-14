@@ -22,6 +22,7 @@ CreateStdOut(bt_pan1026_out, bt_pan1026.StreamWrite);
 //#define DEBUG_BT_ENABLED
 
 #ifdef DEBUG_BT_ENABLED
+	#include "../../debug_on.h"
 	#define DEBUG_BT(...) DEBUG(__VA_ARGS__)
 #else
 	#define DEBUG_BT(...)
@@ -368,8 +369,8 @@ void pan1026::ParseMNG()
 				for (uint8_t i = 0; i < 16; i++)
 					config.connectivity.bt_link_key[i] = this->parser_buffer[15 + i];
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
 
 				for (uint8_t i = 0; i < 6; i++)
 				{
@@ -378,8 +379,8 @@ void pan1026::ParseMNG()
 				}
 				DEBUG_BT("\n");
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_partner, &config_ee.connectivity.bt_link_partner, 6);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_partner, &config_ee.connectivity.bt_link_partner, 6);
 
 
 			}
@@ -390,8 +391,8 @@ void pan1026::ParseMNG()
 				memset((void *)config.connectivity.bt_link_partner, 0, sizeof(config.connectivity.bt_link_partner));
 				memset((void *)config.connectivity.bt_link_key, 0, sizeof(config.connectivity.bt_link_key));
 
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
+				
+				ee_update_block((void *)&config.connectivity.bt_link_key, &config_ee.connectivity.bt_link_key, 16);
 			}
 		break;
 
@@ -650,6 +651,8 @@ void pan1026::ParseMNG_LE()
 	uint8_t status, op_code, tmp;
 
 #ifdef DEBUG_BT_ENABLED
+	uint16_t handle;
+
 	DEBUG_BT("\n - MNG LE ----\n");
 	for (uint8_t i = 0; i < this->parser_packet_length; i++)
 		DEBUG_BT("%02X ", this->parser_buffer[i]);
@@ -693,7 +696,7 @@ void pan1026::ParseMNG_LE()
 		case(0x93): // TCU_MNG_LE_DISCONNECT_EVENT
 #ifdef DEBUG_BT_ENABLED
 			DEBUG_BT("LE Disconnection event\n");
-		 	uint16_t handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
+		 	handle = this->parser_buffer[7] | (this->parser_buffer[8] << 8);
 			DEBUG_BT("Handle 0x%04X\n", handle);
 #endif
 			bt_irqh(BT_IRQ_DISCONNECTED, NULL);
@@ -771,8 +774,8 @@ void pan1026::ParseMNG_LE()
 
 				DEBUG_BT("Storing new random address...\n");
 				memcpy((void *)config.connectivity.btle_mac, &this->parser_buffer[8], 6);
-				eeprom_busy_wait();
-				eeprom_update_block((void *)&config.connectivity.btle_mac, &config_ee.connectivity.btle_mac, 6);
+				
+				ee_update_block((void *)&config.connectivity.btle_mac, &config_ee.connectivity.btle_mac, 6);
 			}
 			else
 				PAN1026_ERROR;
@@ -1289,7 +1292,7 @@ const uint8_t PROGMEM TCU_MNG_SSP_SET_REQ_HCI_IO_Capability_Request_Reply[] = {0
 const uint8_t PROGMEM TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Request_Reply[] = {0x11, 0x00, 0x00, 0xe1, 0x3d, 0x0a, 0x00, 0x2c, 0x04, 0x06};
 const uint8_t PROGMEM TCU_MNG_SSP_SET_REQ_HCI_User_Confirmation_Negative_Reply[] = {0x11, 0x00, 0x00, 0xe1, 0x3d, 0x0a, 0x00, 0x2d, 0x04, 0x06};
 
-const uint8_t PROGMEM TCU_MNG_LE_INIT_REQ[] = {0xd1, 0x01};
+const uint8_t PROGMEM TCU_MNG_LE_INIT_REQ[] = {0x08, 0x00, 0x00, 0xd1, 0x01, 0x01, 0x00, 0x00};
 const uint8_t PROGMEM TCU_LE_GATT_SER_INIT_REQ[] = {0x07, 0x00, 0x00, 0xd3, 0x00, 0x00, 0x00};
 const uint8_t PROGMEM TCU_LE_GATT_CLI_INIT_REQ[] = {0x07, 0x00, 0x00, 0xd2, 0x00, 0x00, 0x00};
 
@@ -1493,15 +1496,19 @@ void pan1026::Step()
 			//btle
 			case(pan_cmd_le_mng_init):
 				DEBUG_BT("pan_cmd_le_mng_init\n");
-				t_len = 3 + sizeof(TCU_MNG_LE_INIT_REQ) + 3 + sizeof(device_name_ble);
-				TCU_LEN(t_len);
 
 				RAW(TCU_MNG_LE_INIT_REQ);
 
-				t_len = 1 + sizeof(device_name_ble);
-				WRITE_16B(t_len);
-				this->StreamWrite(sizeof(device_name_ble)); //label name len
-				RAW(device_name_ble); //label name
+//				DEBUG_BT("pan_cmd_le_mng_init\n");
+//				t_len = 3 + sizeof(TCU_MNG_LE_INIT_REQ) + 3 + sizeof(device_name_ble);
+//				TCU_LEN(t_len);
+//
+//				RAW(TCU_MNG_LE_INIT_REQ);
+//
+//				t_len = 1 + sizeof(device_name_ble);
+//				WRITE_16B(t_len);
+//				this->StreamWrite(sizeof(device_name_ble)); //label name len
+//				RAW(device_name_ble); //label name
 			break;
 
 			case(pan_cmd_le_gat_ser_init):

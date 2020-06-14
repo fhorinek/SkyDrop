@@ -157,6 +157,7 @@ struct compass_data_t
 	float azimuth;				//in degrees < 0 ; 360 )
 	float azimuth_filtered;
 	int16_t declination;		//magnetic declination offset in degrees +-180
+	int8_t on_riser;
 };
 
 #define FC_TEMP_PERIOD	100
@@ -190,15 +191,54 @@ struct vario_data_t
 	float error_over_time;                     // This stores the error asscoiated with altitude1 in m.
 };
 
+//in cache file
+struct waypoint_cache_t
+{
+	char name[20];
+	char code[8];
+	int32_t latitude;	//* 10^7
+	int32_t longtitude;	//* 10^7
+	int16_t elevation;   //in meters
+};
+
+#define TASK_WAYPOINT_DEFAULT_RADIUS	1000
+#define TASK_OPTI_CACHE_SIZE			3
+
+struct opti_waypoint_cache_t
+{
+	int32_t latitude;	//* 10^7		4
+	int32_t longtitude;	//* 10^7		8
+	uint16_t radius_m;			//		10
+
+	int32_t opti_latitude;	//* 10^7	14
+	int32_t opti_longtitude;//* 10^7	18
+
+	float opti_angle;		//			22
+	uint32_t opti_dist_m;	    //			26
+
+	uint8_t index;			//			27
+};
+
+//in task
+struct task_waypoint_t
+{
+	waypoint_cache_t wpt;
+	uint16_t radius_m;
+	uint32_t dist_m;
+
+	int32_t opti_latitude;	//* 10^7
+	int32_t opti_longtitude;//* 10^7
+	uint32_t opti_dist_m;
+
+	float opti_angle;
+};
+
+//in FC
 struct waypoint_t
 {
-	uint8_t flags;
-	int32_t lat;
-	int32_t lon;
-	char name[20];
-	uint16_t radius_m;
 	int16_t bearing;
 	float distance;          // in km.
+	task_waypoint_t twpt;
 };
 
 
@@ -215,6 +255,7 @@ struct flight_stats_t
 #define FLIGHT_WAIT		0
 #define FLIGHT_FLIGHT	1
 #define FLIGHT_LAND		2
+#define FLIGHT_HIKE		3
 
 #define VARIO_CIRCLING_HISTORY_SCALE	12 // == 1m/s
 
@@ -242,11 +283,6 @@ struct flight_data_t
 	uint32_t total_time; //in seconds
 
 	uint32_t autostart_odo;   // odometer at start time.
-
-    //waypoints
-	uint8_t waypoint_no;                 // The number of the next waypoint where we need to fly. The first waypoint is "1".
-	uint8_t waypoints_count;			 // The number of waypoints in the file.
-	waypoint_t next_waypoint;        // The next waypoint where we need to fly
 
     //last gps heading
 	int16_t last_heading;
@@ -330,6 +366,61 @@ struct airspace_data_t
 	airspace_cache_t cache[AIR_LEVELS];
 };
 
+
+#define CFG_TASK_FLAGS_FAI_SPHERE		0b00000001
+#define CFG_TASK_FLAGS_START_ENTER		0b00000010
+#define CFG_TASK_FLAGS_GOAL_LINE		0b00000100
+#define CFG_TASK_FLAGS_OPTIMIZE			0b00001000
+
+#define CFG_TASK_HOUR_DISABLED			0x80
+
+#define NUMBER_OF_TASK_MODE		3
+
+struct task_header_t
+{
+	uint8_t flags;
+
+	uint8_t start_hour;
+	uint8_t start_min;
+
+	uint8_t deadline_hour;
+	uint8_t deadline_min;
+
+	int32_t center_dist_m;
+	int32_t opti_dist_m;
+};
+
+#define TASK_OPTIMISE_WAIT		20 * 1000
+
+struct task_t
+{
+    //task
+	bool active;
+	bool inside_before_start;
+	char name[10];
+
+	task_header_t head;
+
+	uint8_t waypoint_index;  	// The number of the next waypoint where we need to fly. The first waypoint is "1".
+	uint8_t waypoint_count;	// The number of waypoints in the file.
+	waypoint_t next_waypoint;  // The next waypoint where we need to fly
+
+	//state step
+	uint8_t opti_step;
+	uint8_t opti_itter_cnt;
+	uint32_t opti_timer;
+
+	//temporary variabiles for optimisation
+	bool opti_itter_improved;
+	uint8_t opti_wp_index;
+	uint8_t opti_sweep_step;
+
+	uint32_t best_opti_dist_m;
+	float best_opti_angle;
+
+	opti_waypoint_cache_t opti_cache[TASK_OPTI_CACHE_SIZE];
+};
+
 #define FC_GLIDE_MIN_KNOTS		(1.07) //2km/h
 #define FC_GLIDE_MIN_SINK		(-0.01)
 
@@ -362,7 +453,7 @@ struct flight_computer_data_t
 
 	airspace_data_t airspace;
 
-	uint32_t odometer;              // in cm gives up to 42.000km
+	uint32_t odometer;              // in m
 
 	uint8_t logger_state;           // One of the LOGGER_IDLE, LOGGER_WAIT_FOR_GPS, ...
 
@@ -373,6 +464,8 @@ struct flight_computer_data_t
 	int16_t altitudes[NUMBER_OF_ALTIMETERS];
 
 	uint8_t altitude_alarm_status;
+
+	task_t task;
 };
 
 void fc_init();
@@ -397,6 +490,9 @@ void fc_sync_gps_time();
 void fc_takeoff();
 void fc_landing();
 void fc_reset();
+
+void fc_hike();
+void fc_end_hike();
 
 void fc_log_battery();
 

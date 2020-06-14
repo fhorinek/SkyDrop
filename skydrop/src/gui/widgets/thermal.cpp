@@ -1,6 +1,6 @@
 #include "thermal.h"
 
-void widget_thermal_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_thermal_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	uint8_t lh = widget_label_P(PSTR("TTime"), x, y);
 
@@ -15,7 +15,7 @@ void widget_thermal_time_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_
 	widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_thermal_gain_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_thermal_gain_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
     uint8_t lh = widget_label_P(PSTR("TGain"), x, y);
 
@@ -30,7 +30,7 @@ void widget_thermal_gain_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_
     widget_value_int(text, x, y + lh, w, h - lh);
 }
 
-void widget_thermal_assistant_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
+void widget_thermal_assistant_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
 	if (!fc.flight.circling)
 	{

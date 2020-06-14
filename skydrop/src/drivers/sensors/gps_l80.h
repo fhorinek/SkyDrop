@@ -17,7 +17,6 @@
 // This is the vertical accuracy in m. It is not found anywhere but estimated by tilmann-at-bubecks.de
 #define L80_VACCURACY 30.0
 
-void gps_init();
 void gps_change_uart_baudrate();
 void gps_start();
 void gps_stop();

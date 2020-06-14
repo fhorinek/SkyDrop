@@ -3,7 +3,6 @@
 #include "../gui_list.h"
 #include "../gui_value.h"
 #include "../gui_dialog.h"
-#include "../gui_storage.h"
 
 #include "../../fc/conf.h"
 #include "../../drivers/storage/storage.h"
@@ -18,8 +17,8 @@ void gui_set_system_auto_power_off_cb(float ret)
 	uint8_t val = ret;
 
 	config.system.auto_power_off = val;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
+	
+	ee_update_byte(&config_ee.system.auto_power_off, config.system.auto_power_off);
 
 	gui_switch_task(GUI_SET_SYSTEM);
 }
@@ -67,22 +66,19 @@ void gui_set_system_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	{
 		case (0):
 			strcpy_P(text, PSTR("Time & Date"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Display"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Audio"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Auto power-off"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 			if (config.system.auto_power_off > 0)
 				sprintf_P(sub_text, PSTR("%u min"), config.system.auto_power_off);
 			else

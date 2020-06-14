@@ -60,11 +60,13 @@ bool SleepLock::Active()
 
 ISR(TASK_TIMER_CMPA)
 {
+#ifndef DISABLE_DEBUG
 	if (SP < debug_min_stack_pointer)
 		debug_min_stack_pointer = SP;
 
 	if (debug_max_heap_pointer < (uint16_t)freeRam())
 		debug_max_heap_pointer = freeRam();
+#endif
 
 	task_timer_high += 512ul;
 	fine_timer_high += 64000ul;

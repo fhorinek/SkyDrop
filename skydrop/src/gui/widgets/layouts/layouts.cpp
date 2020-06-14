@@ -17,6 +17,7 @@
 #include "233.inc"
 #include "31.inc"
 #include "33.inc"
+#include "313.inc"
 #include "333.inc"
 
 //every layout in one line since ee_mapper is lazy parser
@@ -38,5 +39,6 @@ const layout_desc * layout_list[NUMBER_OF_LAYOUTS] = {
 	(layout_desc *) &layout_233,
 	(layout_desc *) &layout_31,
 	(layout_desc *) &layout_33,
+	(layout_desc *) &layout_313,
 	(layout_desc *) &layout_333,
 };

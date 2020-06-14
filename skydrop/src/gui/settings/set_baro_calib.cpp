@@ -20,8 +20,8 @@ void set_baro_calib_declination(float val)
 
 	fc.compass.declination = int(val);
 	int16_t value = fc.compass.declination;
-	eeprom_busy_wait();
-	eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+	
+	ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
 
 void set_baro_calib_action(uint8_t index)
@@ -42,7 +42,7 @@ void set_baro_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub
 
 	case (0):
 		strcpy_P(text, PSTR("Pressure"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 
 		if(fc.compass.declination == 0.0)
 			strcpy_P(sub_text, PSTR("magnetic north"));
@@ -54,7 +54,7 @@ void set_baro_calib_item(uint8_t index, char * text, uint8_t * flags, char * sub
 	case(1):
 		strcpy_P(text, PSTR("Declination"));
 		sprintf_P(sub_text, PSTR("%d deg"), fc.compass.declination);
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 	break;
 	}
 }

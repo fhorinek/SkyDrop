@@ -8,7 +8,7 @@
 
 void gui_set_gps_init()
 {
-	gui_list_set(gui_set_gps_item, gui_set_gps_action, 7, GUI_SETTINGS);
+	gui_list_set(gui_set_gps_item, gui_set_gps_action, 8, GUI_SETTINGS);
 
 	if (config.connectivity.use_gps)
 		gps_detail();
@@ -28,8 +28,8 @@ void gui_set_gps_action(uint8_t index)
 	{
 	case(0):
 		config.connectivity.use_gps = !config.connectivity.use_gps;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.use_gps, config.connectivity.use_gps);
+		
+		ee_update_byte(&config_ee.connectivity.use_gps, config.connectivity.use_gps);
 		if (config.connectivity.use_gps)
 			gps_start();
 		else
@@ -75,25 +75,28 @@ void gui_set_gps_action(uint8_t index)
 		tmp = (config.connectivity.gps_format_flags & GPS_SPD_MASK) >> 0;
 		tmp = (tmp + 1) % 4;
 		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_SPD_MASK) | (tmp << 0);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
 	case(5):
 		tmp = (config.connectivity.gps_format_flags & GPS_FORMAT_MASK) >> 2;
 		tmp = (tmp + 1) % 3;
 		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_FORMAT_MASK) | (tmp << 2);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
 	case(6):
-		tmp = (~config.connectivity.gps_format_flags) & GPS_DIST_UNIT_MASK;
-		config.connectivity.gps_format_flags = (config.connectivity.gps_format_flags & ~GPS_DIST_UNIT_MASK) | tmp;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
+		config.connectivity.gps_format_flags ^= GPS_DIST_UNIT_I;
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	break;
 
+	case(7):
+		config.connectivity.gps_format_flags ^= GPS_EARTH_MODEL_FAI;
+		
+		ee_update_byte(&config_ee.connectivity.gps_format_flags, config.connectivity.gps_format_flags);
 	}
 }
 
@@ -119,9 +122,9 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 		case (0):
 			strcpy_P(text, PSTR("Enable GPS"));
 			if (config.connectivity.use_gps)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 
 		break;
 
@@ -148,7 +151,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 				strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
@@ -163,7 +166,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 					strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
@@ -178,12 +181,12 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 					strcpy_P(sub_text, PSTR("GPS disabled"));
 			}
 
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Speed units"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.gps_format_flags & GPS_SPD_MASK)
 			{
 				case(GPS_SPD_KNOT):
@@ -203,7 +206,7 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 
 		case (5):
 			strcpy_P(text, PSTR("Format"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 			switch (config.connectivity.gps_format_flags & GPS_FORMAT_MASK)
 			{
 				case(GPS_DDMMSS):
@@ -220,12 +223,22 @@ void gui_set_gps_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 
 		case (6):
 			strcpy_P(text, PSTR("Distance units"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 			if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
 				strcpy_P(sub_text, PSTR("imperial"));
 			else
 				strcpy_P(sub_text, PSTR("metric"));
 		break;
+
+		case(7):
+			strcpy_P(text, PSTR("Earth model"));
+			*flags =  GUI_LIST_SUB_TEXT;
+			if (config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI)
+				strcpy_P(sub_text, PSTR("FAI Sphere"));
+			else
+				strcpy_P(sub_text, PSTR("WGS-84"));
+			break;
+
 	}
 }
 

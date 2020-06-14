@@ -14,8 +14,8 @@ void gui_set_layouts_pages_cb(float val)
 	uint8_t tmp = val;
 
 	config.gui.number_of_pages = tmp;
-	eeprom_busy_wait();
-	eeprom_update_byte(&config_ee.gui.number_of_pages, tmp);
+	
+	ee_update_byte(&config_ee.gui.number_of_pages, tmp);
 
 	if (active_page >= tmp)
 		active_page = 0;
@@ -43,14 +43,14 @@ void gui_layouts_action(uint8_t index)
 
 	case(3):
 		config.gui.silent ^= (1 << active_page);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.silent, config.gui.silent);
+		
+		ee_update_byte(&config_ee.gui.silent, config.gui.silent);
 	break;
 
 	case(4):
 		config.gui.hide_label ^= (1 << active_page);
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.hide_label, config.gui.hide_label);
+		
+		ee_update_byte(&config_ee.gui.hide_label, config.gui.hide_label);
 	break;
 
     case(5):
@@ -65,39 +65,36 @@ void gui_layouts_item(uint8_t index, char * text, uint8_t * flags, char * sub_te
 	{
 		case (0):
 			strcpy_P(text, PSTR("Change widgets"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Change layout"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Pages count"));
 			sprintf_P(sub_text, PSTR("%d"), config.gui.number_of_pages);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Silent page"));
 			if (config.gui.silent & (1 << active_page))
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Hide labels"));
 			if (config.gui.hide_label & (1 << active_page))
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
         case (5):
             strcpy_P(text, PSTR("Autoset"));
-            *flags |= GUI_LIST_FOLDER;
         break;
 	}
 }

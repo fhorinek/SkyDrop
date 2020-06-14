@@ -130,8 +130,12 @@ void gps_parse_rmc()
 
 	if (tlen != 10)
 	{
+#ifndef DISABLE_DEBUG
 		if (config.system.debug_gps)
+		{
 			DEBUG("GPRMC bad timestamp len: %u\n", tlen);
+		}
+#endif
 		return;
 	}
 
@@ -173,8 +177,12 @@ void gps_parse_rmc()
 #endif
 
 	{
+#ifndef DISABLE_DEBUG
 		if (config.system.debug_gps)
+		{
 			DEBUG("GPRMC bad latitude len: %u\n", tlen);
+		}
+#endif
 		return;
 	}
 
@@ -211,8 +219,12 @@ void gps_parse_rmc()
 	if (tlen != 10)
 #endif
 	{
+#ifndef DISABLE_DEBUG
 		if (config.system.debug_gps)
+		{
 			DEBUG("GPRMC bad longitude len: %u\n", tlen);
+		}
+#endif
 		return;
 	}
 
@@ -254,8 +266,12 @@ void gps_parse_rmc()
 
 	if (tlen != 6)
 	{
+#ifndef DISABLE_DEBUG
 		if (config.system.debug_gps)
+		{
 			DEBUG("GPRMC bad date len: %u\n", tlen);
+		}
+#endif
 		return;
 	}
 
@@ -631,11 +647,13 @@ void gps_parse(Usart * c_uart)
 			gps_rx_checksum += hex_to_num(c);
 			gps_parser_buffer[gps_parser_buffer_index] = c;
 
+#ifndef DISABLE_DEBUG
 			if (config.system.debug_gps)
 			{
 				gps_parser_buffer[gps_parser_buffer_index + 1] = '\0';
 				DEBUG("GPS:\"$%s\"\n", gps_parser_buffer);
 			}
+#endif
 
 			gps_parser_buffer[gps_parser_buffer_index + 1] = '\n';
 			gps_parser_buffer[gps_parser_buffer_index + 2] = '\0';
@@ -665,15 +683,18 @@ void gps_parse(Usart * c_uart)
 				{
 					gps_parser_ptr = gps_parser_buffer + 4;
 
-					if (cmpn_p(gps_parser_ptr, PSTR("011"), 3))
-						gps_parse_hello();
+//					if (cmpn_p(gps_parser_ptr, PSTR("011"), 3))
+//						gps_parse_hello();
+//					else
 
-					else if (cmpn_p(gps_parser_ptr, PSTR("010"), 3))
+					if (cmpn_p(gps_parser_ptr, PSTR("010"), 3))
 						gps_parse_sys();
 				}
+#ifndef DISABLE_DEBUG
+				//vario simulation
 				else if (cmpn_p(gps_parser_buffer, PSTR("VAR"), 3))
 					gps_parse_var();
-
+#endif
 			}
 			else
 			{
@@ -729,11 +750,6 @@ void gps_start()
 	strcpy_P((char *)fc.gps_data.cache_gui_longtitude, PSTR("---"));
 
 	fc.gps_data.vdop = fc.gps_data.hdop = fc.gps_data.pdop = 0.0;
-}
-
-void gps_init()
-{
-	DEBUG("gps init\n");
 }
 
 bool gps_selftest()

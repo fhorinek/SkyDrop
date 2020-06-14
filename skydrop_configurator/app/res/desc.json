@@ -35,7 +35,9 @@
             "flags": [
                 ["CFG_DISP_INVERT", "Invert display"],
                 ["CFG_DISP_FLIP", "Flip display"],
-                ["CFG_DISP_ANIM", "Enable animations"]
+                ["CFG_DISP_ANIM", "Enable animations"],
+                ["CFG_DISP_CYCLE", "Automatic screen cycling"],
+                ["CFG_DISP_FAHRENHEIT", "Display temperature in Fahrenheit"]
             ]
         },
         "cfg_gui_menu_audio_flags" : {
@@ -44,7 +46,8 @@
             "flags": [
                 ["CFG_AUDIO_MENU_SPLASH", "On/Off sound"],
                 ["CFG_AUDIO_MENU_PAGES", "Page sound"],
-                ["CFG_AUDIO_MENU_BUTTONS", "Button sound"]
+                ["CFG_AUDIO_MENU_BUTTONS", "Button sound"],
+                ["CFG_AUDIO_MENU_GPS", "GPS acquired sound"]
             ]
         },        
         "cfg_gui_last_page" : {
@@ -99,7 +102,8 @@
                 ["VARIO_UNITS_I", "Use imperial units"],
                 ["VARIO_USE_ACC", "Use accelerometer data"]
             ]
-        },    
+        },  
+           
         "cfg_vario_weak_lift" : {
             "name": "Weak lift treshold",
             "desc": "in cm/s",
@@ -108,7 +112,7 @@
             "max": 200,
             "step": 10
         },              
-        "cfg_audio_profile_weak_lift_freq_low" : {
+        "cfg_audio_profile_weak_low_freq" : {
             "name": "Weak lift buzzer low frequency",
             "desc": "in Hz",
             "mode": "number",
@@ -116,7 +120,7 @@
             "max": 2000,
             "step": 10
         },
-        "cfg_audio_profile_weak_lift_freq_high" : {
+        "cfg_audio_profile_weak_high_freq" : {
             "name": "Weak lift buzzer high frequency",
             "desc": "in Hz",
             "mode": "number",
@@ -129,16 +133,32 @@
             "name": "Altimeter 1 flags",
             "mode": "flags",
             "flags": [
-                ["ALT_UNIT_I", "Use imperial units"]
+                ["ALT_UNIT_I", "Use imperial units"],
+                ["ALT_AUTO_GPS", "Auto correct from GPS"]
             ]
         },
         "cfg_audio_profile_flags" : {
-            "name": "Audio vario options",
-            "mode": "flags",
-            "flags": [
-                ["AUDIO_FLUID", "Enable fluid frequency change"],
-                ["AUDIO_WEAK", "Enable weak lift"],
-                ["AUDIO_BEEP_SINK", "Enable sink beep"]
+            "name": "Vario vario options",
+            "mode": "tripleselect",
+            "label1" : "Sink mode",
+            "mask1" : "AUDIO_SINK_MASK",
+            "options1": [
+                ["AUDIO_SINK_OFF", "Disabled"],
+                ["AUDIO_SINK_BEEP", "Beep"],
+                ["AUDIO_SINK_CONT", "Continuous"]
+            ],
+            "label2" : "Weak lift mode",
+            "mask2" : "AUDIO_WEAK_MASK",
+            "options2": [
+                ["AUDIO_WEAK_OFF", "Disabled"],
+                ["AUDIO_WEAK_BEEP", "Beep"],
+                ["AUDIO_WEAK_CONT", "Continuous"]
+            ],
+            "label3" : "Fluid audio",
+            "mask3" : "AUDIO_FLUID",
+            "options3": [
+                ["AUDIO_FLUID", "Enabled"],
+                [0, "Disabled"]
             ]
         }, 
         "cfg_audio_profile_lift" : {
@@ -157,13 +177,21 @@
             "max": 2000,
             "step": 10
         },
+        "cfg_audio_profile_weak" : {
+            "name": "Weak lift treshold",
+            "desc": "in cm/s",
+            "mode": "number",
+            "min": 10,
+            "max": 200,
+            "step": 10
+        },         
         "cfg_audio_profile_prebeep_offset" : {
             "name": "Prebeep frequency offset",
             "desc": "in Hz",
             "mode": "number",
             "min": 10,
-            "max": 250,
-            "step": 1
+            "max": 3000,
+            "step": 10
         },
         "cfg_audio_profile_prebeep_length" : {
             "name": "Prebeep duration",
@@ -216,8 +244,7 @@
             "mode": "select",
             "options": [
                 ["LOGGER_IGC", "IGC"],
-                ["LOGGER_KML", "KML"],
-                ["LOGGER_RAW", "RAW"]
+                ["LOGGER_KML", "KML"]
             ]
         },
         "cfg_connectivity_protocol" : {
@@ -226,13 +253,12 @@
             "options": [
                 ["PROTOCOL_DIGIFLY", "DigiFly"],
                 ["PROTOCOL_LK8EX1", "LK8EX1"],
-                ["PROTOCOL_BLUEFLY", "BlueFly (pressure only)"],
-                ["PROTOCOL_SKYBEAN", "SkyBean (in development)"]
+                ["PROTOCOL_BLUEFLY", "BlueFly (pressure only)"]
             ]
         },
         "cfg_connectivity_gps_format_flags" : {
             "name": "GPS flags",
-            "mode": "doubleselect",
+            "mode": "tripleselect",
             "label1" : "GPS coordinates format",
             "mask1" : "GPS_FORMAT_MASK",
             "options1": [
@@ -247,7 +273,14 @@
                 ["GPS_SPD_KPH", "Km/h"],
                 ["GPS_SPD_MPH", "MPH"],
                 ["GPS_SPD_KNOT", "Knots"]
+            ],
+            "label3" : "GPS distance calculation",
+            "mask3" : "GPS_EARTH_MODEL_MASK",
+            "options3": [
+                ["GPS_EARTH_MODEL_FAI", "FAI Sphere (R=6378)"],
+                [0, "WGS84 Ellipsoid"]
             ]
+            
         },
         "cfg_system_auto_power_off" : {
             "name": "Auto power-off",
@@ -578,7 +611,103 @@
             "name": "Home position navigation info",
             "mode": "readonly",
             "size": 80
-        }
+        },
+         "cfg_altitude_alarm_enabled" : {
+            "name": "Altitude alarm",
+            "desc": "Enable altitude alarm function",
+            "mode": "bool"
+        },        
+        "cfg_altitude_alarm_1" : {
+            "name": "First lower altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },
+        "cfg_altitude_alarm_2" : {
+            "name": "Second lower altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },
+        "cfg_altitude_alarm_h1" : {
+            "name": "First higher altitude alarm",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 10000,
+            "step": 5
+        },        
+        "cfg_altitude_alarm_reset" : {
+            "name": "Reset alarm confirmation after gaining this height over the alarms",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 10,
+            "max": 1000,
+            "step": 1
+        },
+        "cfg_altitude_alarm_confirm_secs" : {
+            "name": "Airspace warning auto confirm",
+            "desc": "in seconds",
+            "mode": "number",
+            "min": 0,
+            "max": 255,
+            "step": 1
+        },
+                
+        "cfg_airspaces_class_enabled" : {
+            "name": "Airspace class enabled",
+            "desc": "Enable warning for airspace classes",
+            "mode": "flags",
+            "flags": [
+                [1, "Class A"],
+                [2, "Class B"],
+                [4, "Class C"],
+                [8, "Class D"],
+                [16, "Class E"],
+                [32, "Class F"],
+                [64, "Class G"],
+                [128, "CTR"],
+                [256, "CTA"],
+                [512, "TMA"],
+                [1024, "Danger"],
+                [2048, "Restricted"],
+                [4092, "Prohibited"],
+                [8192, "TMZ"],
+                [16384, "RMZ"],
+                [32768, "FIR"]
+            ]        
+        },
+        "cfg_airspaces_warning_m" : {
+            "name": "Airspace proximity warning",
+            "desc": "in meters",
+            "mode": "number",
+            "min": 0,
+            "max": 3000,
+            "step": 100
+        },
+        "cfg_airspaces_alarm_confirm_secs" : {
+            "name": "Airspace warning auto confirm",
+            "desc": "in seconds",
+            "mode": "number",
+            "min": 0,
+            "max": 255,
+            "step": 1
+        },
+        
+        "cfg_airspaces_alert_on" : {
+            "name": "Airspace violation warning",
+            "desc": "Enable airspace violation alarm",
+            "mode": "bool"
+        },        
+        
+        "cfg_tasks_name" : {
+            "name": "Selected task",
+            "mode": "readonly"
+        }            
     },
     
     "regexp": {
@@ -603,6 +732,7 @@
                 ["LAYOUT_233", "Layout 2 | 3 | 3"],
                 ["LAYOUT_31", "Layout 3 | 1"],
                 ["LAYOUT_33", "Layout 3 | 3"],
+                ["LAYOUT_313", "Layout 3 | 1 | 3"],
                 ["LAYOUT_333", "Layout 3 | 3 | 3"]
             ]
         },
@@ -631,9 +761,14 @@
                 ["WIDGET_GHEADING_POINTS", "GPS heading points"],
                 ["WIDGET_POSITION", "GPS position"],
 
+                ["WIDGET_THERMAL_TIME", "Thermal time"],
+                ["WIDGET_THERMAL_GAIN", "Thermal gain"],
+		        ["WIDGET_THERMAL_ASS", "Thermal assistant"],
+
                 ["WIDGET_FTIME", "Flight time"],
                 ["WIDGET_TIME", "Actual time"],
                 ["WIDGET_DATE", "Actual date"],
+                ["WIDGET_HIKE", "Hike mode"],
 
                 ["WIDGET_ODO_METER", "Odometer"],
                 ["WIDGET_ODO_BACK", "Back"],
@@ -646,11 +781,7 @@
                 ["WIDGET_WAYPOINT_TIME", "Waypoint Time"],
                 ["WIDGET_WAYPOINT_INFO", "Waypoint Info"],
 
-                ["WIDGET_AIRSPACE_ARROW", "Airspace Arrow"],
-                ["WIDGET_AIRSPACE_DISTANCE", "Airspace Distance"],
-                ["WIDGET_AIRSPACE_LIMITS", "Airspace Limits"],
                 ["WIDGET_AIRSPACE_INFO", "Airspace Info"],
-                ["WIDGET_AIRSPACE_NAME", "Airspace Name"],
 
                 ["WIDGET_WIND_DIR", "Wind direction"],
                 ["WIDGET_WIND_DIR_ARROW", "Wind direction arrow"],
@@ -735,44 +866,9 @@
             "min" : 80000,
             "max" : 1050000,
             "step": 1
-        },
-         "cfg_altitude_alarm_enabled" : {
-            "name": "Altitude alarm",
-            "desc": "Enable altitude alarm function",
-            "mode": "bool"
-        },        
-        "cfg_altitude_alarm_1" : {
-            "name": "First lower altitude alarm",
-            "desc": "in meters",
-            "mode": "number",
-            "min": 0,
-            "max": 10000,
-            "step": 5
-        },
-        "cfg_altitude_alarm_2" : {
-            "name": "Second lower altitude alarm",
-            "desc": "in meters",
-            "mode": "number",
-            "min": 0,
-            "max": 10000,
-            "step": 5
-        },
-        "cfg_altitude_alarm_h1" : {
-            "name": "First higher altitude alarm",
-            "desc": "in meters",
-            "mode": "number",
-            "min": 0,
-            "max": 10000,
-            "step": 5
-        },        
-        "cfg_altitude_alarm_reset" : {
-            "name": "Reset alarm confirmation after gaining this height over the alarms",
-            "desc": "in meters",
-            "mode": "number",
-            "min": 10,
-            "max": 1000,
-            "step": 1
         }
+
+        
     },
     "widgets" :
     {
@@ -905,6 +1001,14 @@
 			"label": "FTime", 
 			"value": "56.21"
         },
+        "WIDGET_HIKE":
+        {
+         	"type": "value",
+			"name": "Hike mode",
+			"desc": "Start/stop hike mode", 
+			"label": "Hike", 
+			"value": "Start Hike"
+        },        
         "WIDGET_TEMPERATURE":
         {
          	"type": "temperature",
@@ -958,7 +1062,7 @@
         {
          	"type": "text",
 			"name": "Thermal assistant",
-			"desc": "Graphical representation of thermal", 
+			"desc": "Graphical representation of thermal core", 
 			"label": "", 
 			"value": "???"
         },                        
@@ -1126,44 +1230,14 @@
             "label": "WP",
             "value": "Load"
         },
-        "WIDGET_AIRSPACE_ARROW":
-        {
-            "type": "arrow",
-            "name": "Airspace Arrow",
-            "desc": "Arrow pointing to nearest airspace or shortest way out",
-            "label": "AS near"
-        },
-        "WIDGET_AIRSPACE_DISTANCE":
-        {
-            "type": "value",
-            "name": "Airspace Distance",
-            "desc": "Arrow showing distace to nearest airspace or how far inside you are",
-            "label": "AS dist",
-            "value": "32"
-        },
-        "WIDGET_AIRSPACE_LIMITS":
-        {
-            "type": "text2",
-            "name": "Airspace Limis",
-            "desc": "Actual maximum and minimum allowed altitude",
-            "label": "AS Limit",
-            "value": "2432\n---"
-        },
         "WIDGET_AIRSPACE_INFO":
         {
-            "type": "text2",
+            "type": "text",
             "name": "Airspace Info",
             "desc": "Floor and Ceiling of nearest or intersected airspace",
-            "label": "AS Info",
-            "value": "1424M\n0A"
-        },
-        "WIDGET_AIRSPACE_NAME":
-        {
-            "type": "text",
-            "name": "Airspace Name",
-            "desc": "Name of the nearest or intersected airspace",
-            "label": "AS Name",
-            "value": "CTA BRATISLAVA"
+            "label": "Airspace",
+            "value": "???"
         }
+
     }
 }            

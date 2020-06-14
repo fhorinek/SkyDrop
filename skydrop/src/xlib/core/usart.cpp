@@ -4,11 +4,7 @@
 #include "../../skydrop.h"
 
 //pointers to handle IRQ
-Usart * usarts[7];
-
-CreateStdIn(usart_default_in, usarts[0]->Read);
-CreateStdOut(usart_default_out, usarts[0]->Write);
-
+Usart * usarts[4];
 
 //from clock.cc
 extern uint32_t freq_cpu;
@@ -32,18 +28,6 @@ float xlib_core_usart_pow(int8_t exp)
     return res;
 }
 
-/**
- * Register event fore this module
- *
- * \param event event to trigger callback
- * \param cb callback function
- *
- * \note clear callback using NULL cb parameter
- */
-void Usart::RegisterEvent(xlib_core_usart_events event, usart_event_cb_t cb)
-{
-	this->events[event] = cb;
-}
 
 Usart::Usart(uint16_t rx_size, uint8_t * rx_buffer, uint16_t tx_size, uint8_t * tx_buffer)
 {
@@ -58,31 +42,6 @@ Usart::Usart(uint16_t rx_size, uint8_t * rx_buffer, uint16_t tx_size, uint8_t * 
 }
 
 
-/**
- * Initialize usart (Quick init)
- *
- * init usart on usb port at baud 9600
- *
- */
-void Usart::Init()
-{
-	this->Init(usart0, 9600ul);
-
-	SetStdIO(usart_default_in, usart_default_out);
-}
-
-/**
- * Initialize usart (Quick init)
- *
- * \param baud Baudrate
- *
- */
-void Usart::Init(uint32_t baud)
-{
-	this->Init(usart0, baud);
-
-	SetStdIO(usart_default_in, usart_default_out);
-}
 
 /**
  * Initialize usart
@@ -112,8 +71,6 @@ void Usart::Init(USART_t * usart, PORT_t * port, uint8_t tx, uint8_t n, uint32_t
 	uint8_t i;
 
 	//reset events
-	for (i=0;i<xlib_core_usart_events_count;i++)
-		this->events[i] = NULL;
 
 //	if (baud > freq_cpu/16)
 //		mul = 8;
@@ -357,8 +314,6 @@ void Usart::RxComplete()
 		a++;
 	}
 
-	if (this->events[usart_event_rxcomplete] != NULL)
-		this->events[usart_event_rxcomplete](this);
 }
 
 /**
@@ -373,9 +328,6 @@ void Usart::TxComplete()
 		if (this->tx_index == this->tx_buffer_size)
 			this->tx_index = 0;
 	}
-
-	if (this->events[usart_event_txcomplete] != NULL)
-		this->events[usart_event_txcomplete](this);
 
 	//if no data to tx disable DRE irq
 	if (this->tx_len == 0)
@@ -595,24 +547,19 @@ void UsartTxInteruptHandler(uint8_t n)
 #include "../../drivers/uart.h"
 
 //IRQ mapping
-//usart0
-ISR(USARTE0_RXC_vect){UsartRxInteruptHandler(0);}
-ISR(USARTE0_DRE_vect){UsartTxInteruptHandler(0);}
-//usart1
-ISR(USARTE1_RXC_vect){UsartRxInteruptHandler(1);}
-ISR(USARTE1_DRE_vect){UsartTxInteruptHandler(1);}
-//usart2
-ISR(USARTF0_RXC_vect){UsartRxInteruptHandler(2);}
-ISR(USARTF0_DRE_vect){UsartTxInteruptHandler(2);}
-//usart3
-ISR(USARTC0_RXC_vect){UsartRxInteruptHandler(3);}
-ISR(USARTC0_DRE_vect){UsartTxInteruptHandler(3);}
-//usart4
-ISR(USARTC1_RXC_vect){UsartRxInteruptHandler(4);}
-ISR(USARTC1_DRE_vect){UsartTxInteruptHandler(4);}
-//usart5
-ISR(USARTD1_RXC_vect){UsartRxInteruptHandler(5);}
-ISR(USARTD1_DRE_vect){UsartTxInteruptHandler(5);}
-//usart6
-ISR(USARTD0_RXC_vect){UsartRxInteruptHandler(6);}
-ISR(USARTD0_DRE_vect){UsartTxInteruptHandler(6);}
+
+//usartc0
+ISR(USARTC0_RXC_vect){UsartRxInteruptHandler(0);}
+ISR(USARTC0_DRE_vect){UsartTxInteruptHandler(0);}
+
+//usartd0
+ISR(USARTD0_RXC_vect){UsartRxInteruptHandler(1);}
+ISR(USARTD0_DRE_vect){UsartTxInteruptHandler(1);}
+
+//usartE0
+ISR(USARTE0_RXC_vect){UsartRxInteruptHandler(2);}
+ISR(USARTE0_DRE_vect){UsartTxInteruptHandler(2);}
+
+//usartF0
+ISR(USARTF0_RXC_vect){UsartRxInteruptHandler(3);}
+ISR(USARTF0_DRE_vect){UsartTxInteruptHandler(3);}

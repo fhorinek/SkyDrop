@@ -19,9 +19,9 @@ void gui_set_time_time_cb(float val)
 void gui_set_time_timezone_cb(float val)
 {
 	int8_t tmp = val * 2;
-	eeprom_busy_wait();
+	
 	config.system.time_zone = tmp;
-	eeprom_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
+	ee_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
 	gui_switch_task(GUI_SET_TIME);
 }
 
@@ -30,12 +30,12 @@ void gui_set_time_action(uint8_t index)
 	switch(index)
 	{
 	case(0):
-		gui_value_conf_P(PSTR("Time"), GUI_VAL_TIME, PSTR(""), 0, 0, 0, 1, gui_set_time_time_cb);
+		gui_value_conf_P(PSTR("Time"), GUI_VAL_SYSTEM_TIME, PSTR(""), 0, 0, 0, 1, gui_set_time_time_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
 	case(1):
-		gui_value_conf_P(PSTR("Date"), GUI_VAL_DATE, PSTR(""), 0, 0, 0, 1, gui_set_time_time_cb);
+		gui_value_conf_P(PSTR("Date"), GUI_VAL_SYSTEM_DATE, PSTR(""), 0, 0, 0, 1, gui_set_time_time_cb);
 		gui_switch_task(GUI_SET_VAL);
 	break;
 
@@ -58,15 +58,15 @@ void gui_set_time_action(uint8_t index)
 			time_set_local(time_get_local() - 3600);
 		}
 
-		eeprom_busy_wait();
-		eeprom_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
-		eeprom_update_byte(&config_ee.system.time_flags, config.system.time_flags);
+		
+		ee_update_block((void *)&config.system.time_zone, (void *)&config_ee.system.time_zone, sizeof(int8_t));
+		ee_update_byte(&config_ee.system.time_flags, config.system.time_flags);
 	break;
 
 	case(4):
 		config.system.time_flags ^= TIME_SYNC;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.system.time_flags, config.system.time_flags);
+		
+		ee_update_byte(&config_ee.system.time_flags, config.system.time_flags);
 	break;
 	}
 }
@@ -88,35 +88,35 @@ void gui_set_time_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 		case (0):
 			strcpy_P(text, PSTR("Time"));
 			sprintf_P(sub_text, PSTR("%02d:%02d.%02d"), hour, min, sec);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Date"));
 			sprintf_P(sub_text, PSTR("%02d/%02d/%04d"), day, month, year);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Time Zone"));
 			sprintf_P(sub_text, PSTR("UTC %+0.1f"), config.system.time_zone / 2.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("DST"));
 			if (config.system.time_flags & TIME_DST)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Sync with GPS"));
 			if (config.system.time_flags & TIME_SYNC)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 	}
 }

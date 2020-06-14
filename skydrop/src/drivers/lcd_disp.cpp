@@ -1,6 +1,8 @@
 #include "lcd_disp.h"
 #include "uart.h"
 
+#include "debug_on.h"
+
 void lcd_display::SetDrawLayer(uint8_t layer)
 {
 	this->active_buffer = this->layers[layer];
@@ -10,38 +12,28 @@ void lcd_display::SetDrawLayer(uint8_t layer)
  * Set on screen position for next character
  *
  */
-void lcd_display::GotoXY(int16_t x, int8_t y)
+void lcd_display::GotoXY(int8_t x, int8_t y)
 {
 	text_x = x;
 	text_y = y;
 }
 
-uint32_t lcd_display::clip(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
+void lcd_display::GotoXY_16(int16_t x, int16_t y)
 {
-	uint32_t oldClip = ((uint32_t) clip_x1 << 24 | (uint32_t) clip_y1 << 16
-			| (uint32_t) clip_x2 << 8 | (uint32_t) clip_y2);
-
+	text_x = x;
+	text_y = y;
+}
+void lcd_display::clip(uint8_t x1, uint8_t x2)
+{
 	clip_x1 = x1;
-	clip_y1 = y1;
 	clip_x2 = x2;
-	clip_y2 = y2;
-
-	return oldClip;
 }
 
-uint32_t lcd_display::clip(uint32_t x1y1x2y2)
+void lcd_display::noclip()
 {
-	uint32_t oldClip = ((uint32_t) clip_x1 << 24 | (uint32_t) clip_y1 << 16
-			| (uint32_t) clip_x2 << 8 | (uint32_t) clip_y2);
-
-	clip_x1 = (x1y1x2y2 >> 24) & 0xff;
-	clip_y1 = (x1y1x2y2 >> 16) & 0xff;
-	clip_x2 = (x1y1x2y2 >> 8) & 0xff;
-	clip_y2 = (x1y1x2y2 >> 0) & 0xff;
-
-	return oldClip;
+	clip_x1 = 0;
+	clip_x2 = lcd_width;
 }
-
 /**
  * Write ASCII character on screen
  *
@@ -57,10 +49,11 @@ void lcd_display::Write(uint8_t ascii = 0)
 	}
 	else
 	{
-		uint16_t adr = 6 + (ascii - font_begin) * 2;
+		uint8_t char_index = ascii - font_begin;
+		uint16_t adr = 7 + char_index;
 
-		uint16_t start = pgm_read_word(&this->font_data[adr]);
-		uint16_t width = pgm_read_word(&this->font_data[adr + 2]) - start;
+		uint16_t start = pgm_read_byte(&this->font_data[adr]) + (char_index >= font_9bit ? 0xFF : 0) ;
+		uint16_t width = pgm_read_byte(&this->font_data[adr + 1]) + (char_index + 1 >= font_9bit ? 0xFF : 0) - start;
 
 		adr = this->font_adr_start + start * this->font_lines;
 
@@ -68,7 +61,7 @@ void lcd_display::Write(uint8_t ascii = 0)
 		{
 			uint16_t index = adr + x * font_lines;
 
-			if (text_x < lcd_width && text_x > 0)
+			if (text_x < lcd_width && text_x >= 0)
 			{
 				for (uint8_t n = 0; n < font_lines; n++)
 				{
@@ -97,11 +90,11 @@ uint16_t lcd_display::GetTextWidth_P(const char * text)
 	return GetTextWidth(textRAM);
 }
 
-uint16_t lcd_display::GetTextWidth(char * text)
+uint16_t lcd_display::GetTextWidth(char * text, uint16_t n)
 {
 	uint16_t ret = 0;
 
-	while (*text != 0)
+	for (uint16_t i = 0; i < n && *text != 0; i++)
 	{
 		if (*text < font_begin || *text > font_end)
 		{
@@ -109,36 +102,11 @@ uint16_t lcd_display::GetTextWidth(char * text)
 		}
 		else
 		{
-			uint16_t adr = 6 + (*text - font_begin) * 2;
+			uint8_t char_index = *text - font_begin;
+			uint16_t adr = 7 + char_index;
 
-			uint16_t start = pgm_read_word(&this->font_data[adr]);
-			uint8_t width = pgm_read_word(&this->font_data[adr + 2]) - start;
-
-			ret += font_spacing + width;
-		}
-
-		text++;
-	}
-
-	return ret;
-}
-
-uint16_t lcd_display::GetTextWidthN(char * text, uint8_t n)
-{
-	uint16_t ret = 0;
-
-	for (uint8_t i = 0; i < n && *text != 0; i++)
-	{
-		if (*text < font_begin || *text > font_end)
-		{
-			ret += font_spacing * 2;
-		}
-		else
-		{
-			uint16_t adr = 6 + (*text - font_begin) * 2;
-
-			uint16_t start = pgm_read_word(&this->font_data[adr]);
-			uint8_t width = pgm_read_word(&this->font_data[adr + 2]) - start;
+			uint16_t start = pgm_read_byte(&this->font_data[adr]) + (char_index >= font_9bit ? 0xFF : 0) ;
+			uint16_t width = pgm_read_byte(&this->font_data[adr + 1]) + (char_index + 1 >= font_9bit ? 0xFF : 0) - start;
 
 			ret += font_spacing + width;
 		}
@@ -168,15 +136,15 @@ void lcd_display::LoadFont(const uint8_t * font)
 	this->font_lines = pgm_read_byte(&font[3]);
 	this->font_begin = pgm_read_byte(&font[4]);
 	this->font_end = pgm_read_byte(&font[5]);
+	this->font_9bit = pgm_read_byte(&font[6]);
 
-	this->font_adr_start = 6; //header
-	this->font_adr_start += (this->font_end - this->font_begin + 2) * 2; //char adr table
+	this->font_adr_start = 7; //header
+	this->font_adr_start += this->font_end - this->font_begin + 2; //char adr table
 }
 
 void lcd_display::sendcommand(unsigned char cmd)
 {
 	GpioWrite(LCD_DC, LOW);
-
 	this->spi->SetSlave(LCD_CE);
 	this->spi->SendRaw(cmd);
 	this->spi->UnsetSlave();
@@ -188,13 +156,13 @@ void lcd_display::sendcommand(unsigned char cmd)
 void lcd_display::Init(Spi * spi)
 {
 	this->spi = spi;
-
-	clip(0, 0, lcd_width, lcd_height);
+	this->noclip();
 
 	GpioSetDirection(LCD_RST, OUTPUT);
 	GpioSetDirection(LCD_DC, OUTPUT);
 	GpioSetDirection(LCD_CE, OUTPUT);
 	GpioSetDirection(LCD_VCC, OUTPUT);
+
 
 	GpioWrite(LCD_VCC, HIGH);
 
@@ -203,7 +171,6 @@ void lcd_display::Init(Spi * spi)
 	GpioWrite(LCD_RST, HIGH);
 
 #define START_LINE	64
-
 	sendcommand(0x21); //Extended commands
 
 	sendcommand(0x04 | (0b01000000 & START_LINE) >> 6);
@@ -299,13 +266,15 @@ void lcd_display::DrawLine(int8_t x0, int8_t y0, int8_t x1, int8_t y1, uint8_t c
  */
 void lcd_display::PutPixel(int8_t x, int8_t y, uint8_t color)
 {
-	if (x < clip_x1|| y < clip_y1 || x >= clip_x2 || y >= clip_y2
-	|| x >= lcd_width || y >= lcd_height)
+	if (x < clip_x1 || x >= clip_x2 || y >= lcd_height || y < 0)
 		return;
 
 	uint16_t index = ((y / 8) * lcd_width) + (x % lcd_width);
+
 	if (color == DISP_COLOR_BLACK)
+	{
 		active_buffer[index] |= (1 << (y % 8));
+	}
 	else
 	{
 		active_buffer[index] &= ~(1 << (y % 8));

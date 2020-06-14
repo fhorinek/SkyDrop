@@ -9,178 +9,141 @@
 #include "../../fc/airspace.h"
 #include "../../fc/agl.h"
 
-void widget_invert_if_forbidden(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
+	char text1[12];
+	char text2[12];
+
+	if (x != 0 || y != 0 || w < 78 || h < 40)
+	{
+		disp.DrawLine(x, y, x + w, y + h, 1);
+		disp.DrawLine(x, y + h, x + w, y, 1);
+
+		return;
+	}
+
+	if (!fc.airspace.file_valid)
+	{
+		char text[8];
+		strcpy_P(text, PSTR("No data"));
+		widget_value_txt(text, x, y, w, h);
+
+		return;
+	}
+
+	if (fc.airspace.airspace_index == AIR_INDEX_INVALID)
+	{
+		char text[16];
+		strcpy_P(text, PSTR("No restriction"));
+		widget_value_txt(text, x, y, w, h);
+
+		return;
+	}
+
+	uint8_t y_spc = h - 40;
+
+	//Name
+	widget_value_scroll((char *)fc.airspace.airspace_name, 0, 0, w, 12);
+	//Class
+	airspace_class_to_text(text1, fc.airspace.airspace_class);
+
+	disp.LoadFont(F_LABEL);
+	uint8_t f_h = disp.GetAHeight();
+	gui_raligh_text(text1, w - 2, 10 + y_spc / 4);
+
+	disp.GotoXY(10, 12);
 	if (fc.airspace.inside)
 	{
-		if (GUI_BLINK_TGL(1000))
+		strcpy_P(text1, PSTR("INSIDE!"));
+		fprintf(lcd_out, text1);
+
+		if (GUI_BLINK_TGL(500))
 		{
-			disp.Invert(x, y, x+w-2, y+h-2);
+			uint8_t f_w = disp.GetTextWidth(text1);
+			disp.Invert(8, 10, 10 + f_w, 13 + f_h);
 		}
 	}
-}
-
-void widget_airspace_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	uint8_t lh = widget_label_P(PSTR("AS dist"), x, y);
-
-	char text[10];
-
-	if (fc.airspace.angle == AIRSPACE_INVALID)
+	else if (fc.airspace.distance_m <= config.airspaces.warning_m && config.airspaces.warning_m > 0)
 	{
-		strcpy_P(text, PSTR("---"));
-	}
-	else
-	{
-		if (fc.airspace.distance_m == AIRSPACE_TOO_FAR)
+		strcpy_P(text1, PSTR("NEAR!"));
+		fprintf(lcd_out, text1);
+		if (GUI_BLINK_TGL(1500))
 		{
-			text[0] = '+';
-			sprintf_distance(text + 1, 50);
-		}
-		else
-		{
-			sprintf_distance(text, fc.airspace.distance_m / 1000.0);
-		}
-	}
-
-	widget_value_txt(text, x, y + lh, w, h - lh);
-	widget_invert_if_forbidden(x, y, w, h);
-}
-
-void widget_airspace_limits_sprintf(char * text, uint16_t raw)
-{
-	if (raw == AIRSPACE_INVALID)
-	{
-		strcpy_P(text, PSTR("---"));
-		return;
-	}
-
-	if (raw & AIR_AGL_FLAG)
-	{
-		// This is a height above ground level (AGL), so add ground level to get absolute height
-		if (fc.agl.ground_level != AGL_INVALID)
-		{
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				sprintf_P(text, PSTR("%u"), airspace_convert_alt_ft(raw) + fc.agl.ground_level / FC_METER_TO_FEET);
-			else
-				sprintf_P(text, PSTR("%u"), airspace_convert_alt_m(raw) + fc.agl.ground_level);
-
-			return;
-		}
-		else
-		{
-			// We do not have AGL data, so only show the value
-			if (config.altitude.alt1_flags & ALT_UNIT_I)
-				sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_ft(raw));
-			else
-				sprintf_P(text, PSTR("%uAGL"), airspace_convert_alt_m(raw));
-			return;
+			uint8_t f_w = disp.GetTextWidth(text1);
+			disp.Invert(8, 10, 10 + f_w, 13 + f_h);
 		}
 	}
 	else
 	{
-		// This is not a AGL value, so it is MSL. Show directly
-		if (config.altitude.alt1_flags & ALT_UNIT_I)
-			sprintf_P(text, PSTR("%u"), airspace_convert_alt_ft(raw));
-		else
-			sprintf_P(text, PSTR("%u"), airspace_convert_alt_m(raw));
-
-		return;
+		strcpy_P(text1, PSTR("Outside"));
+		fprintf(lcd_out, text1);
 	}
 
-}
-
-void widget_airspace_limits_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	uint8_t lh = widget_label_P(PSTR("AS Limit"), x, y);
-	char text1[15];
-	char text2[15];
-
-	if (fc.airspace.inside)
+	if (GUI_BLINK_TGL(5000))
 	{
-		strcpy_P(text1, PSTR("Inside!"));
-		widget_value_txt(text1, x, y + lh, w, h - lh);
-		widget_invert_if_forbidden(x, y, w, h);
-		return;
-	}
-
-	widget_airspace_limits_sprintf(text1, fc.airspace.max_alt);
-	widget_airspace_limits_sprintf(text2, fc.airspace.min_alt);
-
-	widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
-}
-
-void widget_airspace_angle_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	uint8_t lh = widget_label_P(PSTR("AS near"), x, y);
-
-	if (fc.airspace.angle == AIRSPACE_INVALID)
-	{
-		char tmp[5];
-		strcpy_P(tmp, PSTR("---"));
-		widget_value_int(tmp, x, y + lh, w, h - lh);
-	}
-	else
-	{
+		//Direction
 		int16_t relative_direction;
-
 		relative_direction = fc.airspace.angle - fc.compass.azimuth_filtered;
-		widget_arrow(relative_direction, x, y, w, h);
-	}
+		widget_arrow(relative_direction, 0, 18 + y_spc / 2, 22, 20);
 
-	widget_invert_if_forbidden(x, y, w, h);
-}
-
-void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	uint8_t lh = widget_label_P(PSTR("AS Info"), x, y);
-	char text1[15];
-	char text2[15];
-
-	if (fc.airspace.angle == AIRSPACE_INVALID)
-	{
-		strcpy_P(text1, PSTR("---"));
-		widget_value_txt(text1, x, y + lh, w, h - lh);
-	}
-	else
-	{
-		if (config.altitude.alt1_flags & ALT_UNIT_I)
-		{
-			sprintf_P(text1, PSTR("%u%c"), airspace_convert_alt_ft(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? 'A' : 'M');
-			sprintf_P(text2, PSTR("%u%c"), airspace_convert_alt_ft(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? 'A' : 'M');
-		}
+		//Distance
+		sprintf_distance(text1, fc.airspace.distance_m / 1000.0);
+		if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+			strcpy_P(text2, PSTR("mi"));
 		else
-		{
-			sprintf_P(text1, PSTR("%u%c"), airspace_convert_alt_m(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? 'A' : 'M');
-			sprintf_P(text2, PSTR("%u%c"), airspace_convert_alt_m(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? 'A' : 'M');
-		}
+			strcpy_P(text2, PSTR("km"));
 
-		widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
-	}
-
-	widget_invert_if_forbidden(x, y, w, h);
-}
-
-void widget_airspace_name_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint8_t flags)
-{
-	uint8_t lh = widget_label_P(PSTR("AS Name"), x, y);
-
-	if (fc.airspace.angle == AIRSPACE_INVALID)
-	{
-		char text[4];
-		strcpy_P(text, PSTR("---"));
-		widget_value_txt(text, x, y + lh, w, h - lh);
+		widget_value_int_sub(text1, text2, w - 60, 18 + y_spc / 2, 20, 20);
 	}
 	else
 	{
-		widget_value_scroll((char *)fc.airspace.airspace_name, x, y + lh, w, h - lh);
+		widget_alt_draw(16, 20 + y_spc / 4, 20, 20, 1);
+
+		/*
+		if (fc.agl.ground_level != AGL_INVALID || !(fc.airspace.floor & AIR_AGL_FLAG || fc.airspace.ceiling & AIR_AGL_FLAG))
+		{
+			uint8_t line_x = w - 39;
+			uint8_t line_y = 17 + y_spc / 4;
+			uint8_t line_h = line_y - h - 2;
+			disp.DrawLine(line_x, line_y, line_x, line_h + line_y, 1);
+
+			int16_t flr = airspace_convert_alt_m(fc.airspace.floor) + (fc.airspace.floor & AIR_AGL_FLAG) ? fc.agl.ground_level : 0;
+			int16_t cei = airspace_convert_alt_m(fc.airspace.ceiling) + (fc.airspace.ceiling & AIR_AGL_FLAG) ? fc.agl.ground_level : 0;
+
+			int16_t delta = cei - flr;
+
+			widget_arrow(90, 0, 18 + y_spc / 2, 20, 20);
+		}
+		*/
 	}
 
-	widget_invert_if_forbidden(x, y, w, h);
+	//Floor & ceil
+	disp.LoadFont(F_TEXT_S);
+	f_h = disp.GetAHeight();
+
+	const char * msl = PSTR("Msl");
+	const char * agl = PSTR("Agl");
+
+	if (config.altitude.alt1_flags & ALT_UNIT_I)
+	{
+		sprintf_P(text1, PSTR("%u %S"), airspace_convert_alt_ft(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? agl : msl);
+		sprintf_P(text2, PSTR("%u %S"), airspace_convert_alt_ft(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? agl : msl);
+	}
+	else
+	{
+		sprintf_P(text1, PSTR("%u %S"), airspace_convert_alt_m(fc.airspace.ceiling), (fc.airspace.ceiling & AIR_AGL_FLAG) ? agl : msl);
+		sprintf_P(text2, PSTR("%u %S"), airspace_convert_alt_m(fc.airspace.floor), (fc.airspace.floor & AIR_AGL_FLAG) ? agl : msl);
+	}
+
+	disp.GotoXY(w - 36, 17 + y_spc / 4);
+	fprintf_P(lcd_out, PSTR("Ceiling"));
+	disp.GotoXY(w - 32, 23 + y_spc / 4);
+	fprintf(lcd_out, text1);
+
+	disp.GotoXY(w - 36, 29 + y_spc / 2);
+	fprintf_P(lcd_out, PSTR("Floor"));
+	disp.GotoXY(w- 32, 35 + y_spc / 2);
+	fprintf(lcd_out, text2);
 }
 
-register_widget1(w_airspace_distance, "Airspace Distance", widget_airspace_distance_draw);
-register_widget1(w_airspace_angle,    "Airspace Arrow",    widget_airspace_angle_draw);
-register_widget1(w_airspace_limits,   "Airspace Limits",   widget_airspace_limits_draw);
-register_widget1(w_airspace_info,     "Airspace Info",     widget_airspace_info_draw);
-register_widget1(w_airspace_name,     "Airspace Name",     widget_airspace_name_draw);
+register_widget1(w_airspace_info, "Airspace Info", widget_airspace_info_draw);

@@ -13,18 +13,18 @@ void gui_set_vario_init()
 void gui_set_vario_lift_cb(float val)
 {
 	gui_switch_task(GUI_SET_VARIO);
-	eeprom_busy_wait();
+	
 	int16_t tmp = val * 100;
-	eeprom_update_word((uint16_t *)&config_ee.audio_profile.lift, tmp);
+	ee_update_word((uint16_t *)&config_ee.audio_profile.lift, tmp);
 	config.audio_profile.lift = tmp;
 }
 
 void gui_set_vario_sink_cb(float val)
 {
 	gui_switch_task(GUI_SET_VARIO);
-	eeprom_busy_wait();
+	
 	int16_t tmp = val * 100;
-	eeprom_update_word((uint16_t *)&config_ee.audio_profile.sink, tmp);
+	ee_update_word((uint16_t *)&config_ee.audio_profile.sink, tmp);
 	config.audio_profile.sink = tmp;
 }
 
@@ -46,14 +46,14 @@ void gui_set_vario_action(uint8_t index)
 
 		case(2):
 			config.vario.flags ^= VARIO_UNITS_I;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.vario.flags, config.vario.flags);
+			
+			ee_update_byte(&config_ee.vario.flags, config.vario.flags);
 		break;
 
 		case(3):
 			config.vario.flags ^= VARIO_USE_ACC;
-			eeprom_busy_wait();
-			eeprom_update_byte(&config_ee.vario.flags, config.vario.flags);
+			
+			ee_update_byte(&config_ee.vario.flags, config.vario.flags);
 		break;
 
 		case(4):
@@ -70,18 +70,18 @@ void gui_set_vario_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		case (0):
 			strcpy_P(text, PSTR("Lift threshold"));
 			sprintf_P(sub_text, PSTR("%+0.1f m/s"), config.audio_profile.lift / 100.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Sink threshold"));
 			sprintf_P(sub_text, PSTR("%+0.1f m/s"), config.audio_profile.sink / 100.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Units"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 			if (config.vario.flags & VARIO_UNITS_I)
 				strcpy_P(sub_text, PSTR("imperial"));
 			else
@@ -91,14 +91,13 @@ void gui_set_vario_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		case (3):
 			strcpy_P(text, PSTR("Use accel"));
 			if (config.vario.flags & VARIO_USE_ACC)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Advanced"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 

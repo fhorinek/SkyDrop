@@ -41,14 +41,14 @@ void gui_set_altimeter_stop()
 	if (set_alt_index == 0)
 	{
 		config.altitude.alt1_flags = set_alt_flags;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.altitude.alt1_flags, set_alt_flags);
+		
+		ee_update_byte(&config_ee.altitude.alt1_flags, set_alt_flags);
 	}
 	else
 	{
 		config.altitude.altimeter[set_alt_index - 1].flags = set_alt_flags;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
+		
+		ee_update_byte(&config_ee.altitude.altimeter[set_alt_index - 1].flags, set_alt_flags);
 	}
 
 }
@@ -199,7 +199,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 	if (index == 0) //Same for every altmeter
 	{
 		strcpy_P(text, PSTR("Mode"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags =  GUI_LIST_SUB_TEXT;
 		switch (set_alt_flags & 0b11000000)
 		{
 			case(ALT_ABS_QNH1):
@@ -222,7 +222,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		if (index == 1)
 		{
 			strcpy_P(text, PSTR("Relative to"));
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 			sprintf_P(sub_text, PSTR("Altimeter %d"), (set_alt_flags & 0b00001111) + 1);
 			return;
 		}
@@ -231,9 +231,9 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 		{
 			strcpy_P(text, PSTR("Zero at Take off"));
 			if (set_alt_flags & ALT_AUTO_ZERO)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 			return;
 		}
 	}
@@ -241,7 +241,7 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 	if ((index == 3 && set_alt_list_num == 4) || index == 1) //Units
 	{
 		strcpy_P(text, PSTR("Units"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags =  GUI_LIST_SUB_TEXT;
 		if (set_alt_flags & ALT_UNIT_I)
 			strcpy_P(sub_text, PSTR("imperial"));
 		else
@@ -253,9 +253,9 @@ void gui_set_altimeter_item(uint8_t index, char * text, uint8_t * flags, char * 
 	{
 		strcpy_P(text, PSTR("Auto from GPS"));
 		if (set_alt_flags & ALT_AUTO_GPS)
-			*flags |= GUI_LIST_CHECK_ON;
+			*flags =  GUI_LIST_CHECK_ON;
 		else
-			*flags |= GUI_LIST_CHECK_OFF;
+			*flags =  GUI_LIST_CHECK_OFF;
 
 		return;
 	}

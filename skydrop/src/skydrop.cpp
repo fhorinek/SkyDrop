@@ -12,9 +12,6 @@ void Setup()
 	//disable 2MHZ osc
 	OSC.CTRL = 0b00000010;
 
-	//get RAM info
-	free_ram_at_start = freeRam();
-
 	//get reset reason
 	system_rst = RST.STATUS;
 	RST.STATUS = 0b00111111;
@@ -43,13 +40,12 @@ void Setup()
 	uart_init();
 	battery_init();
 
-
 	_delay_ms(100);
 }
 
 void Post()
 {
-	DEBUG("\n *** POST *** \n");
+	DEBUG("\nPOST\n");
 
 	//Reset reason
 	print_reset_reason();
@@ -57,18 +53,11 @@ void Post()
 	//App name
 	print_fw_info();
 
-	//Print actual time
-	DEBUG("Time is ... \n");
-	print_datetime(time_get_local());
-
-	DEBUG("Free RAM at start ... %d\n", free_ram_at_start);
-	test_memory();
-
 	char id[23];
 	GetID_str(id);
-	DEBUG("Device serial number ... %s\n", id);
+	DEBUG("ID:%s\n", id);
 
-	DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
+	DEBUG("Rev:%u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
 
 	//debug info
 	debug_last_dump();
@@ -80,7 +69,7 @@ int main()
 
 	Post();
 
-	DEBUG(" *** STARTING TASKS ***\n");
+	DEBUG("STARTING\n");
 
 	task_init();
 

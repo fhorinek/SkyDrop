@@ -17,8 +17,8 @@ void gui_set_altimeters_qnh1_cb(float val)
 	val *= 100.0;
 
 	gui_switch_task(GUI_SET_ALTIMETERS);
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.altitude.QNH1, val);
+	
+	ee_update_float(&config_ee.altitude.QNH1, val);
 
 	config.altitude.QNH1 = val;
 
@@ -31,8 +31,8 @@ void gui_set_altimeters_qnh2_cb(float val)
 	val *= 100.0;
 
 	gui_switch_task(GUI_SET_ALTIMETERS);
-	eeprom_busy_wait();
-	eeprom_update_float(&config_ee.altitude.QNH2, val);
+	
+	ee_update_float(&config_ee.altitude.QNH2, val);
 
 	config.altitude.QNH2 = val;
 }
@@ -68,24 +68,22 @@ void gui_set_altimeters_item(uint8_t index, char * text, uint8_t * flags, char *
 	{
 		case (0): case (1): case (2): case (3): case (4):
 			sprintf_P(text, PSTR("Altimeter %d"), index + 1);
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (5):
 			strcpy_P(text, PSTR("Alarms"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
 			strcpy_P(text, PSTR("QNH1 for Alt 1"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH1 / 100.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (7):
 			strcpy_P(text, PSTR("QNH2"));
 			sprintf_P(sub_text, PSTR("%0.2f hPa"), config.altitude.QNH2 / 100.0);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 	}
 }

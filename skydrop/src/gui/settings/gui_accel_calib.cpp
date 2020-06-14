@@ -135,6 +135,7 @@ int16_t acc_calib_get_value(uint8_t flag, int16_t in_value)
 
 void gui_accelerometer_calib_loop()
 {
+#ifndef NEED_LOT_OF_SPACE_FOR_DEBUG
 	gui_acc_calib.sampling = 0;
 
 	//DEBUG("%d    %d    %d\n", fc.acc.raw.x, fc.acc.raw.y, fc.acc.raw.z);
@@ -146,7 +147,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.x > treshold_lo && !(gui_acc_calib.valid & VALID_XP))
 	{
 		flag = VALID_XP;
-		dest = &gui_acc_calib.calc.neg_val.x;
+		dest = &gui_acc_calib.calc.pos_val.x;
 		raw_val = fc.acc.raw.x;
 	}
 
@@ -160,7 +161,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.y > treshold_lo && !(gui_acc_calib.valid & VALID_YP))
 	{
 		flag = VALID_YP;
-		dest = &gui_acc_calib.calc.neg_val.y;
+		dest = &gui_acc_calib.calc.pos_val.y;
 		raw_val = fc.acc.raw.y;
 	}
 
@@ -174,7 +175,7 @@ void gui_accelerometer_calib_loop()
 	if(fc.acc.raw.z > treshold_lo && !(gui_acc_calib.valid & VALID_ZP))
 	{
 		flag = VALID_ZP;
-		dest = &gui_acc_calib.calc.neg_val.z;
+		dest = &gui_acc_calib.calc.pos_val.z;
 		raw_val = fc.acc.raw.z;
 	}
 
@@ -303,6 +304,7 @@ void gui_accelerometer_calib_loop()
 		sprintf_P(tmp, PSTR("%0.2f"), gui_acc_calib.filtered_total_new);
 		gui_caligh_text(tmp, GUI_DISP_WIDTH / 2 + 20, GUI_DIALOG_TOP  + h_t + h_t -2);
 	}
+#endif
 }
 
 

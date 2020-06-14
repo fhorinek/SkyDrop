@@ -3,19 +3,18 @@
 #include "../fc/fc.h"
 #include "../gui/splash.h"
 
+#include "debug_on.h"
+
 void task_active_init()
 {
 	DEBUG(" *** THIS IS TASK ACTIVE ***\n");
-
 	//init gui
 	gui_init();
 	gui_trigger_backlight();
 	ewdt_reset();
 
-
 	gui_splash_set_mode(SPLASH_ON);
 	gui_switch_task(GUI_SPLASH);
-
 
 	ewdt_reset();
 	if (storage_init())
@@ -33,11 +32,9 @@ void task_active_init()
 
 void task_special_files_handle()
 {
-	//Handle update files
-	FILINFO fno;
 
 	//new way to update FW if SKYDROP.FW file found
-	if (f_stat("SKYDROP.FW", &fno) == FR_OK)
+	if (storage_file_exist_P(PSTR("SKYDROP.FW")))
 	{
 		task_set(TASK_UPDATE);
 		return;
@@ -50,13 +47,13 @@ void task_special_files_handle()
 		gui_load_eeprom();
 	}
 
-	if (f_stat(BAT_CAL_FILE_RAW, &fno) == FR_OK)
+	if (storage_file_exist(BAT_CAL_FILE_RAW))
 	{
 		battery_finish_calibration();
 	}
 
 	//preserve EE and FW file if NO_WIPE file found (factory programming)
-	if (f_stat("NO_WIPE", &fno) != FR_OK)
+	if (storage_file_exist_P(PSTR("NO_WIPE")))
 	{
 		//remove applied update files
 		f_unlink("UPDATE.EE");

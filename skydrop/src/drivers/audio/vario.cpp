@@ -71,7 +71,9 @@ ISR(AUDIO_TIMER_OVF)
 			audio_vario_mode = VARIO_PAUSE;
 		}
 		else
+		{
 			audio_off();
+		}
 
 		return;
 	}
@@ -218,7 +220,7 @@ void audio_vario_step(float vario)
 	vario_ivario_old = ivario;
 
 	if ((ivario >= config.audio_profile.lift ||
-		(ivario >= config.audio_profile.lift - config.audio_profile.weak && config.audio_profile.flags & AUDIO_WEAK) ||
+		(ivario >= config.audio_profile.lift - config.audio_profile.weak && ((config.audio_profile.flags & AUDIO_WEAK_MASK) != AUDIO_WEAK_OFF)) ||
 		 ivario <= config.audio_profile.sink) && (config.gui.vario_volume > 0))
 	{
 		//get frequency from the table
@@ -233,26 +235,54 @@ void audio_vario_step(float vario)
 		audio_vario_pause = get_near(vario, config.audio_profile.pause) * MS_TO_TICKS;
 
 		audio_vario_prebeep_length = 0;
+		audio_vario_prebeep_frequency = 0;
 
-		if (ivario >= config.audio_profile.lift - config.audio_profile.weak && ivario < config.audio_profile.lift && config.audio_profile.flags & AUDIO_WEAK)
+		//weak mode
+		if (ivario >= config.audio_profile.lift - config.audio_profile.weak && ivario < config.audio_profile.lift && ((config.audio_profile.flags & AUDIO_WEAK_MASK) != AUDIO_WEAK_OFF))
 		{
-			//if weak lift -> add prebeep
-			audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
-			audio_vario_prebeep_frequency = audio_vario_freq - config.audio_profile.prebeep_offset;
+			switch (config.audio_profile.flags & AUDIO_WEAK_MASK)
+			{
+				//add prebeep
+				case (AUDIO_WEAK_BEEP):
+					audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
+					audio_vario_prebeep_frequency = audio_vario_freq -  + config.audio_profile.prebeep_offset;
+				break;
+
+				case (AUDIO_WEAK_CONT):
+					audio_vario_length = 0;
+					audio_vario_pause = 0;
+
+					int16_t lift_start_freq = config.audio_profile.weak_high_freq;
+
+					audio_vario_freq = config.audio_profile.weak_low_freq;
+					audio_vario_freq += ((lift_start_freq - config.audio_profile.weak_low_freq) * (ivario - (config.audio_profile.lift - config.audio_profile.weak))) / config.audio_profile.weak;
+				break;
+
+			}
+
 		}
 
-		if (ivario <= config.audio_profile.sink && config.audio_profile.flags & AUDIO_BEEP_SINK)
+		//sink mode
+		if (ivario <= config.audio_profile.sink)
 		{
-			//if sink and sink_prebeep -> add prebeep
-			audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
-			audio_vario_prebeep_frequency = audio_vario_freq + config.audio_profile.prebeep_offset;
-		}
+			switch (config.audio_profile.flags & AUDIO_SINK_MASK)
+			{
+				case(AUDIO_SINK_BEEP):
+					audio_vario_prebeep_length = config.audio_profile.prebeep_length * MS_TO_TICKS;
+					audio_vario_prebeep_frequency = audio_vario_freq + config.audio_profile.prebeep_offset;
+				break;
 
-		if (ivario <= config.audio_profile.sink && !(config.audio_profile.flags & AUDIO_BEEP_SINK))
-		{
-			//if sink is continous
-			audio_vario_length = 0;
-			audio_vario_pause = 0;
+				case(AUDIO_SINK_CONT):
+					//if sink is continuous
+					audio_vario_length = 0;
+					audio_vario_pause = 0;
+				break;
+
+				case(AUDIO_SINK_OFF):
+					audio_off();
+					return;
+				break;
+			}
 		}
 
 		//update audio with new settings

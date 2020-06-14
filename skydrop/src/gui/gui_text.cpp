@@ -103,13 +103,13 @@ void gui_text_loop()
 
 	uint8_t pad = 0;
 
-	while (disp.GetTextWidthN(gui_text_buffer + pad, gui_text_pos - pad) > (GUI_DISP_WIDTH * 5) / 6)
+	while (disp.GetTextWidth(gui_text_buffer + pad, gui_text_pos - pad) > (GUI_DISP_WIDTH * 5) / 6)
 		pad++;
 
 	fprintf_P(lcd_out, PSTR("%s"), gui_text_buffer + pad);
 	if (GUI_BLINK_TGL(400))
 	{
-		uint8_t w = disp.GetTextWidthN(gui_text_buffer + pad, gui_text_pos - pad);
+		uint8_t w = disp.GetTextWidth(gui_text_buffer + pad, gui_text_pos - pad);
 		disp.DrawLine(w + 1, 2, w + 1, f_h - 1, 1);
 	}
 

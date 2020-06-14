@@ -29,6 +29,7 @@ struct cfg_gui_layout
 #define CFG_DISP_FLIP			0b00000010
 #define CFG_DISP_ANIM			0b00000100
 #define CFG_DISP_CYCLE			0b00001000               // Automatically cycle screens
+#define CFG_DISP_FAHRENHEIT		0b00010000
 
 #define CFG_AUDIO_MENU_SPLASH	0b10000000
 #define CFG_AUDIO_MENU_PAGES	0b01000000
@@ -105,24 +106,40 @@ struct cfg_altitude
 	uint16_t alarm_reset;
 };
 
-#define AUDIO_FLUID		0b00000001
-#define AUDIO_WEAK		0b00000010
-#define AUDIO_BEEP_SINK	0b00000100
+#define AUDIO_SINK_MASK		0b00000011
+#define AUDIO_SINK_OFF		0b00000000
+#define AUDIO_SINK_BEEP		0b00000001
+#define AUDIO_SINK_CONT		0b00000010
+#define AUDIO_SINK_MODES			 3
+
+#define AUDIO_WEAK_MASK		0b00001100
+#define AUDIO_WEAK_OFF		0b00000000
+#define AUDIO_WEAK_BEEP		0b00000100
+#define AUDIO_WEAK_CONT		0b00001000
+#define AUDIO_WEAK_MODES			 3
+
+#define AUDIO_FLUID			0b00010000
 
 struct cfg_audio_profile
 {
+	//audioprofile table
 	uint16_t freq[41];	//in Hz
 	uint16_t pause[41];	//in ms
 	uint16_t length[41];//in ms
 
+	//tresholds
 	int16_t lift;		//in cm
 	int16_t sink;		//in cm
 	int16_t weak;		//in cm
 
+	//flags
 	uint8_t	flags;
 
-	uint8_t prebeep_offset; //in Hz
+	uint16_t prebeep_offset; //in Hz
 	uint8_t prebeep_length; //in ms
+
+	uint16_t weak_low_freq; //in Hz
+	uint16_t weak_high_freq; //in Hz
 };
 
 #define TIME_DST	0b00000001
@@ -150,16 +167,17 @@ struct cfg_autostart
 {
 	uint8_t start_sensititvity;
 	uint8_t land_sensititvity;
+	uint8_t gps_speed;
 	uint8_t timeout;
 	uint8_t flags;
 };
 
 #define LOGGER_IGC	0
 #define LOGGER_KML	1
-#define LOGGER_RAW	2
+//#define LOGGER_RAW	2
 //#define LOGGER_AERO	3
 
-#define NUMBER_OF_FORMATS	3
+#define NUMBER_OF_FORMATS	2
 #define LOG_TEXT_LEN		50
 
 struct cfg_logger
@@ -189,6 +207,9 @@ struct cfg_logger
 #define GPS_DIST_UNIT_M	   0b00000000
 #define GPS_DIST_UNIT_I	   0b00010000
 
+#define GPS_EARTH_MODEL_MASK   0b00100000
+#define GPS_EARTH_MODEL_FAI	   0b00100000
+
 #define PROTOCOL_DIGIFLY	0
 #define PROTOCOL_LK8EX1		1
 #define PROTOCOL_BLUEFLY	2
@@ -206,8 +227,6 @@ struct cfg_logger
 
 #define NUMBER_OF_UART_FORWARD	7
 
-#define LOGIN_PASSWORD_LEN 16
-
 struct cfg_connectivity
 {
 	uint8_t usb_mode;
@@ -224,12 +243,10 @@ struct cfg_connectivity
 	uint8_t protocol;
 
 	uint8_t uart_function;
-
-	char password[LOGIN_PASSWORD_LEN];
 };
 
-#define HOME_SET_AS_TAKEOFF		0b00000001
-#define HOME_LOADED_FROM_SD		0b00000010
+#define HOME_TAKEOFF		0b00000001
+#define HOME_LOADED		0b00000010
 
 struct cfg_home
 {
@@ -237,10 +254,6 @@ struct cfg_home
 	int32_t lat;
 	int32_t lon;
 	char name[20];
-    char freq[10];
-    char rwy[20];
-    char traffic_pattern[20];
-    char info[80];
 };
 
 struct cfg_airspaces
@@ -249,6 +262,11 @@ struct cfg_airspaces
 	uint16_t warning_m;
 	uint8_t alert_on;
 	uint8_t alarm_confirm_secs; // Number of secs to confirm an alarm. "0" means forever.
+};
+
+struct cfg_tasks
+{
+	char name[10];
 };
 
 //Main user configurations
@@ -268,7 +286,10 @@ struct cfg_t
 	cfg_connectivity connectivity;
 	cfg_home home;
 	cfg_airspaces airspaces;
+	cfg_tasks tasks;
 };
+
+// CONFIG RO ------------------------------------------------------------
 
 #define CFG_FACTORY_PASSED_hex	0xAA
 
@@ -298,7 +319,7 @@ struct debug_info
 //DO NOT CHANGE THE ORDER, add new value at the end
 //Device config not related to user settings
 //
-//This data is accessible by using eeprom_read_byte/eeprom_update_byte...
+//This data is accessible by using ee_read_byte/ee_update_byte...
 //
 //						dec		hex
 //size 					384		0x180

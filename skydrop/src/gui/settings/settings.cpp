@@ -1,12 +1,17 @@
 #include "settings.h"
 
 #include "../gui_list.h"
-#include "gui_filemanager.h"
+#include "../gui_filemanager.h"
+
 #include "logger.h"
 
 void gui_settings_init()
 {
+#ifndef DISABLE_DEBUG
+	gui_list_set(gui_settings_item, gui_settings_action, 10, GUI_PAGES);
+#else
 	gui_list_set(gui_settings_item, gui_settings_action, 9, GUI_PAGES);
+#endif
 }
 
 void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_text)
@@ -15,53 +20,44 @@ void gui_settings_item(uint8_t index, char * text, uint8_t * flags, char * sub_t
 	{
 		case (0):
 			strcpy_P(text, PSTR("Vario"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Altimeters"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Logger"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Flight logs"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Navigation"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (5):
 			strcpy_P(text, PSTR("Airspaces"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (6):
 			strcpy_P(text, PSTR("GPS"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (7):
 			strcpy_P(text, PSTR("Bluetooth"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 
 		case (8):
 			strcpy_P(text, PSTR("Settings"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
-
+#ifndef DISABLE_DEBUG
 		case (9):
 			strcpy_P(text, PSTR("Debug"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
+#endif
 	}
 }
 
@@ -90,7 +86,7 @@ void gui_settings_action(uint8_t index)
 		break;
 
 	case (4):
-		gui_switch_task(GUI_HOME);
+		gui_switch_task(GUI_NAVIGATION);
 		break;
 
 	case (5):
@@ -109,8 +105,10 @@ void gui_settings_action(uint8_t index)
 		gui_switch_task(GUI_SET_SYSTEM);
 		break;
 
+#ifndef DISABLE_DEBUG
 	case (9):
 		gui_switch_task(GUI_SET_DEBUG);
 		break;
+#endif
 	}
 }

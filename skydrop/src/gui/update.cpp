@@ -302,8 +302,8 @@ void gui_update_loop()
 
 			f_read(update_file, buff, to_read, &rd);
 
-			eeprom_busy_wait();
-			eeprom_update_block(buff, (uint8_t *)(APP_INFO_EE_offset + update_file_pos), to_read);
+			
+			ee_update_block(buff, (uint8_t *)(APP_INFO_EE_offset + update_file_pos), to_read);
 
 			update_file_pos += rd;
 			if (update_file_pos == update_head.eeprom_size)

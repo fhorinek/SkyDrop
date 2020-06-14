@@ -181,6 +181,9 @@ void gui_factory_test_loop()
 		eeprom_update_byte(&config_ro.factory_passed, CFG_FACTORY_PASSED_hex);
 		eeprom_update_byte(&config_ro.bt_module_type, bt_get_module_type());
 		eeprom_busy_wait();
+
+		gui_showmessage_P(PSTR("Factory test\nPASSED!"));
+		gui_switch_task(GUI_SETTINGS);
 	}
 
 }

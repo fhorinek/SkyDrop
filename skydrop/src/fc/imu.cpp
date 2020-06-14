@@ -9,11 +9,6 @@
 #include "fc.h"
 #include "math.h"
 
-// Converts degrees to radians.
-#define degreesToRadians(angleDegrees) (angleDegrees * M_PI / 180.0)
-// Converts radians to degrees.
-#define radiansToDegrees(angleRadians) (angleRadians * 180.0 / M_PI)
-
 #define dt 0.01
 #define beta 0.1
 
@@ -31,14 +26,15 @@ void imu_init()
 
 void imu_MadgwickQuaternionUpdate()
 {
+#ifndef NEED_LOT_OF_SPACE_FOR_DEBUG
 
 	float ax = fc.acc.vector.x;
 	float ay = fc.acc.vector.y;
 	float az = fc.acc.vector.z;
 
-	float gx = degreesToRadians(fc.gyro.vector.x);
-	float gy = degreesToRadians(fc.gyro.vector.y);
-	float gz = degreesToRadians(fc.gyro.vector.z);
+	float gx = to_radians(fc.gyro.vector.x);
+	float gy = to_radians(fc.gyro.vector.y);
+	float gz = to_radians(fc.gyro.vector.z);
 
 	float mx = fc.mag.vector.x;
 	float my = fc.mag.vector.y;
@@ -148,6 +144,7 @@ void imu_MadgwickQuaternionUpdate()
     fc.imu.quat[2] = q2;
     fc.imu.quat[3] = q3;
 
+#endif
 }
 
 

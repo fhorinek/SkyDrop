@@ -7,33 +7,33 @@
 
 void gui_set_display_init()
 {
-	gui_list_set(gui_set_display_item, gui_set_display_action, 7, GUI_SET_SYSTEM);
+	gui_list_set(gui_set_display_item, gui_set_display_action, 8, GUI_SET_SYSTEM);
 }
 
 void gui_set_display_contrast_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
-	eeprom_busy_wait();
+	
 	config.gui.contrast = val;
-	eeprom_update_byte(&config_ee.gui.contrast, config.gui.contrast);
+	ee_update_byte(&config_ee.gui.contrast, config.gui.contrast);
 	gui_change_disp_cfg();
 }
 
 void gui_set_display_brightness_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
-	eeprom_busy_wait();
+	
 	config.gui.brightness = val;
-	eeprom_update_byte(&config_ee.gui.brightness, config.gui.brightness);
+	ee_update_byte(&config_ee.gui.brightness, config.gui.brightness);
 	gui_trigger_backlight();
 }
 
 void gui_set_display_brightness_timeout_cb(float val)
 {
 	gui_switch_task(GUI_SET_DISPLAY);
-	eeprom_busy_wait();
+	
 	config.gui.brightness_timeout = val;
-	eeprom_update_byte(&config_ee.gui.brightness_timeout, config.gui.brightness_timeout);
+	ee_update_byte(&config_ee.gui.brightness_timeout, config.gui.brightness_timeout);
 }
 
 
@@ -58,28 +58,34 @@ void gui_set_display_action(uint8_t index)
 
 	case(3):
 		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_INVERT;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+		
+		ee_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 		gui_change_disp_cfg();
 	break;
 
 	case(4):
 		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_FLIP;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+		
+		ee_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 		disp.SetFlip(config.gui.disp_flags & CFG_DISP_FLIP);
 	break;
 
 	case(5):
 		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_ANIM;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+		
+		ee_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 	break;
 
 	case(6):
 		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_CYCLE;
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+		
+		ee_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
+	break;
+
+	case(7):
+		config.gui.disp_flags = config.gui.disp_flags ^ CFG_DISP_FAHRENHEIT;
+		
+		ee_update_byte(&config_ee.gui.disp_flags, config.gui.disp_flags);
 	break;
 }
 }
@@ -91,45 +97,53 @@ void gui_set_display_item(uint8_t index, char * text, uint8_t * flags, char * su
 		case (0):
 			strcpy_P(text, PSTR("Contrast"));
 //			sprintf_P(sub_text, PSTR("%d %%"), lcd_contrast);
-//			*flags |= GUI_LIST_SUB_TEXT;
+//			*flags = GUI_LIST_SUB_TEXT;
 		break;
 		case (1):
 			strcpy_P(text, PSTR("Backlight"));
 //			sprintf_P(sub_text, PSTR("%d %%"), lcd_brightness);
-//			*flags |= GUI_LIST_SUB_TEXT;
+//			*flags = GUI_LIST_SUB_TEXT;
 		break;
 		case (2):
 			strcpy_P(text, PSTR("Backlight timeout"));
 			sprintf_P(sub_text, PSTR("%d sec"), config.gui.brightness_timeout);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags = GUI_LIST_SUB_TEXT;
 		break;
 		case (3):
 			strcpy_P(text, PSTR("Invert display"));
 			if (config.gui.disp_flags & CFG_DISP_INVERT)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 		case (4):
 			strcpy_P(text, PSTR("Flip orientation"));
 			if (config.gui.disp_flags & CFG_DISP_FLIP)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 		case (5):
 			strcpy_P(text, PSTR("Animation"));
 			if (config.gui.disp_flags & CFG_DISP_ANIM)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
 		break;
 		case (6):
 			strcpy_P(text, PSTR("Cycle"));
 			if (config.gui.disp_flags & CFG_DISP_CYCLE)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags = GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags = GUI_LIST_CHECK_OFF;
+		break;
+		case (7):
+			strcpy_P(text, PSTR("Temperature"));
+			*flags = GUI_LIST_SUB_TEXT;
+			if (config.gui.disp_flags & CFG_DISP_FAHRENHEIT)
+				strcpy_P(sub_text, PSTR("Fahrenheit"));
+			else
+				strcpy_P(sub_text, PSTR("Celsius"));
 		break;
 	}
 }

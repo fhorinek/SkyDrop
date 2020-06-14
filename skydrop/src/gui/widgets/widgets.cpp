@@ -15,7 +15,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//accelerometer
 		w_acc_total,
 		//time date
-		w_time, w_date, w_flight_time,
+		w_time, w_date, w_flight_time, w_hike_mode,
 		//temperature
 		w_temperature,
 		//gps
@@ -39,7 +39,7 @@ widget widget_array[NUMBER_OF_WIDGETS] = {
 		//waypoints
 		w_waypoint_direction, w_waypoint_distance, w_waypoint_time, w_waypoint_info,
 		//airspace
-		w_airspace_angle, w_airspace_distance, w_airspace_limits, w_airspace_info, w_airspace_name
+		w_airspace_info
 };
 
 // Whenever you change something here, you have to do "Clean Project" in Eclipse:
@@ -77,6 +77,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 
 	//time and date
 	WIDGET_FTIME,
+	WIDGET_HIKE,
 	WIDGET_TIME,
 	WIDGET_DATE,
 
@@ -94,11 +95,7 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 	WIDGET_WAYPOINT_INFO,
 
 	//airspace
-	WIDGET_AIRSPACE_ARROW,
-	WIDGET_AIRSPACE_DISTANCE,
-	WIDGET_AIRSPACE_LIMITS,
 	WIDGET_AIRSPACE_INFO,
-	WIDGET_AIRSPACE_NAME,
 
 	//wind
 	WIDGET_WIND_DIR,
@@ -134,9 +131,13 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 void sprintf_distance(char *text, float distance)
 {
 	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+	{
 		distance *= FC_KM_TO_MILE;
+	}
 
-	if (distance < 1.0)
+	if (distance < 1.0 && !(config.connectivity.gps_format_flags & GPS_DIST_UNIT_I))
+		sprintf_P(text, PSTR("%0.0fm"), distance * 1000);
+	else if (distance < 10.0)
 		sprintf_P(text, PSTR("%.2f"), distance);
 	else if (distance < 100.0)
 		sprintf_P(text, PSTR("%.1f"), distance);
@@ -316,7 +317,10 @@ void widget_value_txt2(char * value1, char * value2, uint8_t x, uint8_t y, uint8
 			uint8_t text_w = max(text_w1, text_w2);
 			text_h = disp.GetTextHeight() * 2;
 			if (w < text_w || h < text_h)
+			{
+				widget_value_txt(value1, x, y, w, h);
 				return;
+			}
 		}
 	}
 
@@ -354,24 +358,24 @@ void widget_value_scroll(char * text, uint8_t x, uint8_t y, uint8_t w, uint8_t h
 	}
 
 	uint16_t text_w = disp.GetTextWidth(text);
-	if ( text_w > w )
+	if (text_w > w)
 	{
-		uint32_t oldClip = disp.clip(x, y, x + w, y + h);
+		disp.clip(x, x + w);
 
-		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 10);
+		uint32_t offset = (task_get_ms_tick() / 100) % ((uint32_t)text_w + 15);
 		int16_t scroll_x = x - (int16_t)offset;
 
-		disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
+		disp.GotoXY_16(scroll_x, y + h / 2 - text_h / 2);
 		fputs(text, lcd_out);
 
-		scroll_x += text_w + 10;
+		scroll_x += text_w + 15;
 		if (scroll_x < x + w)
 		{
-			disp.GotoXY(scroll_x, y + h / 2 - text_h / 2);
+			disp.GotoXY_16(scroll_x, y + h / 2 - text_h / 2);
 			fputs(text, lcd_out);
 		}
 
-		disp.clip(oldClip);
+		disp.noclip();
 	}
 	else
 	{
@@ -423,7 +427,7 @@ void widgets_draw(uint8_t page)
 		uint8_t wtype = config.gui.pages[page].widgets[i];
 
 		if (wtype != WIDGET_OFF)
-			widget_array[wtype].draw(x, y, w, h, widget_array[wtype].flags);
+			widget_array[wtype].draw(x, y, w, h);
 	}
 }
 

@@ -21,13 +21,13 @@ void gui_compass_calib_declination(float val)
 {
 	gui_switch_task(GUI_SET_COMPASS);
 
-
 	fc.compass.declination = int(val);
 	int16_t value = fc.compass.declination;
-	eeprom_busy_wait();
-	eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
-
+	
+	ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
+
+
 
 void gui_compass_calib_action(uint8_t index)
 {
@@ -42,9 +42,9 @@ void gui_compass_calib_action(uint8_t index)
 		else
 		{
 			fc.compass.declination = 0;
-			eeprom_busy_wait();
+			
 			int16_t value = 0;
-			eeprom_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+			ee_update_block(&value, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 		}
 	break;
 
@@ -64,7 +64,7 @@ void gui_compass_calib_item(uint8_t index, char * text, uint8_t * flags, char * 
 
 	case (0):
 		strcpy_P(text, PSTR("Compass mode"));
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 
 		if(fc.compass.declination == 0.0)
 			strcpy_P(sub_text, PSTR("magnetic north"));
@@ -76,7 +76,7 @@ void gui_compass_calib_item(uint8_t index, char * text, uint8_t * flags, char * 
 	case(1):
 		strcpy_P(text, PSTR("Declination"));
 		sprintf_P(sub_text, PSTR("%d deg"), fc.compass.declination);
-		*flags |= GUI_LIST_SUB_TEXT;
+		*flags = GUI_LIST_SUB_TEXT;
 	break;
 	}
 }

@@ -15,28 +15,28 @@ void gui_set_audio_init()
 void gui_set_audio_vario_vol_cb(float val)
 {
 	gui_switch_task(GUI_SET_AUDIO);
-	eeprom_busy_wait();
+	
 	uint8_t tmp = val;
 	tmp = tmp;
-	eeprom_update_byte(&config_ee.gui.vario_volume, tmp);
+	ee_update_byte(&config_ee.gui.vario_volume, tmp);
 	config.gui.vario_volume = tmp;
 }
 
 void gui_set_audio_alert_vol_cb(float val)
 {
 	gui_switch_task(GUI_SET_AUDIO);
-	eeprom_busy_wait();
+	
 	uint8_t tmp = val;
-	eeprom_update_byte(&config_ee.gui.alert_volume, tmp);
+	ee_update_byte(&config_ee.gui.alert_volume, tmp);
 	config.gui.alert_volume = tmp;
 }
 
 void gui_set_audio_menu_vol_cb(float val)
 {
 	gui_switch_task(GUI_SET_AUDIO);
-	eeprom_busy_wait();
+	
 	uint8_t tmp = val;
-	eeprom_update_byte(&config_ee.gui.menu_volume, tmp);
+	ee_update_byte(&config_ee.gui.menu_volume, tmp);
 	config.gui.menu_volume = tmp;
 }
 
@@ -51,7 +51,7 @@ void gui_set_audio_action(uint8_t index)
 
 		case(1):
 			config.gui.vario_mute = !config.gui.vario_mute;
-			eeprom_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
+			ee_update_byte(&config_ee.gui.vario_mute, config.gui.vario_mute);
 		break;
 
 		case(2):
@@ -77,32 +77,31 @@ void gui_set_audio_item(uint8_t index, char * text, uint8_t * flags, char * sub_
 		case (0):
 			strcpy_P(text, PSTR("Vario volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.vario_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (1):
 			strcpy_P(text, PSTR("Vario mute"));
 			if (config.gui.vario_mute)
-				*flags |= GUI_LIST_CHECK_ON;
+				*flags =  GUI_LIST_CHECK_ON;
 			else
-				*flags |= GUI_LIST_CHECK_OFF;
+				*flags =  GUI_LIST_CHECK_OFF;
 		break;
 
 		case (2):
 			strcpy_P(text, PSTR("Alert volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.alert_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (3):
 			strcpy_P(text, PSTR("Menu volume"));
 			sprintf_P(sub_text, PSTR("%d %%"), config.gui.menu_volume);
-			*flags |= GUI_LIST_SUB_TEXT;
+			*flags =  GUI_LIST_SUB_TEXT;
 		break;
 
 		case (4):
 			strcpy_P(text, PSTR("Menu sounds"));
-			*flags |= GUI_LIST_FOLDER;
 		break;
 	}
 }

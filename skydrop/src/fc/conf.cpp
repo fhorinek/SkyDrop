@@ -10,7 +10,6 @@ cfg_ro_t config_ro __attribute__ ((section(".cfg_ro")));
 
 #define empty10				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 #define empty20				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-#define empty80				{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 //*** Default configuration placeholder ***
 const cfg_t config_defaults PROGMEM = {0xAABBCCDD, '*', '*', '*', ' ', 'D', 'e', 'f', 'a', 'u', 'l', 't', ' ', 'c', 'o', 'n', 'f', 'i', 'g', 'u', 'r', 'a', 't', 'i', 'o', 'n', ' ', 'p', 'l', 'a', 'c', 'e', 'h', 'o', 'l', 'd', 'e', 'r', ' ', '*', '*', '*'};
@@ -23,7 +22,7 @@ EEMEM cfg_t config_ee = {
 	//gui
 	{
 		//contrast
-		GUI_CONTRAST_STEPS / 2 + 1,
+		4,
 		//brightness
 		20,
 		//brightness_timeout
@@ -31,7 +30,7 @@ EEMEM cfg_t config_ee = {
 		//display_flags
 		CFG_DISP_ANIM,
 		//last_page
-		2,
+		0,
 		//menu_audio_flags
 		CFG_AUDIO_MENU_SPLASH | CFG_AUDIO_MENU_PAGES | CFG_AUDIO_MENU_BUTTONS | CFG_AUDIO_MENU_GPS,
 		//menu_volume
@@ -49,21 +48,21 @@ EEMEM cfg_t config_ee = {
 		//hide_label
 		0b00000000,
 	    //page_acro_thold; //*10
-		-3,
+		-50,
 	    //page_circling_timeout; //in  s
 		15,
 		//page mode
 		{
             //prepare
-            PAGE_NONE,
+            0,
             //circling
-            PAGE_NONE,
+            3,
             //normal
-            PAGE_NONE,
+            1,
             //acro
-            PAGE_NONE,
+            4,
             //landed
-            PAGE_NONE
+            0
 		},
 		//pages
 		{
@@ -71,37 +70,37 @@ EEMEM cfg_t config_ee = {
 			{
 				//type
 				LAYOUT_222,
-				{WIDGET_TIME, WIDGET_FTIME, WIDGET_CTRL_AUDIO, WIDGET_CTRL_WLIFT, WIDGET_TEMPERATURE, WIDGET_BATTERY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				{WIDGET_TIME, WIDGET_FTIME, WIDGET_ALT1, WIDGET_ODO_DISTANCE, WIDGET_CTRL_WLIFT, WIDGET_BATTERY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//1
 			{
 				//type
-				LAYOUT_123,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_GHEADING_ARROW, WIDGET_ALT1, WIDGET_GLIDE_RATIO, WIDGET_GROUND_SPD, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_122,
+				{WIDGET_VARIO_BAR, WIDGET_ALT1, WIDGET_VARIO, WIDGET_GROUND_SPD, WIDGET_GHEADING_POINTS, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//2
 			{
 				//type
-				LAYOUT_123,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_AVG_VARIO, WIDGET_ALT1, WIDGET_FTIME, WIDGET_GROUND_SPD, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_233,
+				{WIDGET_ALT1, WIDGET_GLIDE_RATIO, WIDGET_GHEADING_POINTS, WIDGET_WIND_DIR_POINTS, WIDGET_WAYPOINT_ARROW, WIDGET_GROUND_SPD, WIDGET_WIND_SPD, WIDGET_WAYPOINT_DISTANCE, WIDGET_EMPTY}
 			},
 			//3
 			{
 				//type
-				LAYOUT_121,
-				{WIDGET_VARIO_BAR, WIDGET_VARIO, WIDGET_VARIO_HISTORY, WIDGET_ALT2, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_31,
+				{WIDGET_AVG_VARIO, WIDGET_ALT1, WIDGET_THERMAL_GAIN, WIDGET_THERMAL_ASS, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//4
 			{
 				//type
-				LAYOUT_21,
-				{WIDGET_TIME, WIDGET_ALT3, WIDGET_POSITION, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_21a,
+				{WIDGET_ALT1, WIDGET_AGL_HEIGHT, WIDGET_ACC_TOT, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//5
 			{
 				//type
-				LAYOUT_22,
-				{WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
+				LAYOUT_21a,
+				{WIDGET_ALT1, WIDGET_ALT3, WIDGET_ACC_TOT, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY, WIDGET_EMPTY}
 			},
 			//6
 			{
@@ -134,34 +133,34 @@ EEMEM cfg_t config_ee = {
 		//QNH2
 		101325,
 		//atl1_flags
-		ALT_UNIT_M, // | ALT_AUTO_GPS,
+		ALT_UNIT_M | ALT_AUTO_GPS,
 		//altimeter
 		{
 			//altimeter2
-			{
-				//flags
-				ALT_AUTO_ZERO | ALT_DIFF | 0,
-				//diff
-				0,
-			},
-			//altimeter3
 			{
 				//flags
 				ALT_ABS_GPS,
 				//diff
 				0,
 			},
+			//altimeter3
+			{
+				//flags
+				ALT_DIFF | ALT_AUTO_ZERO | 0,
+				//diff
+				0,
+			},
 			//altimeter4
 			{
 				//flags
-				ALT_DIFF | 1,
+				ALT_ABS_QNH2 | ALT_UNIT_I,
 				//diff
-				200,
+				0,
 			},
 			//altimeter5
 			{
 				//flags
-				ALT_ABS_QNH2, // | ALT_AUTO_GPS,
+				ALT_ABS_QNH2,
 				//diff
 				0,
 			},
@@ -175,30 +174,34 @@ EEMEM cfg_t config_ee = {
 		//alarm_2
 		300,
 		//alarm_h1
-		3048,    // FL100 (10000 ft) in m
+		2450,
 		//alarm_offset
 		50,
 	},
 	//audio_profile
 	{
 		//freq
-		{190, 191, 193, 196, 200, 205, 211, 218, 226, 235, 245, 256, 268, 281, 295, 310, 326, 343, 361, 380, 400, 425, 460, 505, 560, 625, 700, 785, 880, 975, 1060, 1125, 1170, 1205, 1230, 1250, 1265, 1280, 1295, 1310, 1325},
+		{200, 202, 204, 206, 210, 214, 220, 225, 230, 235, 242, 250, 263, 282, 305, 330, 358, 390, 424, 462, 500, 540, 600, 680, 800, 920, 1010, 1075, 1120, 1160, 1200, 1240, 1280, 1320, 1360, 1400, 1440, 1480, 1520, 1560, 1600},
 		//pause
-		{54, 88, 122, 156, 190, 224, 258, 292, 326, 360, 394, 428, 462, 496, 530, 564, 598, 632, 666, 700, 480, 370, 288, 233, 192, 163, 142, 128, 120, 112, 105, 98, 91, 84, 78, 72, 66, 60, 54, 48, 42},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 200, 600, 1000, 1500, 2000, 2000, 1000, 600, 420, 320, 265, 230, 215, 200, 185, 172, 160, 150, 142, 135, 130, 125, 120, 115, 110, 105, 100, 95},
 		//length
-		{395, 390, 385, 380, 375, 370, 365, 360, 355, 350, 345, 340, 335, 330, 325, 320, 315, 310, 305, 300, 300, 265, 215, 180, 150, 125, 108, 97, 90, 83, 77, 72, 67, 62, 57, 52, 47, 42, 37, 32, 27},
+		{2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 2000, 1950, 1800, 1400, 1000, 600, 380, 220, 130, 100, 100, 100, 100, 150, 200, 225, 230, 215, 200, 185, 172, 160, 150, 142, 135, 130, 125, 120, 115, 110, 105, 100, 95},
 		//lift
 		10,
 		//sink
-		-50,
+		-246,
 		//weak
-		30,
+		57,
 		//flags
-		AUDIO_FLUID | AUDIO_BEEP_SINK,// | AUDIO_WEAK,
+		AUDIO_FLUID | AUDIO_SINK_CONT,// | AUDIO_WEAK,
 		//prebeep_offset in Hz
-		40,
+		150,
 		//prebeep_length in ms
-		50
+		150,
+		//weak_low_freq
+		100,
+		//weak_high_freq
+		400
 	},
 	//System
 	{
@@ -213,7 +216,7 @@ EEMEM cfg_t config_ee = {
 		//record_screen
 		false,
 		//auto_power_off
-		25,
+		30,
 	},
 	//Autostart
 	{
@@ -221,6 +224,8 @@ EEMEM cfg_t config_ee = {
 		6,
 		//land_sensitivity
 		1,
+		//gps_speed
+		10,
 		//timeout
 		60,
 		//flags
@@ -261,27 +266,17 @@ EEMEM cfg_t config_ee = {
 		PROTOCOL_LK8EX1,
 		//uart_function
 		UART_FORWARD_OFF,
-		//password
-		{'1', '2', '3', '4', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 	},
 	//Home
 	{
 		//flags
-		HOME_SET_AS_TAKEOFF,
+		HOME_TAKEOFF,
 		//lat
 		0,
 		//lon
 		0,
 		//name
 		empty20,
-		//freq
-		empty10,
-		//rwy
-		empty20,
-		//traffic_pattern
-		empty20,
-		//info
-		empty80
 	},
 	//Airspaces
 	{
@@ -293,6 +288,11 @@ EEMEM cfg_t config_ee = {
 		true,
 		//alarm_confirm_secs
 		30,
+	},
+	//Tasks
+	{
+		//task name
+		empty10,
 	}
 };
 
@@ -304,7 +304,7 @@ void cfg_acc_write_defaults()
 	tmp.y = 234;
 	tmp.z = 66;
 
-	eeprom_busy_wait();
+	
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_bias, sizeof(vector_i16_t));
 
 	//sensitivity
@@ -312,7 +312,7 @@ void cfg_acc_write_defaults()
 	tmp.y = 8448;
 	tmp.z = 8036;
 
-	eeprom_busy_wait();
+	
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.acc_sensitivity, sizeof(vector_i16_t));
 }
 
@@ -324,7 +324,7 @@ void cfg_mag_write_defaults()
 	tmp.y = -1542;
 	tmp.z = 2252;
 
-	eeprom_busy_wait();
+	
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_bias, sizeof(vector_i16_t));
 
 	//sensitivity
@@ -332,7 +332,7 @@ void cfg_mag_write_defaults()
 	tmp.y = 5096;
 	tmp.z = 4712;
 
-	eeprom_busy_wait();
+	
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.calibration.mag_sensitivity, sizeof(vector_i16_t));
 }
 
@@ -344,28 +344,28 @@ void cfg_gyro_write_defaults()
 	tmp.y = 24.6 * 10;
 	tmp.z = -44.8 * 10;
 
-	eeprom_busy_wait();
+	
 	eeprom_write_block((void *)&tmp, (void *)&config_ro.gyro_bias, sizeof(vector_i16_t));
 }
 
 void cfg_compass_write_defaults()
 {
 	int16_t tmp = 0;
-	eeprom_busy_wait();
-	eeprom_update_block(&tmp, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
+	
+	ee_update_block(&tmp, &config_ro.magnetic_declination, sizeof(config_ro.magnetic_declination));
 }
 
 void cfg_baro_write_defaults()
 {
 	int16_t tmp = 0;
-	eeprom_busy_wait();
-	eeprom_update_block(&tmp, &config_ro.baro_offset, sizeof(config_ro.baro_offset));
+	
+	ee_update_block(&tmp, &config_ro.baro_offset, sizeof(config_ro.baro_offset));
 }
 
 void cfg_bat_write_defaults()
 {
 	uint16_t tmp = 0xffff;
-	eeprom_busy_wait();
+	
 	eeprom_write_word(&config_ro.bat_runtime_minutes, tmp);
 }
 
@@ -375,37 +375,37 @@ void cfg_check_floats()
 	if (isnan(config.altitude.QNH1))
 	{
 	    config.altitude.QNH1 = 103000;
-	    eeprom_busy_wait();
-	    eeprom_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
+	    
+	    ee_update_float(&config_ee.altitude.QNH1, config.altitude.QNH1);
 	}
 
     if (isnan(config.altitude.QNH2))
     {
     	config.altitude.QNH2 = 101325;
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
+        
+        ee_update_float(&config_ee.altitude.QNH2, config.altitude.QNH2);
     }
 
     if (isnan(config.vario.digital_vario_dampening))
     {
     	config.vario.digital_vario_dampening = 1.0 / 100.0 / 0.3;
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
+        
+        ee_update_float(&config_ee.vario.digital_vario_dampening, config.vario.digital_vario_dampening);
     }
 
     if (isnan(config.vario.avg_vario_dampening))
     {
     	config.vario.avg_vario_dampening = 1.0 / 100.0 / 10.3;
-        eeprom_busy_wait();
-        eeprom_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
+        
+        ee_update_float(&config_ee.vario.avg_vario_dampening, config.vario.avg_vario_dampening);
     }
 }
 
 void cfg_load()
 {
 	//check and reload default calibration data (if needed)
-	eeprom_busy_wait();
-	uint8_t calib_flags = eeprom_read_byte(&config_ro.calibration_flags);
+	uint8_t calib_flags;
+	ee_read_byte(&config_ro.calibration_flags, calib_flags);
 
 	if (calib_flags != CALIB_DEFAULT_LOADED)
 	{
@@ -416,13 +416,13 @@ void cfg_load()
 		cfg_baro_write_defaults();
 		cfg_bat_write_defaults();
 
-		eeprom_busy_wait();
-		eeprom_update_byte(&config_ro.calibration_flags, CALIB_DEFAULT_LOADED);
+		uint8_t tmp = CALIB_DEFAULT_LOADED;
+		ee_update_byte(&config_ro.calibration_flags, tmp);
 	}
 
 
-	eeprom_busy_wait();
-	eeprom_read_block((void *)&config, &config_ee, sizeof(cfg_t));
+	
+	ee_read_block((void *)&config, &config_ee, sizeof(cfg_t));
 
 	//prevent freezing if QNH or int. interval is corrupted
 	cfg_check_floats();
@@ -441,13 +441,13 @@ void cfg_restore_defaults()
 		void * eeprom_adr = (void *) ((uint16_t) (&config_ee) + i);
 
 		memcpy_P(buff, progmem_adr, size);
-		eeprom_busy_wait();
-		eeprom_write_block(buff, eeprom_adr, size);
+		
+		ee_update_block(buff, eeprom_adr, size);
 
 		ewdt_reset();
 	}
 
-	eeprom_busy_wait();
+	
 
 	cfg_load();
 	gui_load_eeprom();

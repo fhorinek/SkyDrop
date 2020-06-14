@@ -20,13 +20,15 @@ void gui_list_draw()
 
 	uint8_t flags;
 
+	disp.LoadFont(F_TEXT_S);
+	uint8_t t_h_s = disp.GetTextHeight();
+
 	disp.LoadFont(F_TEXT_M);
-	uint8_t t_h = disp.GetTextHeight();
+	uint8_t t_h_m = disp.GetTextHeight() + 1;
 
 	int16_t y = gui_list_y_offset;
 	int8_t height;
 	int16_t total_height = 0;
-	uint8_t sub_height;
 
 	//emulate middle click
 	if (button_in_reset(B_MIDDLE))
@@ -39,14 +41,20 @@ void gui_list_draw()
 		}
 	}
 	else
+	{
 		gui_list_middle_hold = task_get_ms_tick();
+	}
 
 	for (uint8_t i = 0; i < gui_list_size; i++)
 	{
 
-		flags = 0;
+		flags = GUI_LIST_ENTRY;
+
 		if (i < gui_list_size - 1)
 		{
+			if (y < -GUI_DISP_HEIGHT || y > GUI_DISP_HEIGHT)
+				flags |= GUI_LIST_NOT_VISIBLE;
+
 			gui_list_gen_f(i, tmp_text, &flags, tmp_sub_text);
 		}
 		else
@@ -57,9 +65,11 @@ void gui_list_draw()
 
 		uint8_t x_val = 5;
 
+		height = 1 + t_h_m;
+
 		switch(flags & GUI_LIST_T_MASK)
 		{
-			case(GUI_LIST_FOLDER):
+			case(GUI_LIST_ENTRY):
 				x_val = 5;
 			break;
 
@@ -70,19 +80,24 @@ void gui_list_draw()
 			case(GUI_LIST_TITLE):
 				x_val = 1;
 				disp.LoadFont(F_TEXT_S);
-				t_h = disp.GetTextHeight();
+				height = 1 + t_h_s;
 			break;
 
 		}
 
-		height = 1 + t_h;
-
+		//add height of sub text
 		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
 		{
-			sub_height = disp.GetTextHeight();
-			height += sub_height;
+			height += t_h_m;
 		}
 
+		//add height of sub text
+		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT_SMALL)
+		{
+			height += t_h_s - 1;
+		}
+
+		//fit selected item to screen
 		if (gui_list_index[gui_task] == i)
 		{
 			if (y < 0)
@@ -92,50 +107,52 @@ void gui_list_draw()
 				gui_list_y_offset = -total_height + GUI_DISP_HEIGHT - height;
 		}
 
-		if (y > GUI_DISP_HEIGHT)
-			continue;
-
-		disp.GotoXY(x_val, y + 1);
-		fprintf_P(lcd_out, PSTR("%s"), tmp_text);
-
-		//sub text
-		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
-			gui_raligh_text(tmp_sub_text, GUI_DISP_WIDTH - 3, y + t_h + 1);
-
-		//tick
-		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_OFF || (flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_ON)
+		//do not draw off screen
+		if (y <= GUI_DISP_HEIGHT)
 		{
-			disp.DrawRectangle(GUI_DISP_WIDTH - 9, y + 1, GUI_DISP_WIDTH - 3, y + 7, 1, 0);
-			if ((flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_ON)
+			if (y > -height)
 			{
-				disp.DrawLine(GUI_DISP_WIDTH - 8, y + 5, GUI_DISP_WIDTH - 7, y + 6, 1);
-				disp.DrawLine(GUI_DISP_WIDTH - 6, y + 5, GUI_DISP_WIDTH - 4, y + 3, 1);
+				disp.GotoXY(x_val, y + 1);
+				fprintf_P(lcd_out, PSTR("%s"), tmp_text);
+
+				//sub text
+				if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT)
+					gui_raligh_text(tmp_sub_text, GUI_DISP_WIDTH - 3, y + t_h_m + 1);
+
+				if ((flags & GUI_LIST_T_MASK) == GUI_LIST_SUB_TEXT_SMALL)
+				{
+					disp.LoadFont(F_TEXT_S);
+					gui_raligh_text(tmp_sub_text, GUI_DISP_WIDTH - 3, y + t_h_s + 3);
+					disp.LoadFont(F_TEXT_M);
+				}
+
+				//tick
+				if ((flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_OFF || (flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_ON)
+				{
+					disp.DrawRectangle(GUI_DISP_WIDTH - 9, y + 1, GUI_DISP_WIDTH - 3, y + 7, 1, 0);
+					if ((flags & GUI_LIST_T_MASK) == GUI_LIST_CHECK_ON)
+					{
+						disp.DrawLine(GUI_DISP_WIDTH - 8, y + 5, GUI_DISP_WIDTH - 7, y + 6, 1);
+						disp.DrawLine(GUI_DISP_WIDTH - 6, y + 5, GUI_DISP_WIDTH - 4, y + 3, 1);
+					}
+				}
+
+				//selector
+				if (gui_list_index[gui_task] == i)
+				{
+					disp.Invert(0, y, GUI_DISP_WIDTH - 1, y + height - 1);
+					disp.PutPixel(0, y, 0);
+					disp.PutPixel(GUI_DISP_WIDTH - 1, y, 0);
+					disp.PutPixel(GUI_DISP_WIDTH - 1, y + height - 1, 0);
+					disp.PutPixel(0, y + height - 1, 0);
+				}
 			}
-		}
 
-		//disabled entry
-		if (flags & GUI_LIST_DISABLED)
-		{
-			for (uint8_t cx = 0; cx < GUI_DISP_WIDTH - 1; cx++)
-				for (uint8_t cy = y + cx % 2 + 1; cy < y + t_h; cy += 2)
-					disp.PutPixel(cx, cy, 0);
-		}
-
-		//selector
-		if (gui_list_index[gui_task] == i)
-		{
-			disp.Invert(0, y, GUI_DISP_WIDTH - 1, y + height - 1);
-			disp.PutPixel(0, y, 0);
-			disp.PutPixel(GUI_DISP_WIDTH - 1, y, 0);
-			disp.PutPixel(GUI_DISP_WIDTH - 1, y + height - 1, 0);
-			disp.PutPixel(0, y + height - 1, 0);
-		}
-
-		if ((flags & GUI_LIST_T_MASK) == GUI_LIST_TITLE)
-		{
-			//restore font
-			disp.LoadFont(F_TEXT_M);
-			t_h = disp.GetTextHeight();
+			if ((flags & GUI_LIST_T_MASK) == GUI_LIST_TITLE)
+			{
+				//restore font
+				disp.LoadFont(F_TEXT_M);
+			}
 		}
 
 		y += height;

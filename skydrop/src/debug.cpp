@@ -5,7 +5,13 @@
 #include "drivers/storage/storage.h"
 #include "fc/conf.h"
 
+#include "debug_on.h"
+
+//also used for FW update
 FIL debug_file;
+
+#ifndef DISABLE_DEBUG
+
 volatile uint8_t debug_file_open;
 Timer debug_timer;
 uint32_t debug_last_pc;
@@ -18,6 +24,7 @@ volatile uint16_t debug_return_pointer;
 volatile uint16_t debug_min_stack_pointer = 0xFFFF;
 volatile uint16_t debug_max_heap_pointer = 0x0000;
 bool debug_done = false;
+
 
 bool debug_disabled()
 {
@@ -39,6 +46,7 @@ void debug_uart_send(char * msg)
 
 void debug_print_ram()
 {
+
 	DEBUG("\noffset ");
 	for (uint8_t i = 0; i < 16; i++)
 		DEBUG(" +%01X", i);
@@ -54,35 +62,39 @@ void debug_print_ram()
 		if (i == 7)
 			DEBUG(" ");
 	}
+
 }
 
 void debug_last_dump()
 {
-	DEBUG("\nLast WDT reset\n");
+	DEBUG("\nWDT info\n");
 
-	eeprom_busy_wait();
-	debug_last_pc = eeprom_read_dword(&config_ro.debug.program_counter);
+	
+	ee_read_dword(&config_ro.debug.program_counter, debug_last_pc);
 
-	DEBUG(" time: ");
-	print_datetime(eeprom_read_dword(&config_ro.debug.time));
-	DEBUG(" Build: %d\n", eeprom_read_word(&config_ro.debug.build_number));
-	DEBUG(" PC: 0x%06lX (byte address)\n", debug_last_pc);
-	DEBUG(" Min stack: 0x%04X\n", eeprom_read_word(&config_ro.debug.min_stack));
-	DEBUG(" Max heap: 0x%04X\n", eeprom_read_word(&config_ro.debug.max_heap));
+	uint32_t tmpl;
+	uint16_t tmp;
+	//time of the event
+	ee_read_dword(&config_ro.debug.time, tmpl);
+	DEBUG(" time:%lu\n", tmpl);
+	//build number
+	ee_read_word(&config_ro.debug.build_number, tmp);
+	DEBUG(" build:%d\n", tmp);
+	//program counter byte address (same as in lss)
+	DEBUG(" PC:%06lX\n", debug_last_pc);
+	//smallest stack address
+	ee_read_word(config_ro.debug.min_stack, tmp);
+	DEBUG(" stack::%04X\n", tmp);
+	//biggest heap address
+	ee_read_word(&config_ro.debug.max_heap, tmp);
+	DEBUG(" heap:%04X\n\n", tmp);
 }
 
 void debug_timeout_handler()
 {
-//	DEBUG("[debug_timeout_handler]\n");
-
-//	DEBUG("RP: %04X\n", debug_return_pointer);
-//	DEBUG("RP adr: %04X\n", &debug_return_pointer);
-
 	uint8_t r0 = *((uint8_t *)(debug_return_pointer + 0));
 	uint8_t r1 = *((uint8_t *)(debug_return_pointer + 1));
 	uint8_t r2 = *((uint8_t *)(debug_return_pointer + 2));
-
-//	DEBUG("RA: %02X %02X %02X\n", r0, r1, r2);
 
 	//push decrement PC
 	uint32_t ra = (((uint32_t)r0 << 16) & 0x00FF0000) | (((uint16_t)r1 <<  8) & 0xFF00) | (r2);
@@ -90,18 +102,15 @@ void debug_timeout_handler()
 	ra = ra * 2;
 
 	//store this info
-	eeprom_busy_wait();
-	eeprom_update_dword(&config_ro.debug.time, time_get_local());
-	eeprom_update_word(&config_ro.debug.build_number, BUILD_NUMBER);
-	eeprom_update_dword(&config_ro.debug.program_counter, ra);
-	eeprom_update_word(&config_ro.debug.min_stack, debug_min_stack_pointer);
-	eeprom_update_word(&config_ro.debug.max_heap, debug_max_heap_pointer);
+	uint32_t tmpl = time_get_local();
+	uint16_t tmp = BUILD_NUMBER;
+	ee_update_dword(&config_ro.debug.time, tmpl);
+	ee_update_word(&config_ro.debug.build_number, tmp);
+	ee_update_dword(&config_ro.debug.program_counter, ra);
+	ee_update_word(&config_ro.debug.min_stack, debug_min_stack_pointer);
+	ee_update_word(&config_ro.debug.max_heap, debug_max_heap_pointer);
 
-	DEBUG(" *** Warning: I feel WDT is near! ***\n");
 	debug_last_dump();
-
-//	debug_print_ram();
-//	for(;;);
 }
 
 /**
@@ -124,8 +133,8 @@ void debug(const char *format, ...)
 
 	debug_uart_send(msg_buff);
 	debug_log(msg_buff);
-}
 
+}
 
 ISR(DEBUG_TIMER_OVF, ISR_NAKED)
 {
@@ -187,13 +196,14 @@ ISR(DEBUG_TIMER_OVF, ISR_NAKED)
 		"pop r1" "\n\t"				//restore zero
 		"reti" "\n\t"
 	::);
+
 }
 
 void debug_timer_init()
 {
 	DEBUG_TIMER_PWR_ON;
 	debug_timer.Init(DEBUG_TIMER, timer_div1024);
-	debug_timer.SetTop(0xDBBA); //1.8s
+	debug_timer.SetTop(0xEE09); //1.95s
 	debug_timer.EnableInterrupts(timer_overflow);
 	debug_timer.SetInterruptPriority(MEDIUM);
 	debug_timer.Start();
@@ -213,14 +223,17 @@ void debug_flush()
 	debug_done = false;
 }
 
+
 void debug_end()
 {
-	DEBUG("=== CLOSING FILE ===\n");
+
+	DEBUG("=== END ===\n");
 	debug_flush();
 }
 
 void debug_step()
 {
+
 	if (config.system.debug_log != DEBUG_MAGIC_ON)
 		return;
 
@@ -269,21 +282,6 @@ void debug_step()
 
 		//file is ready
 		debug_file_open = true;
-//
-//		char id[23];
-//		GetID_str(id);
-//		DEBUG("=========================================\n");
-//
-//		DEBUG("Device serial number ... %s\n", id);
-//
-//		DEBUG("Board rev ... %u\n", (hw_revision == HW_REW_1504) ? 1504 : 1406);
-//		print_fw_info();
-//
-//		print_reset_reason();
-//
-//		debug_last_dump();
-//
-//		DEBUG("=========================================\n");
 	}
 
 	uint8_t * tmp = 0;
@@ -307,15 +305,20 @@ void debug_step()
 		debug_file_open = false;
 	}
 }
+#endif
 
 void ewdt_init()
 {
 	wdt_init(wdt_2s);
+#ifndef DISABLE_DEBUG
 	debug_timer_init();
+#endif
 }
 
 void ewdt_reset()
 {
 	wdt_reset();
+#ifndef DISABLE_DEBUG
 	debug_timer.SetValue(0);
+#endif
 }

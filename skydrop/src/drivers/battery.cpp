@@ -1,7 +1,7 @@
 #include "battery.h"
 #include "../tasks/tasks.h"
 
-#include "../debug_on.h"
+//#include "../debug_on.h"
 
 #define BATTERY_STATE_IDLE		0
 #define BATTERY_STATE_PREPARE	1
@@ -29,8 +29,6 @@ uint16_t bat_adc_dif;
 #define BAT_CAL_REMIND_INTERVAL 10          // Interval in seconds to remind user to discharge
 #define BAT_CAL_INTERVAL 60                 // Interval in seconds to save calibration data
 
-
-
 /** This is the ADC value where the next lower percent value starts. */
 uint16_t bat_next_level = 0;
 
@@ -55,8 +53,8 @@ uint16_t battery_runtime_minutes()
 {
 	uint16_t value;
 
-	eeprom_busy_wait();
-	value = eeprom_read_word(&config_ro.bat_runtime_minutes);
+	
+	ee_read_word(&config_ro.bat_runtime_minutes, value);
 	//DEBUG("config_ro.bat_runtime_minutes=%u\n", value);
 	return value;
 }
@@ -88,8 +86,8 @@ uint8_t read_battery_per_from_calibration(uint16_t battery_adc_raw)
 
 	for (percent = 100; percent > 0; percent--)
 	{
-		eeprom_busy_wait();
-		battery = eeprom_read_word(&config_ro.bat_calibration[100 - percent]);
+		
+		ee_read_word(&config_ro.bat_calibration[100 - percent], battery);
 		if ( battery_adc_raw > battery )
 		{
 			bat_next_level = battery;
@@ -118,8 +116,6 @@ int8_t get_battery_per_from_calibration(uint16_t battery_adc_raw)
 
 	percent = read_battery_per_from_calibration(battery_adc_raw);
 	DEBUG("get_battery_per_from_calibration(%d)=%d\n", battery_adc_raw, percent);
-	print_datetime(time_get_local());
-
 
 	return percent;
 }
@@ -133,14 +129,14 @@ void battery_reset_calibration()
 
 	DEBUG("Resetting max ADC value\n");
 
-	eeprom_busy_wait();
-	eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
+	
+	ee_update_word(&config_ro.bat_adc_max, bat_adc_max);
 }
 
 void battery_init()
 {
-	eeprom_busy_wait();
-	bat_adc_max = eeprom_read_word(&config_ro.bat_adc_max);
+	
+	ee_read_word(&config_ro.bat_adc_max, bat_adc_max);
 
 	if (bat_adc_max > 4095)
 		battery_reset_calibration();
@@ -265,12 +261,12 @@ void battery_finish_calibration()
 		battery = sum / num_values;
 
 		DEBUG("%d,%u\n", i, battery);
-		eeprom_busy_wait();
-		eeprom_update_word(&config_ro.bat_calibration[i], battery);
+		
+		ee_update_word(&config_ro.bat_calibration[i], battery);
 	}
 
 	f_close(&cal_file_raw);
-	//f_unlink(BAT_CAL_FILE_RAW);
+	f_unlink(BAT_CAL_FILE_RAW);
 
 	DEBUG("---End---\n");
 	DEBUG("resort_bat_cal error: %d\n", (int)error);
@@ -278,16 +274,17 @@ void battery_finish_calibration()
 	if (!error)
 	{
         gui_showmessage_P(PSTR("Battery\nCalibration\nFinished."));
-    	eeprom_busy_wait();
-    	eeprom_update_word(&config_ro.bat_runtime_minutes, num);
+    	
+    	ee_update_word(&config_ro.bat_runtime_minutes, num);
 
 		bat_cal_available = true;
 	}
 	else
 	{
         gui_showmessage_P(PSTR("Battery\nCalibration\nError."));
-    	eeprom_busy_wait();
-    	eeprom_update_word(&config_ro.bat_runtime_minutes, BATTERY_CAL_INVALID);
+    	
+        uint16_t tmp = BATTERY_CAL_INVALID;
+    	ee_update_word(&config_ro.bat_runtime_minutes, tmp);
 	}
 }
 
@@ -455,8 +452,8 @@ bool battery_step()
 
 			DEBUG("Updating max ADC value to %u\n", bat_adc_max);
 
-			eeprom_busy_wait();
-			eeprom_update_word(&config_ro.bat_adc_max, bat_adc_max);
+			
+			ee_update_word(&config_ro.bat_adc_max, bat_adc_max);
 		}
 
 		if (bat_cal_available)
