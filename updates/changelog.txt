@@ -1,9 +1,15 @@
+ * Battery widget now shows remaining runtime in
+   minutes (in addition to percent), if battery
+   is calibrated (bubeck)
+
+
+
 Build 5192 - 02. 06. 2020
 ========================================================
 
 ADDED:
  * Time to Hike widget
-
+   
 FIX:
  * Auto power off disabled during hike mode
  * "Airspace>Alert near" setting did not show current
@@ -106,11 +112,6 @@ ADDED:
  * Long middle button press on HAGL widget resets
    altitude1 to ground level. This can be used to
    calibrate altitude1 when standing on ground (bubeck)
- * Battery widget now shows remaining runtime in
-   minutes (in addition to percent), if battery
-   is calibrated (bubeck)
-   
-   calibrate altitude1 when standing on ground.
  * Airspace alert screen
  * Airspace class filter
  * Airspace ignore list 
