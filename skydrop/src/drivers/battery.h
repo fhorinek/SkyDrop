@@ -37,4 +37,18 @@ void battery_force_update();
 void battery_stop();
 void battery_finish_calibration();
 
+/**
+ * Return the number of minutes, that the battery runs, if full.
+ *
+ * @return number of minutes for full capacity
+ */
+uint16_t battery_runtime_minutes();
+
+/**
+ * Check, if we have calibration data for the battery in EEPROM.
+ *
+ * @return true if data is available, false otherwise.
+ */
+bool battery_calibrated();
+
 #endif /* BATTERY_H_ */
