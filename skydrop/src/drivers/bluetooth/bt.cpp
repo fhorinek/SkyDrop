@@ -2,6 +2,8 @@
 
 #include "../../fc/conf.h"
 
+#ifndef DISABLE_BLUETOOTH
+
 #include "pan1322.h"
 #include "pan1026.h"
 
@@ -312,3 +314,26 @@ uint8_t bt_get_module_type()
 {
 	return bt_module_type;
 }
+
+#else
+
+volatile uint8_t bt_module_state = BT_MOD_STATE_OFF;
+
+bool bt_ready() { return false; }
+uint8_t bt_get_module_type() { return BT_PAN1322; }
+
+void bt_init() {}
+void bt_stop() {}
+void bt_step() {}
+
+void bt_module_reset() {}
+void bt_module_init() {}
+void bt_module_deinit() {}
+bool bt_device_active() { return false; }
+
+void bt_send(char * str) {}
+void bt_send(uint16_t len, uint8_t * data) {}
+void bt_irqh(uint8_t type, uint8_t * buf) {}
+
+#endif
+

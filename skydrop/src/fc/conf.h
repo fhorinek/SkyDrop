@@ -8,6 +8,9 @@
 #ifndef CONF_H_
 #define CONF_H_
 
+// Define this to disable code for bluetooth. Saves around 10k of code.
+// #define DISABLE_BLUETOOTH
+
 #include "../gui/widgets/widgets.h"
 #include "fc.h"
 
