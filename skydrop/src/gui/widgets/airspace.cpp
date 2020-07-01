@@ -87,12 +87,7 @@ void widget_airspace_info_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 		widget_arrow(relative_direction, 0, 18 + y_spc / 2, 22, 20);
 
 		//Distance
-		sprintf_distance(text1, fc.airspace.distance_m / 1000.0);
-		if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
-			strcpy_P(text2, PSTR("mi"));
-		else
-			strcpy_P(text2, PSTR("km"));
-
+		sprintf_distance(text1, text2, fc.airspace.distance_m / 1000.0);
 		widget_value_int_sub(text1, text2, w - 60, 18 + y_spc / 2, 20, 20);
 	}
 	else
