@@ -1,5 +1,5 @@
 /*
- * odometer.cpp
+ * navigation.cpp
  *
  *  Created on: 16.02.2017
  *      Author: tilmann@bubecks.de
@@ -280,12 +280,12 @@ void navigation_step()
 		bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
 		uint32_t v = gps_distance(last_lat, last_lon, fc.gps_data.latitude, fc.gps_data.longtitude, use_fai);
 
-		//calculated speed in knots
-		uint16_t calc_speed = (v * FC_MPS_TO_KNOTS) / 100;
+		//calculated speed in knots. The distance "v" is in meter and we get a GPS sample every second, so this is meter per second.
+		float calc_speed = v * FC_MPS_TO_KNOTS;
 
 		//do not add when gps speed is < 1 km/h
 		//do not add when difference between calculated speed and gps speed is > 10 km/h
-		if (abs(calc_speed - fc.gps_data.ground_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.ground_speed > FC_ODO_MIN_SPEED)
+		if (fabs(calc_speed - fc.gps_data.ground_speed) < FC_ODO_MAX_SPEED_DIFF && fc.gps_data.ground_speed > FC_ODO_MIN_SPEED)
 			fc.odometer += v;
 	}
 
