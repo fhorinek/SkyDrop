@@ -29,16 +29,24 @@ const uint8_t PROGMEM img_distance[] =
 
 #define NAV_INFO_PERIOD		10000
 
+void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+{
+	uint8_t lh = widget_label_P(label_P, x, y);
+#ifndef DISABLE_ICONS
+	if (lh > 0)
+		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
+#endif
+
+	char text1[12];
+	char text2[12];
+
+	sprintf_distance(text1, text2, distance);
+	widget_value_txt2(text1, text2, x, y + lh, w, h - lh);
+}
+
 void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-	uint8_t lh = widget_label_P(PSTR("Odo"), x, y);
-
-	char text[10];
-
-	float distance = fc.odometer / 1000.0;        // cm to km
-	sprintf_distance(text, distance);
-
-	widget_value_txt(text, x, y + lh, w, h - lh);
+  widget_distance_draw(PSTR("Odo"), fc.odometer / 1000.0, x, y, w, h);
 }
 
 void widget_odometer_irqh(uint8_t type, uint8_t * buff)
@@ -51,28 +59,6 @@ void widget_odometer_irqh(uint8_t type, uint8_t * buff)
 			fc.odometer = 0;
 		}
 	}
-}
-
-void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_t y, uint8_t w, uint8_t h)
-{
-	uint8_t lh = widget_label_P(label_P, x, y);
-#ifndef DISABLE_ICONS
-	if (lh > 0)
-		disp.DrawImage(img_distance, x + 1 + disp.GetTextWidth_P(label_P) + 2, y);
-#endif
-
-	char text[10];
-
-	if (distance != INFINITY)
-	{
-		sprintf_distance(text, distance);
-	}
-	else
-	{
-		sprintf_P(text, PSTR("---"));
-	}
-
-	widget_value_txt(text, x, y + lh, w, h - lh);
 }
 
 void widget_home_distance_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
