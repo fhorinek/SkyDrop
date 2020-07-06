@@ -15,7 +15,7 @@ uint8_t f_test_lcd_cont_max = 0;
 void gui_factory_test_init()
 {
 	DEBUG(" *** Factory test ***\n");
-	fc_pause();
+//	fc_pause();
 	led_notify_disable();
 
 	//We need to test gps and bt module
@@ -43,7 +43,7 @@ void gui_factory_test_init()
 void gui_factory_test_stop()
 {
 	DEBUG("FACTORY TEST OK\n");
-	fc_continue();
+//	fc_continue();
 
 	led_set(0x00, 0x00, 0x00);
 	buzzer_set_vol(0);
@@ -72,7 +72,23 @@ void gui_factory_test_loop()
 	}
 	else
 	{
-		res = ms5611.SelfTest();
+		static bool self_test_done = false;
+		static bool ms5611_self_test = false;
+		static bool imu_self_test = false;
+		static bool sht_self_test = false;
+
+		if (!self_test_done)
+		{
+			fc_pause();
+			ms5611_self_test = ms5611.SelfTest();
+			imu_self_test = lsm303d.SelfTest() && l3gd20.SelfTest();
+			sht_self_test = sht21.SelfTest();
+			fc_continue();
+		}
+
+
+
+		res = ms5611_self_test;
 		if (!res) err = true;
 		if (res || blik)
 		{
@@ -81,25 +97,24 @@ void gui_factory_test_loop()
 			assert(res);
 		}
 
-		res = lsm303d.SelfTest();
+		res = imu_self_test;
 		if (!res) err = true;
 		if (res || blik)
 		{
 			disp.GotoXY(4, f_h * 3 + 3);
-			fprintf_P(lcd_out, PSTR("LSM303:%s"), (res) ? "OK" : "ERR");
+			fprintf_P(lcd_out, PSTR("IMU:%s"), (res) ? "OK" : "ERR");
 			assert(res);
 		}
 
-		res = l3gd20.SelfTest();
-		if (!res) err = true;
-		if (res || blik)
+
+		if (imu_self_test)
 		{
 			disp.GotoXY(4, f_h * 4 + 3);
-			fprintf_P(lcd_out, PSTR("L3GD20:%s"), (res) ? "OK" : "ERR");
+			fprintf_P(lcd_out, PSTR("ACC:%0.2f"), fc.acc.total_filtered);
 			assert(res);
 		}
 
-		res = sht21.SelfTest();
+		res = sht_self_test;
 		if (!res) err = true;
 		if (res || blik)
 		{

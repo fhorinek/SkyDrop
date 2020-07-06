@@ -1,7 +1,11 @@
-Build 5202 - 06. 07. 2020
-
+Build 5203 - 06. 07. 2020
 ========================================================
-FIXL
+FIX:
+ * Default contrast setting
+
+Build 5202 - 06. 07. 2020
+========================================================
+FIX:
  * Hike stop will not take off automaticaly
  * UPDATE.FW will be erased upon update
  * Wrong odometer computation #432 (bubeck)
