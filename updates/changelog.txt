@@ -1,3 +1,12 @@
+Build 5202 - 06. 07. 2020
+
+========================================================
+FIXL
+ * Hike stop will not take off automaticaly
+ * UPDATE.FW will be erased upon update
+ * Wrong odometer computation #432 (bubeck)
+ * Incorrect bearing computation in gps_distance. #429 (bubeck)
+
 Build 5192 - 02. 06. 2020
 ========================================================
 

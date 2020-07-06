@@ -474,6 +474,10 @@ void fc_end_hike()
 	gui_showmessage_P(PSTR("Hike end"));
 	fc.flight.timer = task_get_ms_tick() - fc.flight.timer;
 
+	//prevent auto start
+	fc.flight.autostart_timer = task_get_ms_tick();
+	fc.flight.autostart_altitude = fc.altitude1;
+
 	fc_save_stats();
 
 	logger_stop();

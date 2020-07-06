@@ -53,7 +53,7 @@ void task_special_files_handle()
 	}
 
 	//preserve EE and FW file if NO_WIPE file found (factory programming)
-	if (storage_file_exist_P(PSTR("NO_WIPE")))
+	if (!storage_file_exist_P(PSTR("NO_WIPE")))
 	{
 		//remove applied update files
 		f_unlink("UPDATE.EE");
