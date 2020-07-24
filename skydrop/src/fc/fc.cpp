@@ -465,7 +465,7 @@ void fc_save_stats()
 	logger_comment(PSTR(" SKYDROP-ALT-MIN-m: %d "), fc.flight.stats.min_alt);
 	logger_comment(PSTR(" SKYDROP-CLIMB-MAX-cm: %d "), fc.flight.stats.max_climb);
 	logger_comment(PSTR(" SKYDROP-SINK-MAX-cm: %d "), fc.flight.stats.max_sink);
-	logger_comment(PSTR(" SKYDROP-ODO-m: %lu "), fc.odometer - fc.flight.autostart_odo);
+	logger_comment(PSTR(" SKYDROP-ODO-m: %lu "), (fc.odometer - fc.flight.autostart_odo)/100);   // cm to m
 }
 
 void fc_end_hike()

@@ -453,7 +453,7 @@ struct flight_computer_data_t
 
 	airspace_data_t airspace;
 
-	uint32_t odometer;              // in m
+	uint32_t odometer;              // in cm
 
 	uint8_t logger_state;           // One of the LOGGER_IDLE, LOGGER_WAIT_FOR_GPS, ...
 

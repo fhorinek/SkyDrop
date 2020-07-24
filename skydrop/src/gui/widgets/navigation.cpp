@@ -46,7 +46,7 @@ void widget_distance_draw(const char *label_P, float distance, uint8_t x, uint8_
 
 void widget_odometer_draw(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 {
-  widget_distance_draw(PSTR("Odo"), fc.odometer / 1000.0, x, y, w, h);
+  widget_distance_draw(PSTR("Odo"), fc.odometer / 100000.0, x, y, w, h);   // cm to km
 }
 
 void widget_odometer_irqh(uint8_t type, uint8_t * buff)

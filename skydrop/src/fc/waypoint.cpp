@@ -488,7 +488,7 @@ void waypoint_task_calc_distance()
 		waypoint_task_get_wpt(i, &twpt);
 
 		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
-		twpt.dist_m = gps_distance(lat, lon, twpt.wpt.latitude, twpt.wpt.longtitude, use_fai);
+		twpt.dist_m = gps_distance(lat, lon, twpt.wpt.latitude, twpt.wpt.longtitude, use_fai) / 100;   // cm to m
 		fc.task.head.center_dist_m += twpt.dist_m;
 
 		lat = twpt.wpt.latitude;
@@ -524,7 +524,7 @@ uint32_t waypoint_task_opti_distance(opti_waypoint_cache_t * twpt1, opti_waypoin
 	int32_t lon2 = twpt2->opti_longtitude;
 
 	bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
-	return gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL);
+	return gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL) / 100;  // cm to m
 }
 
 #define TASK_OPTI_INVALID	0xFF
@@ -833,7 +833,7 @@ void waypoint_task_optimise_finalise()
 		int32_t lat2 = twpt.opti_latitude;
 
 		bool use_fai = fc.task.head.flags & CFG_TASK_FLAGS_FAI_SPHERE;
-		twpt.opti_dist_m = gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL);
+		twpt.opti_dist_m = gps_distance(lat1, lon1, lat2, lon2, use_fai, NULL) / 100;  // cm to m
 
 		lon1 = lon2;
 		lat1 = lat2;
