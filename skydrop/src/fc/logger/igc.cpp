@@ -5,6 +5,8 @@
 
 #include <private_key.h>
 
+#include "../waypoint.h"
+
 //#include "debug_on.h"
 
 Sha256Class sha256;
@@ -86,6 +88,45 @@ void igc_write_grecord()
 	assert(f_lseek(&log_file, pos - 43) == FR_OK);
 #endif
 }
+
+/**
+ * Take a GPS position and convert it to a IGC file format to be used in "B",
+ * "C" or other records. The result will be DDMMmmmNDDDMMmmmE, where "D" is
+ * degree and "M" is minute according to IGC file spec.
+ *
+ * @param line the buffer to print the result to. Exactly 17 characters
+ *             and \0 will be written.
+ * @param latitude the latitude in skybean notation.
+ * @param longitude the longitude in skybean notation.
+ *
+ */
+void igc_gps(char *line, int32_t latitude, int32_t longitude)
+{
+	uint16_t lat_deg, lon_deg;
+	uint32_t lat_min, lon_min;
+
+	lat_deg = abs(latitude) / GPS_COORD_MUL;
+	lat_min = ((abs(latitude) % GPS_COORD_MUL) * 60);
+	char NS = latitude < 0 ? 'S' : 'N';
+
+	lon_deg = abs(longitude) / GPS_COORD_MUL;
+	lon_min = ((abs(longitude) % GPS_COORD_MUL) * 60);
+	char EW = longitude < 0 ? 'W' : 'E';
+
+	// 4843443N00909203E
+	sprintf_P(line, PSTR("%02u%05lu%c%03u%05lu%c"), lat_deg, lat_min / 10000, NS, lon_deg, lon_min / 10000, EW);
+}
+
+void igc_c_line(char *line, int32_t latitude, int32_t longitude, const char *tag_P, char *name)
+{
+	// C4843443N00909203ETURN Grabenstetten
+	line[0] = 'C';
+	igc_gps(line + 1, latitude, longitude);
+	sprintf_P(line + strlen(line), PSTR("%S %s"), tag_P, name);
+
+	igc_writeline(line);
+}
+
 
 uint8_t igc_start(char * path)
 {
@@ -181,6 +222,32 @@ uint8_t igc_start(char * path)
 	sprintf_P(line, PSTR("HFFRSSECSUSPECTUSEVALIPROG:This file is not valid. Private key not available!"));
 	igc_writeline(line);
 #endif
+
+	if (fc.task.active)
+	{
+		// C110321 115428 000000 0000 08 Potsdam.gpx
+		sprintf_P(line, PSTR("C%02d%02d%02d%02d%02d%02d0000000001%02d%s"), day, month, year % 100, hour, min, sec, fc.task.waypoint_count - 2, fc.task.name);
+		igc_writeline(line);
+		igc_c_line(line, fc.gps_data.latitude, fc.gps_data.longtitude, PSTR("TAKEOFF"), "");
+		for ( int i = 0 ; i < fc.task.waypoint_count; i++ )
+		{
+			task_waypoint_t twpt;
+			const char *tag;
+
+			waypoint_task_get_wpt(i, &twpt);
+
+			tag = PSTR("TURN");
+			if (i == 0) tag = PSTR("START");
+			if (i == fc.task.waypoint_count - 1)
+			{
+				tag = PSTR("FINISH");
+				igc_c_line(line, twpt.wpt.latitude, twpt.wpt.longtitude, tag, twpt.wpt.name);
+				tag = PSTR("LANDING");
+			}
+
+			igc_c_line(line, twpt.wpt.latitude, twpt.wpt.longtitude, tag, twpt.wpt.name);
+		}
+	}
 
 	//dump the cache
 //	DEBUG("IGC dump len %d\n", igc_pre_start_len);
