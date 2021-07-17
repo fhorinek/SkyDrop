@@ -8,7 +8,7 @@
 #ifndef FONTS_H_
 #define FONTS_H_
 
-#include "../../common.h"
+#include "../common.h"
 
 extern const uint8_t font_6px_normal_ttf_8[] PROGMEM;
 extern const uint8_t font_arial_bold_ttf_16[] PROGMEM;

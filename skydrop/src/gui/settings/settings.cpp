@@ -3,7 +3,7 @@
 #include "../gui_list.h"
 #include "../gui_filemanager.h"
 
-#include "logger.h"
+#include "fc/logger/logger.h"
 
 void gui_settings_init()
 {

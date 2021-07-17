@@ -8,7 +8,7 @@
 #ifndef FC_NAVIGATION_H_
 #define FC_NAVIGATION_H_
 
-#include "../../common.h"
+#include "../common.h"
 
 
 uint32_t gps_distance(int32_t lat1, int32_t lon1, int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing = NULL);

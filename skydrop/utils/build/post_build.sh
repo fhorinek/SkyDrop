@@ -1,5 +1,10 @@
 #!/bin/bash
 
+AVR="$(dirname $(dirname $(dirname $(readlink -e $0))))/avr/bin/"
+if [ ! -d ${AVR} ]; then
+    $AVR=""
+fi
+
 # print the size in bytes of the given section
 function size_sect()
 {
@@ -9,7 +14,7 @@ function size_sect()
     # .eeprom                       647   8454176
     # .cfg_ro                       391   8455808
     # [...]
-    avr-size --format=sysv skydrop.elf | grep $1 | awk '{ print $2 }'
+    "${AVR}avr-size" --format=sysv skydrop.elf | grep $1 | awk '{ print $2 }'
 }
 
 echo " *** POST BUILD ***"
