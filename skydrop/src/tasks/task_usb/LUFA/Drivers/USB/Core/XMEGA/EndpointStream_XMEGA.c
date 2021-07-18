@@ -176,7 +176,7 @@ uint8_t Endpoint_Null_Stream(uint16_t Length,
 	#define  TEMPLATE_CLEAR_ENDPOINT()                 Endpoint_ClearIN()
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            0
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr += Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(ee_read_byte(BufferPtr))
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(eeprom_read_byte(BufferPtr))
 	#include "Template/Template_Endpoint_RW.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Write_EStream_BE
@@ -184,7 +184,7 @@ uint8_t Endpoint_Null_Stream(uint16_t Length,
 	#define  TEMPLATE_CLEAR_ENDPOINT()                 Endpoint_ClearIN()
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            (Length - 1)
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr -= Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(ee_read_byte(BufferPtr))
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(eeprom_read_byte(BufferPtr))
 	#include "Template/Template_Endpoint_RW.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Read_EStream_LE
@@ -192,7 +192,7 @@ uint8_t Endpoint_Null_Stream(uint16_t Length,
 	#define  TEMPLATE_CLEAR_ENDPOINT()                 Endpoint_ClearOUT()
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            0
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr += Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         ee_update_byte(BufferPtr, Endpoint_Read_8())
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         eeprom_update_byte(BufferPtr, Endpoint_Read_8())
 	#include "Template/Template_Endpoint_RW.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Read_EStream_BE
@@ -200,7 +200,7 @@ uint8_t Endpoint_Null_Stream(uint16_t Length,
 	#define  TEMPLATE_CLEAR_ENDPOINT()                 Endpoint_ClearOUT()
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            (Length - 1)
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr -= Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         ee_update_byte(BufferPtr, Endpoint_Read_8())
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         eeprom_update_byte(BufferPtr, Endpoint_Read_8())
 	#include "Template/Template_Endpoint_RW.c"
 #endif
 
@@ -248,25 +248,25 @@ uint8_t Endpoint_Null_Stream(uint16_t Length,
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Write_Control_EStream_LE
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            0
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr += Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(ee_read_byte(BufferPtr))
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(eeprom_read_byte(BufferPtr))
 	#include "Template/Template_Endpoint_Control_W.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Write_Control_EStream_BE
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            (Length - 1)
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr -= Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(ee_read_byte(BufferPtr))
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         Endpoint_Write_8(eeprom_read_byte(BufferPtr))
 	#include "Template/Template_Endpoint_Control_W.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Read_Control_EStream_LE
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            0
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr += Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         ee_update_byte(BufferPtr, Endpoint_Read_8())
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         eeprom_update_byte(BufferPtr, Endpoint_Read_8())
 	#include "Template/Template_Endpoint_Control_R.c"
 
 	#define  TEMPLATE_FUNC_NAME                        Endpoint_Read_Control_EStream_BE
 	#define  TEMPLATE_BUFFER_OFFSET(Length)            (Length - 1)
 	#define  TEMPLATE_BUFFER_MOVE(BufferPtr, Amount)   BufferPtr -= Amount
-	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         ee_update_byte(BufferPtr, Endpoint_Read_8())
+	#define  TEMPLATE_TRANSFER_BYTE(BufferPtr)         eeprom_update_byte(BufferPtr, Endpoint_Read_8())
 	#include "Template/Template_Endpoint_Control_R.c"
 #endif
 

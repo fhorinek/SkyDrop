@@ -6,7 +6,7 @@
  */
 
 #include "waypoint.h"
-#include "logger.h"
+#include "logger/logger.h"
 //#include "../debug_on.h"
 
 void waypoint_show()

@@ -1,0 +1,4 @@
+build
+avr
+utils/avr-toolchain/*
+!utils/avr-toolchain/build.sh 
