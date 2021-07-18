@@ -22,8 +22,7 @@ You can use either eclipse as build system or cmake.
 ```
 mkdir build
 cd build
-cmake .. -DIGC=OFF
+cmake ..
 make -j $(nproc)
 ```
 
-`-DIGC=OFF` disables use of the igc-private-key
