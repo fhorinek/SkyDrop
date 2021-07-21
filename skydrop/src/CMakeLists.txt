@@ -1,78 +1,61 @@
 set(SRC_FILES)
+# We add all the source files here.
 
-#file(GLOB SRC_FILES_TMP "${SRC_PATH}/xlib/*.c*")
-#set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+
+# add xlib
+file(GLOB SRC_FILES_TMP "${SRC_PATH}/xlib/core/*.cpp")
+set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+
 set(SRC_FILES ${SRC_FILES}
-"${SRC_PATH}/xlib/common.c"
-"${SRC_PATH}/xlib/core/adc.cpp"
-"${SRC_PATH}/xlib/core/clock.cpp"
-"${SRC_PATH}/xlib/core/dac.cpp"
-"${SRC_PATH}/xlib/core/gpio.cpp"
-"${SRC_PATH}/xlib/core/i2c.cpp"
-"${SRC_PATH}/xlib/core/rtc.cpp"
-"${SRC_PATH}/xlib/core/spi.cpp"
-"${SRC_PATH}/xlib/core/system.cpp"
-"${SRC_PATH}/xlib/core/timer.cpp"
-"${SRC_PATH}/xlib/core/usart.cpp"
-"${SRC_PATH}/xlib/core/watchdog.cpp"
-"${SRC_PATH}/xlib/ring_small.cpp"
-"${SRC_PATH}/xlib/ring.cpp"
+    "${SRC_PATH}/xlib/common.c"
+    "${SRC_PATH}/xlib/ring_small.cpp"
+    "${SRC_PATH}/xlib/ring.cpp"
 )
 
+# add fc
+file(GLOB SRC_FILES_TMP "${SRC_PATH}/fc/*.c*")
+set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+file(GLOB SRC_FILES_TMP "${SRC_PATH}/fc/protocols/*.c*")
+set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
 
-set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/fc/conf.cpp")
-add_subdirectory("${SRC_PATH}/fc")
+set(SRC_FILES ${SRC_FILES}
+    "${SRC_PATH}/fc/logger/logger.cpp"
+    "${SRC_PATH}/fc/logger/igc.cpp"
+    "${SRC_PATH}/fc/logger/kml.cpp"
+    "${SRC_PATH}/fc/logger/sha256.cpp"
+)
 
 
 file(GLOB SRC_FILES_TMP "${SRC_PATH}/data/*.c*")
 set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
 
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/audio/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/bluetooth/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/sensors/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/storage/FatFs/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/storage/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/drivers/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+file(GLOB_RECURSE SRC_DRIVER "${SRC_PATH}/drivers/**.c*")
+set(SRC_FILES ${SRC_FILES} 
+    ${SRC_DRIVER})
 
 
-#file(GLOB SRC_FILES_TMP "${SRC_PATH}/fc/*.c*")
-#set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+## task_usb
+
+# add these files from LUFA driver:
 set(UDIR "${SRC_PATH}/tasks/task_usb/LUFA/Drivers/USB/Core/XMEGA")
-
 set(SRC_FILES ${SRC_FILES} 
 "${UDIR}/Endpoint_XMEGA.c" 
 "${UDIR}/EndpointStream_XMEGA.c" 
 "${UDIR}/Device_XMEGA.c"
 "${UDIR}/USBController_XMEGA.c"
 "${UDIR}/USBInterrupt_XMEGA.c"
-
-
 )
 
-#file(GLOB_RECURSE SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/LUFA/Drivers/USB/Core/XMEGA/Device_XMEGA.c*")
-#set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+
 
 file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/LUFA/Drivers/USB/Core/*.c*")
 set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
 
-#set(SRC_FILES ${SRC_FILES} "${SRC_PATH}/tasks/task_usb/LUFA/Drivers/USB/Core/XMEGA/Device_XMEGA.c")
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/MassStorage/Config/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/MassStorage/Lib/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
-file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/MassStorage/*.c*")
-set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
+# add MassStorage
+file(GLOB_RECURSE SRC_STORAGE "${SRC_PATH}/tasks/task_usb/MassStorage/**.c*")
+set(SRC_FILES ${SRC_FILES} 
+    ${SRC_STORAGE})
+
 file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/task_usb/task_usb.c*")
 
 set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
@@ -80,9 +63,13 @@ file(GLOB SRC_FILES_TMP "${SRC_PATH}/tasks/*.c*")
 set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
 
 
-add_subdirectory("${SRC_PATH}/gui")
+# add /gui recursively
+file(GLOB_RECURSE SRC_GUI "${SRC_PATH}/gui/**.c*")
+set(SRC_FILES ${SRC_FILES} 
+    ${SRC_GUI})
 
+# add outer dir
 file(GLOB SRC_FILES_TMP "${SRC_PATH}/*.c*")
 set(SRC_FILES ${SRC_FILES} ${SRC_FILES_TMP})
 
-set(SRC_FILES ${SRC_MODULES} ${SRC_FILES} PARENT_SCOPE) 
+set(SRC_FILES ${SRC_FILES} PARENT_SCOPE) 

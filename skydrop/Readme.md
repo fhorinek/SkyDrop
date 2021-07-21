@@ -9,7 +9,7 @@ Newer toolchains tend to produce bigger binaries that won't fit on skydrops ATME
 
 On linux you can use the provided script to set up the toolchain
 
-```
+``` bash
 cd utils/avr-toolchain
 ./build.sh
 ```
@@ -19,10 +19,9 @@ cd utils/avr-toolchain
 
 You can use either eclipse as build system or cmake.
 
-```
+``` bash
 mkdir build
 cd build
 cmake ..
 make -j $(nproc)
 ```
-
