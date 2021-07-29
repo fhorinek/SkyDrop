@@ -647,7 +647,7 @@ void fc_step()
 			if (config.autostart.gps_speed > 0 && fc.gps_data.valid)
 				speed_hi = fc.gps_data.ground_speed * FC_KNOTS_TO_KPH > config.autostart.gps_speed;
 
-			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity  && config.autostart.start_sensititvity > 0) || speed_hi)
+			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) > config.autostart.start_sensititvity  && config.autostart.start_sensititvity > 0) && speed_hi)
 			{
 				fc_takeoff();
 			}
@@ -680,7 +680,7 @@ void fc_step()
 			if (config.autostart.gps_speed > 0 && fc.gps_data.valid)
 				speed_low = fc.gps_data.ground_speed * FC_KNOTS_TO_KPH < config.autostart.gps_speed;
 
-			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) < config.autostart.land_sensititvity) and speed_low)
+			if ((abs(fc.altitude1 - fc.flight.autostart_altitude) < config.autostart.land_sensititvity) && speed_low)
 			{
 				uint32_t tick = task_get_ms_tick();
 
