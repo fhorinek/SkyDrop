@@ -8,7 +8,7 @@
 //#index
 //#   1000 0000 - inside (128, 0x80)
 //#   -III IIII - 0 - 125 index
-//#             - 126 no airspace (126, 0x7F)
+//#             - 127 no airspace (127, 0x7F)
 //#a  1000 0000 - mode A
 //#b  1000 0000 - mode B
 //
