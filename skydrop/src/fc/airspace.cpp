@@ -462,7 +462,7 @@ void airspace_get_data_on_opened_file(int32_t lat, int32_t lon)
 
         bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
         int16_t angle;
-        uint16_t distance = gps_distance(lat, lon, ty, tx, use_fai, &angle);
+        uint16_t distance = gps_distance(lat, lon, ty, tx, use_fai, &angle) / 100;   // cm to m
 
         if (fc.airspace.cache[i].flags & AIR_CACHE_FAR)
         	distance = AIRSPACE_TOO_FAR;

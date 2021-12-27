@@ -59,7 +59,7 @@ void gps_destination(float lat1, float lon1, float angle, float distance_km,
  * \param FAI use FAI sphere instead of WGS ellipsoid
  * \param bearing pointer to bearing (NULL if not used)
  *
- * \return the distance in m.
+ * \return the distance in cm.
  */
 uint32_t gps_distance(int32_t lat1, int32_t lon1,
 			 	 	  int32_t lat2, int32_t lon2, bool FAI, int16_t * bearing)
@@ -94,7 +94,7 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 
 //		DEBUG("#q=%0.10f\n", q);
 
-		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 1000.0;
+		dist = 2 * FAI_EARTH_RADIUS * asin(sqrt(q)) * 100000.0;
 	}
 	else //WGS
 	{
@@ -113,7 +113,7 @@ uint32_t gps_distance(int32_t lat1, int32_t lon1,
 //		DEBUG("#d_lon=%0.10f\n", d_lon);
 //		DEBUG("#d_lat=%0.10f\n", d_lat);
 
-        dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 1000.0;
+        dist = sqrt(pow(d_lon, 2) + pow(d_lat, 2)) * 100000.0;
 	}
 
     if (bearing)
@@ -177,7 +177,7 @@ void navigation_step()
 
 		fc.flight.home_distance = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
 											   config.home.lat, config.home.lon,
-											   use_fai, (int16_t *)&fc.flight.home_bearing) / 1000.0;   // m to km
+											   use_fai, (int16_t *)&fc.flight.home_bearing) / 100000.0;   // cm to km
 	}
 
 	if (waypoint_task_active())
@@ -206,11 +206,11 @@ void navigation_step()
 			//get optimal points
 			wpt_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
 					fc.task.next_waypoint.twpt.opti_latitude, fc.task.next_waypoint.twpt.opti_longtitude,
-					use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
+					use_fai, (int16_t *)&fc.task.next_waypoint.bearing) / 100;    // cm to m
 
 			center_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
 					fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
-					use_fai, NULL);
+					use_fai, NULL) / 100;    // cm to m
 
 			DEBUG("n %lu %lu\n", fc.task.next_waypoint.twpt.opti_latitude, fc.task.next_waypoint.twpt.opti_longtitude);
 		}
@@ -219,7 +219,7 @@ void navigation_step()
 			//get center points
 			wpt_dist = gps_distance(fc.gps_data.latitude, fc.gps_data.longtitude,
 					fc.task.next_waypoint.twpt.wpt.latitude, fc.task.next_waypoint.twpt.wpt.longtitude,
-					use_fai, (int16_t *)&fc.task.next_waypoint.bearing);
+					use_fai, (int16_t *)&fc.task.next_waypoint.bearing) / 100;    // cm to m
 
 			center_dist = wpt_dist;
 
@@ -280,8 +280,8 @@ void navigation_step()
 		bool use_fai = config.connectivity.gps_format_flags & GPS_EARTH_MODEL_FAI;
 		uint32_t v = gps_distance(last_lat, last_lon, fc.gps_data.latitude, fc.gps_data.longtitude, use_fai);
 
-		//calculated speed in knots. The distance "v" is in meter and we get a GPS sample every second, so this is meter per second.
-		float calc_speed = v * FC_MPS_TO_KNOTS;
+		//calculated speed in knots. The distance "v" is in centimeter and we get a GPS sample every second, so this is meter per second.
+		float calc_speed = v / 100.0 * FC_MPS_TO_KNOTS;
 
 		//do not add when gps speed is < 1 km/h
 		//do not add when difference between calculated speed and gps speed is > 10 km/h
