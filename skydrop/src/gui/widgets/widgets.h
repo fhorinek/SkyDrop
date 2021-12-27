@@ -136,10 +136,11 @@ extern float widget_menu_fvalue1;
 /**
  * Format a distance in a human readable format.
  *
- * @param text the text buffer to print into.
+ * @param text_number the text buffer to print the value into.
+ * @param text_unit the text buffer to print the unit into.
  * @param distance the distance in km.
  */
-extern void sprintf_distance(char *text, float distance);
+extern void sprintf_distance(char *text_number, char *text_unit, float distance);
 
 extern const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS];
 uint8_t widget_sorted_get_index(uint8_t pos);

@@ -1,7 +1,30 @@
-Build XXXX - DD. MM. 2020
+Build 5205 - 08. 07. 2020
+========================================================
+FIX:
+ * Error with G-record signing
+
+
+Build 5203 - 06. 07. 2020
+========================================================
+FIX:
+ * Default contrast setting
+
+Build 5202 - 06. 07. 2020
+========================================================
+FIX:
+ * Hike stop will not take off automaticaly
+ * UPDATE.FW will be erased upon update
+ * Wrong odometer computation #432 (bubeck)
+ * Incorrect bearing computation in gps_distance. #429 (bubeck)
+
+Build 5192 - 02. 06. 2020
 ========================================================
 
+ADDED:
+ * Time to Hike widget
+
 FIX:
+ * Auto power off disabled during hike mode
  * "Airspace>Alert near" setting did not show current
    value (bubeck)
 

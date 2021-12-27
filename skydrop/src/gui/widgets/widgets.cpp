@@ -125,24 +125,32 @@ const uint8_t PROGMEM widget_sorted[NUMBER_OF_SORTED_WIDGETS] =
 /**
  * Format a distance in a human readable format.
  *
- * @param text the text buffer to print into.
+ * @param text_number the text buffer to print the value into.
+ * @param text_unit the text buffer to print the unit into.
  * @param distance the distance in km.
  */
-void sprintf_distance(char *text, float distance)
+void sprintf_distance(char *text_number, char *text_unit, float distance)
 {
-	if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+	if (distance != INFINITY)
 	{
-		distance *= FC_KM_TO_MILE;
-	}
+		if (config.connectivity.gps_format_flags & GPS_DIST_UNIT_I)
+	    {
+			distance *= FC_KM_TO_MILE;
+			strcpy_P(text_unit, PSTR("mi"));
+	    } else
+	        strcpy_P(text_unit, PSTR("km"));
 
-	if (distance < 1.0 && !(config.connectivity.gps_format_flags & GPS_DIST_UNIT_I))
-		sprintf_P(text, PSTR("%0.0fm"), distance * 1000);
-	else if (distance < 10.0)
-		sprintf_P(text, PSTR("%.2f"), distance);
-	else if (distance < 100.0)
-		sprintf_P(text, PSTR("%.1f"), distance);
-	else
-		sprintf_P(text, PSTR("%.0f"), distance);
+		if (distance < 10.0)
+			sprintf_P(text_number, PSTR("%.2f"), distance);
+		else if (distance < 100.0)
+			sprintf_P(text_number, PSTR("%.1f"), distance);
+		else
+			sprintf_P(text_number, PSTR("%.0f"), distance);
+
+	} else {
+		strcpy_P(text_number, PSTR("---"));
+		text_unit[0] = 0;
+	}
 }
 
 uint8_t widget_sorted_get_index(uint8_t pos)

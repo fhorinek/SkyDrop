@@ -22,7 +22,7 @@ EEMEM cfg_t config_ee = {
 	//gui
 	{
 		//contrast
-		4,
+		6,
 		//brightness
 		20,
 		//brightness_timeout
