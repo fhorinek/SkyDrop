@@ -15,7 +15,6 @@
 #define MS5611_ADDRESS_CSB_HI	0b1110110
 #define MS5611_ADDRESS_CSB_LO	0b1110111
 
-#define MS5611_ACCEPT_TEMP_DELTA	1000
 
 
 // registers of the device
