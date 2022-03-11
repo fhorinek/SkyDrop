@@ -14,10 +14,13 @@ BUILD_LIBC=1
 
 # Output locations for built toolchains
 # ../../avr
-PREFIX_LINUX=$(dirname -- $(dirname -- $(dirname -- "$(readlink -f -- "$BASH_SOURCE")")))/avr
+PREFIX_LINUX=$(dirname -- $(dirname -- $(dirname -- "$(realpath -- "$BASH_SOURCE")")))/avr
 PREFIX_LIBC=$PREFIX_LINUX
+
 # Install packages
 #apt-get install wget make mingw-w64 gcc g++ bzip2
+
+rm -rf linux
 
 NAME_BINUTILS="binutils-2.32"
 NAME_GCC="gcc-7.2.0"
@@ -44,7 +47,7 @@ TIME_START=$(date +%s)
 
 makeDir()
 {
-	#rm -rf "$1/"
+	rm -rf "$1/"
 	mkdir -p "$1"
 }
 
@@ -73,31 +76,26 @@ fixGCCAVR()
 
 echo "Clearing output directories..."
 [ $BUILD_LINUX -eq 1 ] && makeDir "$PREFIX_LINUX"
-#[ $BUILD_LIBC -eq 1 ] && makeDir "$PREFIX_LIBC"
+[ $BUILD_LIBC -eq 1 ] && makeDir "$PREFIX_LIBC"
 
-export PATH="${PATH}:${PREFIX_LINUX}/bin"
-echo $PATH
+PATH="$PATH":"$PREFIX_LINUX"/bin
+export PATH
 
 CC=""
 export CC
 
 echo "Downloading sources..."
-
-#rm -rf $NAME_BINUTILS/
-if [ ! -f "$NAME_BINUTILS.tar.xz" ]; then
+rm -f $NAME_BINUTILS.tar.xz
+rm -rf $NAME_BINUTILS/
 wget ftp://ftp.mirrorservice.org/sites/ftp.gnu.org/gnu/binutils/$NAME_BINUTILS.tar.xz
-fi
-
-#rm -rf $NAME_GCC/
-if [ ! -f "$NAME_GCC.tar.gz" ]; then
-	wget ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/$NAME_GCC/$NAME_GCC.tar.gz
-fi
+rm -f $NAME_GCC.tar.xz
+rm -rf $NAME_GCC/
+wget ftp://ftp.mirrorservice.org/sites/sourceware.org/pub/gcc/releases/$NAME_GCC/$NAME_GCC.tar.gz
 
 if [ $BUILD_LIBC -eq 1 ]; then
+	rm -f $NAME_LIBC.tar.bz2
 	rm -rf $NAME_LIBC/
-	if [ ! -f "$NAME_LIBC.tar.bz2" ]; then
-		wget ftp://ftp.mirrorservice.org/sites/download.savannah.gnu.org/releases/avr-libc/$NAME_LIBC.tar.bz2
-	fi
+	wget ftp://ftp.mirrorservice.org/sites/download.savannah.gnu.org/releases/avr-libc/$NAME_LIBC.tar.bz2
 fi
 
 confMake()
@@ -105,38 +103,36 @@ confMake()
 	../configure --prefix=$1 $2 $3 $4
 	make -j $JOBCOUNT
 	make install-strip
-	#rm -rf *
+	rm -rf *
 }
 
 # Make AVR-Binutils
 echo "Making Binutils..."
 echo "Extracting..."
-tar -xf --skip-old-files $NAME_BINUTILS.tar.xz
+tar xf $NAME_BINUTILS.tar.xz
 mkdir -p $NAME_BINUTILS/obj-avr
 cd $NAME_BINUTILS/obj-avr
-#[ $BUILD_LINUX -eq 1 ] && confMake "$PREFIX_LINUX" "$OPTS_BINUTILS"
+[ $BUILD_LINUX -eq 1 ] && confMake "$PREFIX_LINUX" "$OPTS_BINUTILS"
 cd ../../
 
 # Make AVR-GCC
 echo "Making GCC..."
 echo "Extracting..."
-tar -xzf --skip-old-files $NAME_GCC.tar.gz
+tar xzf $NAME_GCC.tar.gz
 mkdir -p $NAME_GCC/obj-avr
 cd $NAME_GCC
 chmod +x ./contrib/download_prerequisites
 ./contrib/download_prerequisites
 cd obj-avr
 # fixGCCAVR
-#[ $BUILD_LINUX -eq 1 ] && confMake "$PREFIX_LINUX" "$OPTS_GCC"
+[ $BUILD_LINUX -eq 1 ] && confMake "$PREFIX_LINUX" "$OPTS_GCC"
 cd ../../
 
 # Make AVR-LibC
 if [ $BUILD_LIBC -eq 1 ]; then
 	echo "Making AVR-LibC..."
 	echo "Extracting..."
-	echo $PATH
-	echo $(pwd)
-	bunzip2 -c $NAME_LIBC.tar.bz2 | tar --skip-old-files -xf -
+	bunzip2 -c $NAME_LIBC.tar.bz2 | tar xf -
 	mkdir -p $NAME_LIBC/obj-avr
 	cd $NAME_LIBC/obj-avr
 	confMake "$PREFIX_LIBC" "$OPTS_LIBC" --host=avr --build=`../config.guess`
