@@ -1,6 +1,6 @@
 #!/bin/bash
 
-AVR="$(dirname $(dirname $(dirname $(readlink -e $0))))/avr/bin/"
+AVR="$(dirname $(dirname $(dirname $(realpath $0))))/avr/bin/"
 if [ ! -d ${AVR} ]; then
     $AVR=""
 fi
