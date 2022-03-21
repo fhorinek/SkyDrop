@@ -171,7 +171,7 @@ class IntelHex:
         @param  fobj        file name or file-like object
         """
         if not hasattr(fobj, "read"):
-            fobj = file(fobj, "r")
+            fobj = open(fobj, "r")
             fclose = fobj.close
         else:
             fclose = None
@@ -199,7 +199,7 @@ class IntelHex:
         """
         fread = getattr(fobj, "read", None)
         if fread is None:
-            f = file(fobj, "rb")
+            f = open(fobj, "rb")
             fread = f.read
             fclose = f.close
         else:
@@ -281,7 +281,7 @@ class IntelHex:
                         (if None used self.padding).
         '''
         if not hasattr(fobj, "write"):
-            fobj = file(fobj, "wb")
+            fobj = open(fobj, "wb")
             close_fd = True
         else:
             close_fd = False
@@ -334,7 +334,7 @@ class IntelHex:
             fobj = f
             fclose = None
         else:
-            fobj = file(f, 'w')
+            fobj = open(f, 'w')
             fwrite = fobj.write
             fclose = fobj.close
 
