@@ -19,7 +19,7 @@ def get_crc(data):
     crc = 0
     
     for c in data:
-        crc = calc_crc(crc, CRC_KEY, ord(c))
+        crc = calc_crc(crc, CRC_KEY, c)
         
     return crc
 
