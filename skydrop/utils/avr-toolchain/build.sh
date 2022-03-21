@@ -4,7 +4,7 @@
 # http://www.nongnu.org/avr-libc/user-manual/install_tools.html
 
 # For optimum compile time this should generally be set to the number of CPU cores your machine has
-JOBCOUNT=8
+JOBCOUNT=$(nproc)
 
 # Build Linux toolchain
 BUILD_LINUX=1
@@ -13,8 +13,9 @@ BUILD_LINUX=1
 BUILD_LIBC=1
 
 # Output locations for built toolchains
-PREFIX_LINUX=/home/horinek/bin/avr-build/linux
-PREFIX_LIBC=/home/horinek/bin/avr-build/linux
+# ../../avr
+PREFIX_LINUX=$(dirname -- $(dirname -- $(dirname -- "$(realpath -- "$BASH_SOURCE")")))/avr
+PREFIX_LIBC=$PREFIX_LINUX
 
 # Install packages
 #apt-get install wget make mingw-w64 gcc g++ bzip2
