@@ -93,7 +93,7 @@ def parse_layouts(filename, p):
                 a = a[1].split("}")
                 if len(a) == 2:
                     a = a[0].split(",")
-                    w = map(to_int, a)
+                    w = list(map(to_int, a))
                     if len(w) == 4:
                         layouts_map[layout_name]["widgets"].append(w)
                     
