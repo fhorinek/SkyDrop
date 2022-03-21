@@ -48,13 +48,13 @@ class Hex2BinConv():
                    c = label[i]
                lab_str += c               
         
-        out_file.write(lab_str)
+        out_file.write(lab_str.encode('ascii'))
 
         print(" label: %s" % lab_str)
         print("Converting HEX 2 BIN ...", )
 
         while(adr <= max_adr):
-            out_file.write(chr(self.hex[adr]))
+            out_file.write(bytes([self.hex[adr]]))
 
             adr += 1
         
