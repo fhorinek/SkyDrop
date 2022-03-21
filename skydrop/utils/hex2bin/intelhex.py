@@ -117,7 +117,7 @@ class IntelHex:
         if record_type == 0:
             # data record
             addr += self._offset
-            for i in xrange(4, 4+record_length):
+            for i in range(4, 4+record_length):
                 if not self._buf.get(addr, None) is None:
                     raise AddressOverlapError(address=addr, line=line)
                 self._buf[addr] = bin[i]
@@ -256,7 +256,7 @@ class IntelHex:
 
         start, end = self._get_start_end(start, end)
 
-        for i in xrange(start, end+1):
+        for i in range(start, end+1):
             bin.append(self._buf.get(i, pad))
 
         return bin
@@ -399,13 +399,13 @@ class IntelHex:
 
                 ofs = offset
                 if (ofs + 65536) > maxaddr:
-                    rng = xrange(maxaddr - ofs + 1)
+                    rng = range(maxaddr - ofs + 1)
                 else:
-                    rng = xrange(65536)
+                    rng = range(65536)
             else:
                 ofs = 0
                 offset_record = ''
-                rng = xrange(maxaddr + 1)
+                rng = range(maxaddr + 1)
 
             csum = 0
             k = 0
