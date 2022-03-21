@@ -65,12 +65,12 @@ class Hex2BinConv():
         
             
     def batch(self, filename, label):
-        start = time.clock()
+        start = time.perf_counter()
         
         self.load(filename)
         self.conv(label)
         
-        end = time.clock()
+        end = time.perf_counter()
         print()
         print("That's all folks! (%.2f seconds)" % (end - start))
             
