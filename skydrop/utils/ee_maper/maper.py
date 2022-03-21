@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python3
 
 import CParser
 import json
@@ -93,7 +93,7 @@ def parse_layouts(filename, p):
                 a = a[1].split("}")
                 if len(a) == 2:
                     a = a[0].split(",")
-                    w = map(to_int, a)
+                    w = list(map(to_int, a))
                     if len(w) == 4:
                         layouts_map[layout_name]["widgets"].append(w)
                     
@@ -117,10 +117,10 @@ def map_struct(parser, path, map_path):
     global mem_index
     
     for struct in path:
-#         print struct
+        # print(struct)
         struct_name = struct[0]
         struct_type = struct[1][0]
-        if len(struct[1]) == 2:
+        if len(struct[1]) == 2 and struct[1][1][0] != None:
             struct_len = struct[1][1][0]
         else:
             struct_len = 1
@@ -164,20 +164,20 @@ f = open("../utils/build/build_number.txt", "r")
 number = int(f.readline())
 f.close()   
 
-print "Configuration mapper (Build %u)" % number
-print "-----------------------------------------"
+print("Configuration mapper (Build %u)" % number)
+print("-----------------------------------------")
 
-print "Parsing headers...",
+print("Parsing headers...")
 p.processAll()
-print "ok"
+print("ok")
 
-print "Parsing cfg...",
+print("Parsing cfg...")
 map_struct(p, p.defs["structs"]["cfg_t"]["members"], "cfg")
-print "ok"
+print("ok")
 
-print "Parsing layouts...",
+print("Parsing layouts...")
 layouts = parse_layouts(layout_file, p)
-print "ok"
+print("ok")
 
 path = "../../skydrop_configurator/app/fw/%08d/" % number
 
@@ -186,13 +186,13 @@ try:
 except:
     pass
 
-print "Writing description file...",
+print("Writing description file...")
 f = open(os.path.join(path, "ee_map.json"), "w")
 f.write(json.dumps({"map": ee_map, "macros": p.defs["macros"], "layouts": layouts}))
 f.close()
-print "ok"
+print("ok")
 
-print "Providing firmware, configuration and description files to configurator...",
+print("Providing firmware, configuration and description files to configurator...")
 #firmware image
 shutil.copyfile("UPDATE.FW", os.path.join(path, "UPDATE.FW"))
 #eeprom image
@@ -202,7 +202,6 @@ shutil.copyfile("skydrop.lss", os.path.join(path, "skydrop.lss"))
 
 #copy last update file
 shutil.copyfile("UPDATE.EE", os.path.join("../../skydrop_configurator/app/", "UPDATE.EE"))
-print "ok"
-
-print "-----------------------------------------"
+print("ok")
+print("-----------------------------------------")
 

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 CParser.py - C parsing library 
@@ -60,7 +60,7 @@ class CParser():
         ## To see what was not successfully parsed:
         unp = p.processAll(returnUnparsed=True)
         for s in unp:
-            print s
+            print(s)
     """
     
     cacheVersion = 22    ## increment every time cache structure or parsing changes to invalidate old cache files.
@@ -143,36 +143,36 @@ class CParser():
         self.verbose = verbose
         if cache is not None and self.loadCache(cache, checkValidity=True):
             if verbose:
-                print "Loaded cached definitions; will skip parsing."
+                print("Loaded cached definitions; will skip parsing.")
             return  ## cached values loaded successfully, nothing left to do here
         #else:
-            #print "No cache.", cache
+            #print("No cache.", cache)
             
         
         results = []
 #         if noCacheWarning or verbose:
-#             print "Parsing C header files (no valid cache found). This could take several minutes..."
+#             print("Parsing C header files (no valid cache found). This could take several minutes...")
         for f in self.fileOrder:
             #fn = os.path.basename(f)
             if self.files[f] is None:
                 ## This means the file could not be loaded and there was no cache.
                 raise Exception('Could not find header file "%s" or a suitable cache file.' % f)
             if verbose:
-                print "Removing comments from file '%s'..." % f
+                print("Removing comments from file '%s'..." % f)
             self.removeComments(f)
             if verbose:
-                print "Preprocessing file '%s'..." % f
+                print("Preprocessing file '%s'..." % f)
             self.preprocess(f)
             if printAfterPreprocess:
-                print "===== PREPROCSSED %s =======" % f
-                print self.files[f]
+                print("===== PREPROCSSED %s =======" % f)
+                print(self.files[f])
             if verbose:
-                print "Parsing definitions in file '%s'..." % f
+                print("Parsing definitions in file '%s'..." % f)
             results.append(self.parseDefs(f, returnUnparsed))
         
         if cache is not None:
             if verbose:
-                print "Writing cache file '%s'" % cache
+                print("Writing cache file '%s'" % cache)
             self.writeCache(cache)
             
         return results
@@ -193,7 +193,7 @@ class CParser():
             cacheFile = os.path.join(d, "headers", cacheFile)
             if not os.path.isfile(cacheFile):
                 if self.verbose:
-                    print "Can't find requested cache file."
+                    print("Can't find requested cache file.")
                 return False
         
         ## make sure cache is newer than all input files
@@ -203,7 +203,7 @@ class CParser():
                 ## if file does not exist, then it does not count against the validity of the cache.
                 if os.path.isfile(f) and os.stat(f).st_mtime > mtime:
                     if self.verbose:
-                        print "Cache file is out of date."
+                        print("Cache file is out of date.")
                     return False
         
         try:
@@ -215,23 +215,23 @@ class CParser():
             if checkValidity:
                 if cache['opts'] != self.initOpts:
                     if self.verbose:
-                        print "Cache file is not valid--created using different initialization options."
-                        print cache['opts']
-                        print self.initOpts
+                        print("Cache file is not valid--created using different initialization options.")
+                        print(cache['opts'])
+                        print(self.initOpts)
                     return False
                 elif self.verbose:
-                    print "Cache init opts are OK:"
-                    print cache['opts']
+                    print("Cache init opts are OK:")
+                    print(cache['opts'])
                 if cache['version'] < self.cacheVersion:
                     if self.verbose:
-                        print "Cache file is not valid--cache format has changed."
+                        print("Cache file is not valid--cache format has changed.")
                     return False
                 
             ## import all parse results
             self.importDict(cache['fileDefs'])
             return True
         except:
-            print "Warning--cache read failed:"
+            print("Warning--cache read failed:")
             sys.excepthook(*sys.exc_info())
             return False
 
@@ -262,7 +262,7 @@ class CParser():
         if not os.path.isfile(file):
             ## Not a fatal error since we might be able to function properly if there is a cache file..
             #raise Exception("File %s not found" % file)
-            print "Warning: C header '%s' is missing; this may cause trouble." % file
+            print("Warning: C header '%s' is missing; this may cause trouble." % file)
             self.files[file] = None
             return False
             
@@ -348,7 +348,7 @@ class CParser():
                 d = m.groups()[0]
                 rest = m.groups()[1]
                 
-                #print "PREPROCESS:", d, rest
+                #print("PREPROCESS:", d, rest)
                 if d == 'ifdef':
                     d = 'if'
                     rest = 'defined '+rest
@@ -377,38 +377,38 @@ class CParser():
                     else:
                         ev = self.evalPreprocessorExpr(rest)
                     if self.verbose:
-                        print "  "*(len(ifTrue)-2) + line, rest, ev
+                        print("  "*(len(ifTrue)-2) + line, rest, ev)
                     ifTrue[-1] = ev
                     ifHit[-1] = ifHit[-1] or ev
                 elif d == 'else':
                     if self.verbose:
-                        print "  "*(len(ifTrue)-2) + line, not ifHit[-1]
+                        print("  "*(len(ifTrue)-2) + line, not ifHit[-1])
                     ifTrue[-1] = (not ifHit[-1]) and all(ifTrue[:-1])
                     ifHit[-1] = True
                 elif d == 'endif':
                     ifTrue.pop()
                     ifHit.pop()
                     if self.verbose:
-                        print "  "*(len(ifTrue)-1) + line
+                        print("  "*(len(ifTrue)-1) + line)
                 elif d == 'if':
                     if all(ifTrue):
                         ev = self.evalPreprocessorExpr(rest)
                     else:
                         ev = False
                     if self.verbose:
-                        print "  "*(len(ifTrue)-1) + line, rest, ev
+                        print("  "*(len(ifTrue)-1) + line, rest, ev)
                     ifTrue.append(ev)
                     ifHit.append(ev)
                 elif d == 'define':
                     if not ifTrue[-1]:
                         continue
                     if self.verbose:
-                        print "  "*(len(ifTrue)) + "define:", macroName, rest
+                        print("  "*(len(ifTrue)) + "define:", macroName, rest)
                     try:
                         self.ppDefine.parseString(macroName+ ' ' + rest) ## macro is registered here
                     except:
-                        print "Error processing macro definition:", macroName, rest
-                        print "      ", sys.exc_info()[1]
+                        print("Error processing macro definition:", macroName, rest)
+                        print("      ", sys.exc_info()[1])
                 elif d == 'undef':
                     if not ifTrue[-1]:
                         continue
@@ -419,7 +419,7 @@ class CParser():
                     except:
                         if sys.exc_info()[0] is not KeyError:
                             sys.excepthook(*sys.exc_info())
-                            print "Error removing macro definition '%s'" % macroName.strip()
+                            print("Error removing macro definition '%s'" % macroName.strip())
                 elif d == 'pragma':  ## Check for changes in structure packing
                     if not ifTrue[-1]:
                         continue
@@ -459,7 +459,7 @@ class CParser():
                         packing = int(opts[0])
                     
                     if self.verbose:
-                        print ">> Packing changed to %s at line %d" % (str(packing), i)
+                        print(">> Packing changed to %s at line %d" % (str(packing), i))
                     self.packList[file].append((i, packing))
                 else:
                     pass  ## Ignore any other directives
@@ -480,8 +480,8 @@ class CParser():
             ev = bool(eval(expr2))
         except:
             if self.verbose:
-                print "Error evaluating preprocessor expression: %s [%s]" % (expr, expr2)
-                print "      ", sys.exc_info()[1]
+                print("Error evaluating preprocessor expression: %s [%s]" % (expr, expr2))
+                print("      ", sys.exc_info()[1])
             ev = False
         return ev
             
@@ -510,25 +510,25 @@ class CParser():
     def processMacroDefn(self, t):
         """Parse a #define macro and register the definition"""
         if self.verbose:
-            print "MACRO:", t
+            print("MACRO:", t)
         #macroVal = self.macroExpander.transformString(t.value).strip()
         #macroVal = Literal('\\\n').suppress().transformString(macroVal) ## remove escaped newlines
         macroVal = t.value.strip()
         if macroVal in self.defs['fnmacros']:
             self.addDef('fnmacros', t.macro, self.defs['fnmacros'][macroVal])
             if self.verbose:
-                print "  Copy fn macro %s => %s" % (macroVal, t.macro) 
+                print("  Copy fn macro %s => %s" % (macroVal, t.macro) )
         else:
             if t.args == '':
                 val = self.evalExpr(macroVal)
                 self.addDef('macros', t.macro, macroVal)
                 self.addDef('values', t.macro, val)
                 if self.verbose:
-                    print "  Add macro:", t.macro, "("+str(val)+")", self.defs['macros'][t.macro]
+                    print("  Add macro:", t.macro, "("+str(val)+")", self.defs['macros'][t.macro])
             else:
                 self.addDef('fnmacros', t.macro,  self.compileFnMacro(macroVal, [x for x in t.args]))
                 if self.verbose:
-                    print "  Add fn macro:", t.macro, t.args, self.defs['fnmacros'][t.macro]
+                    print("  Add fn macro:", t.macro, t.args, self.defs['fnmacros'][t.macro])
         
         #if self.macroListString == '':
             #self.macroListString = t.macro
@@ -549,7 +549,7 @@ class CParser():
         N = 3
         for m in argRegex.finditer(text):
             arg = m.groups()[N]
-            #print m, arg
+            #print(m, arg)
             if arg is not None:
                 parts.append(text[start:m.start(N)] + '%s')
                 start = m.end(N)
@@ -579,7 +579,7 @@ class CParser():
                     parts.append(exp)
                 except:
                     if sys.exc_info()[1][0] != 0:
-                        print "Function macro expansion failed:", name, line[m.end(N):]
+                        print("Function macro expansion failed:", name, line[m.end(N):])
                         raise
         parts.append(line[start:])
         return ''.join(parts)
@@ -607,7 +607,7 @@ class CParser():
                         #parts.append(exp)
                     #except:
                         #if sys.exc_info()[1][0] != 0:
-                            #print "Function macro expansion failed:", name, line[m.end(N):]
+                            #print("Function macro expansion failed:", name, line[m.end(N):])
                             #raise
                         
                 #else:
@@ -616,7 +616,7 @@ class CParser():
         #return ''.join(parts)
 
     def expandFnMacro(self, name, text):
-        #print "expandMacro:", name, text
+        #print("expandMacro:", name, text)
         defn = self.defs['fnmacros'][name]
         ## defn looks like ('%s + %s / %s', (0, 0, 1))
         
@@ -625,11 +625,11 @@ class CParser():
         if len(res) == 0:
             raise Exception(0, "Function macro '%s' not followed by (...)" % name)
         args, start, end = res[0]
-        #print "  ", res 
-        #print "  ", args
-        #print "  ", defn
+        #print("  ", res )
+        #print("  ", args)
+        #print("  ", defn)
         newStr = defn[0] % tuple([args[0][i] for i in defn[1]])
-        #print "  ", newStr
+        #print("  ", newStr)
         return (newStr, end)
         
         
@@ -639,25 +639,25 @@ class CParser():
             
     #def processFnMacroRef(self, t):
         #m = self.defs['fnmacros'][t.macro]
-        ##print "=====>>"
-        ##print "Process FN MACRO:", t
-        ##print "  macro defn:", t.macro, m
-        ##print "  macro call:", t.args
+        ##print("=====>>")
+        ##print("Process FN MACRO:", t)
+        ##print("  macro defn:", t.macro, m)
+        ##print("  macro call:", t.args)
         ### m looks like ('a + b', ('a', 'b'))
         #newStr = m[0][:]
-        ##print "  starting str:", newStr
+        ##print("  starting str:", newStr)
         #try:
             #for i in range(len(m[1])):
-                ##print "  step", i
+                ##print("  step", i)
                 #arg = m[1][i]
-                ##print "    arg:", arg, '=>', t.args[i]
+                ##print("    arg:", arg, '=>', t.args[i])
                 
                 #newStr = Keyword(arg).copy().setParseAction(lambda: t.args[i]).transformString(newStr)
-                ##print "    new str:", newStr
+                ##print("    new str:", newStr)
         #except:
             ##sys.excepthook(*sys.exc_info())
             #raise
-        ##print "<<====="
+        ##print("<<=====")
         #return newStr
         
         
@@ -808,7 +808,7 @@ class CParser():
         See processType(...) for more information."""
         toks = []
         name = None
-        #print "DECL:", decl
+        #print("DECL:", decl)
         if 'callConv' in decl and len(decl['callConv']) > 0:
             toks.append(decl['callConv'])
         if 'ptrs' in decl and len(decl['ptrs']) > 0:
@@ -825,7 +825,7 @@ class CParser():
                 #toks.append(arrays)
             toks.append([self.evalExpr(x) for x in decl['arrays']])
         if 'args' in decl and len(decl['args']) > 0:
-            #print "  process args"
+            #print("  process args")
             if decl['args'][0] is None:
                 toks.append(())
             else:
@@ -858,7 +858,7 @@ class CParser():
             char fn(int x)         =>  ('fn', ['char', [('x', ['int'])]])
             struct s (*)(int, int*)   =>  (None, ["struct s", ((None, ['int']), (None, ['int', '*'])), '*'])
         """
-        #print "PROCESS TYPE/DECL:", typ, decl
+        #print("PROCESS TYPE/DECL:", typ, decl)
         (name, decl) = self.processDeclarator(decl)
         return (name, [typ] + decl)
         
@@ -867,7 +867,7 @@ class CParser():
     def processEnum(self, s, l, t):
         try:
             if self.verbose:
-                print "ENUM:", t
+                print("ENUM:", t)
             if t.name == '':
                 n = 0
                 while True:
@@ -879,7 +879,7 @@ class CParser():
                 name = t.name[0]
                 
             if self.verbose:
-                print "  name:", name
+                print("  name:", name)
                 
             if name not in self.defs['enums']:
                 i = 0
@@ -893,19 +893,19 @@ class CParser():
                     self.addDef('values', v.name, i)
                     i += 1
                 if self.verbose:
-                        print "  members:", enum
+                        print("  members:", enum)
                 self.addDef('enums', name, enum)
                 self.addDef('types', 'enum '+name, ('enum', name))
             return ('enum ' + name)
         except:
             if self.verbose:
-                print "Error processing enum:", t
+                print("Error processing enum:", t)
             sys.excepthook(*sys.exc_info())
 
 
     def processFunction(self, s, l, t):
         if self.verbose:
-            print "FUNCTION", t, t.keys()
+            print("FUNCTION", t, t.keys())
         
         try:
             (name, decl) = self.processType(t.type, t.decl[0])
@@ -914,13 +914,13 @@ class CParser():
 #                 raise Exception("Incorrect declarator type for function definition.")
 
             if self.verbose:
-                print "  name:", name
-                print "  sig:", decl
+                print("  name:", name)
+                print("  sig:", decl)
             self.addDef('functions', name, (decl[:-1], decl[-1]))
             
         except:
             if self.verbose:
-                print "Error processing function:", t
+                print("Error processing function:", t)
                 sys.excepthook(*sys.exc_info())
 
 
@@ -942,7 +942,7 @@ class CParser():
             packing = self.packingAt(lineno(l, s))
             
             if self.verbose:
-                print strTyp.upper(), t.name, t
+                print(strTyp.upper(), t.name, t)
             if t.name == '':
                 n = 0
                 while True:
@@ -956,62 +956,62 @@ class CParser():
                 else:
                     sname = t.name[0]
             if self.verbose:
-                print "  NAME:", sname
+                print("  NAME:", sname)
             if len(t.members) > 0 or sname not in self.defs[strTyp+'s'] or self.defs[strTyp+'s'][sname] == {}:
                 if self.verbose:
-                    print "  NEW " + strTyp.upper()
+                    print("  NEW " + strTyp.upper())
                 struct = []
                 for m in t.members:
                     typ = m[0].type
                     val = self.evalExpr(m)
                     if self.verbose:
-                        print "    member:", m, m[0].keys(), m[0].declList
+                        print("    member:", m, m[0].keys(), m[0].declList)
                     if len(m[0].declList) == 0:  ## anonymous member
                         struct.append((None, [typ], None))
                     for d in m[0].declList:
                         (name, decl) = self.processType(typ, d)
                         struct.append((name, decl, val))
                         if self.verbose:
-                            print "      ", name, decl, val
+                            print("      ", name, decl, val)
                 self.addDef(strTyp+'s', sname, {'pack': packing, 'members': struct})
                 self.addDef('types', strTyp+' '+sname, (strTyp, sname))
                 #self.updateStructDefn()
             return strTyp+' '+sname
         except:
-            #print t
+            #print(t)
             if self.verbose:
                 sys.excepthook(*sys.exc_info())
 
     def processVariable(self, s, l, t):
         if self.verbose:
-            print "VARIABLE:", t
+            print("VARIABLE:", t)
         try:
             val = self.evalExpr(t[0])
             for d in t[0].declList:
                 (name, typ) = self.processType(t[0].type, d)
                 if type(typ[-1]) is tuple:  ## this is a function prototype
                     if self.verbose:
-                        print "  Add function prototype:", name, typ, val
+                        print("  Add function prototype:", name, typ, val)
                     self.addDef('functions', name, (typ[:-1], typ[-1]))
                 else:
                     if self.verbose:
-                        print "  Add variable:", name, typ, val
+                        print("  Add variable:", name, typ, val)
                     self.addDef('variables', name, (val, typ))
                     self.addDef('values', name, val)
         except:
-            #print t, t[0].name, t.value
+            #print(t, t[0].name, t.value)
             if self.verbose:
                 sys.excepthook(*sys.exc_info())
 
     def processTypedef(self, s, l, t):
         if self.verbose:
-            print "TYPE:", t
+            print("TYPE:", t)
         typ = t.type
-        #print t, t.type
+        #print(t, t.type)
         for d in t.declList:
             (name, decl) = self.processType(typ, d)
             if self.verbose:
-                print "  ", name, decl
+                print("  ", name, decl)
             self.addDef('types', name, decl)
             #self.definedType << MatchFirst( map(Keyword,self.defs['types'].keys()) )
         
@@ -1020,25 +1020,25 @@ class CParser():
         ## happen to be valid python expressions.
         ## This function does not currently include previous variable
         ## declarations, but that should not be too difficult to implement..
-        #print "Eval:", toks
+        #print("Eval:", toks)
         try:
             if isinstance(toks, basestring):
-                #print "  as string"
+                #print("  as string")
                 val = self.eval(toks, None, self.defs['values'])
             elif toks.arrayValues != '':
-                #print "  as list:", toks.arrayValues
+                #print("  as list:", toks.arrayValues)
                 val = [self.eval(x, None, self.defs['values']) for x in toks.arrayValues]
             elif toks.value != '':
-                #print "  as value"
+                #print("  as value")
                 val = self.eval(toks.value, None, self.defs['values'])
             else:
-                #print "  as None"
+                #print("  as None")
                 val = None
             return val
         except:
             if self.verbose:
-                print "    failed eval:", toks
-                print "                ", sys.exc_info()[1]
+                print("    failed eval:", toks)
+                print("                ", sys.exc_info()[1])
             return None
             
     def eval(self, expr, *args):
@@ -1054,7 +1054,7 @@ class CParser():
         """Print everything parsed from files. Useful for debugging."""
         from pprint import pprint
         for k in self.dataList:
-            print "============== %s ==================" % k
+            print("============== %s ==================" % k)
             if file is None:
                 pprint(self.defs[k])
             else:
@@ -1256,7 +1256,7 @@ if hasPyParsing:
         """For debugging; pretty-prints parse result objects."""
         start = name + " "*(20-len(name)) + ':'+ '..'*depth    
         if isinstance(pr, ParseResults):
-            print start
+            print(start)
             for i in pr:
                 name = ''
                 for k in pr.keys():
@@ -1265,7 +1265,7 @@ if hasPyParsing:
                         break
                 printParseResults(i, depth+1, name)
         else:
-            print start  + str(pr)
+            print(start  + str(pr))
 
 
 

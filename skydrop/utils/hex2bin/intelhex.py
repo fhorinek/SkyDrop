@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 # Copyright (c) 2005-2007, Alexander Belchenko
 # All rights reserved.
@@ -117,7 +117,7 @@ class IntelHex:
         if record_type == 0:
             # data record
             addr += self._offset
-            for i in xrange(4, 4+record_length):
+            for i in range(4, 4+record_length):
                 if not self._buf.get(addr, None) is None:
                     raise AddressOverlapError(address=addr, line=line)
                 self._buf[addr] = bin[i]
@@ -171,7 +171,7 @@ class IntelHex:
         @param  fobj        file name or file-like object
         """
         if not hasattr(fobj, "read"):
-            fobj = file(fobj, "r")
+            fobj = open(fobj, "r")
             fclose = fobj.close
         else:
             fclose = None
@@ -199,7 +199,7 @@ class IntelHex:
         """
         fread = getattr(fobj, "read", None)
         if fread is None:
-            f = file(fobj, "rb")
+            f = open(fobj, "rb")
             fread = f.read
             fclose = f.close
         else:
@@ -256,7 +256,7 @@ class IntelHex:
 
         start, end = self._get_start_end(start, end)
 
-        for i in xrange(start, end+1):
+        for i in range(start, end+1):
             bin.append(self._buf.get(i, pad))
 
         return bin
@@ -281,7 +281,7 @@ class IntelHex:
                         (if None used self.padding).
         '''
         if not hasattr(fobj, "write"):
-            fobj = file(fobj, "wb")
+            fobj = open(fobj, "wb")
             close_fd = True
         else:
             close_fd = False
@@ -334,7 +334,7 @@ class IntelHex:
             fobj = f
             fclose = None
         else:
-            fobj = file(f, 'w')
+            fobj = open(f, 'w')
             fwrite = fobj.write
             fclose = fobj.close
 
@@ -399,13 +399,13 @@ class IntelHex:
 
                 ofs = offset
                 if (ofs + 65536) > maxaddr:
-                    rng = xrange(maxaddr - ofs + 1)
+                    rng = range(maxaddr - ofs + 1)
                 else:
-                    rng = xrange(65536)
+                    rng = range(65536)
             else:
                 ofs = 0
                 offset_record = ''
-                rng = xrange(maxaddr + 1)
+                rng = range(maxaddr + 1)
 
             csum = 0
             k = 0
@@ -547,8 +547,8 @@ def hex2bin(fin, fout, start=None, end=None, size=None, pad=0xFF):
     """
     try:
         h = IntelHex(fin)
-    except HexReaderError, e:
-        print "Error: bad HEX file: %s" % str(e)
+    except HexReaderError as e:
+        print("Error: bad HEX file: %s" % str(e))
         return 1
 
     # start, end, size
@@ -566,7 +566,7 @@ def hex2bin(fin, fout, start=None, end=None, size=None, pad=0xFF):
     try:
         h.tobinfile(fout, start, end, pad)
     except IOError:
-        print "Could not write to file: %s" % fout
+        print("Could not write to file: %s" % fout)
         return 1
 
     return 0
@@ -609,7 +609,7 @@ class IntelHexError(Exception):
             return self.message
         try:
             return self._fmt % self.__dict__
-        except (NameError, ValueError, KeyError), e:
+        except (NameError, ValueError, KeyError) as e:
             return 'Unprintable exception %s: %s' \
                 % (self.__class__.__name__, str(e))
 
@@ -707,13 +707,13 @@ Options:
 
         for o, a in opts:
             if o in ("-h", "--help"):
-                print usage
+                print(usage)
                 sys.exit(0)
             elif o in ("-p", "--pad"):
                 try:
                     pad = int(a, 16) & 0x0FF
                 except:
-                    raise getopt.GetoptError, 'Bad pad value'
+                    raise(getopt.GetoptError, 'Bad pad value')
             elif o in ("-r", "--range"):
                 try:
                     l = a.split(":")
@@ -722,25 +722,25 @@ Options:
                     if l[1] != '':
                         end = int(l[1], 16)
                 except:
-                    raise getopt.GetoptError, 'Bad range value(s)'
+                    raise(getopt.GetoptError, 'Bad range value(s)')
             elif o in ("-l", "--lenght", "-s", "--size"):
                 try:
                     size = int(a, 10)
                 except:
-                    raise getopt.GetoptError, 'Bad size value'
+                    raise(getopt.GetoptError, 'Bad size value')
 
         if start != None and end != None and size != None:
-            raise getopt.GetoptError, 'Cannot specify START:END and SIZE simultaneously'
+            raise(getopt.GetoptError, 'Cannot specify START:END and SIZE simultaneously')
 
         if not args:
-            raise getopt.GetoptError, 'Hex file is not specified'
+            raise(getopt.GetoptError, 'Hex file is not specified')
 
         if len(args) > 2:
-            raise getopt.GetoptError, 'Too many arguments'
+            raise(getopt.GetoptError, 'Too many arguments')
 
-    except getopt.GetoptError, msg:
-        print msg
-        print usage
+    except getopt.GetoptError as msg:
+        print(msg)
+        print(usage)
         sys.exit(2)
 
     fin = args[0]
@@ -752,7 +752,7 @@ Options:
         fout = args[1]
 
     if not os.path.isfile(fin):
-        print "File not found"
+        print("File not found")
         sys.exit(1)
 
     sys.exit(hex2bin(fin, fout, start, end, size, pad))

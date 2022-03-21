@@ -1,10 +1,8 @@
-#!/usr/bin/python2
+#!/usr/bin/env python3
 
 import sys
 from intelhex import IntelHex
 import time
-import datetime
-import struct
 
 def add8(a, b):
     return (a + b & 0xFF)
@@ -19,11 +17,11 @@ class Hex2BinConv():
         
     def load(self, filename):
         print
-        print "Loading application from hex"
+        print("Loading application from hex")
         self.hex.loadfile(filename, "hex")
         
         size = self.hex.maxaddr() - self.hex.minaddr()
-        print " size: %0.2f KiB (%d B)" % (size / 1024.0, size) 
+        print(" size: %0.2f KiB (%d B)" % (size / 1024.0, size) )
 
     
     def conv(self, label):
@@ -31,9 +29,9 @@ class Hex2BinConv():
         adr = self.hex.minaddr()
         max_adr = self.hex.maxaddr()
 
-        out_file = open(self.out, "wb");
+        out_file = open(self.out, "wb")
         
-        lab_str = '';
+        lab_str = ''
         
 
         if (label == "ee"):
@@ -50,33 +48,33 @@ class Hex2BinConv():
                    c = label[i]
                lab_str += c               
         
-        out_file.write(lab_str)
+        out_file.write(lab_str.encode('ascii'))
 
-        print " label: %s" % lab_str
-        print "Converting HEX 2 BIN ...", 
+        print(" label: %s" % lab_str)
+        print("Converting HEX 2 BIN ...", )
 
         while(adr <= max_adr):
-            out_file.write(chr(self.hex[adr]))
+            out_file.write(bytes([self.hex[adr]]))
 
             adr += 1
         
         out_file.close()
-        print "Done"
+        print("Done")
         
             
     def batch(self, filename, label):
-        start = time.clock()
+        start = time.perf_counter()
         
         self.load(filename)
         self.conv(label)
         
-        end = time.clock()
-        print 
-        print "That's all folks! (%.2f seconds)" % (end - start)
+        end = time.perf_counter()
+        print()
+        print("That's all folks! (%.2f seconds)" % (end - start))
             
 
 if (len(sys.argv) < 3 or len(sys.argv) > 4):
-    print "Usage %s hex_file output_file [label]" % __file__
+    print("Usage %s hex_file output_file [label]" % __file__)
     sys.exit(-1)
     
 hex = sys.argv[1]
