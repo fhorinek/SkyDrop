@@ -547,7 +547,7 @@ def hex2bin(fin, fout, start=None, end=None, size=None, pad=0xFF):
     """
     try:
         h = IntelHex(fin)
-    except HexReaderError, e:
+    except HexReaderError as e:
         print("Error: bad HEX file: %s" % str(e))
         return 1
 
@@ -609,7 +609,7 @@ class IntelHexError(Exception):
             return self.message
         try:
             return self._fmt % self.__dict__
-        except (NameError, ValueError, KeyError), e:
+        except (NameError, ValueError, KeyError) as e:
             return 'Unprintable exception %s: %s' \
                 % (self.__class__.__name__, str(e))
 
@@ -738,7 +738,7 @@ Options:
         if len(args) > 2:
             raise(getopt.GetoptError, 'Too many arguments')
 
-    except getopt.GetoptError, msg:
+    except getopt.GetoptError as msg:
         print(msg)
         print(usage)
         sys.exit(2)
