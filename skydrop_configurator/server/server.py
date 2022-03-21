@@ -14,7 +14,7 @@ import binascii
 
 # import logging
 
-PORT = 8080
+PORT = 8082
 
 class SkyDropCfgServer(SimpleHTTPServer.SimpleHTTPRequestHandler):
     def __init__(self, request, client_address, server):

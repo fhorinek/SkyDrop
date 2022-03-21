@@ -35,6 +35,7 @@ public:
 	struct sht21_settings settings;
 
 	I2c * i2c;
+	bool present;
 
 	uint16_t raw_temperature;
 	uint16_t raw_humidity;

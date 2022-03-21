@@ -30,11 +30,8 @@ bool debug_disabled()
 
 void debug_uart_send(char * msg)
 {
-	if (config.connectivity.uart_function == UART_FORWARD_DEBUG)
-	{
-		uart_send(msg);
-		uart.FlushTxBuffer();
-	}
+	uart_send(msg);
+	uart.FlushTxBuffer();
 }
 
 void debug_print_ram()
@@ -113,9 +110,6 @@ void debug(const char *format, ...)
 {
 	va_list arp;
 	char msg_buff[256];
-
-	if (debug_disabled())
-		return;
 
 	va_start(arp, format);
 	vsnprintf_P(msg_buff, sizeof(msg_buff), format, arp);

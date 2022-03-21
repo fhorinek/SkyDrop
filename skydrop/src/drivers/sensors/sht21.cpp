@@ -17,6 +17,10 @@ void SHT21::Init(I2c * i2c, struct sht21_settings settings)
 	if (!(this->settings.temp_enabled && this->settings.rh_enabled))
 		return;
 
+	this->present = this->SelfTest();
+	if (!this->present)
+		return;
+
 	this->Reset();
 }
 

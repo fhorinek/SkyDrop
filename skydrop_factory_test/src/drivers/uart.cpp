@@ -32,31 +32,8 @@ void uart_init()
 	DEBUG_UART_PWR_ON;
 
 	//init uart
-	switch (config.connectivity.uart_function)
-	{
-		case(UART_FORWARD_DEBUG):
-			uart.Init(DEBUG_UART, 921600ul);
-		break;
-		case(UART_FORWARD_OFF):
-			DEBUG_UART_PWR_OFF;
-			return;
-		break;
-		case(UART_FORWARD_9600):
-			uart.Init(DEBUG_UART, 9600ul);
-		break;
-		case(UART_FORWARD_19200):
-			uart.Init(DEBUG_UART, 19200ul);
-		break;
-		case(UART_FORWARD_38400):
-			uart.Init(DEBUG_UART, 38400ul);
-		break;
-		case(UART_FORWARD_57600):
-			uart.Init(DEBUG_UART, 57600ul);
-		break;
-		case(UART_FORWARD_115200):
-			uart.Init(DEBUG_UART, 115200ul);
-		break;
-	}
+	uart.Init(DEBUG_UART, 921600ul);
+
 
 	uart.SetInterruptPriority(HIGH);
 //	uart.dbg = true;

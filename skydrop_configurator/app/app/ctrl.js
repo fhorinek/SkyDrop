@@ -203,7 +203,7 @@ app.directive('ctrlDampening', function() {
 	            if (sec == 0.0)
 		            return 1;
 	            else
-		            return (1.0 / (sec * 100.0) * 100);
+		            return (1.0 / (sec * 100.0));
             }        
 
             var disable_update = false;

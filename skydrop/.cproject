@@ -149,7 +149,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="" id="de.innot.avreclipse.configuration.app.release.1357051489.104421566" name="Debug" parent="de.innot.avreclipse.configuration.app.release" postbuildStep="" prebuildStep="../utils/build/pre_build.sh">
+				<configuration artifactName="${ProjName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="" id="de.innot.avreclipse.configuration.app.release.1357051489.104421566" name="Debug" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="de.innot.avreclipse.configuration.app.release" postbuildStep="" prebuildStep="../utils/build/pre_build.sh">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.1357051489.104421566." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1915456058" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1084282954" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release"/>
@@ -243,24 +243,30 @@
 		<configuration configurationName="Release"/>
 		<configuration configurationName="Debug"/>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
+	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
+		<project id="skydrop.null.1162177594" name="skydrop"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489;de.innot.avreclipse.configuration.app.release.1357051489.;de.innot.avreclipse.tool.cppcompiler.app.release.1524560693;de.innot.avreclipse.cppcompiler.input.1195678771">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileCPP"/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489;de.innot.avreclipse.configuration.app.release.1357051489.;de.innot.avreclipse.tool.compiler.winavr.app.release.1196888181;de.innot.avreclipse.compiler.winavr.input.1206097751">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.debug.1779075632;de.innot.avreclipse.configuration.app.debug.1779075632.;de.innot.avreclipse.tool.compiler.winavr.app.debug.101443235;de.innot.avreclipse.compiler.winavr.input.469516479">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.debug.1779075632;de.innot.avreclipse.configuration.app.debug.1779075632.;de.innot.avreclipse.tool.cppcompiler.app.debug.1485532565;de.innot.avreclipse.cppcompiler.input.1731417156">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489;de.innot.avreclipse.configuration.app.release.1357051489.;de.innot.avreclipse.tool.cppcompiler.app.release.1524560693;de.innot.avreclipse.cppcompiler.input.1195678771">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489.104421566;de.innot.avreclipse.configuration.app.release.1357051489.104421566.;de.innot.avreclipse.tool.cppcompiler.app.release.362795592;de.innot.avreclipse.cppcompiler.input.252211755">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489.104421566;de.innot.avreclipse.configuration.app.release.1357051489.104421566.;de.innot.avreclipse.tool.compiler.winavr.app.release.63320727;de.innot.avreclipse.compiler.winavr.input.1641878509">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.1357051489;de.innot.avreclipse.configuration.app.release.1357051489.;de.innot.avreclipse.tool.compiler.winavr.app.release.1196888181;de.innot.avreclipse.compiler.winavr.input.1206097751">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
-	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="skydrop.null.1162177594" name="skydrop"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

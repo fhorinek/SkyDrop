@@ -401,7 +401,7 @@ ISR(FC_MEAS_TIMER_CMPC)
 		fc.gyro.raw.z = z;
 	}
 
-	if (fc.temp.cnt >= FC_TEMP_PERIOD)
+	if (fc.temp.cnt >= FC_TEMP_PERIOD && sht21.present)
 	{
 		fc.temp.cnt = 0;
 

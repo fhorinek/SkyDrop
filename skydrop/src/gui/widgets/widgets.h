@@ -132,6 +132,7 @@ extern float widget_menu_fvalue1;
 #define NUMBER_OF_WIDGETS			47
 
 #define NUMBER_OF_SORTED_WIDGETS	47
+#define SORTED_INDEX_FOR_TEMPERATURE	(NUMBER_OF_SORTED_WIDGETS - 4)
 
 /**
  * Format a distance in a human readable format.

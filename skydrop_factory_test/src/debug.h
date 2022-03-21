@@ -13,7 +13,7 @@ void debug(const char *format, ...);
 
 //debug is globaly disabled use #include "debug_on.h" to enable globaly here
 //or include it in other files to enable it localy
-#include "debug_off.h"
+#include "debug_on.h"
 
 extern uint32_t debug_last_pc;
 extern volatile uint16_t debug_min_stack_pointer;
