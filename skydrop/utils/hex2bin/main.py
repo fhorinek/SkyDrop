@@ -3,8 +3,6 @@
 import sys
 from intelhex import IntelHex
 import time
-import datetime
-import struct
 
 def add8(a, b):
     return (a + b & 0xFF)
@@ -31,9 +29,9 @@ class Hex2BinConv():
         adr = self.hex.minaddr()
         max_adr = self.hex.maxaddr()
 
-        out_file = open(self.out, "wb");
+        out_file = open(self.out, "wb")
         
-        lab_str = '';
+        lab_str = ''
         
 
         if (label == "ee"):
