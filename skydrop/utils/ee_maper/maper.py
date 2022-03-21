@@ -120,7 +120,7 @@ def map_struct(parser, path, map_path):
         # print(struct)
         struct_name = struct[0]
         struct_type = struct[1][0]
-        if len(struct[1]) == 2:
+        if len(struct[1]) == 2 and struct[1][1][0] != None:
             struct_len = struct[1][1][0]
         else:
             struct_len = 1
