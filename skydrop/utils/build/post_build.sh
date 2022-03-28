@@ -2,7 +2,7 @@
 
 AVR="$(dirname $(dirname $(dirname $(realpath $0))))/avr/bin/"
 if [ ! -d ${AVR} ]; then
-    $AVR=""
+    AVR=""
 fi
 
 # print the size in bytes of the given section
