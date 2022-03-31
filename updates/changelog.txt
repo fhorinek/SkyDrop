@@ -1,6 +1,7 @@
-Build 5253 - 31. 03. 2022
+Build 5254 - 31. 03. 2022
 ========================================================
 FIX:
+ * Temperature will not show up in igc when sht is not present
  * Configurator resource generation
 
 
