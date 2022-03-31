@@ -1,6 +1,14 @@
-Build 5248 - 21. 03. 2022
+Build 5253 - 31. 03. 2022
 ========================================================
-Changes to accomodate x256 as drop-in replacement for x192
+FIX:
+ * Configurator resource generation
+
+
+Build 5250 - 28. 03. 2022
+========================================================
+CHANGES:
+ * accomodate x256 as drop-in replacement for x192
+ 
 
 Build 5205 - 08. 07. 2020
 ========================================================
