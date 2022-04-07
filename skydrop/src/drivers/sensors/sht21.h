@@ -12,12 +12,6 @@ class SHT21;
 
 #include "../../common.h"
 
-struct sht21_settings
-{
-	bool temp_enabled;
-	bool rh_enabled;
-};
-
 #define SHT21_ADDRESS			0x40
 
 #define SHT21_READ_USER			0b11100111
@@ -32,8 +26,6 @@ struct sht21_settings
 class SHT21
 {
 public:
-	struct sht21_settings settings;
-
 	I2c * i2c;
 	bool present;
 
@@ -43,7 +35,7 @@ public:
 	int16_t temperature;
 	int16_t humidity;
 
-	void Init(I2c * i2c, struct sht21_settings settings);
+	void Init(I2c * i2c);
 	void Reset();
 
 	bool SelfTest();

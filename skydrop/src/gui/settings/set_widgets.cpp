@@ -2,6 +2,8 @@
 #include "../widgets/widgets.h"
 #include "../gui_list.h"
 
+#include "debug_on.h"
+
 #define SET_WIDGETS_CHOOSE	0
 #define SET_WIDGETS_LIST	1
 
@@ -16,6 +18,9 @@ void gui_set_widgets_init()
 	set_widget_index = 0;
 
 	uint8_t cnt = sht21.present ? NUMBER_OF_SORTED_WIDGETS : (NUMBER_OF_SORTED_WIDGETS - 1);
+
+	DEBUG("sht, cnt %u %u", sht21.present, cnt);
+
 	gui_list_set(gui_set_widgets_item, gui_set_widgets_action, cnt, GUI_LAYOUTS);
 }
 

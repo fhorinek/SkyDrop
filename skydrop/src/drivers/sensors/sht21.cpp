@@ -8,14 +8,13 @@
 #include "sht21.h"
 #include "../uart.h"
 
+#include "debug_on.h"
 
-void SHT21::Init(I2c * i2c, struct sht21_settings settings)
+
+void SHT21::Init(I2c * i2c)
 {
+	DEBUG("sht init\n");
 	this->i2c = i2c;
-	this->settings = settings;
-
-	if (!(this->settings.temp_enabled && this->settings.rh_enabled))
-		return;
 
 	this->present = this->SelfTest();
 	if (!this->present)
@@ -35,8 +34,11 @@ bool SHT21::SelfTest()
 
 	if (this->i2c->Error())
 	{
+		DEBUG("sht not present!\n");
 		return false;
 	}
+
+	DEBUG("sht ok\n");
 
 	return true;
 }

@@ -166,11 +166,6 @@ void fc_init()
 	l3g_cfg.odr = l3g_760Hz;
 	l3g_cfg.scale = l3g_2000dps;
 
-	//SHT21
-	sht21_settings sht_cfg;
-	sht_cfg.rh_enabled = true;
-	sht_cfg.temp_enabled = true;
-
 	//XXX: do self-test?
 	lsm303d.Init(&mems_i2c, lsm_cfg);
 	lsm303d.Start();
@@ -178,7 +173,8 @@ void fc_init()
 	l3gd20.Init(&mems_i2c, l3g_cfg);
 	l3gd20.Start();
 
-	sht21.Init(&mems_i2c, sht_cfg);
+	_delay_ms(5);
+	sht21.Init(&mems_i2c);
 
 	//Measurement timer
 	FC_MEAS_TIMER_PWR_ON;
