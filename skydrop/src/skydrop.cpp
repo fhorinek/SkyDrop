@@ -2,6 +2,7 @@
 
 int free_ram_at_start;
 uint8_t system_rst;
+bool mcu_type_bu = false;
 
 #include "debug_on.h"
 
@@ -23,6 +24,9 @@ void Setup()
 
 	//load device id
 	GetID();
+	if (MCU_DEVID0 == 0x1e && MCU_DEVID1 == 0x98 && MCU_DEVID2 == 0x43)
+		mcu_type_bu = true;
+
 
 	//init basic peripherals
 	led_init();
@@ -52,6 +56,8 @@ void Post()
 
 	//App name
 	print_fw_info();
+
+	DEBUG("MCU:%02X %02X %02X\n", MCU_DEVID0, MCU_DEVID1, MCU_DEVID2);
 
 	char id[23];
 	GetID_str(id);

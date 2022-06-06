@@ -185,6 +185,16 @@ void fc_continue()
 
 uint8_t calib_cnt;
 uint16_t calib_rtc_cnt;
+extern bool mcu_type_bu;
+
+uint16_t time_get_rtc_value()
+{
+	if (mcu_type_bu)
+		return Rtc32GetValue() * 32;
+	else
+		return RtcGetValue();
+}
+
 
 //First fc meas period
 // * Read pressure from ms5611
@@ -205,7 +215,7 @@ ISR(FC_MEAS_TIMER_OVF)
 	{
 		calib_cnt = 0;
 
-		uint16_t rtc = RtcGetValue();
+		uint16_t rtc = time_get_rtc_value();
 		if (rtc > calib_rtc_cnt)
 		{
 			uint16_t delta = rtc - calib_rtc_cnt;

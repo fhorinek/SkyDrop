@@ -7,7 +7,6 @@
 
 //#include "debug_on.h"
 
-
 struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 struct app_info fw_info;
 

@@ -264,7 +264,7 @@ ISR(FC_MEAS_TIMER_OVF)
 	{
 		calib_cnt = 0;
 
-		uint16_t rtc = RtcGetValue();
+		uint16_t rtc = time_get_rtc_value();
 		if (rtc > calib_rtc_cnt)
 		{
 			uint16_t delta = rtc - calib_rtc_cnt;

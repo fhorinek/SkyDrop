@@ -144,21 +144,43 @@ void print_datetime(uint32_t epoch)
 
 volatile bool time_rtc_irq;
 
+extern bool mcu_type_bu;
+
+//same for RTC and RTC32 [vector 10]
 ISR(rtc_overflow_interrupt)
 {
 	time_rtc_irq = true;
 	unix_time += 1;
 }
 
+uint16_t time_get_rtc_value()
+{
+	if (mcu_type_bu)
+		return Rtc32GetValue() * 32;
+	else
+		return RtcGetValue();
+}
+
 void time_init()
 {
-	RTC_PWR_ON;
 
 	unix_time += 1;
 
-	RtcSetPeriod(32767); //do not forget -1 , since 0 count!
-	RtcInit(rtc_32kHz_tosc, rtc_div1); //f == 1024Hz
-	RtcEnableInterrupts(rtc_overflow); //ovf every sec
+	if (mcu_type_bu)
+	{
+		Rtc32Init(); //f == 1024Hz
+		Rtc32SetPeriod(1023); //do not forget -1 , since 0 count!
+		Rtc32EnableInterrupts(); //ovf every sec
+	}
+	else
+	{
+		RTC_PWR_ON;
+
+		RtcInit(); //f == 32768Hz
+		RtcSetPeriod(32767); //do not forget -1 , since 0 count!
+		RtcEnableInterrupts(); //ovf every sec
+	}
+
 
 	if (time_get_local() < TIME_MIN_DATE)
 		unix_time = TIME_MIN_DATE;

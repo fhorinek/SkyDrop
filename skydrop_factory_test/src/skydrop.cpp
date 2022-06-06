@@ -2,6 +2,7 @@
 
 int free_ram_at_start;
 uint8_t system_rst;
+bool mcu_type_bu = false;
 
 void Setup()
 {
@@ -24,6 +25,8 @@ void Setup()
 
 	//load device id
 	GetID();
+	if (MCU_DEVID0 == 0x1e && MCU_DEVID1 == 0x98 && MCU_DEVID2 == 0x43)
+		mcu_type_bu = true;
 
 	//init basic peripherals
 	led_init();

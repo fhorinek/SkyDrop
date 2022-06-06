@@ -24,6 +24,8 @@ bool time_is_set();
 bool time_need_set();
 void time_wait_for_gps();
 
+uint16_t time_get_rtc_value();
+
 extern uint8_t monthDays[12];
 
 #endif

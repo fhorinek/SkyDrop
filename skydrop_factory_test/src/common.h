@@ -17,6 +17,7 @@
 #include <xlib/core/spi.h>
 #include <xlib/core/system.h>
 #include <xlib/core/rtc.h>
+#include <xlib/core/rtc32.h>
 #include <xlib/core/timer.h>
 #include <xlib/core/adc.h>
 #include <xlib/core/dac.h>

@@ -16,11 +16,12 @@
 #include <xlib/core/usart.h>
 #include <xlib/core/spi.h>
 #include <xlib/core/system.h>
-#include <xlib/core/rtc.h>
 #include <xlib/core/timer.h>
 #include <xlib/core/adc.h>
 #include <xlib/core/dac.h>
 #include <xlib/core/i2c.h>
+#include <xlib/core/rtc32.h>
+#include <xlib/core/rtc.h>
 
 #include <xlib/ring.h>
 #include <xlib/stream.h>
