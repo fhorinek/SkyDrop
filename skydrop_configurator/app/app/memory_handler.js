@@ -59,6 +59,13 @@ app.service("memory", ["$http", "$q", function($http, $q){
         	service.load_bin("UPDATE.EE", service.init_step_1);
         };
     
+        if (service.build_number > 8000)
+        {
+            alert("This configurator is for original SkyDrop. Your configuration is from SkyDrop2. Redirecting you to the SkyDrop2 configurator.\nvps.skybean.eu/configurator2")
+            window.location.href = "https://vps.skybean.eu/configurator2/";
+            return;
+        }    
+    
         console.log("loading json resource %s", url_path);
 
         $http.get(url_path)     
