@@ -176,8 +176,8 @@ void time_init()
 	{
 		RTC_PWR_ON;
 
-		RtcInit(); //f == 32768Hz
 		RtcSetPeriod(32767); //do not forget -1 , since 0 count!
+		RtcInit(); //f == 32768Hz
 		RtcEnableInterrupts(); //ovf every sec
 	}
 
