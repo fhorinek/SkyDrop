@@ -351,7 +351,7 @@ void io_init()
 
 	if (hw_revision == HW_REW_1506)
 	{
-		GpioSetDirection(IO0, OUTPUT);
+//		GpioSetDirection(IO0, OUTPUT);
 		GpioSetDirection(IO1, OUTPUT);
 		GpioSetDirection(IO2, OUTPUT);
 		GpioSetDirection(IO3, OUTPUT);
@@ -370,9 +370,9 @@ void io_write(uint8_t io, uint8_t level)
 	{
 		switch (io)
 		{
-			case(0):
-				GpioWrite(IO0, level);
-			break;
+//			case(0):
+//				GpioWrite(IO0, level);
+//			break;
 			case(1):
 				GpioWrite(IO1, level);
 			break;

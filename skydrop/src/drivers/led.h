@@ -8,7 +8,7 @@
 #ifndef LED_H_
 #define LED_H_
 
-#include "../skydrop.h"
+#include <skydrop.h>
 
 void led_init();
 void led_stop();

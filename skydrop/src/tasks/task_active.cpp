@@ -13,6 +13,9 @@ void task_active_init()
 	gui_trigger_backlight();
 	ewdt_reset();
 
+	GpioSetDirection(USB_CHRG, OUTPUT);
+	GpioWrite(USB_CHRG, LOW);
+
 	gui_splash_set_mode(SPLASH_ON);
 	gui_switch_task(GUI_SPLASH);
 

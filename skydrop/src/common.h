@@ -121,7 +121,7 @@ extern struct app_info ee_fw_info __attribute__ ((section(".fw_info")));
 //---------------- PORTB ---------------------
 
 #define SD_IN					portb0
-#define IO0						portb1
+#define USB_CHRG				portb1
 #define USB_IN					portb2
 #define DAC						portb3
 #define BT_EN					portb4

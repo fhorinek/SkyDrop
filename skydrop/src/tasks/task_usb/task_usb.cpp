@@ -19,6 +19,9 @@ void task_usb_init()
 	SD_SPI_PWR_ON;
 	SD_EN_ON;
 
+	GpioSetDirection(USB_CHRG, OUTPUT);
+	GpioWrite(USB_CHRG, LOW);
+
 	DEBUG("This is USB task\n");
 
 	usb_lock.Lock();
