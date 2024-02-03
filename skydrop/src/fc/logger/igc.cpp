@@ -159,7 +159,7 @@ uint8_t igc_start(char * path)
 	sprintf_P(line, PSTR("HFFTYFRTYPE:SkyBean,SkyDrop"));
 	igc_writeline(line);
 	//H F GPS RECEIVER
-	sprintf_P(line, PSTR("HFGPSRECEIVER:Quectel,L80,22cm,18000m"));
+	sprintf_P(line, PSTR("HFGPSRECEIVER:Quectel,L80,22ch,18000m"));
 	igc_writeline(line);
 	//H F PRS PRESS ALT SENSOR
 	sprintf_P(line, PSTR("HFPRSPRESSALTSENSOR:Measurement specialties,MS5611,25907m"));
